@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "news": "News",
+    "articles": "Articles",
+    "interviews": "Interviews",
+    "switchLang": "RU"
+  },
+  "home": {
+    "hero": "Crypto intelligence for European investors",
+    "latestNews": "Latest News",
+    "featuredArticles": "Featured Articles",
+    "latestInterviews": "Latest Interviews",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "minRead": "min read"
+  },
+  "news": {
+    "title": "Crypto News",
+    "subtitle": "Real-time updates from the crypto market",
+    "filter": {
+      "all": "All",
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum",
+      "defi": "DeFi",
+      "regulation": "Regulation"
+    }
+  },
+  "articles": {
+    "title": "Articles & Analysis",
+    "subtitle": "Deep dives for the thoughtful investor"
+  },
+  "interviews": {
+    "title": "Interviews",
+    "subtitle": "Conversations with industry leaders",
+    "watchOn": "Watch on YouTube"
+  },
+  "footer": {
+    "tagline": "Crypto intelligence for European investors",
+    "links": "Quick Links",
+    "legal": "Legal",
+    "disclaimer": "Disclaimer",
+    "privacy": "Privacy Policy",
+    "disclaimerText": "This site is for informational purposes only. Not financial advice.",
+    "rights": "All rights reserved."
+  },
+  "ticker": {
+    "loading": "Loading prices..."
+  }
+}
