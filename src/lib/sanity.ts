@@ -75,6 +75,20 @@ export async function fetchSanityNews({ limit = 10, locale = 'ru' }: FetchArticl
   }
 }
 
+export async function searchContent(query: string, locale: string) {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !query.trim()) return [];
+  try {
+    return await client.fetch(
+      `*[(_type == "article" || _type == "news") && language == $locale && title match $q] | order(publishedAt desc) [0...15] {
+        _type, title, publishedAt, "slug": slug.current
+      }`,
+      { locale, q: `*${query.trim()}*` }
+    );
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchNewsBySlug(slug: string, locale: string) {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
   try {

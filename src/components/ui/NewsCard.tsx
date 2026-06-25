@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ExternalLink, ArrowRight, Clock } from 'lucide-react';
+import { ExternalLink, ArrowRight, Clock, Zap } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
@@ -22,10 +22,18 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
 
-  const className = "group block bg-card border border-border rounded-lg overflow-hidden hover:border-accent/40 transition-all duration-200";
+  const className = `group relative block bg-card border rounded-lg overflow-hidden transition-all duration-200 ${
+    external ? 'border-border hover:border-accent/40' : 'border-accent/40 hover:border-accent'
+  }`;
 
   const content = (
     <>
+      {!external && (
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-accent text-background text-xs font-medium">
+          <Zap size={10} fill="currentColor" />
+          {locale === 'ru' ? 'Наш материал' : 'Our story'}
+        </div>
+      )}
       {imageUrl && (
         <div className="relative h-32 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}

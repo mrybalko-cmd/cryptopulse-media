@@ -6,12 +6,12 @@ const handleI18n = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith('/studio')) {
+  if (pathname.startsWith('/studio') || pathname.startsWith('/api')) {
     return NextResponse.next();
   }
   return handleI18n(request);
 }
 
 export const config = {
-  matcher: ['/((?!_next|_vercel|.*\\..*).*)']
+  matcher: ['/((?!_next|_vercel|api|.*\\..*).*)']
 };

@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import NewsCard from '@/components/ui/NewsCard';
-import { fetchMergedNews } from '@/lib/news';
+import { fetchMergedNews, fetchOwnNews } from '@/lib/news';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -19,7 +19,13 @@ export default async function NewsPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('news');
 
-  const news = await fetchMergedNews({ limit: 30, locale });
+  const [ownResult, mergedResult] = await Promise.allSettled([
+    fetchOwnNews({ limit: 50, locale }),
+    fetchMergedNews({ limit: 30, locale }),
+  ]);
+
+  const ownItems = ownResult.status === 'fulfilled' ? ownResult.value : [];
+  const otherItems = (mergedResult.status === 'fulfilled' ? mergedResult.value : []).filter((item) => item.external);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -28,29 +34,63 @@ export default async function NewsPage({ params }: Props) {
         <p className="text-muted text-sm mt-1">{t('subtitle')}</p>
       </div>
 
-      {news.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {news.map((item) => (
-            <NewsCard
-              key={item.id}
-              title={item.title}
-              source={item.source}
-              href={item.href}
-              external={item.external}
-              publishedAt={item.publishedAt}
-              categories={item.categories}
-              imageUrl={item.imageUrl}
-              locale={locale}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="border border-dashed border-border rounded-lg py-20 flex items-center justify-center">
-          <span className="text-sm text-muted">
-            {locale === 'ru' ? 'Загружаем новости...' : 'Loading news...'}
-          </span>
-        </div>
+      {ownItems.length > 0 && (
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+            <h2 className="text-sm font-bold text-foreground">
+              {locale === 'ru' ? 'Материалы редакции' : 'Editorial picks'}
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {ownItems.map((item) => (
+              <NewsCard
+                key={item.id}
+                title={item.title}
+                source={item.source}
+                href={item.href}
+                external={item.external}
+                publishedAt={item.publishedAt}
+                categories={item.categories}
+                imageUrl={item.imageUrl}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </section>
       )}
+
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0" />
+          <h2 className="text-sm font-bold text-foreground">
+            {locale === 'ru' ? 'Все новости' : 'All news'}
+          </h2>
+        </div>
+        {otherItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {otherItems.map((item) => (
+              <NewsCard
+                key={item.id}
+                title={item.title}
+                source={item.source}
+                href={item.href}
+                external={item.external}
+                publishedAt={item.publishedAt}
+                categories={item.categories}
+                imageUrl={item.imageUrl}
+                locale={locale}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="border border-dashed border-border rounded-lg py-20 flex items-center justify-center">
+            <span className="text-sm text-muted">
+              {locale === 'ru' ? 'Загружаем новости...' : 'Loading news...'}
+            </span>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

@@ -14,13 +14,34 @@ export interface UnifiedNewsItem {
   external: boolean;
 }
 
+async function fetchOwnNewsItems(limit: number, locale: string): Promise<UnifiedNewsItem[]> {
+  const cms = await fetchSanityNews({ limit, locale });
+  return (cms || []).map((n: any) => ({
+    id: n._id,
+    title: n.title,
+    excerpt: n.excerpt,
+    imageUrl: n.coverImage,
+    source: SITE_NAME,
+    publishedAt: Math.floor(new Date(n.publishedAt).getTime() / 1000),
+    href: `/${locale}/news/${n.slug.current}`,
+    external: false,
+  }));
+}
+
+export async function fetchOwnNews({
+  limit = 30,
+  locale = 'ru',
+}: { limit?: number; locale?: string } = {}): Promise<UnifiedNewsItem[]> {
+  return fetchOwnNewsItems(limit, locale);
+}
+
 export async function fetchMergedNews({
   limit = 12,
   locale = 'ru',
 }: { limit?: number; locale?: string } = {}): Promise<UnifiedNewsItem[]> {
   const [rss, cms] = await Promise.allSettled([
     fetchNews({ limit: limit * 2, locale }),
-    fetchSanityNews({ limit, locale }),
+    fetchOwnNewsItems(limit, locale),
   ]);
 
   const rssItems: UnifiedNewsItem[] = (rss.status === 'fulfilled' ? rss.value : []).map(n => ({
@@ -34,16 +55,7 @@ export async function fetchMergedNews({
     external: true,
   }));
 
-  const cmsItems: UnifiedNewsItem[] = (cms.status === 'fulfilled' ? cms.value : []).map((n: any) => ({
-    id: n._id,
-    title: n.title,
-    excerpt: n.excerpt,
-    imageUrl: n.coverImage,
-    source: SITE_NAME,
-    publishedAt: Math.floor(new Date(n.publishedAt).getTime() / 1000),
-    href: `/${locale}/news/${n.slug.current}`,
-    external: false,
-  }));
+  const cmsItems: UnifiedNewsItem[] = cms.status === 'fulfilled' ? cms.value : [];
 
   return [...rssItems, ...cmsItems]
     .sort((a, b) => b.publishedAt - a.publishedAt)

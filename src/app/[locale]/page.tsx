@@ -5,6 +5,7 @@ import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
 import FearGreedBadge from '@/components/ui/FearGreedBadge';
+import SiteSearch from '@/components/ui/SiteSearch';
 import { fetchMergedNews } from '@/lib/news';
 import { fetchArticles } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
@@ -37,9 +38,12 @@ export default async function HomePage({ params }: Props) {
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
             <span className="text-accent text-xs font-medium uppercase tracking-widest">Live</span>
           </div>
-          {fearGreedData && (
-            <FearGreedBadge value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {fearGreedData && (
+              <FearGreedBadge value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
+            )}
+            <SiteSearch locale={locale} />
+          </div>
         </div>
         <h1 className="sr-only">{t('hero')}</h1>
       </div>
