@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
 import { fetchNewsBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
+import ShareButtons from '@/components/ui/ShareButtons';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -54,9 +55,13 @@ export default async function NewsDetailPage({ params }: Props) {
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
   };
 
+  const pageUrl = `https://cryptopulse.media/${locale}/news/${slug}`;
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="flex gap-6">
+      <div className="flex-1 max-w-3xl min-w-0">
       {/* Back */}
       <Link
         href={`/${locale}/news`}
@@ -65,6 +70,11 @@ export default async function NewsDetailPage({ params }: Props) {
         <ArrowLeft size={14} />
         {locale === 'ru' ? 'Все новости' : 'All news'}
       </Link>
+
+      {/* Share (mobile) */}
+      <div className="lg:hidden mb-6">
+        <ShareButtons url={pageUrl} title={news.title} locale={locale} vertical={false} />
+      </div>
 
       {/* Cover */}
       {news.coverImage && (
@@ -133,6 +143,15 @@ export default async function NewsDetailPage({ params }: Props) {
       ) : (
         <p className="text-muted">{news.excerpt}</p>
       )}
+      </div>
+
+      {/* Share (desktop, sticky) */}
+      <aside className="hidden lg:block shrink-0">
+        <div className="sticky top-24">
+          <ShareButtons url={pageUrl} title={news.title} locale={locale} />
+        </div>
+      </aside>
+      </div>
     </div>
   );
 }
