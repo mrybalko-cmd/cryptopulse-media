@@ -86,7 +86,7 @@ export default async function NewsDetailPage({ params }: Props) {
                     href={value?.href}
                     target={value?.href?.startsWith('http') ? '_blank' : undefined}
                     rel={value?.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    style={{ color: '#06b6d4', textDecoration: 'underline', textDecorationColor: '#06b6d4' }}
+                    className="text-accent underline decoration-accent/50 hover:decoration-accent"
                   >
                     {children}
                   </a>

@@ -16,8 +16,8 @@ export default async function HomePage({ params }: Props) {
 
   const [news, articles, videos] = await Promise.allSettled([
     fetchMergedNews({ limit: 12, locale }),
-    fetchArticles({ limit: 4, locale }),
-    fetchVideos({ limit: 3 }),
+    fetchArticles({ limit: 12, locale }),
+    fetchVideos({ limit: 5 }),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
@@ -75,7 +75,7 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </div>
           {articleItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {articleItems.map((article: any) => (
                 <ArticleCard
                   key={article._id}
@@ -104,7 +104,7 @@ export default async function HomePage({ params }: Props) {
           </Link>
         </div>
         {videoItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {videoItems.map((video: any) => (
               <VideoCard
                 key={video.id.videoId}

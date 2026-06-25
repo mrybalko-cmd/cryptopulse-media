@@ -19,7 +19,7 @@ export async function fetchMergedNews({
   locale = 'ru',
 }: { limit?: number; locale?: string } = {}): Promise<UnifiedNewsItem[]> {
   const [rss, cms] = await Promise.allSettled([
-    fetchNews({ limit: limit * 2 }),
+    fetchNews({ limit: limit * 2, locale }),
     fetchSanityNews({ limit, locale }),
   ]);
 

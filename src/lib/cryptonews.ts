@@ -6,11 +6,17 @@ const parser = new Parser({
   },
 });
 
-const RSS_FEEDS = [
+const RSS_FEEDS_EN = [
   { url: 'https://decrypt.co/feed', source: 'Decrypt' },
   { url: 'https://www.theblock.co/rss.xml', source: 'The Block' },
   { url: 'https://cointelegraph.com/rss', source: 'CoinTelegraph' },
   { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', source: 'CoinDesk' },
+];
+
+const RSS_FEEDS_RU = [
+  { url: 'https://forklog.com/feed', source: 'ForkLog' },
+  { url: 'https://ru.beincrypto.com/feed/', source: 'BeInCrypto' },
+  { url: 'https://incrypted.com/feed/', source: 'INCRYPTED' },
 ];
 
 export interface NewsItem {
@@ -40,9 +46,10 @@ async function fetchFeed(feedUrl: string, sourceName: string): Promise<NewsItem[
   }
 }
 
-export async function fetchNews({ limit = 20 }: { limit?: number } = {}): Promise<NewsItem[]> {
+export async function fetchNews({ limit = 20, locale = 'ru' }: { limit?: number; locale?: string } = {}): Promise<NewsItem[]> {
+  const feeds = locale === 'ru' ? RSS_FEEDS_RU : RSS_FEEDS_EN;
   const results = await Promise.allSettled(
-    RSS_FEEDS.map(feed => fetchFeed(feed.url, feed.source))
+    feeds.map(feed => fetchFeed(feed.url, feed.source))
   );
 
   const all: NewsItem[] = results

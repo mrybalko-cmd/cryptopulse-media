@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Zap } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -55,6 +56,7 @@ export default function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
+          <ThemeToggle className="hidden md:flex p-1.5 text-muted hover:text-foreground hover:bg-card rounded transition-colors" />
           <Link
             href={switchPath}
             className="hidden md:flex px-3 py-1.5 text-xs font-medium border border-border rounded text-muted hover:text-foreground hover:border-accent transition-colors"
@@ -92,6 +94,10 @@ export default function Header() {
           >
             {t('switchLang')}
           </Link>
+          <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted">
+            <ThemeToggle />
+            <span>{locale === 'ru' ? 'Тема оформления' : 'Theme'}</span>
+          </div>
         </div>
       )}
     </header>
