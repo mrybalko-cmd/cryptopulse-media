@@ -41,9 +41,7 @@ export default async function HomePage({ params }: Props) {
             <FearGreedBadge value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
           )}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight max-w-xl">
-          {t('hero')}
-        </h1>
+        <h1 className="sr-only">{t('hero')}</h1>
       </div>
 
       {/* News rail + Articles */}

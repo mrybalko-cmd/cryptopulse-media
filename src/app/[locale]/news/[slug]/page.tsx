@@ -21,10 +21,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: news.seo?.keywords,
+    alternates: { canonical: `https://cryptopulse.media/${locale}/news/${slug}` },
     openGraph: {
+      type: 'article',
       title,
       description,
+      url: `https://cryptopulse.media/${locale}/news/${slug}`,
+      siteName: 'CryptoPulse.media',
+      locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: news.coverImage ? [{ url: news.coverImage }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: news.coverImage ? [news.coverImage] : undefined,
     },
   };
 }
