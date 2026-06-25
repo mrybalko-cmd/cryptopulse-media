@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Zap } from 'lucide-react';
 
 interface NewsListItemProps {
   title: string;
@@ -22,8 +23,13 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
 
   const content = (
     <>
-      <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
-        {title}
+      <h3 className="flex items-start gap-1.5 text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
+        {!external && (
+          <span className="shrink-0 mt-0.5 w-4 h-4 rounded bg-accent flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
+            <Zap size={10} className="text-background" fill="currentColor" />
+          </span>
+        )}
+        <span>{title}</span>
       </h3>
       <div className="flex items-center justify-between gap-3 mt-1.5">
         <span className="text-xs text-muted whitespace-nowrap">
