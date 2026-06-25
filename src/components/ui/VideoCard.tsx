@@ -12,7 +12,7 @@ interface VideoCardProps {
 
 export default function VideoCard({ title, channelName, thumbnail, videoId, publishedAt, locale }: VideoCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
   });
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 

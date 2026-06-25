@@ -13,10 +13,10 @@ interface NewsListItemProps {
 export default function NewsListItem({ title, href, external, publishedAt, category, locale }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
+    day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
   });
   const timeStr = date.toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    hour: '2-digit', minute: '2-digit',
+    hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague',
   });
 
   const className = "group block py-3 px-3 -mx-3 rounded-lg border-b border-border last:border-b-0 hover:bg-foreground/5 hover:shadow-lg hover:shadow-black/10 hover:scale-[1.01] transition-all duration-200";

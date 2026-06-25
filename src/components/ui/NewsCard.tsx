@@ -51,7 +51,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
             <span className="text-xs text-muted font-medium">{source}</span>
             <span className="text-border">·</span>
             <Clock size={10} className="text-muted" />
-            <span className="text-xs text-muted">{timeAgo}</span>
+            <span className="text-xs text-muted" suppressHydrationWarning>{timeAgo}</span>
           </div>
           {external ? (
             <ExternalLink size={12} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />

@@ -17,7 +17,7 @@ export default function ArticleCard({
   title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
   });
   const minRead = locale === 'ru' ? 'мин' : 'min';
 

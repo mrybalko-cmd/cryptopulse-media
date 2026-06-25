@@ -4,9 +4,11 @@ import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
+import FearGreedBadge from '@/components/ui/FearGreedBadge';
 import { fetchMergedNews } from '@/lib/news';
 import { fetchArticles } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
+import { fetchFearGreedIndex } from '@/lib/feargreed';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -14,23 +16,30 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('home');
 
-  const [news, articles, videos] = await Promise.allSettled([
+  const [news, articles, videos, fearGreed] = await Promise.allSettled([
     fetchMergedNews({ limit: 12, locale }),
     fetchArticles({ limit: 12, locale }),
     fetchVideos({ limit: 5 }),
+    fetchFearGreedIndex(),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
+  const fearGreedData = fearGreed.status === 'fulfilled' ? fearGreed.value : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       {/* Hero */}
       <div className="mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="text-accent text-xs font-medium uppercase tracking-widest">Live</span>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="text-accent text-xs font-medium uppercase tracking-widest">Live</span>
+          </div>
+          {fearGreedData && (
+            <FearGreedBadge value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
+          )}
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight max-w-xl">
           {t('hero')}
