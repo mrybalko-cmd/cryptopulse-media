@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react';
-import { fetchNewsBySlug } from '@/lib/sanity';
+import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
+import { fetchNewsBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -12,6 +12,8 @@ export default async function NewsDetailPage({ params }: Props) {
   const news = await fetchNewsBySlug(slug, locale);
 
   if (!news) notFound();
+
+  await incrementViews(news._id);
 
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -41,22 +43,28 @@ export default async function NewsDetailPage({ params }: Props) {
         {news.title}
       </h1>
 
-      <div className="flex items-center gap-4 mb-8 pb-8 border-b border-border">
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          <Calendar size={12} />
-          <span>{date}</span>
+      <div className="flex items-center justify-between gap-4 mb-8 pb-8 border-b border-border">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <Calendar size={12} />
+            <span>{date}</span>
+          </div>
+          {news.sourceName && (
+            <a
+              href={news.sourceUrl || undefined}
+              target={news.sourceUrl ? '_blank' : undefined}
+              rel={news.sourceUrl ? 'noopener noreferrer' : undefined}
+              className="flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors"
+            >
+              <span>{locale === 'ru' ? 'Источник' : 'Source'}: {news.sourceName}</span>
+              {news.sourceUrl && <ExternalLink size={12} />}
+            </a>
+          )}
         </div>
-        {news.sourceName && (
-          <a
-            href={news.sourceUrl || undefined}
-            target={news.sourceUrl ? '_blank' : undefined}
-            rel={news.sourceUrl ? 'noopener noreferrer' : undefined}
-            className="flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors"
-          >
-            <span>{locale === 'ru' ? 'Источник' : 'Source'}: {news.sourceName}</span>
-            {news.sourceUrl && <ExternalLink size={12} />}
-          </a>
-        )}
+        <div className="flex items-center gap-1.5 text-xs text-muted">
+          <Eye size={12} />
+          <span>{news.views || 0}</span>
+        </div>
       </div>
 
       {/* Body */}

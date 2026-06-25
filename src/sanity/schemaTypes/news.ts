@@ -70,6 +70,14 @@ export const newsType = defineType({
       type: 'url',
       description: 'Link to the original external source, if applicable',
     }),
+    defineField({
+      name: 'views',
+      title: 'Views',
+      type: 'number',
+      readOnly: true,
+      initialValue: 0,
+      description: 'Internal view counter, increments automatically on each visit',
+    }),
   ],
   preview: {
     select: { title: 'title', language: 'language', media: 'coverImage' },

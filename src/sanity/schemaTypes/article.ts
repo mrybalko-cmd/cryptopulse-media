@@ -51,6 +51,14 @@ export const articleType = defineType({
       type: 'number',
     }),
     defineField({
+      name: 'views',
+      title: 'Views',
+      type: 'number',
+      readOnly: true,
+      initialValue: 0,
+      description: 'Internal view counter, increments automatically on each visit',
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',

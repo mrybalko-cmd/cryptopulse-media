@@ -2,8 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Clock, Calendar } from 'lucide-react';
-import { fetchArticleBySlug } from '@/lib/sanity';
+import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
+import { fetchArticleBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -13,6 +13,8 @@ export default async function ArticlePage({ params }: Props) {
   const article = await fetchArticleBySlug(slug, locale);
 
   if (!article) notFound();
+
+  await incrementViews(article._id);
 
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -42,17 +44,23 @@ export default async function ArticlePage({ params }: Props) {
         {article.title}
       </h1>
 
-      <div className="flex items-center gap-4 mb-8 pb-8 border-b border-border">
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          <Calendar size={12} />
-          <span>{date}</span>
-        </div>
-        {article.readingTime && (
+      <div className="flex items-center justify-between gap-4 mb-8 pb-8 border-b border-border">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-xs text-muted">
-            <Clock size={12} />
-            <span>{article.readingTime} {locale === 'ru' ? 'мин чтения' : 'min read'}</span>
+            <Calendar size={12} />
+            <span>{date}</span>
           </div>
-        )}
+          {article.readingTime && (
+            <div className="flex items-center gap-1.5 text-xs text-muted">
+              <Clock size={12} />
+              <span>{article.readingTime} {locale === 'ru' ? 'мин чтения' : 'min read'}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-muted">
+          <Eye size={12} />
+          <span>{article.views || 0}</span>
+        </div>
       </div>
 
       {/* Body */}

@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import NewsCard from '@/components/ui/NewsCard';
+import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
 import { fetchMergedNews } from '@/lib/news';
@@ -48,17 +48,15 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </div>
           {newsItems.length > 0 ? (
-            <div className="flex flex-col gap-3">
+            <div>
               {newsItems.map((item) => (
-                <NewsCard
+                <NewsListItem
                   key={item.id}
                   title={item.title}
-                  source={item.source}
                   href={item.href}
                   external={item.external}
                   publishedAt={item.publishedAt}
-                  categories={item.categories}
-                  imageUrl={item.imageUrl}
+                  category={item.categories?.split('|').filter(Boolean)[0]}
                   locale={locale}
                 />
               ))}
@@ -77,8 +75,8 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </div>
           {articleItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {articleItems.map((article: any, i: number) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {articleItems.map((article: any) => (
                 <ArticleCard
                   key={article._id}
                   title={article.title}
@@ -88,7 +86,6 @@ export default async function HomePage({ params }: Props) {
                   publishedAt={article.publishedAt}
                   readingTime={article.readingTime}
                   locale={locale}
-                  featured={i === 0}
                 />
               ))}
             </div>

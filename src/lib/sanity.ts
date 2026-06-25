@@ -7,6 +7,23 @@ const client = createClient({
   useCdn: true,
 });
 
+const writeClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: '2024-01-01',
+  token: process.env.SANITY_API_WRITE_TOKEN,
+  useCdn: false,
+});
+
+export async function incrementViews(id: string) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return;
+  try {
+    await writeClient.patch(id).setIfMissing({ views: 0 }).inc({ views: 1 }).commit({ autoGenerateArrayKeys: false });
+  } catch {
+    // view counting is best-effort, never block rendering on it
+  }
+}
+
 interface FetchArticlesOptions {
   limit?: number;
   locale?: string;
@@ -33,7 +50,7 @@ export async function fetchArticleBySlug(slug: string, locale: string) {
   try {
     return await client.fetch(
       `*[_type == "article" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, readingTime, body,
+        _id, title, excerpt, slug, publishedAt, readingTime, body, views,
         "coverImage": coverImage.asset->url
       }`,
       { slug, locale }
@@ -63,7 +80,7 @@ export async function fetchNewsBySlug(slug: string, locale: string) {
   try {
     return await client.fetch(
       `*[_type == "news" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl,
+        _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views,
         "coverImage": coverImage.asset->url
       }`,
       { slug, locale }
