@@ -2,11 +2,32 @@ import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
 import { fetchArticleBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const article = await fetchArticleBySlug(slug, locale);
+  if (!article) return {};
+
+  const title = article.seo?.metaTitle || article.title;
+  const description = article.seo?.metaDescription || article.excerpt;
+
+  return {
+    title,
+    description,
+    keywords: article.seo?.keywords,
+    openGraph: {
+      title,
+      description,
+      images: article.coverImage ? [{ url: article.coverImage }] : undefined,
+    },
+  };
+}
 
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;

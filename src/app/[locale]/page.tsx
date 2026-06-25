@@ -42,7 +42,10 @@ export default async function HomePage({ params }: Props) {
         {/* News */}
         <section className="lg:col-span-1">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('latestNews')}</h2>
+            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+              {t('latestNews')}
+            </h2>
             <Link href={`/${locale}/news`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
               {t('viewAll')} <ArrowRight size={12} />
             </Link>
@@ -69,7 +72,10 @@ export default async function HomePage({ params }: Props) {
         {/* Articles */}
         <section className="lg:col-span-3">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('featuredArticles')}</h2>
+            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+              {t('featuredArticles')}
+            </h2>
             <Link href={`/${locale}/articles`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
               {t('viewAll')} <ArrowRight size={12} />
             </Link>
@@ -98,7 +104,10 @@ export default async function HomePage({ params }: Props) {
       {/* Videos */}
       <section>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('latestInterviews')}</h2>
+          <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+            {t('latestInterviews')}
+          </h2>
           <Link href={`/${locale}/interviews`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
             {t('viewAll')} <ArrowRight size={12} />
           </Link>

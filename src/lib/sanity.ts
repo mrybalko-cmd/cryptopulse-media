@@ -50,7 +50,7 @@ export async function fetchArticleBySlug(slug: string, locale: string) {
   try {
     return await client.fetch(
       `*[_type == "article" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, readingTime, body, views,
+        _id, title, excerpt, slug, publishedAt, readingTime, body, views, seo,
         "coverImage": coverImage.asset->url
       }`,
       { slug, locale }
@@ -80,7 +80,7 @@ export async function fetchNewsBySlug(slug: string, locale: string) {
   try {
     return await client.fetch(
       `*[_type == "news" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views,
+        _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo,
         "coverImage": coverImage.asset->url
       }`,
       { slug, locale }

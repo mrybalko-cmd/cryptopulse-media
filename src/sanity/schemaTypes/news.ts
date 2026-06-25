@@ -71,6 +71,34 @@ export const newsType = defineType({
       description: 'Link to the original external source, if applicable',
     }),
     defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'Overrides the page title shown in search results. Falls back to the news title if empty.',
+        }),
+        defineField({
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 3,
+          description: 'Shown in search results and social previews. Falls back to the excerpt if empty.',
+        }),
+        defineField({
+          name: 'keywords',
+          title: 'Keywords',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: { layout: 'tags' },
+        }),
+      ],
+    }),
+    defineField({
       name: 'views',
       title: 'Views',
       type: 'number',

@@ -1,11 +1,32 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
 import { fetchNewsBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const news = await fetchNewsBySlug(slug, locale);
+  if (!news) return {};
+
+  const title = news.seo?.metaTitle || news.title;
+  const description = news.seo?.metaDescription || news.excerpt;
+
+  return {
+    title,
+    description,
+    keywords: news.seo?.keywords,
+    openGraph: {
+      title,
+      description,
+      images: news.coverImage ? [{ url: news.coverImage }] : undefined,
+    },
+  };
+}
 
 export default async function NewsDetailPage({ params }: Props) {
   const { locale, slug } = await params;

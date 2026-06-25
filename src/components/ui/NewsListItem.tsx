@@ -19,17 +19,17 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
     hour: '2-digit', minute: '2-digit',
   });
 
-  const className = "group block py-3 border-b border-border last:border-b-0";
+  const className = "group block py-3 px-3 -mx-3 rounded-lg border-b border-border last:border-b-0 hover:bg-foreground/5 hover:shadow-lg hover:shadow-black/10 hover:scale-[1.01] transition-all duration-200";
 
   const content = (
     <>
-      <h3 className="flex items-start gap-1.5 text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
+      <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {!external && (
-          <span className="shrink-0 mt-0.5 w-4 h-4 rounded bg-accent flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-accent flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
             <Zap size={10} className="text-background" fill="currentColor" />
           </span>
         )}
-        <span>{title}</span>
+        {title}
       </h3>
       <div className="flex items-center justify-between gap-3 mt-1.5">
         <span className="text-xs text-muted whitespace-nowrap">
