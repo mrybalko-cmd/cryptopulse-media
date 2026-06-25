@@ -1,7 +1,17 @@
 import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'legal' });
+  return {
+    title: t('privacyTitle'),
+    alternates: { canonical: `https://cryptopulse.media/${locale}/privacy` },
+  };
+}
 
 export default async function PrivacyPage({ params }: Props) {
   const { locale } = await params;

@@ -42,8 +42,22 @@ export default async function ArticlePage({ params }: Props) {
     { day: 'numeric', month: 'long', year: 'numeric' }
   );
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.excerpt,
+    image: article.coverImage ? [article.coverImage] : undefined,
+    datePublished: article.publishedAt,
+    inLanguage: locale,
+    author: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Back */}
       <Link
         href={`/${locale}/articles`}

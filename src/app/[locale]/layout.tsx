@@ -45,6 +45,26 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!hasLocale(routing.locales, locale)) notFound();
   const messages = await getMessages();
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${BASE}/#organization`,
+        name: 'CryptoPulse.media',
+        url: BASE,
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${BASE}/#website`,
+        name: 'CryptoPulse.media',
+        url: BASE,
+        publisher: { '@id': `${BASE}/#organization` },
+        inLanguage: locale,
+      },
+    ],
+  };
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
@@ -52,6 +72,10 @@ export default async function LocaleLayout({ children, params }: Props) {
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body>

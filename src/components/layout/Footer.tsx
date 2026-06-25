@@ -58,7 +58,12 @@ export default async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
+        <div className="mt-10 pt-6 border-t border-border">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">{t('aboutTitle')}</h4>
+          <p className="text-muted text-xs leading-relaxed max-w-2xl">{t('about')}</p>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
           <p className="text-xs text-muted">{t('disclaimerText')}</p>
           <p className="text-xs text-muted shrink-0">© {new Date().getFullYear()} CryptoPulse.media. {t('rights')}</p>
         </div>

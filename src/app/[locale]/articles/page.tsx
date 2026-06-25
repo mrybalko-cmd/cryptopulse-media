@@ -1,8 +1,19 @@
 import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 import ArticleCard from '@/components/ui/ArticleCard';
 import { fetchArticles } from '@/lib/sanity';
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'articles' });
+  return {
+    title: t('title'),
+    description: t('subtitle'),
+    alternates: { canonical: `https://cryptopulse.media/${locale}/articles` },
+  };
+}
 
 export default async function ArticlesPage({ params }: Props) {
   const { locale } = await params;
