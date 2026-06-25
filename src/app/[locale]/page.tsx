@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import NewsCard from '@/components/ui/NewsCard';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
-import { fetchNews } from '@/lib/cryptonews';
+import { fetchMergedNews } from '@/lib/news';
 import { fetchArticles } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
 
@@ -15,7 +15,7 @@ export default async function HomePage({ params }: Props) {
   const t = await getTranslations('home');
 
   const [news, articles, videos] = await Promise.allSettled([
-    fetchNews({ limit: 6 }),
+    fetchMergedNews({ limit: 12, locale }),
     fetchArticles({ limit: 4, locale }),
     fetchVideos({ limit: 3 }),
   ]);
@@ -37,62 +37,66 @@ export default async function HomePage({ params }: Props) {
         </h1>
       </div>
 
-      {/* News */}
-      <section className="mb-14">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('latestNews')}</h2>
-          <Link href={`/${locale}/news`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
-            {t('viewAll')} <ArrowRight size={12} />
-          </Link>
-        </div>
-        {newsItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {newsItems.map((item: any) => (
-              <NewsCard
-                key={item.id}
-                title={item.title}
-                source={item.source}
-                url={item.url}
-                publishedAt={item.publishedAt}
-                categories={item.categories}
-                imageUrl={item.imageUrl}
-                locale={locale}
-              />
-            ))}
+      {/* News rail + Articles */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mb-14">
+        {/* News */}
+        <section className="lg:col-span-1">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('latestNews')}</h2>
+            <Link href={`/${locale}/news`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
+              {t('viewAll')} <ArrowRight size={12} />
+            </Link>
           </div>
-        ) : (
-          <EmptyState text={locale === 'ru' ? 'Новости загружаются...' : 'Loading news...'} />
-        )}
-      </section>
+          {newsItems.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {newsItems.map((item) => (
+                <NewsCard
+                  key={item.id}
+                  title={item.title}
+                  source={item.source}
+                  href={item.href}
+                  external={item.external}
+                  publishedAt={item.publishedAt}
+                  categories={item.categories}
+                  imageUrl={item.imageUrl}
+                  locale={locale}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text={locale === 'ru' ? 'Новости загружаются...' : 'Loading news...'} />
+          )}
+        </section>
 
-      {/* Articles */}
-      <section className="mb-14">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('featuredArticles')}</h2>
-          <Link href={`/${locale}/articles`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
-            {t('viewAll')} <ArrowRight size={12} />
-          </Link>
-        </div>
-        {articleItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {articleItems.map((article: any, i: number) => (
-              <ArticleCard
-                key={article._id}
-                title={article.title}
-                excerpt={article.excerpt}
-                slug={article.slug.current}
-                coverImage={article.coverImage}
-                publishedAt={article.publishedAt}
-                readingTime={article.readingTime}
-                locale={locale}
-                featured={i === 0}
-              />
-            ))}
+        {/* Articles */}
+        <section className="lg:col-span-3">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-foreground uppercase tracking-widest">{t('featuredArticles')}</h2>
+            <Link href={`/${locale}/articles`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
+              {t('viewAll')} <ArrowRight size={12} />
+            </Link>
           </div>
-        ) : (
-          <EmptyState text={locale === 'ru' ? 'Статьи появятся скоро' : 'Articles coming soon'} />
-        )}
-      </section>
+          {articleItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {articleItems.map((article: any, i: number) => (
+                <ArticleCard
+                  key={article._id}
+                  title={article.title}
+                  excerpt={article.excerpt}
+                  slug={article.slug.current}
+                  coverImage={article.coverImage}
+                  publishedAt={article.publishedAt}
+                  readingTime={article.readingTime}
+                  locale={locale}
+                  featured={i === 0}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text={locale === 'ru' ? 'Статьи появятся скоро' : 'Articles coming soon'} />
+          )}
+        </section>
+      </div>
 
       {/* Videos */}
       <section>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
-import { Zap } from 'lucide-react';
+import { Zap, Mail } from 'lucide-react';
+import { CONTACT_EMAIL } from '@/lib/constants';
 
 export default async function Footer() {
   const t = await getTranslations('footer');
@@ -46,6 +47,13 @@ export default async function Footer() {
               <Link href={`/${locale}/privacy`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('privacy')}
               </Link>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
+              >
+                <Mail size={14} />
+                {t('contact')}
+              </a>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { ExternalLink, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { ExternalLink, ArrowRight, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
@@ -8,25 +9,23 @@ import { ru, enUS } from 'date-fns/locale';
 interface NewsCardProps {
   title: string;
   source: string;
-  url: string;
+  href: string;
+  external: boolean;
   publishedAt: number;
   categories?: string;
   locale: string;
   imageUrl?: string | null;
 }
 
-export default function NewsCard({ title, source, url, publishedAt, categories, locale, imageUrl }: NewsCardProps) {
+export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl }: NewsCardProps) {
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
-  const tags = categories?.split('|').filter(Boolean).slice(0, 2) || [];
+  const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
 
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block bg-card border border-border rounded-lg overflow-hidden hover:border-accent/40 transition-all duration-200"
-    >
+  const className = "group block bg-card border border-border rounded-lg overflow-hidden hover:border-accent/40 transition-all duration-200";
+
+  const content = (
+    <>
       {imageUrl && (
         <div className="relative h-32 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -54,9 +53,27 @@ export default function NewsCard({ title, source, url, publishedAt, categories, 
             <Clock size={10} className="text-muted" />
             <span className="text-xs text-muted">{timeAgo}</span>
           </div>
-          <ExternalLink size={12} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+          {external ? (
+            <ExternalLink size={12} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+          ) : (
+            <ArrowRight size={12} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+          )}
         </div>
       </div>
-    </a>
+    </>
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
+    </Link>
   );
 }

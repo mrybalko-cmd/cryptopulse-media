@@ -40,8 +40,14 @@
     "legal": "Legal",
     "disclaimer": "Disclaimer",
     "privacy": "Privacy Policy",
+    "contact": "Contact",
     "disclaimerText": "This site is for informational purposes only. Not financial advice.",
     "rights": "All rights reserved."
+  },
+  "legal": {
+    "privacyTitle": "Privacy Policy",
+    "disclaimerTitle": "Disclaimer",
+    "lastUpdated": "Last updated"
   },
   "ticker": {
     "loading": "Loading prices..."

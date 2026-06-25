@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import NewsCard from '@/components/ui/NewsCard';
-import { fetchNews } from '@/lib/cryptonews';
+import { fetchMergedNews } from '@/lib/news';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -8,7 +8,7 @@ export default async function NewsPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('news');
 
-  const news = await fetchNews({ limit: 30 });
+  const news = await fetchMergedNews({ limit: 30, locale });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -19,12 +19,13 @@ export default async function NewsPage({ params }: Props) {
 
       {news.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {news.map((item: any) => (
+          {news.map((item) => (
             <NewsCard
               key={item.id}
               title={item.title}
               source={item.source}
-              url={item.url}
+              href={item.href}
+              external={item.external}
               publishedAt={item.publishedAt}
               categories={item.categories}
               imageUrl={item.imageUrl}
