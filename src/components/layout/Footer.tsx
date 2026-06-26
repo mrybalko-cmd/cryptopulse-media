@@ -13,8 +13,8 @@ export default async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <Link href={`/${locale}`} className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded bg-accent flex items-center justify-center">
-                <Zap size={12} className="text-background" fill="currentColor" />
+              <div className="w-6 h-6 rounded bg-red-600 flex items-center justify-center">
+                <Zap size={12} className="text-yellow-400" fill="currentColor" />
               </div>
               <span className="font-semibold text-sm">
                 CryptoPulse<span className="text-accent">.media</span>

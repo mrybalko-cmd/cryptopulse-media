@@ -27,36 +27,21 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 grid grid-cols-3 items-center">
+        <div />
+
         {/* Logo */}
-        <Link href={`/${locale}`} className="flex items-center gap-2 group">
-          <div className="w-7 h-7 rounded bg-accent flex items-center justify-center">
-            <Zap size={14} className="text-background" fill="currentColor" />
+        <Link href={`/${locale}`} className="flex items-center justify-center gap-3 group">
+          <div className="w-11 h-11 rounded-xl bg-red-600 flex items-center justify-center">
+            <Zap size={20} className="text-yellow-400" fill="currentColor" />
           </div>
-          <span className="font-semibold text-sm tracking-tight">
+          <span className="font-bold text-2xl sm:text-3xl tracking-tight">
             CryptoPulse<span className="text-accent">.media</span>
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-3 py-1.5 rounded text-sm transition-colors ${
-                isActive(link.href)
-                  ? 'text-foreground bg-card'
-                  : 'text-muted hover:text-foreground hover:bg-card'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           <ThemeToggle className="hidden md:flex p-1.5 text-muted hover:text-foreground hover:bg-card rounded transition-colors" />
           <Link
             href={switchPath}
@@ -72,6 +57,23 @@ export default function Header() {
           </button>
         </div>
       </div>
+
+      {/* Desktop nav row */}
+      <nav className="hidden md:flex items-center justify-center gap-1 h-11 border-t border-border bg-card">
+        {navLinks.map(link => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`px-3 py-1.5 rounded text-sm transition-colors ${
+              isActive(link.href)
+                ? 'text-foreground font-semibold'
+                : 'text-muted hover:text-foreground'
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
 
       {/* Mobile menu */}
       {menuOpen && (
