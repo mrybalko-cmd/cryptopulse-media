@@ -20,6 +20,7 @@ export default function Header() {
     { href: `/${locale}/news`, label: t('news') },
     { href: `/${locale}/articles`, label: t('articles') },
     { href: `/${locale}/interviews`, label: t('interviews') },
+    { href: `/${locale}/wealth-calculator`, label: t('calculator') },
   ];
 
   const isActive = (href: string) => pathname === href;
