@@ -131,7 +131,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="prose prose-invert prose-sm max-w-none
           prose-headings:text-foreground prose-headings:font-semibold
           prose-p:text-muted prose-p:leading-relaxed
-          prose-a:text-accent prose-a:underline prose-a:decoration-accent/50 hover:prose-a:decoration-accent
+          prose-a:text-blue-500 prose-a:underline prose-a:decoration-blue-500 hover:prose-a:text-blue-600 hover:prose-a:decoration-blue-600
           prose-strong:text-foreground
           prose-blockquote:border-accent prose-blockquote:text-muted
           prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
@@ -151,7 +151,7 @@ export default async function ArticlePage({ params }: Props) {
                       href={value?.href}
                       target={isExternal ? '_blank' : undefined}
                       rel={relParts.length > 0 ? relParts.join(' ') : undefined}
-                      className="text-accent underline decoration-accent/50 hover:decoration-accent"
+                      className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
                     >
                       {children}
                     </a>
