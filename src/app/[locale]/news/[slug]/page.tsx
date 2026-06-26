@@ -141,6 +141,7 @@ export default async function NewsDetailPage({ params }: Props) {
           prose-p:text-muted prose-p:leading-relaxed
           prose-a:text-blue-500 prose-a:underline prose-a:decoration-blue-500 hover:prose-a:text-blue-600 hover:prose-a:decoration-blue-600
           prose-strong:text-foreground
+          prose-li:text-muted prose-li:marker:text-muted
           prose-blockquote:border-accent prose-blockquote:text-muted
           prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
         ">

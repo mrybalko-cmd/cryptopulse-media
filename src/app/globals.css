@@ -51,9 +51,15 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Layered (not plain CSS) so utility classes like text-blue-500/underline on
+   specific links — e.g. article body links — can still override this reset.
+   Unlayered CSS always wins over Tailwind's layered utilities regardless of
+   specificity, which silently broke that override before this was added. */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 ::-webkit-scrollbar { width: 6px; }
