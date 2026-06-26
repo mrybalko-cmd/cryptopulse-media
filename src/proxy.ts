@@ -6,6 +6,12 @@ const handleI18n = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname === '/') {
+    // next-intl's own redirect for "/" uses NextResponse.redirect() with no
+    // status, which defaults to 307 (temporary) — issue a real 308 ourselves
+    // since the default locale here never changes.
+    return NextResponse.redirect(new URL(`/${routing.defaultLocale}`, request.url), 308);
+  }
   if (pathname.startsWith('/studio') || pathname.startsWith('/api')) {
     return NextResponse.next();
   }

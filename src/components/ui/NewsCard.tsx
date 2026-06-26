@@ -37,7 +37,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
       {imageUrl && (
         <div className="relative h-32 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img src={imageUrl} alt={title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
           <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
         </div>
       )}

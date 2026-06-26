@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: t('disclaimerTitle'),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/disclaimer`,
-      languages: { ru: 'https://cryptopulse.media/ru/disclaimer', en: 'https://cryptopulse.media/en/disclaimer' },
+      languages: { ru: 'https://cryptopulse.media/ru/disclaimer', en: 'https://cryptopulse.media/en/disclaimer', 'x-default': 'https://cryptopulse.media/ru/disclaimer' },
     },
   };
 }

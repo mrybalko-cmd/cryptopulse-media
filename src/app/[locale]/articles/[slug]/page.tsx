@@ -72,11 +72,21 @@ export default async function ArticlePage({ params }: Props) {
     description: article.excerpt,
     image: [article.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
     datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
+    dateModified: article._updatedAt || article.publishedAt,
     inLanguage: locale,
     author: { '@type': 'Organization', name: 'CryptoPulse.media' },
     publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `https://cryptopulse.media/${locale}` },
+      { '@type': 'ListItem', position: 2, name: locale === 'ru' ? 'Статьи' : 'Articles', item: `https://cryptopulse.media/${locale}/articles` },
+      { '@type': 'ListItem', position: 3, name: article.title, item: `https://cryptopulse.media/${locale}/articles/${slug}` },
+    ],
   };
 
   const pageUrl = `https://cryptopulse.media/${locale}/articles/${slug}`;
@@ -84,6 +94,7 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">
       <div className="flex-1 max-w-3xl min-w-0">
       {/* Back */}

@@ -57,5 +57,10 @@
   },
   "ticker": {
     "loading": "Loading prices..."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This page doesn't seem to exist — it may have been removed, or the address might be incorrect.",
+    "cta": "Back to homepage"
   }
 }
