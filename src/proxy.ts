@@ -12,6 +12,9 @@ export function proxy(request: NextRequest) {
   return handleI18n(request);
 }
 
+// icon/apple-icon are file-convention routes Next.js serves at the root,
+// without a file extension in the URL — exclude them explicitly so the
+// locale middleware doesn't redirect them to a non-existent /[locale]/icon.
 export const config = {
-  matcher: ['/((?!_next|_vercel|api|.*\\..*).*)']
+  matcher: ['/((?!_next|_vercel|api|icon|apple-icon|favicon.ico|.*\\..*).*)']
 };

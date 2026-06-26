@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: { default: 'CryptoPulse.media', template: '%s | CryptoPulse.media' },
     description: isRu
-      ? 'Крипто-аналитика для частных инвесторов Европы. Новости, статьи и интервью.'
+      ? 'Крипто-аналитика для простых людей простыми словами. Новости, статьи и интервью.'
       : 'Crypto intelligence for European investors. News, analysis, and interviews.',
     metadataBase: new URL(BASE),
     alternates: {
