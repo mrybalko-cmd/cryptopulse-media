@@ -1,4 +1,5 @@
 import Parser from 'rss-parser';
+import { unstable_cache } from 'next/cache';
 
 const parser = new Parser({
   customFields: {
@@ -29,9 +30,18 @@ export interface NewsItem {
   categories?: string;
 }
 
+const FEED_TIMEOUT_MS = 6000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('feed timeout')), ms)),
+  ]);
+}
+
 async function fetchFeed(feedUrl: string, sourceName: string): Promise<NewsItem[]> {
   try {
-    const feed = await parser.parseURL(feedUrl);
+    const feed = await withTimeout(parser.parseURL(feedUrl), FEED_TIMEOUT_MS);
     return feed.items.slice(0, 15).map(item => ({
       id: item.guid || item.link || Math.random().toString(),
       title: item.title || '',
@@ -46,17 +56,21 @@ async function fetchFeed(feedUrl: string, sourceName: string): Promise<NewsItem[
   }
 }
 
-export async function fetchNews({ limit = 20, locale = 'ru' }: { limit?: number; locale?: string } = {}): Promise<NewsItem[]> {
-  const feeds = locale === 'ru' ? RSS_FEEDS_RU : RSS_FEEDS_EN;
-  const results = await Promise.allSettled(
-    feeds.map(feed => fetchFeed(feed.url, feed.source))
-  );
+export const fetchNews = unstable_cache(
+  async ({ limit = 20, locale = 'ru' }: { limit?: number; locale?: string } = {}): Promise<NewsItem[]> => {
+    const feeds = locale === 'ru' ? RSS_FEEDS_RU : RSS_FEEDS_EN;
+    const results = await Promise.allSettled(
+      feeds.map(feed => fetchFeed(feed.url, feed.source))
+    );
 
-  const all: NewsItem[] = results
-    .filter((r): r is PromiseFulfilledResult<NewsItem[]> => r.status === 'fulfilled')
-    .flatMap(r => r.value)
-    .sort((a, b) => b.publishedAt - a.publishedAt)
-    .slice(0, limit);
+    const all: NewsItem[] = results
+      .filter((r): r is PromiseFulfilledResult<NewsItem[]> => r.status === 'fulfilled')
+      .flatMap(r => r.value)
+      .sort((a, b) => b.publishedAt - a.publishedAt)
+      .slice(0, limit);
 
-  return all;
-}
+    return all;
+  },
+  ['fetchNews'],
+  { revalidate: 300 }
+);

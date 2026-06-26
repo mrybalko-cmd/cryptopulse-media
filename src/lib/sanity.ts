@@ -1,11 +1,16 @@
 import { createClient } from '@sanity/client';
+import { unstable_cache } from 'next/cache';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
-  useCdn: true,
+  useCdn: false,
 });
+
+// Short cache window: keeps repeat page loads fast while bounding how long a
+// deleted/edited document can keep appearing on the site to ~45s.
+const READ_CACHE_SECONDS = 45;
 
 const writeClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
@@ -30,50 +35,62 @@ interface FetchArticlesOptions {
   slug?: string;
 }
 
-export async function fetchArticles({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-  try {
-    return await client.fetch(
-      `*[_type == "article" && language == $locale] | order(publishedAt desc) [0...$limit] {
-        _id, title, excerpt, slug, publishedAt, readingTime, badge,
-        "coverImage": coverImage.asset->url
-      }`,
-      { locale, limit }
-    );
-  } catch {
-    return [];
-  }
-}
+export const fetchArticles = unstable_cache(
+  async ({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "article" && language == $locale] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt, readingTime, badge,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchArticles'],
+  { revalidate: READ_CACHE_SECONDS }
+);
 
-export async function fetchArticleBySlug(slug: string, locale: string) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
-  try {
-    return await client.fetch(
-      `*[_type == "article" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo,
-        "coverImage": coverImage.asset->url
-      }`,
-      { slug, locale }
-    );
-  } catch {
-    return null;
-  }
-}
+export const fetchArticleBySlug = unstable_cache(
+  async (slug: string, locale: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    try {
+      return await client.fetch(
+        `*[_type == "article" && slug.current == $slug && language == $locale][0] {
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo,
+          "coverImage": coverImage.asset->url
+        }`,
+        { slug, locale }
+      );
+    } catch {
+      return null;
+    }
+  },
+  ['fetchArticleBySlug'],
+  { revalidate: READ_CACHE_SECONDS }
+);
 
-export async function fetchSanityNews({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-  try {
-    return await client.fetch(
-      `*[_type == "news" && language == $locale] | order(publishedAt desc) [0...$limit] {
-        _id, title, excerpt, slug, publishedAt,
-        "coverImage": coverImage.asset->url
-      }`,
-      { locale, limit }
-    );
-  } catch {
-    return [];
-  }
-}
+export const fetchSanityNews = unstable_cache(
+  async ({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "news" && language == $locale] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchSanityNews'],
+  { revalidate: READ_CACHE_SECONDS }
+);
 
 export async function searchContent(query: string, locale: string) {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !query.trim()) return [];
@@ -89,17 +106,21 @@ export async function searchContent(query: string, locale: string) {
   }
 }
 
-export async function fetchNewsBySlug(slug: string, locale: string) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
-  try {
-    return await client.fetch(
-      `*[_type == "news" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo,
-        "coverImage": coverImage.asset->url
-      }`,
-      { slug, locale }
-    );
-  } catch {
-    return null;
-  }
-}
+export const fetchNewsBySlug = unstable_cache(
+  async (slug: string, locale: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    try {
+      return await client.fetch(
+        `*[_type == "news" && slug.current == $slug && language == $locale][0] {
+          _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo,
+          "coverImage": coverImage.asset->url
+        }`,
+        { slug, locale }
+      );
+    } catch {
+      return null;
+    }
+  },
+  ['fetchNewsBySlug'],
+  { revalidate: READ_CACHE_SECONDS }
+);

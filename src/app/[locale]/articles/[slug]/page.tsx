@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { after } from 'next/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -48,7 +49,7 @@ export default async function ArticlePage({ params }: Props) {
 
   if (!article) notFound();
 
-  await incrementViews(article._id);
+  after(() => incrementViews(article._id));
 
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',

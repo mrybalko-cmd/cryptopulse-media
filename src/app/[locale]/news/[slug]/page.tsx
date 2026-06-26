@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { after } from 'next/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -46,7 +47,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
   if (!news) notFound();
 
-  await incrementViews(news._id);
+  after(() => incrementViews(news._id));
 
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
