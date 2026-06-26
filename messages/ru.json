@@ -2,7 +2,7 @@
   "nav": {
     "news": "Новости",
     "articles": "Статьи",
-    "interviews": "Интервью",
+    "interviews": "Ютуб",
     "calculator": "Калькулятор богатства",
     "switchLang": "EN"
   },
@@ -10,7 +10,7 @@
     "hero": "Крипто-аналитика для частных инвесторов Европы",
     "latestNews": "Актуальные новости",
     "featuredArticles": "Статьи и аналитика",
-    "latestInterviews": "Интервью",
+    "latestInterviews": "Ютуб",
     "readMore": "Читать далее",
     "viewAll": "Смотреть все",
     "minRead": "мин чтения"
@@ -31,7 +31,7 @@
     "subtitle": "Глубокий анализ для думающего инвестора"
   },
   "interviews": {
-    "title": "Интервью",
+    "title": "Ютуб",
     "subtitle": "Разговоры с лидерами индустрии",
     "watchOn": "Смотреть на YouTube"
   },
@@ -44,12 +44,15 @@
     "disclaimer": "Дисклеймер",
     "privacy": "Политика конфиденциальности",
     "contact": "Контакты",
+    "advertising": "Реклама",
+    "calculator": "Калькулятор богатства",
     "disclaimerText": "Сайт носит исключительно информационный характер. Не является финансовой рекомендацией.",
     "rights": "Все права защищены."
   },
   "legal": {
     "privacyTitle": "Политика конфиденциальности",
     "disclaimerTitle": "Дисклеймер",
+    "advertisingTitle": "Реклама",
     "lastUpdated": "Последнее обновление"
   },
   "ticker": {

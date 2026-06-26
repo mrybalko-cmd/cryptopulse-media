@@ -137,16 +137,23 @@ export default async function NewsDetailPage({ params }: Props) {
             value={news.body}
             components={{
               marks: {
-                link: ({ value, children }) => (
-                  <a
-                    href={value?.href}
-                    target={value?.href?.startsWith('http') ? '_blank' : undefined}
-                    rel={value?.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-accent underline decoration-accent/50 hover:decoration-accent"
-                  >
-                    {children}
-                  </a>
-                ),
+                link: ({ value, children }) => {
+                  const isExternal = value?.href?.startsWith('http');
+                  const relParts = [
+                    ...(isExternal ? ['noopener', 'noreferrer'] : []),
+                    ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
+                  ];
+                  return (
+                    <a
+                      href={value?.href}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={relParts.length > 0 ? relParts.join(' ') : undefined}
+                      className="text-accent underline decoration-accent/50 hover:decoration-accent"
+                    >
+                      {children}
+                    </a>
+                  );
+                },
               },
             }}
           />

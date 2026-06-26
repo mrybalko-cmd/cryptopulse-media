@@ -7,6 +7,7 @@ import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
 import { fetchArticleBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import ArticleBadge from '@/components/ui/ArticleBadge';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -96,6 +97,11 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       {/* Header */}
+      {article.badge && article.badge !== 'none' && (
+        <div className="mb-3">
+          <ArticleBadge badge={article.badge} locale={locale} />
+        </div>
+      )}
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">
         {article.title}
       </h1>
@@ -133,16 +139,23 @@ export default async function ArticlePage({ params }: Props) {
             value={article.body}
             components={{
               marks: {
-                link: ({ value, children }) => (
-                  <a
-                    href={value?.href}
-                    target={value?.href?.startsWith('http') ? '_blank' : undefined}
-                    rel={value?.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-accent underline decoration-accent/50 hover:decoration-accent"
-                  >
-                    {children}
-                  </a>
-                ),
+                link: ({ value, children }) => {
+                  const isExternal = value?.href?.startsWith('http');
+                  const relParts = [
+                    ...(isExternal ? ['noopener', 'noreferrer'] : []),
+                    ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
+                  ];
+                  return (
+                    <a
+                      href={value?.href}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={relParts.length > 0 ? relParts.join(' ') : undefined}
+                      className="text-accent underline decoration-accent/50 hover:decoration-accent"
+                    >
+                      {children}
+                    </a>
+                  );
+                },
               },
             }}
           />

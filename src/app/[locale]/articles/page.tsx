@@ -39,6 +39,7 @@ export default async function ArticlesPage({ params }: Props) {
               coverImage={article.coverImage}
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
+              badge={article.badge}
               locale={locale}
               featured={i === 0}
             />

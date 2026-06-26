@@ -33,7 +33,10 @@ export default async function Footer() {
                 {locale === 'ru' ? 'Статьи' : 'Articles'}
               </Link>
               <Link href={`/${locale}/interviews`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {locale === 'ru' ? 'Интервью' : 'Interviews'}
+                {locale === 'ru' ? 'Ютуб' : 'YouTube'}
+              </Link>
+              <Link href={`/${locale}/wealth-calculator`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('calculator')}
               </Link>
             </div>
           </div>
@@ -46,6 +49,9 @@ export default async function Footer() {
               </Link>
               <Link href={`/${locale}/privacy`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('privacy')}
+              </Link>
+              <Link href={`/${locale}/advertising`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('advertising')}
               </Link>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}

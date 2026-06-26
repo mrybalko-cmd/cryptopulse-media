@@ -35,7 +35,7 @@ export async function fetchArticles({ limit = 10, locale = 'ru' }: FetchArticles
   try {
     return await client.fetch(
       `*[_type == "article" && language == $locale] | order(publishedAt desc) [0...$limit] {
-        _id, title, excerpt, slug, publishedAt, readingTime,
+        _id, title, excerpt, slug, publishedAt, readingTime, badge,
         "coverImage": coverImage.asset->url
       }`,
       { locale, limit }
@@ -50,7 +50,7 @@ export async function fetchArticleBySlug(slug: string, locale: string) {
   try {
     return await client.fetch(
       `*[_type == "article" && slug.current == $slug && language == $locale][0] {
-        _id, title, excerpt, slug, publishedAt, readingTime, body, views, seo,
+        _id, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo,
         "coverImage": coverImage.asset->url
       }`,
       { slug, locale }

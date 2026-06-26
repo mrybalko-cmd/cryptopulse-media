@@ -50,7 +50,35 @@ export const newsType = defineType({
       title: 'Body',
       type: 'array',
       of: [
-        { type: 'block' },
+        {
+          type: 'block',
+          marks: {
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'Link',
+                fields: [
+                  { name: 'href', type: 'url', title: 'URL', validation: Rule => Rule.required() },
+                  {
+                    name: 'rel',
+                    type: 'string',
+                    title: 'Link relationship',
+                    description: 'Dofollow passes SEO value to the linked page; nofollow tells search engines not to.',
+                    options: {
+                      list: [
+                        { title: 'Dofollow', value: 'dofollow' },
+                        { title: 'Nofollow', value: 'nofollow' },
+                      ],
+                      layout: 'radio',
+                    },
+                    initialValue: 'dofollow',
+                  },
+                ],
+              },
+            ],
+          },
+        },
         {
           type: 'image',
           options: { hotspot: true },

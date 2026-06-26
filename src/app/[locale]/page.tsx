@@ -102,6 +102,7 @@ export default async function HomePage({ params }: Props) {
                   coverImage={article.coverImage}
                   publishedAt={article.publishedAt}
                   readingTime={article.readingTime}
+                  badge={article.badge}
                   locale={locale}
                 />
               ))}

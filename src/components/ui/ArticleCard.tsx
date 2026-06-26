@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ArrowRight } from 'lucide-react';
+import ArticleBadge from './ArticleBadge';
 
 interface ArticleCardProps {
   title: string;
@@ -11,10 +12,11 @@ interface ArticleCardProps {
   readingTime?: number;
   locale: string;
   featured?: boolean;
+  badge?: string;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured
+  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -36,9 +38,19 @@ export default function ArticleCard({
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+          {badge && badge !== 'none' && (
+            <div className="absolute top-2 left-2">
+              <ArticleBadge badge={badge} locale={locale} />
+            </div>
+          )}
         </div>
       )}
       <div className="p-4">
+        {(!coverImage && badge && badge !== 'none') && (
+          <div className="mb-2">
+            <ArticleBadge badge={badge} locale={locale} />
+          </div>
+        )}
         <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : 'text-sm'} line-clamp-2`}>
           {title}
         </h3>

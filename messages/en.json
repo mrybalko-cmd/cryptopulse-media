@@ -2,7 +2,7 @@
   "nav": {
     "news": "News",
     "articles": "Articles",
-    "interviews": "Interviews",
+    "interviews": "YouTube",
     "calculator": "Wealth Calculator",
     "switchLang": "RU"
   },
@@ -10,7 +10,7 @@
     "hero": "Crypto intelligence for European investors",
     "latestNews": "Latest News",
     "featuredArticles": "Featured Articles",
-    "latestInterviews": "Latest Interviews",
+    "latestInterviews": "YouTube",
     "readMore": "Read more",
     "viewAll": "View all",
     "minRead": "min read"
@@ -31,7 +31,7 @@
     "subtitle": "Deep dives for the thoughtful investor"
   },
   "interviews": {
-    "title": "Interviews",
+    "title": "YouTube",
     "subtitle": "Conversations with industry leaders",
     "watchOn": "Watch on YouTube"
   },
@@ -44,12 +44,15 @@
     "disclaimer": "Disclaimer",
     "privacy": "Privacy Policy",
     "contact": "Contact",
+    "advertising": "Advertising",
+    "calculator": "Wealth Calculator",
     "disclaimerText": "This site is for informational purposes only. Not financial advice.",
     "rights": "All rights reserved."
   },
   "legal": {
     "privacyTitle": "Privacy Policy",
     "disclaimerTitle": "Disclaimer",
+    "advertisingTitle": "Advertising",
     "lastUpdated": "Last updated"
   },
   "ticker": {
