@@ -9,7 +9,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   return {
     title: t('privacyTitle'),
-    alternates: { canonical: `https://cryptopulse.media/${locale}/privacy` },
+    alternates: {
+      canonical: `https://cryptopulse.media/${locale}/privacy`,
+      languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy' },
+    },
   };
 }
 

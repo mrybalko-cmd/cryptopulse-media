@@ -16,7 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `https://cryptopulse.media/${locale}/wealth-calculator` },
+    alternates: {
+      canonical: `https://cryptopulse.media/${locale}/wealth-calculator`,
+      languages: { ru: 'https://cryptopulse.media/ru/wealth-calculator', en: 'https://cryptopulse.media/en/wealth-calculator' },
+    },
     openGraph: {
       type: 'website',
       title,

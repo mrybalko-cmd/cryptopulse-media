@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = news.seo?.metaTitle || news.title;
   const description = news.seo?.metaDescription || news.excerpt;
+  const ogImage = news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
 
   return {
     title,
@@ -30,13 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `https://cryptopulse.media/${locale}/news/${slug}`,
       siteName: 'CryptoPulse.media',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
-      images: news.coverImage ? [{ url: news.coverImage }] : undefined,
+      images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: news.coverImage ? [news.coverImage] : undefined,
+      images: [ogImage],
     },
   };
 }
@@ -59,8 +60,9 @@ export default async function NewsDetailPage({ params }: Props) {
     '@type': 'NewsArticle',
     headline: news.title,
     description: news.excerpt,
-    image: news.coverImage ? [news.coverImage] : undefined,
+    image: [news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
     datePublished: news.publishedAt,
+    dateModified: news.publishedAt,
     inLanguage: locale,
     author: { '@type': 'Organization', name: 'CryptoPulse.media' },
     publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },

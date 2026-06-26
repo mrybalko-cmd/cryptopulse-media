@@ -44,7 +44,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
 
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={className}>
         {content}
       </a>
     );

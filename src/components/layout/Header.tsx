@@ -14,7 +14,13 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const otherLocale = locale === 'ru' ? 'en' : 'ru';
-  const switchPath = pathname.replace(`/${locale}`, `/${otherLocale}`);
+  // Articles/news exist as separate per-language documents with unrelated
+  // slugs, so a same-slug swap 404s on detail pages. Fall back to the
+  // section's listing page in that case instead of guessing a slug.
+  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news)\/.+/);
+  const switchPath = detailMatch
+    ? `/${otherLocale}/${detailMatch[1]}`
+    : pathname.replace(`/${locale}`, `/${otherLocale}`);
 
   const navLinks = [
     { href: `/${locale}/news`, label: t('news') },

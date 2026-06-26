@@ -73,7 +73,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
 
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={className}>
         {content}
       </a>
     );
