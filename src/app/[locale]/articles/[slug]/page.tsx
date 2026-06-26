@@ -9,6 +9,7 @@ import { fetchArticleBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
 import ArticleBadge from '@/components/ui/ArticleBadge';
+import SetTranslationLink from '@/components/ui/SetTranslationLink';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -25,7 +26,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: article.seo?.keywords,
-    alternates: { canonical: `https://cryptopulse.media/${locale}/articles/${slug}` },
+    alternates: {
+      canonical: `https://cryptopulse.media/${locale}/articles/${slug}`,
+      languages: article.translation
+        ? {
+            [locale]: `https://cryptopulse.media/${locale}/articles/${slug}`,
+            [article.translation.language]: `https://cryptopulse.media/${article.translation.language}/articles/${article.translation.slug}`,
+          }
+        : undefined,
+    },
     openGraph: {
       type: 'article',
       title,
@@ -52,6 +61,10 @@ export default async function ArticlePage({ params }: Props) {
 
   after(() => incrementViews(article._id));
 
+  const translationHref = article.translation
+    ? `/${article.translation.language}/articles/${article.translation.slug}`
+    : null;
+
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
     { day: 'numeric', month: 'long', year: 'numeric' }
@@ -75,6 +88,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <SetTranslationLink href={translationHref} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="flex gap-6">
       <div className="flex-1 max-w-3xl min-w-0">

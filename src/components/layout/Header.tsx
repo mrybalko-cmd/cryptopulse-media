@@ -6,19 +6,24 @@ import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Zap } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { useTranslationLink } from '@/lib/translation-context';
 
 export default function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { translationHref } = useTranslationLink();
 
   const otherLocale = locale === 'ru' ? 'en' : 'ru';
   // Articles/news exist as separate per-language documents with unrelated
-  // slugs, so a same-slug swap 404s on detail pages. Fall back to the
-  // section's listing page in that case instead of guessing a slug.
+  // slugs. If the current article/news has a linked translation, jump
+  // straight to it; otherwise fall back to the section's listing page
+  // instead of guessing a slug that doesn't exist.
   const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news)\/.+/);
-  const switchPath = detailMatch
+  const switchPath = translationHref
+    ? translationHref
+    : detailMatch
     ? `/${otherLocale}/${detailMatch[1]}`
     : pathname.replace(`/${locale}`, `/${otherLocale}`);
 

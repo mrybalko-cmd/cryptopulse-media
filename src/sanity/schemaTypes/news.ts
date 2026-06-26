@@ -134,6 +134,13 @@ export const newsType = defineType({
       initialValue: 0,
       description: 'Internal view counter, increments automatically on each visit',
     }),
+    defineField({
+      name: 'translationRef',
+      title: 'Перевод на другом языке / Translation in the other language',
+      type: 'reference',
+      to: [{ type: 'news' }],
+      description: 'Ссылка на эту же новость на другом языке — нужна, чтобы переключатель языка вёл на правильный перевод, а не на список новостей.',
+    }),
   ],
   preview: {
     select: { title: 'title', language: 'language', media: 'coverImage' },

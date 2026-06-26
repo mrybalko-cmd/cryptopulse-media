@@ -61,7 +61,8 @@ export const fetchArticleBySlug = unstable_cache(
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale][0] {
           _id, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo,
-          "coverImage": coverImage.asset->url
+          "coverImage": coverImage.asset->url,
+          "translation": translationRef->{language, "slug": slug.current}
         }`,
         { slug, locale }
       );
@@ -113,7 +114,8 @@ export const fetchNewsBySlug = unstable_cache(
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale][0] {
           _id, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo,
-          "coverImage": coverImage.asset->url
+          "coverImage": coverImage.asset->url,
+          "translation": translationRef->{language, "slug": slug.current}
         }`,
         { slug, locale }
       );

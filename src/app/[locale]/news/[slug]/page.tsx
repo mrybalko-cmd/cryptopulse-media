@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
 import { fetchNewsBySlug, incrementViews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import SetTranslationLink from '@/components/ui/SetTranslationLink';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -23,7 +24,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: news.seo?.keywords,
-    alternates: { canonical: `https://cryptopulse.media/${locale}/news/${slug}` },
+    alternates: {
+      canonical: `https://cryptopulse.media/${locale}/news/${slug}`,
+      languages: news.translation
+        ? {
+            [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
+            [news.translation.language]: `https://cryptopulse.media/${news.translation.language}/news/${news.translation.slug}`,
+          }
+        : undefined,
+    },
     openGraph: {
       type: 'article',
       title,
@@ -50,6 +59,10 @@ export default async function NewsDetailPage({ params }: Props) {
 
   after(() => incrementViews(news._id));
 
+  const translationHref = news.translation
+    ? `/${news.translation.language}/news/${news.translation.slug}`
+    : null;
+
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
     { day: 'numeric', month: 'long', year: 'numeric' }
@@ -73,6 +86,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <SetTranslationLink href={translationHref} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="flex gap-6">
       <div className="flex-1 max-w-3xl min-w-0">

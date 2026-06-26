@@ -73,6 +73,13 @@ export const articleType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'translationRef',
+      title: 'Перевод на другом языке / Translation in the other language',
+      type: 'reference',
+      to: [{ type: 'article' }],
+      description: 'Ссылка на эту же статью на другом языке — нужна, чтобы переключатель языка вёл на правильный перевод, а не на список статей.',
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',
