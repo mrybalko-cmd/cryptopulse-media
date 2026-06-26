@@ -1,28 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Menu, X, Zap } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
-import { useTranslationLink } from '@/lib/translation-context';
 
 export default function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { translationHref } = useTranslationLink();
+  const [linkedTranslationHref, setLinkedTranslationHref] = useState<string | null>(null);
 
   const otherLocale = locale === 'ru' ? 'en' : 'ru';
   // Articles/news exist as separate per-language documents with unrelated
   // slugs. If the current article/news has a linked translation, jump
   // straight to it; otherwise fall back to the section's listing page
   // instead of guessing a slug that doesn't exist.
-  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news)\/.+/);
-  const switchPath = translationHref
-    ? translationHref
+  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news)\/(.+)/);
+
+  // Driven solely by pathname (kept perfectly in sync by the router on every
+  // navigation), instead of a page-to-layout context relay whose set/reset
+  // effects could race during client-side navigation between two detail pages.
+  useEffect(() => {
+    if (!detailMatch) {
+      setLinkedTranslationHref(null);
+      return;
+    }
+    const [, type, slug] = detailMatch;
+    let cancelled = false;
+    fetch(`/api/translation-link?type=${type}&slug=${encodeURIComponent(slug)}&locale=${locale}`)
+      .then(res => res.json())
+      .then(data => { if (!cancelled) setLinkedTranslationHref(data.href || null); })
+      .catch(() => { if (!cancelled) setLinkedTranslationHref(null); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const switchPath = linkedTranslationHref
+    ? linkedTranslationHref
     : detailMatch
     ? `/${otherLocale}/${detailMatch[1]}`
     : pathname.replace(`/${locale}`, `/${otherLocale}`);

@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing';
 import PriceTicker from '@/components/layout/PriceTicker';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { TranslationLinkProvider } from '@/lib/translation-context';
 import '../globals.css';
 
 const BASE = 'https://cryptopulse.media';
@@ -81,14 +80,12 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
-          <TranslationLinkProvider>
-            <PriceTicker />
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-          </TranslationLinkProvider>
+          <PriceTicker />
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>
