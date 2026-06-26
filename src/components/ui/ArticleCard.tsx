@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, ArrowRight } from 'lucide-react';
+import { Clock, ArrowRight, Eye } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 
 interface ArticleCardProps {
@@ -13,10 +13,11 @@ interface ArticleCardProps {
   locale: string;
   featured?: boolean;
   badge?: string;
+  views?: number;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge
+  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge, views
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -66,7 +67,15 @@ export default function ArticleCard({
               </>
             )}
           </div>
-          <ArrowRight size={14} className="text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+          <div className="flex items-center gap-2 text-xs text-muted">
+            {typeof views === 'number' && (
+              <span className="flex items-center gap-1">
+                <Eye size={11} />
+                {views}
+              </span>
+            )}
+            <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+          </div>
         </div>
       </div>
     </Link>

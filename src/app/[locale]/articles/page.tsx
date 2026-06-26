@@ -43,6 +43,7 @@ export default async function ArticlesPage({ params }: Props) {
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               badge={article.badge}
+              views={article.views}
               locale={locale}
               featured={i === 0}
             />

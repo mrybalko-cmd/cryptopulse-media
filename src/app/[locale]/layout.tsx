@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { routing } from '@/i18n/routing';
 import PriceTicker from '@/components/layout/PriceTicker';
 import Header from '@/components/layout/Header';
@@ -9,6 +10,7 @@ import Footer from '@/components/layout/Footer';
 import '../globals.css';
 
 const BASE = 'https://cryptopulse.media';
+const GA_ID = 'G-8YJT9B6XFV';
 
 type Props = {
   children: React.ReactNode;
@@ -88,6 +90,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Footer />
         </NextIntlClientProvider>
       </body>
+      <GoogleAnalytics gaId={GA_ID} />
     </html>
   );
 }

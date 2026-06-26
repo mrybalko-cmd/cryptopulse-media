@@ -103,6 +103,7 @@ export default async function HomePage({ params }: Props) {
                   publishedAt={article.publishedAt}
                   readingTime={article.readingTime}
                   badge={article.badge}
+                  views={article.views}
                   locale={locale}
                 />
               ))}

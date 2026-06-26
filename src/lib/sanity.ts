@@ -41,7 +41,7 @@ export const fetchArticles = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && language == $locale] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
           "coverImage": coverImage.asset->url
         }`,
         { locale, limit }
