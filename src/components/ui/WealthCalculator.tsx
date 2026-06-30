@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Info, Share2 } from 'lucide-react';
 import { TOP_BILLIONAIRES } from '@/lib/billionaires';
 import ShareButtons from './ShareButtons';
 
@@ -22,18 +22,37 @@ function formatYears(n: number, locale: string) {
   }).format(n);
 }
 
+function formatPercent(n: number, locale: string) {
+  return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    maximumFractionDigits: n < 0.01 ? 6 : 2,
+  }).format(n);
+}
+
+function Term({ label, hint }: { label: string; hint: string }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      {label}
+      <span title={hint} className="cursor-help text-muted/70 hover:text-accent transition-colors">
+        <Info size={11} />
+      </span>
+    </span>
+  );
+}
+
 export default function WealthCalculator({ locale }: { locale: string }) {
   const [salary, setSalary] = useState('1000');
   const [selectedId, setSelectedId] = useState(TOP_BILLIONAIRES[0].id);
 
   const billionaire = TOP_BILLIONAIRES.find((b) => b.id === selectedId)!;
   const monthlySalary = parseFloat(salary) || 0;
+  const yearlySalary = monthlySalary * 12;
 
   const years = useMemo(() => {
     if (monthlySalary <= 0) return 0;
-    return billionaire.netWorth / (monthlySalary * 12);
-  }, [billionaire, monthlySalary]);
+    return billionaire.netWorth / yearlySalary;
+  }, [billionaire, monthlySalary, yearlySalary]);
 
+  const sharePercent = yearlySalary > 0 ? (yearlySalary / billionaire.netWorth) * 100 : 0;
   const lives = years / HUMAN_LIFESPAN_YEARS;
   const bitcoinMultiple = years / BITCOIN_AGE_YEARS;
   const centuries = years / 100;
@@ -48,7 +67,9 @@ export default function WealthCalculator({ locale }: { locale: string }) {
       {/* Step 1: salary input */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          {locale === 'ru' ? 'Твой доход в месяц (в долларах)' : 'Your monthly income (in USD)'}
+          {locale === 'ru'
+            ? <Term label="Твой доход в месяц (в долларах)" hint="Сумма, которую ты зарабатываешь за месяц до вычета расходов — используется только для расчёта на этой странице и никуда не отправляется." />
+            : <Term label="Your monthly income (in USD)" hint="The amount you earn per month before expenses — used only for this calculation and never sent anywhere." />}
         </label>
         <div className="relative max-w-xs">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">$</span>
@@ -66,7 +87,9 @@ export default function WealthCalculator({ locale }: { locale: string }) {
       {/* Step 2: billionaire picker */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          {locale === 'ru' ? 'С кем сравнить?' : 'Compare with?'}
+          {locale === 'ru'
+            ? <Term label="С кем сравнить?" hint="«Состояние» (net worth) — это оценочная стоимость всех активов человека: акций, недвижимости, бизнеса и денег, по данным Forbes/Bloomberg." />
+            : <Term label="Compare with?" hint="'Net worth' is the estimated value of everything a person owns — stocks, real estate, businesses, and cash — per Forbes/Bloomberg." />}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {TOP_BILLIONAIRES.map((b) => {
@@ -119,9 +142,24 @@ export default function WealthCalculator({ locale }: { locale: string }) {
             </div>
             <div className="text-muted text-sm">vs</div>
             <div className="text-right">
-              <p className="text-xs text-muted uppercase tracking-wide">{locale === 'ru' ? 'Ты' : 'You'}</p>
-              <p className="text-lg font-bold text-foreground">{formatMoney(monthlySalary, locale)}/{locale === 'ru' ? 'мес' : 'mo'}</p>
+              <p className="text-xs text-muted uppercase tracking-wide">{locale === 'ru' ? 'Твой годовой доход' : 'Your yearly income'}</p>
+              <p className="text-lg font-bold text-foreground">{formatMoney(yearlySalary, locale)}</p>
             </div>
+          </div>
+
+          {/* Progress bar: your yearly income as a sliver of their net worth */}
+          <div className="mb-6">
+            <div className="h-2 rounded-full bg-border overflow-hidden">
+              <div
+                className="h-full bg-accent rounded-full"
+                style={{ width: `${Math.min(Math.max(sharePercent, 0.3), 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted mt-1.5">
+              {locale === 'ru'
+                ? `Твой годовой доход — это ${formatPercent(sharePercent, locale)}% от состояния ${billionaire.name.ru}`
+                : `Your yearly income is ${formatPercent(sharePercent, locale)}% of ${billionaire.name.en}'s net worth`}
+            </p>
           </div>
 
           <div className="border-t border-border pt-6 mb-6">
@@ -140,8 +178,8 @@ export default function WealthCalculator({ locale }: { locale: string }) {
             <ComparisonRow
               text={
                 locale === 'ru'
-                  ? `Это примерно ${formatYears(lives, locale)} человеческих жизней`
-                  : `That's roughly ${formatYears(lives, locale)} human lifetimes`
+                  ? `Это примерно ${formatYears(lives, locale)} человеческих жизней (при средней продолжительности 80 лет)`
+                  : `That's roughly ${formatYears(lives, locale)} human lifetimes (assuming an 80-year lifespan)`
               }
             />
             <ComparisonRow
@@ -160,9 +198,14 @@ export default function WealthCalculator({ locale }: { locale: string }) {
             />
           </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-4">
-            <span className="text-xs text-muted">cryptopulse.media</span>
-            <ShareButtons url="https://cryptopulse.media" title={shareTitle} locale={locale} vertical={false} />
+          <div className="border-t border-border pt-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <Share2 size={14} className="text-accent" />
+                {locale === 'ru' ? 'Поделиться результатом' : 'Share your result'}
+              </span>
+              <ShareButtons url="https://cryptopulse.media/calculators/wealth" title={shareTitle} locale={locale} vertical={false} />
+            </div>
           </div>
         </div>
       )}

@@ -49,10 +49,11 @@ export default function Header() {
     { href: `/${locale}/news`, label: t('news') },
     { href: `/${locale}/articles`, label: t('articles') },
     { href: `/${locale}/interviews`, label: t('interviews') },
-    { href: `/${locale}/wealth-calculator`, label: t('calculator') },
+    { href: `/${locale}/calculators`, label: t('calculators') },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) =>
+    href.endsWith('/calculators') ? pathname.startsWith(href) : pathname === href;
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
