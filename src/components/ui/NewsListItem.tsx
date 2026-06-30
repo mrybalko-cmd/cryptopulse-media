@@ -26,8 +26,8 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
     <>
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {!external && (
-          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-accent flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
-            <Zap size={10} className="text-background" fill="currentColor" />
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-red-600 flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
+            <Zap size={10} className="text-yellow-400" fill="currentColor" />
           </span>
         )}
         {pinned && (

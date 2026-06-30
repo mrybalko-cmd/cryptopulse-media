@@ -40,10 +40,33 @@ export const newsType = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'publishTiming',
+      title: 'Publish timing / Время публикации',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Сейчас / Now', value: 'now' },
+          { title: 'Запланировать / Scheduled', value: 'scheduled' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'now',
+      description: 'On first publish, "Now" stamps the actual moment you click Publish. "Scheduled" hides the material from the site until the date/time below.',
+    }),
+    defineField({
       name: 'publishedAt',
       title: 'Published At',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
+      hidden: ({ document }) => document?.publishTiming !== 'scheduled',
+      validation: Rule =>
+        Rule.custom((value, context) => {
+          const doc = context.document as { publishTiming?: string } | undefined;
+          if (doc?.publishTiming === 'scheduled' && !value) {
+            return 'Set the scheduled date and time / Укажите дату и время публикации';
+          }
+          return true;
+        }),
     }),
     defineField({
       name: 'body',

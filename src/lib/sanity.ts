@@ -40,7 +40,7 @@ export const fetchArticles = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        `*[_type == "article" && language == $locale] | order(publishedAt desc) [0...$limit] {
+        `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
           _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
           "coverImage": coverImage.asset->url
         }`,
@@ -59,7 +59,7 @@ export const fetchArticleBySlug = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
     try {
       return await client.fetch(
-        `*[_type == "article" && slug.current == $slug && language == $locale][0] {
+        `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current}
@@ -79,7 +79,7 @@ export const fetchSanityNews = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        `*[_type == "news" && language == $locale] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
+        `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
           _id, title, excerpt, slug, publishedAt, pinnedUntil,
           "coverImage": coverImage.asset->url
         }`,
@@ -97,7 +97,7 @@ export async function searchContent(query: string, locale: string) {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !query.trim()) return [];
   try {
     return await client.fetch(
-      `*[(_type == "article" || _type == "news") && language == $locale && title match $q] | order(publishedAt desc) [0...15] {
+      `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now() && title match $q] | order(publishedAt desc) [0...15] {
         _type, title, publishedAt, "slug": slug.current
       }`,
       { locale, q: `*${query.trim()}*` }
@@ -112,7 +112,7 @@ export const fetchNewsBySlug = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
     try {
       return await client.fetch(
-        `*[_type == "news" && slug.current == $slug && language == $locale][0] {
+        `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current}

@@ -30,8 +30,8 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
   const content = (
     <>
       {!external && (
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-accent text-background text-xs font-medium">
-          <Zap size={10} fill="currentColor" />
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-medium">
+          <Zap size={10} className="text-yellow-400" fill="currentColor" />
           {locale === 'ru' ? 'Наш материал' : 'Our story'}
         </div>
       )}
