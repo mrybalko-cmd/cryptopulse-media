@@ -72,6 +72,7 @@ export default async function HomePage({ params }: Props) {
                   publishedAt={item.publishedAt}
                   category={item.categories?.split('|').filter(Boolean)[0]}
                   locale={locale}
+                  pinned={item.pinned}
                 />
               ))}
             </div>

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: t('subtitle'),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/news`,
-      languages: { ru: 'https://cryptopulse.media/ru/news', en: 'https://cryptopulse.media/en/news', 'x-default': 'https://cryptopulse.media/ru/news' },
+      languages: { ru: 'https://cryptopulse.media/ru/news', en: 'https://cryptopulse.media/en/news', 'x-default': 'https://cryptopulse.media/en/news' },
     },
   };
 }
@@ -57,6 +57,7 @@ export default async function NewsPage({ params }: Props) {
                 categories={item.categories}
                 imageUrl={item.imageUrl}
                 locale={locale}
+                pinned={item.pinned}
               />
             ))}
           </div>

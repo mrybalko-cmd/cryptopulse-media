@@ -46,6 +46,10 @@
     "contact": "Contact",
     "advertising": "Advertising",
     "calculator": "Wealth Calculator",
+    "glossary": "Glossary",
+    "faq": "FAQ",
+    "security": "Security",
+    "editorialPolicy": "Editorial Policy",
     "disclaimerText": "This site is for informational purposes only. Not financial advice.",
     "rights": "All rights reserved."
   },
@@ -53,6 +57,8 @@
     "privacyTitle": "Privacy Policy",
     "disclaimerTitle": "Disclaimer",
     "advertisingTitle": "Advertising",
+    "editorialPolicyTitle": "Editorial Policy",
+    "securityTitle": "Security: How to Avoid Scams",
     "lastUpdated": "Last updated"
   },
   "ticker": {

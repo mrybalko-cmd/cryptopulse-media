@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ExternalLink, ArrowRight, Clock, Zap } from 'lucide-react';
+import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
@@ -15,9 +15,10 @@ interface NewsCardProps {
   categories?: string;
   locale: string;
   imageUrl?: string | null;
+  pinned?: boolean;
 }
 
-export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl }: NewsCardProps) {
+export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned }: NewsCardProps) {
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
@@ -32,6 +33,12 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
         <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-accent text-background text-xs font-medium">
           <Zap size={10} fill="currentColor" />
           {locale === 'ru' ? 'Наш материал' : 'Our story'}
+        </div>
+      )}
+      {pinned && (
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500 text-background text-xs font-medium">
+          <Pin size={10} fill="currentColor" />
+          {locale === 'ru' ? 'Закреплено' : 'Pinned'}
         </div>
       )}
       {imageUrl && (

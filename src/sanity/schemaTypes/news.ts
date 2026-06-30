@@ -135,6 +135,13 @@ export const newsType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'pinnedUntil',
+      title: 'Закрепить в топе до / Pinned until',
+      type: 'datetime',
+      description:
+        'Новость будет показываться первой в списках новостей, пока не наступит это время. Чтобы закрепить на 6 часов — выставьте текущее время +6ч, на 24 часа — +24ч. Оставьте пустым, чтобы не закреплять.',
+    }),
+    defineField({
       name: 'translationRef',
       title: 'Перевод на другом языке / Translation in the other language',
       type: 'reference',

@@ -38,6 +38,9 @@ export default async function Footer() {
               <Link href={`/${locale}/wealth-calculator`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('calculator')}
               </Link>
+              <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('glossary')}
+              </Link>
             </div>
           </div>
 
@@ -52,6 +55,15 @@ export default async function Footer() {
               </Link>
               <Link href={`/${locale}/advertising`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('advertising')}
+              </Link>
+              <Link href={`/${locale}/editorial-policy`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('editorialPolicy')}
+              </Link>
+              <Link href={`/${locale}/security`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('security')}
+              </Link>
+              <Link href={`/${locale}/faq`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('faq')}
               </Link>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}

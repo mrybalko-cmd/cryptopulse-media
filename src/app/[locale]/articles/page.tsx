@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: t('subtitle'),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/articles`,
-      languages: { ru: 'https://cryptopulse.media/ru/articles', en: 'https://cryptopulse.media/en/articles', 'x-default': 'https://cryptopulse.media/ru/articles' },
+      languages: { ru: 'https://cryptopulse.media/ru/articles', en: 'https://cryptopulse.media/en/articles', 'x-default': 'https://cryptopulse.media/en/articles' },
     },
   };
 }

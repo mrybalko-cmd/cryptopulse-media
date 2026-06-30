@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+import { Zap, Pin } from 'lucide-react';
 
 interface NewsListItemProps {
   title: string;
@@ -8,9 +8,10 @@ interface NewsListItemProps {
   publishedAt: number;
   category?: string;
   locale: string;
+  pinned?: boolean;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -27,6 +28,11 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         {!external && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-accent flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
             <Zap size={10} className="text-background" fill="currentColor" />
+          </span>
+        )}
+        {pinned && (
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-yellow-500 flex items-center justify-center" title={locale === 'ru' ? 'Закреплено' : 'Pinned'}>
+            <Pin size={10} className="text-background" fill="currentColor" />
           </span>
         )}
         {title}

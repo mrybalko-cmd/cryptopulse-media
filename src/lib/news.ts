@@ -12,6 +12,7 @@ export interface UnifiedNewsItem {
   categories?: string;
   href: string;
   external: boolean;
+  pinned?: boolean;
 }
 
 async function fetchOwnNewsItems(limit: number, locale: string): Promise<UnifiedNewsItem[]> {
@@ -25,6 +26,7 @@ async function fetchOwnNewsItems(limit: number, locale: string): Promise<Unified
     publishedAt: Math.floor(new Date(n.publishedAt).getTime() / 1000),
     href: `/${locale}/news/${n.slug.current}`,
     external: false,
+    pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
   }));
 }
 
@@ -58,6 +60,9 @@ export async function fetchMergedNews({
   const cmsItems: UnifiedNewsItem[] = cms.status === 'fulfilled' ? cms.value : [];
 
   return [...rssItems, ...cmsItems]
-    .sort((a, b) => b.publishedAt - a.publishedAt)
+    .sort((a, b) => {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      return b.publishedAt - a.publishedAt;
+    })
     .slice(0, limit);
 }
