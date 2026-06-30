@@ -25,7 +25,7 @@ export default async function HomePage({ params }: Props) {
     fetchVideos({ limit: 5 }),
     fetchFearGreedIndex(),
     fetchCalendarEvents(),
-    fetchPopularContent(locale, 6),
+    fetchPopularContent(locale, 7),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
@@ -33,6 +33,12 @@ export default async function HomePage({ params }: Props) {
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
   const fearGreedData = fearGreed.status === 'fulfilled' ? fearGreed.value : null;
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
+  const hasPopular = popularItems.length > 0;
+  // The popular widget occupies grid slots 3+6 (a 2-row span in the
+  // rightmost column), so with it present only 10 article cells remain;
+  // CSS grid auto-flow naturally wraps the rest around it (2,2,3,3 rows).
+  const firstArticles = hasPopular ? articleItems.slice(0, 2) : articleItems;
+  const restArticles = hasPopular ? articleItems.slice(2, 10) : [];
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcomingEvents = (calendarEvents.status === 'fulfilled' ? calendarEvents.value : [])
     .filter((e) => e.date >= todayISO)
@@ -103,7 +109,26 @@ export default async function HomePage({ params }: Props) {
           </div>
           {articleItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {articleItems.map((article: any) => (
+              {firstArticles.map((article: any) => (
+                <ArticleCard
+                  key={article._id}
+                  title={article.title}
+                  excerpt={article.excerpt}
+                  slug={article.slug.current}
+                  coverImage={article.coverImage}
+                  publishedAt={article.publishedAt}
+                  readingTime={article.readingTime}
+                  badge={article.badge}
+                  views={article.views}
+                  locale={locale}
+                />
+              ))}
+              {hasPopular && (
+                <div className="lg:row-span-2">
+                  <PopularList items={popularItems} locale={locale} />
+                </div>
+              )}
+              {restArticles.map((article: any) => (
                 <ArticleCard
                   key={article._id}
                   title={article.title}
@@ -123,9 +148,6 @@ export default async function HomePage({ params }: Props) {
           )}
         </section>
       </div>
-
-      {/* Popular */}
-      <PopularList items={popularItems} locale={locale} />
 
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />

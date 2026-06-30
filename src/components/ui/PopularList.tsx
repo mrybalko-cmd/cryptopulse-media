@@ -7,31 +7,31 @@ export default function PopularList({ items, locale }: { items: PopularItem[]; l
   const isRu = locale === 'ru';
 
   return (
-    <section className="mb-14">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <Flame size={21} className="text-red-600" fill="currentColor" />
-          {isRu ? 'Популярное' : 'Most read'}
-        </h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="bg-card border border-border rounded-lg p-4 h-full flex flex-col">
+      <h2 className="flex items-center gap-2 text-sm font-bold text-foreground mb-4">
+        <Flame size={21} className="text-red-600" fill="currentColor" />
+        {isRu ? 'Популярное' : 'Most read'}
+      </h2>
+      <div className="flex flex-col gap-3">
         {items.map((item, i) => (
           <Link
             key={item._id}
             href={`/${locale}/${item._type === 'article' ? 'articles' : 'news'}/${item.slug}`}
-            className="flex items-start gap-3 bg-card border border-border rounded-lg p-3 hover:border-accent/40 transition-colors"
+            className="group flex items-start gap-2.5"
           >
-            <span className="text-2xl font-extrabold text-accent/30 leading-none shrink-0">{i + 1}</span>
+            <span className="text-lg font-extrabold text-accent/30 leading-none shrink-0">{i + 1}</span>
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{item.title}</h3>
-              <p className="flex items-center gap-1 text-xs text-muted mt-1.5">
-                <Eye size={11} />
+              <h3 className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-accent transition-colors">
+                {item.title}
+              </h3>
+              <p className="flex items-center gap-1 text-[11px] text-muted mt-1">
+                <Eye size={10} />
                 {item.views} {isRu ? 'просмотров' : 'views'}
               </p>
             </div>
           </Link>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
