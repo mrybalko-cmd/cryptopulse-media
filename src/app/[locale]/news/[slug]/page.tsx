@@ -4,9 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
-import { fetchNewsBySlug, incrementViews } from '@/lib/sanity';
+import { fetchNewsBySlug, incrementViews, fetchComments } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import CommentSection from '@/components/ui/CommentSection';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -58,6 +59,9 @@ export default async function NewsDetailPage({ params }: Props) {
 
   after(() => incrementViews(news._id));
 
+  const commentsEnabled = news.commentsEnabled !== false;
+  const comments = commentsEnabled ? await fetchComments(news._id) : [];
+
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
     { day: 'numeric', month: 'long', year: 'numeric' }
@@ -75,6 +79,15 @@ export default async function NewsDetailPage({ params }: Props) {
     author: { '@type': 'Organization', name: 'CryptoPulse.media' },
     publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
+    commentCount: comments.length,
+    ...(comments.length > 0 && {
+      comment: comments.slice(0, 20).map((c) => ({
+        '@type': 'Comment',
+        author: { '@type': 'Person', name: c.authorName },
+        text: c.text,
+        dateCreated: c.createdAt,
+      })),
+    }),
   };
 
   const breadcrumbLd = {
@@ -183,6 +196,10 @@ export default async function NewsDetailPage({ params }: Props) {
         </div>
       ) : (
         <p className="text-muted">{news.excerpt}</p>
+      )}
+
+      {commentsEnabled && (
+        <CommentSection targetId={news._id} locale={locale} initialComments={comments} />
       )}
       </div>
 

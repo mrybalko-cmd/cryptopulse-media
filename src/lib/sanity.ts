@@ -60,7 +60,7 @@ export const fetchArticleBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current}
         }`,
@@ -113,7 +113,7 @@ export const fetchNewsBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current}
         }`,
@@ -126,3 +126,72 @@ export const fetchNewsBySlug = unstable_cache(
   ['fetchNewsBySlug'],
   { revalidate: READ_CACHE_SECONDS }
 );
+
+export interface SanityComment {
+  _id: string;
+  authorName: string;
+  text: string;
+  createdAt: string;
+  parentId: string | null;
+}
+
+export const fetchComments = unstable_cache(
+  async (targetId: string): Promise<SanityComment[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "comment" && target._ref == $targetId && approved == true] | order(createdAt asc) {
+          _id, authorName, text, createdAt, "parentId": parentComment._ref
+        }`,
+        { targetId }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchComments'],
+  { revalidate: 20 }
+);
+
+export async function isCommentingAllowed(targetId: string) {
+  try {
+    const doc = await client.fetch(`*[_id == $targetId][0]{ commentsEnabled }`, { targetId });
+    return doc ? doc.commentsEnabled !== false : false;
+  } catch {
+    return false;
+  }
+}
+
+export async function countRecentCommentsByIpHash(ipHash: string, sinceISO: string) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return 0;
+  try {
+    return await writeClient.fetch(
+      `count(*[_type == "comment" && ipHash == $ipHash && createdAt > $sinceISO])`,
+      { ipHash, sinceISO }
+    );
+  } catch {
+    return 0;
+  }
+}
+
+export async function createComment(input: {
+  authorName: string;
+  text: string;
+  targetId: string;
+  parentCommentId?: string;
+  ipHash: string;
+}) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) throw new Error('Sanity write token not configured');
+  await writeClient.create({
+    _type: 'comment',
+    authorName: input.authorName,
+    text: input.text,
+    target: { _type: 'reference', _weak: true, _ref: input.targetId },
+    ...(input.parentCommentId
+      ? { parentComment: { _type: 'reference', _weak: true, _ref: input.parentCommentId } }
+      : {}),
+    approved: false,
+    createdAt: new Date().toISOString(),
+    ipHash: input.ipHash,
+  });
+}

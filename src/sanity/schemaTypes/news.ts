@@ -142,6 +142,13 @@ export const newsType = defineType({
         'Новость будет показываться первой в списках новостей, пока не наступит это время. Чтобы закрепить на 6 часов — выставьте текущее время +6ч, на 24 часа — +24ч. Оставьте пустым, чтобы не закреплять.',
     }),
     defineField({
+      name: 'commentsEnabled',
+      title: 'Comments enabled / Комментарии включены',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Show or hide the comment section under this news item on the site.',
+    }),
+    defineField({
       name: 'translationRef',
       title: 'Перевод на другом языке / Translation in the other language',
       type: 'reference',

@@ -73,6 +73,13 @@ export const articleType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'commentsEnabled',
+      title: 'Comments enabled / Комментарии включены',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Show or hide the comment section under this article on the site.',
+    }),
+    defineField({
       name: 'translationRef',
       title: 'Перевод на другом языке / Translation in the other language',
       type: 'reference',
