@@ -10,7 +10,7 @@ export default function PopularList({ items, locale }: { items: PopularItem[]; l
     <section className="mb-14">
       <div className="flex items-center justify-between mb-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <Flame size={14} className="text-accent" />
+          <Flame size={21} className="text-red-600" fill="currentColor" />
           {isRu ? 'Популярное' : 'Most read'}
         </h2>
       </div>
