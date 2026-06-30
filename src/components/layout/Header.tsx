@@ -50,6 +50,7 @@ export default function Header() {
     { href: `/${locale}/articles`, label: t('articles') },
     { href: `/${locale}/interviews`, label: t('interviews') },
     { href: `/${locale}/calculators`, label: t('calculators') },
+    { href: `/${locale}/calendar`, label: t('calendar') },
   ];
 
   const isActive = (href: string) =>
