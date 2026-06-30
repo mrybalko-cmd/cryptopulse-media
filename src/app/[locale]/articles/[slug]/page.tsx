@@ -5,10 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
-import { fetchArticleBySlug, incrementViews, fetchComments } from '@/lib/sanity';
+import { fetchArticleBySlug, incrementViews, fetchComments, fetchRelatedArticles } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
 import ArticleBadge from '@/components/ui/ArticleBadge';
+import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -63,6 +64,7 @@ export default async function ArticlePage({ params }: Props) {
 
   const commentsEnabled = article.commentsEnabled !== false;
   const comments = commentsEnabled ? await fetchComments(article._id) : [];
+  const relatedArticles = await fetchRelatedArticles(article._id, locale, 3);
 
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -198,6 +200,30 @@ export default async function ArticlePage({ params }: Props) {
         </div>
       ) : (
         <p className="text-muted">{article.excerpt}</p>
+      )}
+
+      {relatedArticles.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-border">
+          <h2 className="text-sm font-bold text-foreground mb-5">
+            {locale === 'ru' ? 'Похожие материалы' : 'Related articles'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {relatedArticles.map((related: any) => (
+              <ArticleCard
+                key={related._id}
+                title={related.title}
+                excerpt={related.excerpt}
+                slug={related.slug.current}
+                coverImage={related.coverImage}
+                publishedAt={related.publishedAt}
+                readingTime={related.readingTime}
+                badge={related.badge}
+                views={related.views}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {commentsEnabled && (

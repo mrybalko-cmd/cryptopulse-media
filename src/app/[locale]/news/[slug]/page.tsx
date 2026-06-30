@@ -4,10 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
-import { fetchNewsBySlug, incrementViews, fetchComments } from '@/lib/sanity';
+import { fetchNewsBySlug, incrementViews, fetchComments, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
+import { SITE_NAME } from '@/lib/constants';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -61,6 +63,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
   const commentsEnabled = news.commentsEnabled !== false;
   const comments = commentsEnabled ? await fetchComments(news._id) : [];
+  const relatedNews = await fetchRelatedNews(news._id, locale, 3);
 
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -196,6 +199,28 @@ export default async function NewsDetailPage({ params }: Props) {
         </div>
       ) : (
         <p className="text-muted">{news.excerpt}</p>
+      )}
+
+      {relatedNews.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-border">
+          <h2 className="text-sm font-bold text-foreground mb-5">
+            {locale === 'ru' ? 'Похожие материалы' : 'Related news'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {relatedNews.map((related: any) => (
+              <NewsCard
+                key={related._id}
+                title={related.title}
+                source={SITE_NAME}
+                href={`/${locale}/news/${related.slug.current}`}
+                external={false}
+                publishedAt={Math.floor(new Date(related.publishedAt).getTime() / 1000)}
+                imageUrl={related.coverImage}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {commentsEnabled && (

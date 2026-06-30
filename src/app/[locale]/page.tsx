@@ -7,8 +7,9 @@ import VideoCard from '@/components/ui/VideoCard';
 import FearGreedBadge from '@/components/ui/FearGreedBadge';
 import SiteSearch from '@/components/ui/SiteSearch';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
+import PopularList from '@/components/ui/PopularList';
 import { fetchMergedNews } from '@/lib/news';
-import { fetchArticles, fetchCalendarEvents } from '@/lib/sanity';
+import { fetchArticles, fetchCalendarEvents, fetchPopularContent } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
 import { fetchFearGreedIndex } from '@/lib/feargreed';
 
@@ -18,18 +19,20 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('home');
 
-  const [news, articles, videos, fearGreed, calendarEvents] = await Promise.allSettled([
+  const [news, articles, videos, fearGreed, calendarEvents, popular] = await Promise.allSettled([
     fetchMergedNews({ limit: 12, locale }),
     fetchArticles({ limit: 12, locale }),
     fetchVideos({ limit: 5 }),
     fetchFearGreedIndex(),
     fetchCalendarEvents(),
+    fetchPopularContent(locale, 6),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
   const fearGreedData = fearGreed.status === 'fulfilled' ? fearGreed.value : null;
+  const popularItems = popular.status === 'fulfilled' ? popular.value : [];
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcomingEvents = (calendarEvents.status === 'fulfilled' ? calendarEvents.value : [])
     .filter((e) => e.date >= todayISO)
@@ -120,6 +123,9 @@ export default async function HomePage({ params }: Props) {
           )}
         </section>
       </div>
+
+      {/* Popular */}
+      <PopularList items={popularItems} locale={locale} />
 
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />

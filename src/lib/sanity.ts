@@ -269,3 +269,67 @@ export async function recordEventVote(eventId: string, vote: 'like' | 'dislike',
   await writeClient.patch(existing._id).set({ vote }).commit({ autoGenerateArrayKeys: false });
   return { action: 'switched' as const, vote: vote as 'like' | 'dislike' | null };
 }
+
+export const fetchRelatedArticles = unstable_cache(
+  async (excludeId: string, locale: string, limit = 4) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "article" && language == $locale && publishedAt <= now() && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, excludeId, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchRelatedArticles'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export const fetchRelatedNews = unstable_cache(
+  async (excludeId: string, locale: string, limit = 4) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "news" && language == $locale && publishedAt <= now() && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, excludeId, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchRelatedNews'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export interface PopularItem {
+  _type: 'article' | 'news';
+  _id: string;
+  title: string;
+  slug: string;
+  views: number;
+}
+
+export const fetchPopularContent = unstable_cache(
+  async (locale: string, limit = 6): Promise<PopularItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now() && views > 0] | order(views desc) [0...$limit] {
+          _type, _id, title, "slug": slug.current, views
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchPopularContent'],
+  { revalidate: READ_CACHE_SECONDS }
+);
