@@ -195,3 +195,77 @@ export async function createComment(input: {
     ipHash: input.ipHash,
   });
 }
+
+export interface CalendarEvent {
+  _id: string;
+  title: { ru: string; en: string };
+  slug: string;
+  description?: { ru?: string; en?: string };
+  date: string;
+  category: string;
+  importance: 'low' | 'medium' | 'high';
+  iconUrl: string | null;
+  sourceUrl: string | null;
+  likes: number;
+  dislikes: number;
+}
+
+export const fetchCalendarEvents = unstable_cache(
+  async (): Promise<CalendarEvent[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "calendarEvent"] | order(date asc) {
+          _id, title, "slug": slug.current, description, date, category, importance,
+          "iconUrl": icon.asset->url, sourceUrl,
+          "likes": coalesce(likes, 0), "dislikes": coalesce(dislikes, 0)
+        }`
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchCalendarEvents'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export async function recordEventVote(eventId: string, vote: 'like' | 'dislike', ipHash: string) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) throw new Error('Sanity write token not configured');
+
+  const field = vote === 'like' ? 'likes' : 'dislikes';
+  const otherField = vote === 'like' ? 'dislikes' : 'likes';
+
+  const existing = await writeClient.fetch(
+    `*[_type == "eventVote" && event._ref == $eventId && ipHash == $ipHash][0]{ _id, vote }`,
+    { eventId, ipHash }
+  );
+
+  if (!existing) {
+    await writeClient
+      .patch(eventId)
+      .setIfMissing({ likes: 0, dislikes: 0 })
+      .inc({ [field]: 1 })
+      .commit({ autoGenerateArrayKeys: false });
+    await writeClient.create({
+      _type: 'eventVote',
+      event: { _type: 'reference', _weak: true, _ref: eventId },
+      ipHash,
+      vote,
+    });
+    return { action: 'added' as const, vote: vote as 'like' | 'dislike' | null };
+  }
+
+  if (existing.vote === vote) {
+    await writeClient.patch(eventId).dec({ [field]: 1 }).commit({ autoGenerateArrayKeys: false });
+    await writeClient.delete(existing._id);
+    return { action: 'removed' as const, vote: null };
+  }
+
+  await writeClient
+    .patch(eventId)
+    .dec({ [otherField]: 1 })
+    .inc({ [field]: 1 })
+    .commit({ autoGenerateArrayKeys: false });
+  await writeClient.patch(existing._id).set({ vote }).commit({ autoGenerateArrayKeys: false });
+  return { action: 'switched' as const, vote: vote as 'like' | 'dislike' | null };
+}

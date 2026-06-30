@@ -41,6 +41,9 @@ export default async function Footer() {
               <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('glossary')}
               </Link>
+              <Link href={`/${locale}/calendar`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('calendar')}
+              </Link>
             </div>
           </div>
 
