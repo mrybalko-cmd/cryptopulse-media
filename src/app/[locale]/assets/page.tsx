@@ -53,7 +53,7 @@ const ASSETS = [
     name: 'Solana',
     tagline: { ru: 'Высокоскоростной блокчейн нового поколения', en: 'High-speed next-generation blockchain' },
     year: 2020,
-    available: false,
+    available: true,
   },
   {
     slug: 'xrp',
@@ -62,7 +62,7 @@ const ASSETS = [
     name: 'XRP (Ripple)',
     tagline: { ru: 'Токен для международных платежей', en: 'Token for cross-border payments' },
     year: 2012,
-    available: false,
+    available: true,
   },
 ];
 
