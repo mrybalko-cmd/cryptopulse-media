@@ -79,7 +79,11 @@ export async function fetchMergedNews({
 
   return [...ownToShow, ...rssToShow]
     .sort((a, b) => {
+      // Pinned items always first
       if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      // Editorial items before RSS within the same pinned group
+      if (!a.external !== !b.external) return !a.external ? -1 : 1;
+      // Same group: most recent first
       return b.publishedAt - a.publishedAt;
     })
     .slice(0, limit);
