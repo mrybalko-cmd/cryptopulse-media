@@ -44,7 +44,7 @@ const ASSETS = [
     name: 'Ethereum',
     tagline: { ru: 'Платформа смарт-контрактов №1', en: 'The #1 smart contract platform' },
     year: 2015,
-    available: false,
+    available: true,
   },
   {
     slug: 'solana',

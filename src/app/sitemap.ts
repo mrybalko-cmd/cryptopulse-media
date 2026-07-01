@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchSanityNews({ limit: 200, locale: 'en' }),
   ]);
 
-  const staticPages = ['', '/news', '/articles', '/interviews', '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy'].flatMap(path => [
+  const staticPages = ['', '/news', '/articles', '/interviews', '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy'].flatMap(path => [
     { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
     { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
   ]);

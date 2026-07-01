@@ -51,10 +51,13 @@ export default function Header() {
     { href: `/${locale}/interviews`, label: t('interviews') },
     { href: `/${locale}/calculators`, label: t('calculators') },
     { href: `/${locale}/calendar`, label: t('calendar') },
+    { href: `/${locale}/assets`, label: t('assets') },
   ];
 
   const isActive = (href: string) =>
-    href.endsWith('/calculators') ? pathname.startsWith(href) : pathname === href;
+    href.endsWith('/calculators') || href.endsWith('/assets')
+      ? pathname.startsWith(href)
+      : pathname === href;
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
