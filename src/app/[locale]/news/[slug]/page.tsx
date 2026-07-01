@@ -10,6 +10,7 @@ import ShareButtons from '@/components/ui/ShareButtons';
 import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
+import { urlFor } from '@/lib/sanityImage';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -175,6 +176,25 @@ export default async function NewsDetailPage({ params }: Props) {
           <PortableText
             value={news.body}
             components={{
+              types: {
+                image: ({ value }: { value: any }) => {
+                  if (!value?.asset) return null;
+                  const src = urlFor(value).width(900).url();
+                  return (
+                    <figure className="my-6">
+                      <img
+                        src={src}
+                        alt={value.alt || ''}
+                        loading="lazy"
+                        className="w-full h-auto rounded-lg"
+                      />
+                      {value.alt && (
+                        <figcaption className="text-xs text-muted text-center mt-2">{value.alt}</figcaption>
+                      )}
+                    </figure>
+                  );
+                },
+              },
               marks: {
                 link: ({ value, children }) => {
                   const isExternal = value?.href?.startsWith('http');
