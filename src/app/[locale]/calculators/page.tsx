@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
+import { buildOg, BASE } from '@/lib/metadata';
 import Link from 'next/link';
 import { Scale, ArrowRightLeft, ArrowRight } from 'lucide-react';
 
-const BASE = 'https://cryptopulse.media';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/calculators`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/calculators`,
       languages: { ru: `${BASE}/ru/calculators`, en: `${BASE}/en/calculators`, 'x-default': `${BASE}/en/calculators` },

@@ -22,7 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
 
   return {
-    title: { default: 'CryptoPulse.media', template: '%s | CryptoPulse.media' },
+    title: {
+      default: isRu
+        ? 'CryptoPulse.media — Новости криптовалют, аналитика и интервью'
+        : 'CryptoPulse.media — Crypto News, Analysis & Interviews',
+      template: '%s | CryptoPulse.media',
+    },
     description: isRu
       ? 'Крипто-аналитика для простых людей простыми словами. Новости, статьи и интервью.'
       : 'Crypto intelligence for European investors. News, analysis, and interviews.',
@@ -63,6 +68,14 @@ export default async function LocaleLayout({ children, params }: Props) {
         url: BASE,
         publisher: { '@id': `${BASE}/#organization` },
         inLanguage: locale,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${BASE}/${locale}?search={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
     ],
   };

@@ -1,8 +1,8 @@
 import { getTranslations } from 'next-intl/server';
+import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL } from '@/lib/constants';
 
-const BASE = 'https://cryptopulse.media';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,6 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   return {
     title: t('securityTitle'),
+    openGraph: buildOg({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description: '', locale }),
     alternates: {
       canonical: `${BASE}/${locale}/security`,
       languages: { ru: `${BASE}/ru/security`, en: `${BASE}/en/security`, 'x-default': `${BASE}/en/security` },

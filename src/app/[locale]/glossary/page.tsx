@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
+import { buildOg, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
 import { GLOSSARY } from '@/lib/glossary';
 
-const BASE = 'https://cryptopulse.media';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/glossary`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/glossary`,
       languages: { ru: `${BASE}/ru/glossary`, en: `${BASE}/en/glossary`, 'x-default': `${BASE}/en/glossary` },

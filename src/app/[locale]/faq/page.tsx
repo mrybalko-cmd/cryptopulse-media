@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { buildOg, BASE } from '@/lib/metadata';
 import { FAQ } from '@/lib/faq';
 
-const BASE = 'https://cryptopulse.media';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/faq`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/faq`,
       languages: { ru: `${BASE}/ru/faq`, en: `${BASE}/en/faq`, 'x-default': `${BASE}/en/faq` },

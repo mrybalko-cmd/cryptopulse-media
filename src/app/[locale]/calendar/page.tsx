@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
+import { buildOg, BASE } from '@/lib/metadata';
 import { fetchCalendarEvents } from '@/lib/sanity';
 import CalendarFilter from '@/components/ui/CalendarFilter';
 
-const BASE = 'https://cryptopulse.media';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/calendar`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/calendar`,
       languages: { ru: `${BASE}/ru/calendar`, en: `${BASE}/en/calendar`, 'x-default': `${BASE}/en/calendar` },

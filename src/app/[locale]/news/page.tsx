@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import NewsCard from '@/components/ui/NewsCard';
 import { fetchMergedNews, fetchOwnNews } from '@/lib/news';
@@ -8,9 +9,12 @@ type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'news' });
+  const title = t('title');
+  const description = t('subtitle');
   return {
-    title: t('title'),
-    description: t('subtitle'),
+    title,
+    description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/news`, title, description, locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/news`,
       languages: { ru: 'https://cryptopulse.media/ru/news', en: 'https://cryptopulse.media/en/news', 'x-default': 'https://cryptopulse.media/en/news' },
