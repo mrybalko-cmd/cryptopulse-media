@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews } from '@/lib/sanity';
+import { GLOSSARY } from '@/lib/glossary';
 
 const BASE = 'https://cryptopulse.media';
 
@@ -46,5 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  return [...staticPages, ...articlePages, ...newsPages];
+  const glossaryTermPages = GLOSSARY.flatMap(term => [
+    { url: `${BASE}/ru/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/en/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+  ]);
+
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages];
 }

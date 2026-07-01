@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 import type { GlossaryTerm } from '@/lib/glossary';
 
@@ -70,8 +71,18 @@ export default function GlossaryFilter({ terms, locale }: Props) {
                     className="group bg-card border border-border rounded-lg px-4 py-3 open:border-accent/40 scroll-mt-24"
                   >
                     <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-foreground">
-                      {t.term[locale as 'ru' | 'en']}
-                      <span className="text-muted text-xs group-open:rotate-180 transition-transform">▾</span>
+                      <span>{t.term[locale as 'ru' | 'en']}</span>
+                      <span className="flex items-center gap-2 shrink-0">
+                        <Link
+                          href={`/${locale}/glossary/${t.slug}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-accent hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label={isRu ? `Открыть страницу термина ${t.term.ru}` : `Open page for ${t.term.en}`}
+                        >
+                          {isRu ? 'Подробнее →' : 'Details →'}
+                        </Link>
+                        <span className="text-muted text-xs group-open:rotate-180 transition-transform">▾</span>
+                      </span>
                     </summary>
                     <p className="text-muted text-sm leading-relaxed mt-2">{t.definition[locale as 'ru' | 'en']}</p>
                   </details>
