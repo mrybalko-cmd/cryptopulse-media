@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap, Pin } from 'lucide-react';
+import { Zap, Pin, Eye } from 'lucide-react';
 
 interface NewsListItemProps {
   title: string;
@@ -9,9 +9,10 @@ interface NewsListItemProps {
   category?: string;
   locale: string;
   pinned?: boolean;
+  views?: number;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, views }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -41,9 +42,17 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         <span className="text-xs text-muted whitespace-nowrap">
           {dateStr} <span className="text-muted/60">•</span> {timeStr}
         </span>
-        {category && (
-          <span className="text-xs text-muted truncate">{category}</span>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {!external && typeof views === 'number' && views > 0 && (
+            <span className="flex items-center gap-1 text-xs text-muted">
+              <Eye size={11} />
+              {views}
+            </span>
+          )}
+          {category && (
+            <span className="text-xs text-muted truncate">{category}</span>
+          )}
+        </div>
       </div>
     </>
   );

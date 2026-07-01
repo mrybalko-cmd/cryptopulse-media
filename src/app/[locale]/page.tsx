@@ -88,6 +88,7 @@ export default async function HomePage({ params }: Props) {
                   category={item.categories?.split('|').filter(Boolean)[0]}
                   locale={locale}
                   pinned={item.pinned}
+                  views={item.views}
                 />
               ))}
             </div>

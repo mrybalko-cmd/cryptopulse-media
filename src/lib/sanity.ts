@@ -80,7 +80,7 @@ export const fetchSanityNews = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, pinnedUntil,
+          _id, title, excerpt, slug, publishedAt, pinnedUntil, views,
           "coverImage": coverImage.asset->url
         }`,
         { locale, limit }
