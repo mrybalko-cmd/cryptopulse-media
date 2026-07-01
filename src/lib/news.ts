@@ -43,9 +43,11 @@ export async function fetchMergedNews({
   limit = 12,
   locale = 'ru',
 }: { limit?: number; locale?: string } = {}): Promise<UnifiedNewsItem[]> {
+  // Fetch all own news (uncapped) so pinned items that were recently unpinned
+  // don't immediately disappear — they stay in the pool and sink gradually.
   const [rss, cms] = await Promise.allSettled([
     fetchNews({ limit: limit * 2, locale }),
-    fetchOwnNewsItems(limit, locale),
+    fetchOwnNewsItems(50, locale),
   ]);
 
   const rssItems: UnifiedNewsItem[] = (rss.status === 'fulfilled' ? rss.value : []).map(n => ({
@@ -61,7 +63,21 @@ export async function fetchMergedNews({
 
   const cmsItems: UnifiedNewsItem[] = cms.status === 'fulfilled' ? cms.value : [];
 
-  return [...rssItems, ...cmsItems]
+  // Pinned own news always floats to the top. Remaining own news items are
+  // guaranteed a slot before RSS fills the rest, so unpinned editorial items
+  // gradually move down (not instantly cut off by a flood of RSS content).
+  const pinned = cmsItems.filter(i => i.pinned);
+  const unpinnedOwn = cmsItems
+    .filter(i => !i.pinned)
+    .sort((a, b) => b.publishedAt - a.publishedAt);
+
+  const ownToShow = [...pinned, ...unpinnedOwn];
+  const remainingSlots = Math.max(0, limit - ownToShow.length);
+  const rssToShow = rssItems
+    .sort((a, b) => b.publishedAt - a.publishedAt)
+    .slice(0, remainingSlots);
+
+  return [...ownToShow, ...rssToShow]
     .sort((a, b) => {
       if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
       return b.publishedAt - a.publishedAt;
