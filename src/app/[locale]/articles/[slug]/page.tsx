@@ -222,6 +222,10 @@ export default async function ArticlePage({ params }: Props) {
         <p className="text-muted">{article.excerpt}</p>
       )}
 
+      {commentsEnabled && (
+        <CommentSection targetId={article._id} locale={locale} initialComments={comments} />
+      )}
+
       {relatedArticles.length > 0 && (
         <div className="mt-12 pt-8 border-t border-border">
           <h2 className="text-sm font-bold text-foreground mb-5">
@@ -244,10 +248,6 @@ export default async function ArticlePage({ params }: Props) {
             ))}
           </div>
         </div>
-      )}
-
-      {commentsEnabled && (
-        <CommentSection targetId={article._id} locale={locale} initialComments={comments} />
       )}
       </div>
 

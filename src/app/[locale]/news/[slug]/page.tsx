@@ -221,6 +221,10 @@ export default async function NewsDetailPage({ params }: Props) {
         <p className="text-muted">{news.excerpt}</p>
       )}
 
+      {commentsEnabled && (
+        <CommentSection targetId={news._id} locale={locale} initialComments={comments} />
+      )}
+
       {relatedNews.length > 0 && (
         <div className="mt-12 pt-8 border-t border-border">
           <h2 className="text-sm font-bold text-foreground mb-5">
@@ -241,10 +245,6 @@ export default async function NewsDetailPage({ params }: Props) {
             ))}
           </div>
         </div>
-      )}
-
-      {commentsEnabled && (
-        <CommentSection targetId={news._id} locale={locale} initialComments={comments} />
       )}
       </div>
 
