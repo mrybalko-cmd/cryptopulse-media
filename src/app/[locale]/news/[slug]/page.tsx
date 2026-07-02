@@ -231,11 +231,11 @@ export default async function NewsDetailPage({ params }: Props) {
 
       {news.author && <AuthorCard author={news.author} locale={locale} />}
 
-      <EmailSubscribeForm locale={locale} source="news-detail" />
-
       {commentsEnabled && (
         <CommentSection targetId={news._id} locale={locale} initialComments={comments} />
       )}
+
+      <EmailSubscribeForm locale={locale} source="news-detail" />
 
       {relatedNews.length > 0 && (
         <div className="mt-12 pt-8 border-t border-border">
