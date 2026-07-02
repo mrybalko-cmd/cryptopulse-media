@@ -62,6 +62,7 @@ export default async function NewsPage({ params }: Props) {
                 imageUrl={item.imageUrl}
                 locale={locale}
                 pinned={item.pinned}
+                breaking={item.breaking}
               />
             ))}
           </div>

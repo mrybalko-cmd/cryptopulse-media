@@ -9,10 +9,11 @@ interface NewsListItemProps {
   category?: string;
   locale: string;
   pinned?: boolean;
+  breaking?: boolean;
   views?: number;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, views }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, views }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -25,6 +26,12 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
 
   const content = (
     <>
+      {breaking && (
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-red-600 text-white mb-1.5 animate-pulse">
+          <Zap size={10} fill="currentColor" />
+          {locale === 'ru' ? 'Молния' : 'Breaking'}
+        </span>
+      )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {!external && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-red-600 flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>

@@ -13,6 +13,7 @@ export interface UnifiedNewsItem {
   href: string;
   external: boolean;
   pinned?: boolean;
+  breaking?: boolean;
   views?: number;
 }
 
@@ -28,6 +29,7 @@ async function fetchOwnNewsItems(limit: number, locale: string): Promise<Unified
     href: `/${locale}/news/${n.slug.current}`,
     external: false,
     pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
+    breaking: !!n.breaking,
     views: typeof n.views === 'number' ? n.views : undefined,
   }));
 }

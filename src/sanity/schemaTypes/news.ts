@@ -158,6 +158,13 @@ export const newsType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'breaking',
+      title: '⚡ Молния / Breaking news',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Отметьте, если это срочная новость. На сайте рядом с заголовком появится бейдж «⚡ Молния». Снимите отметку, когда новость перестанет быть срочной.',
+    }),
+    defineField({
       name: 'pinnedUntil',
       title: 'Закрепить в топе до / Pinned until',
       type: 'datetime',

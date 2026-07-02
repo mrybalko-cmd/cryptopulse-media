@@ -3,7 +3,7 @@ import { after } from 'next/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
 import { fetchNewsBySlug, incrementViews, fetchComments, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -134,6 +134,12 @@ export default async function NewsDetailPage({ params }: Props) {
       )}
 
       {/* Header */}
+      {news.breaking && (
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4 animate-pulse">
+          <Zap size={12} fill="currentColor" />
+          {locale === 'ru' ? 'Молния' : 'Breaking News'}
+        </div>
+      )}
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">
         {news.title}
       </h1>
