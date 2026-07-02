@@ -35,6 +35,12 @@ const QUERY = `{
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 const RU_WEEKDAYS = ['вс','пн','вт','ср','чт','пт','сб'];
 
+function truncate(text: string, max: number): string {
+  if (!text || text.length <= max) return text;
+  const cut = text.lastIndexOf(' ', max);
+  return (cut > max * 0.6 ? text.slice(0, cut) : text.slice(0, max)) + '…';
+}
+
 function toDateKey(iso: string) {
   const d = new Date(iso);
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -205,18 +211,8 @@ function ItemRow({ item }: { item: Item }) {
         </Flex>
 
         <Box flex={1} style={{ minWidth: 0 }}>
-          <Text
-            size={1}
-            weight="semibold"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical' as const,
-              overflow: 'hidden',
-              lineHeight: 1.45,
-            }}
-          >
-            {item.title || '(без названия)'}
+          <Text size={1} weight="semibold" style={{ lineHeight: 1.45 }}>
+            {truncate(item.title || '(без названия)', 90)}
           </Text>
           {item.publishedAt && (
             <Flex align="center" gap={2} style={{ marginTop: 4 }}>
@@ -491,17 +487,8 @@ export function PublicationScheduleTool() {
                               </Badge>
                             </Flex>
                             <Box style={{ minWidth: 0 }}>
-                              <Text
-                                size={1}
-                                style={{
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical' as const,
-                                  overflow: 'hidden',
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                {item.title || '(без названия)'}
+                              <Text size={1} style={{ lineHeight: 1.4 }}>
+                                {truncate(item.title || '(без названия)', 70)}
                               </Text>
                               {item.publishedAt && (
                                 <Text size={1} style={{ marginTop: 4, opacity: 0.7 }}>
