@@ -85,15 +85,6 @@ export default async function AboutPage({ params }: Props) {
             с квалифицированным специалистом.
           </p>
 
-          <h2>Связь</h2>
-          <p>
-            По вопросам сотрудничества, рекламы и пресс-запросам пишите на{' '}
-            <a href="mailto:info@cryptopulse.media">info@cryptopulse.media</a>.
-          </p>
-          <p>
-            Подробнее о наших стандартах работы — в{' '}
-            <Link href={`/${locale}/editorial-policy`}>редакционной политике</Link>.
-          </p>
         </article>
       ) : (
         <article className="prose prose-invert prose-sm max-w-none">
@@ -143,15 +134,6 @@ export default async function AboutPage({ params }: Props) {
             Please consult a qualified professional before making any financial decisions.
           </p>
 
-          <h2>Contact</h2>
-          <p>
-            For partnership, advertising, and press inquiries, email us at{' '}
-            <a href="mailto:info@cryptopulse.media">info@cryptopulse.media</a>.
-          </p>
-          <p>
-            Learn more about our standards in our{' '}
-            <Link href={`/${locale}/editorial-policy`}>editorial policy</Link>.
-          </p>
         </article>
       )}
     </div>
