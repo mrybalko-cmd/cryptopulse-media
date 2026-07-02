@@ -176,7 +176,7 @@ function ItemRow({ item }: { item: Item }) {
     <a href={docHref(item)} style={{ textDecoration: 'none', display: 'block' }}>
       <Flex
         gap={2}
-        align="center"
+        align="flex-start"
         style={{
           padding: '10px 12px',
           borderRadius: 8,
@@ -184,10 +184,9 @@ function ItemRow({ item }: { item: Item }) {
           background: 'var(--card-bg-color)',
           marginBottom: 6,
           cursor: 'pointer',
-          transition: 'opacity 0.15s',
         }}
       >
-        <Flex gap={1} style={{ flexShrink: 0 }}>
+        <Flex gap={1} style={{ flexShrink: 0, paddingTop: 2 }}>
           <Badge
             tone={isArticle ? 'primary' : 'caution'}
             fontSize={0}
@@ -210,26 +209,29 @@ function ItemRow({ item }: { item: Item }) {
             size={1}
             weight="semibold"
             style={{
-              display: 'block',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical' as const,
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
+              lineHeight: 1.45,
             }}
           >
             {item.title || '(без названия)'}
           </Text>
           {item.publishedAt && (
-            <Flex align="center" gap={2} style={{ marginTop: 2 }}>
-              <Text size={0} muted>{fmtDateTime(item.publishedAt)}</Text>
+            <Flex align="center" gap={2} style={{ marginTop: 4 }}>
+              <Text size={1} style={{ opacity: 0.75 }}>
+                {fmtDateTime(item.publishedAt)}
+              </Text>
               {isFuture && (
-                <Text size={0} style={{ color: '#F59E0B', fontWeight: 600 }}>
+                <Text size={1} weight="semibold" style={{ color: '#F59E0B' }}>
                   {fmtRelative(item.publishedAt)}
                 </Text>
               )}
             </Flex>
           )}
           {!item.publishedAt && item._updatedAt && (
-            <Text size={0} muted style={{ marginTop: 2 }}>
+            <Text size={1} style={{ marginTop: 4, opacity: 0.75 }}>
               Изм. {fmtDateTime(item._updatedAt)}
             </Text>
           )}
@@ -458,20 +460,21 @@ export function PublicationScheduleTool() {
                         <a
                           key={item._id}
                           href={docHref(item)}
-                          style={{ textDecoration: 'none', flex: '1 1 260px', minWidth: 200 }}
+                          style={{ textDecoration: 'none', flex: '1 1 260px', minWidth: 220 }}
                         >
                           <Flex
                             gap={2}
-                            align="center"
+                            align="flex-start"
                             style={{
-                              padding: '8px 10px',
+                              padding: '10px 12px',
                               borderRadius: 8,
                               borderLeft: `3px solid ${item._type === 'article' ? '#1469F7' : '#E85D04'}`,
                               background: 'var(--card-bg-color)',
                               cursor: 'pointer',
+                              height: '100%',
                             }}
                           >
-                            <Flex gap={1} style={{ flexShrink: 0 }}>
+                            <Flex gap={1} style={{ flexShrink: 0, paddingTop: 2 }}>
                               <Badge
                                 tone={item._type === 'article' ? 'primary' : 'caution'}
                                 fontSize={0}
@@ -491,16 +494,19 @@ export function PublicationScheduleTool() {
                               <Text
                                 size={1}
                                 style={{
-                                  display: 'block',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical' as const,
                                   overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
+                                  lineHeight: 1.4,
                                 }}
                               >
                                 {item.title || '(без названия)'}
                               </Text>
                               {item.publishedAt && (
-                                <Text size={0} muted>{fmtDateTime(item.publishedAt)}</Text>
+                                <Text size={1} style={{ marginTop: 4, opacity: 0.7 }}>
+                                  {fmtDateTime(item.publishedAt)}
+                                </Text>
                               )}
                             </Box>
                           </Flex>
