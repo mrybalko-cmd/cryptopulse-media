@@ -11,9 +11,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ href: null });
   }
 
-  const doc = type === 'news' ? await fetchNewsBySlug(slug, locale) : await fetchArticleBySlug(slug, locale);
-  const translation = doc?.translation;
-  const href = translation ? `/${translation.language}/${type}/${translation.slug}` : null;
-
-  return NextResponse.json({ href });
+  try {
+    const doc = type === 'news' ? await fetchNewsBySlug(slug, locale) : await fetchArticleBySlug(slug, locale);
+    const translation = doc?.translation;
+    const href = translation ? `/${translation.language}/${type}/${translation.slug}` : null;
+    return NextResponse.json({ href });
+  } catch {
+    return NextResponse.json({ href: null });
+  }
 }
