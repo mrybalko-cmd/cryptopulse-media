@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchSanityNews({ limit: 200, locale: 'en' }),
   ]);
 
-  const staticPages = ['', '/news', '/articles', '/interviews', '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy'].flatMap(path => [
+  const staticPages = ['', '/news', '/articles', '/interviews', '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib', '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy'].flatMap(path => [
     { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
     { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
   ]);
