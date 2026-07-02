@@ -3,7 +3,7 @@ import { useClient } from 'sanity';
 import {
   Box, Card, Flex, Stack, Text, Badge, Spinner, Button, Heading,
 } from '@sanity/ui';
-import { CalendarIcon, SyncIcon, EditIcon, ClockIcon } from '@sanity/icons';
+import { CalendarIcon, SyncIcon, EditIcon, ClockIcon, CheckmarkIcon, CloseIcon } from '@sanity/icons';
 
 type Item = {
   _id: string;
@@ -24,7 +24,7 @@ const QUERY = `{
   "scheduled": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now()] | order(publishedAt asc) {
     _id, _type, title, language, publishedAt
   },
-  "recent": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) [0...30] {
+  "recent": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) [0...60] {
     _id, _type, title, language, publishedAt
   },
   "drafts": *[_type in ["news", "article"] && _id in path("drafts.**")] | order(_updatedAt desc) [0...15] {
@@ -33,7 +33,11 @@ const QUERY = `{
 }`;
 
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const RU_MONTHS_FULL = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const RU_WEEKDAYS = ['вс','пн','вт','ср','чт','пт','сб'];
+const RU_WEEKDAYS_FULL = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+
+const DAYS = 15;
 
 function truncate(text: string, max: number): string {
   if (!text || text.length <= max) return text;
@@ -49,6 +53,15 @@ function toDateKey(iso: string) {
 function fmtDateTime(iso: string) {
   const d = new Date(iso);
   return `${d.getDate()} ${RU_MONTHS[d.getMonth()]} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function fmtDayFull(d: Date) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const key = toDateKey(d.toISOString());
+  if (key === toDateKey(today.toISOString())) return `Сегодня, ${d.getDate()} ${RU_MONTHS_FULL[d.getMonth()]}`;
+  if (key === toDateKey(tomorrow.toISOString())) return `Завтра, ${d.getDate()} ${RU_MONTHS_FULL[d.getMonth()]}`;
+  return `${RU_WEEKDAYS_FULL[d.getDay()]}, ${d.getDate()} ${RU_MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function fmtDateLabel(iso: string) {
@@ -96,83 +109,232 @@ function docHref(item: Item) {
   return `/studio/intent/edit/id=${item._id};type=${item._type}/`;
 }
 
-function WeekStrip({ scheduled }: { scheduled: Item[] }) {
+// ── Calendar strip ────────────────────────────────────────────────────────────
+
+function DayStrip({
+  scheduled,
+  recent,
+  selectedKey,
+  onSelect,
+}: {
+  scheduled: Item[];
+  recent: Item[];
+  selectedKey: string | null;
+  onSelect: (key: string, date: Date) => void;
+}) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const countByKey = new Map<string, number>();
+  const scheduledByKey = new Map<string, number>();
   scheduled.forEach(item => {
     if (!item.publishedAt) return;
-    countByKey.set(toDateKey(item.publishedAt), (countByKey.get(toDateKey(item.publishedAt)) || 0) + 1);
+    const k = toDateKey(item.publishedAt);
+    scheduledByKey.set(k, (scheduledByKey.get(k) || 0) + 1);
   });
 
-  const days = Array.from({ length: 14 }, (_, i) => {
+  const recentByKey = new Map<string, number>();
+  recent.forEach(item => {
+    if (!item.publishedAt) return;
+    const k = toDateKey(item.publishedAt);
+    recentByKey.set(k, (recentByKey.get(k) || 0) + 1);
+  });
+
+  const days = Array.from({ length: DAYS }, (_, i) => {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     return d;
   });
 
-  return (
-    <Flex gap={1} style={{ overflowX: 'auto', paddingBottom: 4 }}>
-      {days.map((date, i) => {
-        const k = toDateKey(date.toISOString());
-        const count = countByKey.get(k) || 0;
-        const isToday = i === 0;
+  // Past days: show last 7 days before today too
+  const pastDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (7 - i));
+    return d;
+  });
 
-        return (
-          <Stack
-            key={k}
-            space={1}
-            style={{
-              flex: '1 0 42px',
-              textAlign: 'center',
-              padding: '8px 4px 6px',
-              borderRadius: 8,
-              background: isToday
-                ? 'var(--card-focus-ring-color, rgba(34,118,252,0.08))'
-                : count > 0
-                ? 'rgba(34,118,252,0.04)'
-                : 'transparent',
-              border: isToday
-                ? '1px solid rgba(34,118,252,0.25)'
-                : '1px solid transparent',
-            }}
-          >
-            <Text size={0} muted style={{ textTransform: 'capitalize', display: 'block', lineHeight: 1.2 }}>
-              {RU_WEEKDAYS[date.getDay()]}
-            </Text>
-            <Text
-              size={1}
-              weight={isToday ? 'bold' : 'regular'}
-              style={{ display: 'block', lineHeight: 1.5, color: isToday ? '#2276FC' : 'inherit' }}
+  const allDays = [...pastDays, ...days];
+
+  return (
+    <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
+      <Flex gap={1} style={{ minWidth: 'max-content' }}>
+        {allDays.map((date) => {
+          const k = toDateKey(date.toISOString());
+          const schCount = scheduledByKey.get(k) || 0;
+          const pubCount = recentByKey.get(k) || 0;
+          const isToday = k === toDateKey(today.toISOString());
+          const isSelected = k === selectedKey;
+          const isPast = date < today;
+
+          return (
+            <button
+              key={k}
+              onClick={() => onSelect(k, date)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 3,
+                padding: '8px 6px 6px',
+                borderRadius: 8,
+                border: isSelected
+                  ? '2px solid #2276FC'
+                  : isToday
+                  ? '1px solid rgba(34,118,252,0.35)'
+                  : '1px solid transparent',
+                background: isSelected
+                  ? 'rgba(34,118,252,0.12)'
+                  : isToday
+                  ? 'rgba(34,118,252,0.05)'
+                  : (schCount > 0 || pubCount > 0)
+                  ? 'rgba(255,255,255,0.03)'
+                  : 'transparent',
+                cursor: 'pointer',
+                minWidth: 44,
+                outline: 'none',
+                opacity: isPast && !isToday ? 0.65 : 1,
+                transition: 'background 0.12s, border-color 0.12s',
+              }}
             >
-              {date.getDate()}
-            </Text>
-            <Flex justify="center" align="center" style={{ height: 16 }}>
-              {count > 0 ? (
-                <Box
-                  style={{
-                    width: Math.min(count, 3) * 5 + 4,
-                    height: 7,
-                    borderRadius: 4,
+              <span style={{
+                fontSize: 10,
+                lineHeight: 1.2,
+                textTransform: 'uppercase',
+                color: isSelected ? '#2276FC' : 'var(--card-muted-fg-color)',
+                fontWeight: isToday ? 700 : 400,
+              }}>
+                {RU_WEEKDAYS[date.getDay()]}
+              </span>
+              <span style={{
+                fontSize: 14,
+                lineHeight: 1.4,
+                fontWeight: isToday || isSelected ? 700 : 400,
+                color: isSelected ? '#2276FC' : isToday ? '#2276FC' : 'inherit',
+              }}>
+                {date.getDate()}
+              </span>
+              <span style={{
+                fontSize: 9,
+                color: 'var(--card-muted-fg-color)',
+                lineHeight: 1,
+              }}>
+                {RU_MONTHS[date.getMonth()]}
+              </span>
+              {/* Dots: blue = scheduled, green = published */}
+              <Flex gap={1} justify="center" style={{ height: 8, marginTop: 2 }}>
+                {schCount > 0 && (
+                  <Box style={{
+                    width: Math.min(schCount, 3) * 4 + 4,
+                    height: 5,
+                    borderRadius: 3,
                     background: '#2276FC',
-                    fontSize: 9,
-                    color: '#fff',
-                    lineHeight: '7px',
-                    textAlign: 'center',
-                    fontWeight: 700,
-                  }}
-                >
-                  {count > 1 ? count : ''}
-                </Box>
-              ) : null}
-            </Flex>
-          </Stack>
-        );
-      })}
-    </Flex>
+                    minWidth: 5,
+                  }} />
+                )}
+                {pubCount > 0 && (
+                  <Box style={{
+                    width: Math.min(pubCount, 3) * 4 + 4,
+                    height: 5,
+                    borderRadius: 3,
+                    background: '#15803D',
+                    minWidth: 5,
+                  }} />
+                )}
+              </Flex>
+            </button>
+          );
+        })}
+      </Flex>
+      {/* Legend */}
+      <Flex gap={4} style={{ marginTop: 8, paddingLeft: 2 }}>
+        <Flex align="center" gap={1}>
+          <Box style={{ width: 8, height: 5, borderRadius: 3, background: '#2276FC' }} />
+          <Text size={0} muted>запланировано</Text>
+        </Flex>
+        <Flex align="center" gap={1}>
+          <Box style={{ width: 8, height: 5, borderRadius: 3, background: '#15803D' }} />
+          <Text size={0} muted>опубликовано</Text>
+        </Flex>
+      </Flex>
+    </Box>
   );
 }
+
+// ── Day detail panel ──────────────────────────────────────────────────────────
+
+function DayPanel({
+  date,
+  scheduled,
+  recent,
+  onClose,
+}: {
+  date: Date;
+  scheduled: Item[];
+  recent: Item[];
+  onClose: () => void;
+}) {
+  const key = toDateKey(date.toISOString());
+
+  const dayScheduled = scheduled.filter(i => i.publishedAt && toDateKey(i.publishedAt) === key);
+  const dayPublished = recent.filter(i => i.publishedAt && toDateKey(i.publishedAt) === key);
+  const total = dayScheduled.length + dayPublished.length;
+
+  return (
+    <Card padding={4} radius={3} shadow={1} tone={total > 0 ? 'primary' : 'default'} style={{ borderLeft: '3px solid #2276FC' }}>
+      <Flex align="center" justify="space-between" marginBottom={3}>
+        <Flex align="center" gap={2}>
+          <CalendarIcon style={{ color: '#2276FC' }} />
+          <Text size={2} weight="bold" style={{ textTransform: 'capitalize' }}>
+            {fmtDayFull(date)}
+          </Text>
+          {total === 0 && <Text size={1} muted>— ничего не запланировано</Text>}
+        </Flex>
+        <Button
+          icon={CloseIcon}
+          mode="ghost"
+          tone="default"
+          padding={2}
+          onClick={onClose}
+          title="Закрыть"
+        />
+      </Flex>
+
+      {total === 0 ? (
+        <Flex align="center" justify="center" style={{ padding: '20px 0' }}>
+          <Text size={1} muted style={{ fontStyle: 'italic' }}>
+            В этот день нет запланированных или опубликованных материалов
+          </Text>
+        </Flex>
+      ) : (
+        <Flex gap={4} style={{ flexWrap: 'wrap' }} align="flex-start">
+          {dayScheduled.length > 0 && (
+            <Box style={{ flex: '1 1 300px' }}>
+              <Flex align="center" gap={2} marginBottom={2}>
+                <ClockIcon style={{ color: '#2276FC', fontSize: 14 }} />
+                <Text size={1} weight="semibold" style={{ color: '#2276FC' }}>
+                  Запланировано ({dayScheduled.length})
+                </Text>
+              </Flex>
+              {dayScheduled.map(item => <ItemRow key={item._id} item={item} />)}
+            </Box>
+          )}
+          {dayPublished.length > 0 && (
+            <Box style={{ flex: '1 1 300px' }}>
+              <Flex align="center" gap={2} marginBottom={2}>
+                <CheckmarkIcon style={{ color: '#15803D', fontSize: 14 }} />
+                <Text size={1} weight="semibold" style={{ color: '#15803D' }}>
+                  Опубликовано ({dayPublished.length})
+                </Text>
+              </Flex>
+              {dayPublished.map(item => <ItemRow key={item._id} item={item} />)}
+            </Box>
+          )}
+        </Flex>
+      )}
+    </Card>
+  );
+}
+
+// ── Item row ──────────────────────────────────────────────────────────────────
 
 function ItemRow({ item }: { item: Item }) {
   const isArticle = item._type === 'article';
@@ -237,13 +399,10 @@ function ItemRow({ item }: { item: Item }) {
   );
 }
 
+// ── Section wrapper ───────────────────────────────────────────────────────────
+
 function Section({
-  title,
-  icon,
-  count,
-  color,
-  children,
-  emptyMessage,
+  title, icon, count, color, children, emptyMessage,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -259,13 +418,7 @@ function Section({
           <Box style={{ color: color || 'inherit' }}>{icon}</Box>
           <Text size={1} weight="bold">{title}</Text>
         </Flex>
-        <Badge
-          tone={count > 0 ? 'primary' : 'default'}
-          fontSize={0}
-          padding={2}
-        >
-          {count}
-        </Badge>
+        <Badge tone={count > 0 ? 'primary' : 'default'} fontSize={0} padding={2}>{count}</Badge>
       </Flex>
       {count === 0 ? (
         <Flex align="center" justify="center" style={{ padding: '24px 0' }}>
@@ -278,11 +431,15 @@ function Section({
   );
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
+
 export function PublicationScheduleTool() {
   const client = useClient({ apiVersion: '2024-01-01' });
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -303,14 +460,21 @@ export function PublicationScheduleTool() {
     return () => clearInterval(interval);
   }, [refresh]);
 
-  // Stats
+  const handleDaySelect = useCallback((key: string, date: Date) => {
+    setSelectedKey(prev => (prev === key ? null : key));
+    setSelectedDate(prev => (prev && toDateKey(prev.toISOString()) === key ? null : date));
+  }, []);
+
+  const handleDayClose = useCallback(() => {
+    setSelectedKey(null);
+    setSelectedDate(null);
+  }, []);
+
   const scheduledCount = data?.scheduled.length ?? 0;
   const recentCount = data?.recent.length ?? 0;
   const draftsCount = data?.drafts.length ?? 0;
 
-  // Grouped scheduled
   const scheduledGroups = data ? groupByDate(data.scheduled, 'publishedAt') : [];
-  // Grouped recent (last 7 days only for compact view, rest collapsed)
   const recentGroups = data ? groupByDate(data.recent, 'publishedAt') : [];
 
   return (
@@ -329,7 +493,6 @@ export function PublicationScheduleTool() {
           </Stack>
         </Flex>
         <Flex align="center" gap={3}>
-          {/* Stats */}
           <Flex gap={2} align="center">
             <Card padding={3} radius={2} tone="primary" style={{ textAlign: 'center', minWidth: 72 }}>
               <Text size={3} weight="bold" style={{ color: '#2276FC' }}>{scheduledCount}</Text>
@@ -363,18 +526,42 @@ export function PublicationScheduleTool() {
 
       {data && (
         <Stack space={4}>
-          {/* 14-day calendar strip */}
+          {/* Interactive calendar strip */}
           <Card padding={4} radius={3} shadow={1}>
             <Flex align="center" gap={2} marginBottom={3}>
-              <Text size={1} weight="bold">Следующие 14 дней</Text>
-              {scheduledCount === 0 && (
-                <Text size={1} muted>— нет запланированных публикаций</Text>
+              <Text size={1} weight="bold">
+                {selectedKey ? 'Выберите день' : 'Нажмите на день чтобы просмотреть расписание'}
+              </Text>
+              {selectedKey && (
+                <Button
+                  text="Все дни"
+                  mode="ghost"
+                  tone="default"
+                  fontSize={1}
+                  padding={2}
+                  onClick={handleDayClose}
+                />
               )}
             </Flex>
-            <WeekStrip scheduled={data.scheduled} />
+            <DayStrip
+              scheduled={data.scheduled}
+              recent={data.recent}
+              selectedKey={selectedKey}
+              onSelect={handleDaySelect}
+            />
           </Card>
 
-          {/* Main columns */}
+          {/* Day detail panel (when a day is selected) */}
+          {selectedKey && selectedDate && (
+            <DayPanel
+              date={selectedDate}
+              scheduled={data.scheduled}
+              recent={data.recent}
+              onClose={handleDayClose}
+            />
+          )}
+
+          {/* Main columns (always visible) */}
           <Flex gap={4} align="flex-start" style={{ flexWrap: 'wrap' }}>
             {/* Scheduled */}
             <Box style={{ flex: '1 1 340px', minWidth: 280 }}>
@@ -388,27 +575,13 @@ export function PublicationScheduleTool() {
                 {scheduledGroups.map(group => (
                   <Box key={group.label} marginBottom={3}>
                     <Flex align="center" gap={2} marginBottom={2}>
-                      <Box
-                        style={{
-                          height: 1,
-                          flex: 1,
-                          background: 'var(--card-border-color)',
-                        }}
-                      />
+                      <Box style={{ height: 1, flex: 1, background: 'var(--card-border-color)' }} />
                       <Text size={0} weight="semibold" style={{ color: '#2276FC', whiteSpace: 'nowrap' }}>
                         {group.label}
                       </Text>
-                      <Box
-                        style={{
-                          height: 1,
-                          flex: 1,
-                          background: 'var(--card-border-color)',
-                        }}
-                      />
+                      <Box style={{ height: 1, flex: 1, background: 'var(--card-border-color)' }} />
                     </Flex>
-                    {group.items.map(item => (
-                      <ItemRow key={item._id} item={item} />
-                    ))}
+                    {group.items.map(item => <ItemRow key={item._id} item={item} />)}
                   </Box>
                 ))}
               </Section>
@@ -423,9 +596,7 @@ export function PublicationScheduleTool() {
                 color="#B45309"
                 emptyMessage="Нет черновиков"
               >
-                {data.drafts.map(item => (
-                  <ItemRow key={item._id} item={item} />
-                ))}
+                {data.drafts.map(item => <ItemRow key={item._id} item={item} />)}
               </Section>
             </Box>
           </Flex>
@@ -471,18 +642,10 @@ export function PublicationScheduleTool() {
                             }}
                           >
                             <Flex gap={1} style={{ flexShrink: 0, paddingTop: 2 }}>
-                              <Badge
-                                tone={item._type === 'article' ? 'primary' : 'caution'}
-                                fontSize={0}
-                                padding={1}
-                              >
+                              <Badge tone={item._type === 'article' ? 'primary' : 'caution'} fontSize={0} padding={1}>
                                 {item._type === 'article' ? 'Ст' : 'Нв'}
                               </Badge>
-                              <Badge
-                                tone={item.language === 'ru' ? 'positive' : 'default'}
-                                fontSize={0}
-                                padding={1}
-                              >
+                              <Badge tone={item.language === 'ru' ? 'positive' : 'default'} fontSize={0} padding={1}>
                                 {item.language.toUpperCase()}
                               </Badge>
                             </Flex>
@@ -510,7 +673,6 @@ export function PublicationScheduleTool() {
               </Box>
             )}
           </Card>
-
         </Stack>
       )}
     </Box>
