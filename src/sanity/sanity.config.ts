@@ -1,8 +1,10 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
+import { CalendarIcon } from '@sanity/icons';
 import { schemaTypes } from './schemaTypes';
 import { publishWithTimingAction } from './actions/publishWithTiming';
+import { PublicationScheduleTool } from './plugins/PublicationScheduleTool';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
@@ -13,6 +15,15 @@ export default defineConfig({
   projectId,
   dataset,
   plugins: [structureTool(), visionTool()],
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'publication-schedule',
+      title: 'Расписание',
+      icon: CalendarIcon,
+      component: PublicationScheduleTool,
+    },
+  ],
   schema: { types: schemaTypes },
   basePath: '/studio',
   document: {
