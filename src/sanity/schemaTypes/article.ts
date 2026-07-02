@@ -96,6 +96,13 @@ export const articleType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'author',
+      title: 'Автор / Author',
+      type: 'reference',
+      to: [{ type: 'author' }],
+      description: 'Оставьте пустым, чтобы опубликовать без подписи автора.',
+    }),
+    defineField({
       name: 'commentsEnabled',
       title: 'Comments enabled / Комментарии включены',
       type: 'boolean',

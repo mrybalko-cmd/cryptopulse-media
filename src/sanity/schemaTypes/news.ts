@@ -172,6 +172,13 @@ export const newsType = defineType({
         'Новость будет показываться первой в списках новостей, пока не наступит это время. Чтобы закрепить на 6 часов — выставьте текущее время +6ч, на 24 часа — +24ч. Оставьте пустым, чтобы не закреплять.',
     }),
     defineField({
+      name: 'author',
+      title: 'Автор / Author',
+      type: 'reference',
+      to: [{ type: 'author' }],
+      description: 'Оставьте пустым, чтобы опубликовать без подписи автора.',
+    }),
+    defineField({
       name: 'commentsEnabled',
       title: 'Comments enabled / Комментарии включены',
       type: 'boolean',

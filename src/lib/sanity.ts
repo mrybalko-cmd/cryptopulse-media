@@ -62,7 +62,8 @@ export const fetchArticleBySlug = unstable_cache(
         `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
-          "translation": translationRef->{language, "slug": slug.current}
+          "translation": translationRef->{language, "slug": slug.current},
+          "author": author->{name, role, bio, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -115,7 +116,8 @@ export const fetchNewsBySlug = unstable_cache(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
-          "translation": translationRef->{language, "slug": slug.current}
+          "translation": translationRef->{language, "slug": slug.current},
+          "author": author->{name, role, bio, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );

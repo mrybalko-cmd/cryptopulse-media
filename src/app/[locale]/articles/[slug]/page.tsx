@@ -12,6 +12,7 @@ import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
+import AuthorCard from '@/components/ui/AuthorCard';
 import { urlFor } from '@/lib/sanityImage';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -222,6 +223,8 @@ export default async function ArticlePage({ params }: Props) {
       ) : (
         <p className="text-muted">{article.excerpt}</p>
       )}
+
+      {article.author && <AuthorCard author={article.author} locale={locale} />}
 
       <EmailSubscribeForm locale={locale} source="article-detail" />
 
