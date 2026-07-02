@@ -63,7 +63,7 @@ export const fetchArticleBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, role, bio, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -117,7 +117,7 @@ export const fetchNewsBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, role, bio, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );

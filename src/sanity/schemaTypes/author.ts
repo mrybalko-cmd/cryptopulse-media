@@ -27,17 +27,30 @@ export const authorType = defineType({
       options: { hotspot: true },
     }),
     defineField({
-      name: 'role',
-      title: 'Role / Должность',
+      name: 'roleRu',
+      title: 'Должность (RU)',
       type: 'string',
-      description: 'e.g. "Аналитик", "Редактор", "Обозреватель"',
+      description: 'Например: «Аналитик», «Обозреватель», «Редактор»',
     }),
     defineField({
-      name: 'bio',
-      title: 'Bio / О себе',
+      name: 'roleEn',
+      title: 'Role (EN)',
+      type: 'string',
+      description: 'e.g. "Analyst", "Correspondent", "Editor"',
+    }),
+    defineField({
+      name: 'bioRu',
+      title: 'Биография (RU)',
       type: 'text',
       rows: 4,
-      description: 'Short biography shown under articles (2–4 sentences)',
+      description: '2–4 предложения, отображается под статьёй на русской версии сайта',
+    }),
+    defineField({
+      name: 'bioEn',
+      title: 'Bio (EN)',
+      type: 'text',
+      rows: 4,
+      description: '2–4 sentences, shown under articles on the English version of the site',
     }),
     defineField({
       name: 'telegram',
@@ -62,9 +75,9 @@ export const authorType = defineType({
     }),
   ],
   preview: {
-    select: { title: 'name', subtitle: 'role', media: 'photo' },
-    prepare({ title, subtitle, media }) {
-      return { title, subtitle: subtitle || '', media };
+    select: { title: 'name', subtitleRu: 'roleRu', subtitleEn: 'roleEn', media: 'photo' },
+    prepare({ title, subtitleRu, subtitleEn, media }) {
+      return { title, subtitle: subtitleRu || subtitleEn || '', media };
     },
   },
 });

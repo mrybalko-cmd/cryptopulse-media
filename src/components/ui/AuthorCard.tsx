@@ -2,8 +2,10 @@ import Image from 'next/image';
 
 interface Author {
   name: string;
-  role?: string;
-  bio?: string;
+  roleRu?: string;
+  roleEn?: string;
+  bioRu?: string;
+  bioEn?: string;
   photo?: string;
   telegram?: string;
   linkedin?: string;
@@ -45,11 +47,11 @@ export default function AuthorCard({ author, locale }: Props) {
           {isRu ? 'Автор' : 'Author'}
         </p>
         <p className="font-bold text-foreground text-sm">{author.name}</p>
-        {author.role && (
-          <p className="text-xs text-accent mb-2">{author.role}</p>
+        {(isRu ? author.roleRu : author.roleEn) && (
+          <p className="text-xs text-accent mb-2">{isRu ? author.roleRu : author.roleEn}</p>
         )}
-        {author.bio && (
-          <p className="text-xs text-muted leading-relaxed mt-1">{author.bio}</p>
+        {(isRu ? author.bioRu : author.bioEn) && (
+          <p className="text-xs text-muted leading-relaxed mt-1">{isRu ? author.bioRu : author.bioEn}</p>
         )}
         {hasSocials && (
           <div className="flex items-center gap-3 mt-3 flex-wrap">
