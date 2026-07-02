@@ -21,7 +21,9 @@ export default function CalendarCarousel({ events, locale }: { events: CalendarE
       <div className="flex items-center justify-between mb-5">
         <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
           <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-          {isRu ? 'Криптокалендарь' : 'Crypto Calendar'}
+          <Link href={`/${locale}/calendar`} className="hover:text-accent transition-colors">
+            {isRu ? 'Криптокалендарь' : 'Crypto Calendar'}
+          </Link>
         </h2>
         <div className="hidden sm:flex items-center gap-1.5">
           <button

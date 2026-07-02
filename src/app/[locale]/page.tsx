@@ -70,7 +70,9 @@ export default async function HomePage({ params }: Props) {
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-              {t('latestNews')}
+              <Link href={`/${locale}/news`} className="hover:text-accent transition-colors">
+                {t('latestNews')}
+              </Link>
             </h2>
             <Link href={`/${locale}/news`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
               {t('viewAll')} <ArrowRight size={12} />
@@ -102,7 +104,9 @@ export default async function HomePage({ params }: Props) {
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-              {t('featuredArticles')}
+              <Link href={`/${locale}/articles`} className="hover:text-accent transition-colors">
+                {t('featuredArticles')}
+              </Link>
             </h2>
             <Link href={`/${locale}/articles`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
               {t('viewAll')} <ArrowRight size={12} />
@@ -158,7 +162,9 @@ export default async function HomePage({ params }: Props) {
         <div className="flex items-center justify-between mb-5">
           <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
             <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-            {t('latestInterviews')}
+            <Link href={`/${locale}/interviews`} className="hover:text-accent transition-colors">
+              {t('latestInterviews')}
+            </Link>
           </h2>
           <Link href={`/${locale}/interviews`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
             {t('viewAll')} <ArrowRight size={12} />
