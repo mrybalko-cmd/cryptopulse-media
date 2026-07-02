@@ -11,6 +11,7 @@ import ShareButtons from '@/components/ui/ShareButtons';
 import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
+import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import { urlFor } from '@/lib/sanityImage';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -221,6 +222,8 @@ export default async function ArticlePage({ params }: Props) {
       ) : (
         <p className="text-muted">{article.excerpt}</p>
       )}
+
+      <EmailSubscribeForm locale={locale} source="article-detail" />
 
       {commentsEnabled && (
         <CommentSection targetId={article._id} locale={locale} initialComments={comments} />

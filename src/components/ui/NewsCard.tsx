@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
@@ -50,8 +51,14 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
       )}
       {imageUrl && (
         <div className="relative h-32 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={imageUrl} alt={title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            unoptimized={!imageUrl.includes('cdn.sanity.io')}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
         </div>
       )}

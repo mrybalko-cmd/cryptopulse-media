@@ -2,7 +2,10 @@ import { getTranslations } from 'next-intl/server';
 import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import ArticleCard from '@/components/ui/ArticleCard';
+import ArticlesLoadMore from '@/components/ui/ArticlesLoadMore';
 import { fetchArticles } from '@/lib/sanity';
+
+const INITIAL_LIMIT = 12;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -26,7 +29,7 @@ export default async function ArticlesPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations('articles');
 
-  const articles = await fetchArticles({ limit: 20, locale });
+  const articles = await fetchArticles({ limit: INITIAL_LIMIT, locale });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -36,23 +39,26 @@ export default async function ArticlesPage({ params }: Props) {
       </div>
 
       {articles.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {articles.map((article: any, i: number) => (
-            <ArticleCard
-              key={article._id}
-              title={article.title}
-              excerpt={article.excerpt}
-              slug={article.slug.current}
-              coverImage={article.coverImage}
-              publishedAt={article.publishedAt}
-              readingTime={article.readingTime}
-              badge={article.badge}
-              views={article.views}
-              locale={locale}
-              featured={i === 0}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {articles.map((article: any, i: number) => (
+              <ArticleCard
+                key={article._id}
+                title={article.title}
+                excerpt={article.excerpt}
+                slug={article.slug.current}
+                coverImage={article.coverImage}
+                publishedAt={article.publishedAt}
+                readingTime={article.readingTime}
+                badge={article.badge}
+                views={article.views}
+                locale={locale}
+                featured={i === 0}
+              />
+            ))}
+          </div>
+          <ArticlesLoadMore locale={locale} initialCount={articles.length} pageSize={12} />
+        </>
       ) : (
         <div className="border border-dashed border-border rounded-lg py-20 flex flex-col items-center justify-center gap-3">
           <p className="text-muted text-sm">

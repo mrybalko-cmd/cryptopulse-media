@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
+import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import { fetchNewsBySlug, incrementViews, fetchComments, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -226,6 +227,8 @@ export default async function NewsDetailPage({ params }: Props) {
       ) : (
         <p className="text-muted">{news.excerpt}</p>
       )}
+
+      <EmailSubscribeForm locale={locale} source="news-detail" />
 
       {commentsEnabled && (
         <CommentSection targetId={news._id} locale={locale} initialComments={comments} />

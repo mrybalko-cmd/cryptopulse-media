@@ -2,7 +2,10 @@ import { getTranslations } from 'next-intl/server';
 import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import NewsCard from '@/components/ui/NewsCard';
+import NewsLoadMore from '@/components/ui/NewsLoadMore';
 import { fetchMergedNews, fetchOwnNews } from '@/lib/news';
+
+const INITIAL_OWN = 12;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -27,7 +30,7 @@ export default async function NewsPage({ params }: Props) {
   const t = await getTranslations('news');
 
   const [ownResult, mergedResult] = await Promise.allSettled([
-    fetchOwnNews({ limit: 50, locale }),
+    fetchOwnNews({ limit: INITIAL_OWN, locale }),
     fetchMergedNews({ limit: 30, locale }),
   ]);
 
@@ -66,6 +69,7 @@ export default async function NewsPage({ params }: Props) {
               />
             ))}
           </div>
+          <NewsLoadMore locale={locale} initialCount={ownItems.length} pageSize={12} />
         </section>
       )}
 
