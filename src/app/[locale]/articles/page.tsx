@@ -1,3 +1,5 @@
+export const revalidate = 300;
+
 import { getTranslations } from 'next-intl/server';
 import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';

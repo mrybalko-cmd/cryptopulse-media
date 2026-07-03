@@ -1,3 +1,5 @@
+export const revalidate = 300;
+
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';

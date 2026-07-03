@@ -8,9 +8,7 @@ const client = createClient({
   useCdn: false,
 });
 
-// Short cache window: keeps repeat page loads fast while bounding how long a
-// deleted/edited document can keep appearing on the site to ~45s.
-const READ_CACHE_SECONDS = 45;
+const READ_CACHE_SECONDS = 300;
 
 const writeClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',

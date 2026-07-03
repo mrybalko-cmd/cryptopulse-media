@@ -1,3 +1,5 @@
+export const revalidate = 300;
+
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
