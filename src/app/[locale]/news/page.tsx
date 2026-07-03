@@ -7,7 +7,7 @@ import NewsCard from '@/components/ui/NewsCard';
 import NewsLoadMore from '@/components/ui/NewsLoadMore';
 import { fetchMergedNews, fetchOwnNews } from '@/lib/news';
 
-const INITIAL_OWN = 12;
+const INITIAL_OWN = 30;
 
 type Props = { params: Promise<{ locale: string }> };
 
