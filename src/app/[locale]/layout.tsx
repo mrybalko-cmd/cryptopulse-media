@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       template: '%s | CryptoPulse.media',
     },
     description: isRu
-      ? 'Крипто-аналитика для простых людей простыми словами. Новости, статьи и интервью.'
-      : 'Crypto intelligence for European investors. News, analysis, and interviews.',
+      ? 'Крипто-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, интервью с экспертами и глоссарий терминов криптовалют.'
+      : 'Crypto intelligence for European investors. Breaking news, deep analysis, expert interviews, and a glossary of crypto terms — all in plain language.',
     metadataBase: new URL(BASE),
     alternates: {
       canonical: `${BASE}/${locale}`,
@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
   const messages = await getMessages();
 
   const jsonLd = {

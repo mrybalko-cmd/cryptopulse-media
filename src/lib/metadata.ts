@@ -8,6 +8,7 @@ export function buildOg(opts: {
   type?: 'website' | 'article';
   image?: string;
 }) {
+  const fallbackImage = `${BASE}/${opts.locale}/opengraph-image`;
   return {
     type: (opts.type ?? 'website') as 'website' | 'article',
     locale: opts.locale === 'ru' ? 'ru_RU' : 'en_US',
@@ -15,8 +16,15 @@ export function buildOg(opts: {
     url: opts.url,
     title: opts.title,
     description: opts.description,
-    ...(opts.image ? { images: [{ url: opts.image }] } : {}),
+    images: [{ url: opts.image || fallbackImage }],
   };
+}
+
+export function truncateDesc(text: string, max = 155): string {
+  if (!text || text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…';
 }
 
 export { BASE };

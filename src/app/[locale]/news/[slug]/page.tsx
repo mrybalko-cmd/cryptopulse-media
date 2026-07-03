@@ -16,6 +16,7 @@ import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
 import { urlFor } from '@/lib/sanityImage';
+import { truncateDesc } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -26,8 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!news) return {};
 
   const title = news.seo?.metaTitle || news.title;
-  const description = news.seo?.metaDescription || news.excerpt;
+  const description = truncateDesc(news.seo?.metaDescription || news.excerpt || '');
   const ogImage = news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
+  const otherLocale = locale === 'ru' ? 'en' : 'ru';
+  const translationLang = news.translation?.language;
+  const translationSlug = news.translation?.slug;
 
   return {
     title,
@@ -35,12 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: news.seo?.keywords,
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/news/${slug}`,
-      languages: news.translation
-        ? {
-            [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
-            [news.translation.language]: `https://cryptopulse.media/${news.translation.language}/news/${news.translation.slug}`,
-          }
-        : undefined,
+      languages: {
+        [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
+        ...(translationLang && translationSlug
+          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}` }
+          : { [otherLocale]: `https://cryptopulse.media/${otherLocale}/news/${slug}` }),
+        'x-default': `https://cryptopulse.media/en/news/${translationLang === 'en' && translationSlug ? translationSlug : slug}`,
+      },
     },
     openGraph: {
       type: 'article',

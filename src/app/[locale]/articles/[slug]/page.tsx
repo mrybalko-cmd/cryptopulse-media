@@ -16,6 +16,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import { urlFor } from '@/lib/sanityImage';
+import { truncateDesc } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -26,8 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!article) return {};
 
   const title = article.seo?.metaTitle || article.title;
-  const description = article.seo?.metaDescription || article.excerpt;
+  const description = truncateDesc(article.seo?.metaDescription || article.excerpt || '');
   const ogImage = article.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
+  const otherLocale = locale === 'ru' ? 'en' : 'ru';
+  const translationLang = article.translation?.language;
+  const translationSlug = article.translation?.slug;
 
   return {
     title,
@@ -35,12 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: article.seo?.keywords,
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/articles/${slug}`,
-      languages: article.translation
-        ? {
-            [locale]: `https://cryptopulse.media/${locale}/articles/${slug}`,
-            [article.translation.language]: `https://cryptopulse.media/${article.translation.language}/articles/${article.translation.slug}`,
-          }
-        : undefined,
+      languages: {
+        [locale]: `https://cryptopulse.media/${locale}/articles/${slug}`,
+        ...(translationLang && translationSlug
+          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/articles/${translationSlug}` }
+          : { [otherLocale]: `https://cryptopulse.media/${otherLocale}/articles/${slug}` }),
+        'x-default': `https://cryptopulse.media/en/articles/${translationLang === 'en' && translationSlug ? translationSlug : slug}`,
+      },
     },
     openGraph: {
       type: 'article',
