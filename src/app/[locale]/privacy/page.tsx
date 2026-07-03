@@ -79,7 +79,6 @@ export default async function PrivacyPage({ params }: Props) {
             <p>
               Сайт использует следующие сторонние сервисы, у каждого из которых есть собственная политика
               конфиденциальности: Sanity (управление контентом), YouTube (встраивание и ссылки на видео),
-              RSS-агрегация новостей из открытых источников (Decrypt, The Block, CoinTelegraph, CoinDesk),
               а также Vercel (хостинг и базовая серверная аналитика).
             </p>
 
@@ -135,9 +134,8 @@ export default async function PrivacyPage({ params }: Props) {
             <h2>Third-Party Services</h2>
             <p>
               The site relies on the following third-party services, each with its own privacy policy: Sanity
-              (content management), YouTube (embedded and linked videos), RSS aggregation of news from public
-              sources (Decrypt, The Block, CoinTelegraph, CoinDesk), and Vercel (hosting and standard server
-              analytics).
+              (content management), YouTube (embedded and linked videos), and Vercel (hosting and standard
+              server analytics).
             </p>
 
             <h2>Cookies</h2>

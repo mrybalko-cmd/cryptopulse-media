@@ -75,10 +75,9 @@ export default async function DisclaimerPage({ params }: Props) {
 
             <h2>Точность информации</h2>
             <p>
-              Часть новостей на сайте агрегируется из открытых RSS-источников (Decrypt, The Block,
-              CoinTelegraph, CoinDesk и др.) и публикуется в виде ссылок на оригинал. Мы не гарантируем
-              точность, полноту или своевременность такой информации и не несём ответственности за содержание
-              сторонних публикаций.
+              Мы прилагаем разумные усилия для публикации точной и актуальной информации, однако не
+              гарантируем полноту или своевременность всех материалов. Крипторынок меняется быстро —
+              всегда проверяйте информацию из нескольких источников перед принятием решений.
             </p>
 
             <h2>Внешние ссылки и контент</h2>
@@ -129,10 +128,9 @@ export default async function DisclaimerPage({ params }: Props) {
 
             <h2>Accuracy of Information</h2>
             <p>
-              Some news on this site is aggregated from public RSS sources (Decrypt, The Block, CoinTelegraph,
-              CoinDesk, and others) and republished as links to the original source. We do not guarantee the
-              accuracy, completeness, or timeliness of such information and are not responsible for the
-              content of third-party publications.
+              We make reasonable efforts to publish accurate and up-to-date information, but we do not
+              guarantee the completeness or timeliness of all content. The crypto market moves fast —
+              always verify information from multiple sources before making any decisions.
             </p>
 
             <h2>Third-Party Links &amp; Content</h2>

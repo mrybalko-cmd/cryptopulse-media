@@ -5,9 +5,9 @@ import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import NewsCard from '@/components/ui/NewsCard';
 import NewsLoadMore from '@/components/ui/NewsLoadMore';
-import { fetchMergedNews, fetchOwnNews } from '@/lib/news';
+import { fetchOwnNews } from '@/lib/news';
 
-const INITIAL_OWN = 30;
+const INITIAL = 30;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -33,13 +33,8 @@ export default async function NewsPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('news');
 
-  const [ownResult, mergedResult] = await Promise.allSettled([
-    fetchOwnNews({ limit: INITIAL_OWN, locale }),
-    fetchMergedNews({ limit: 30, locale }),
-  ]);
-
-  const ownItems = ownResult.status === 'fulfilled' ? ownResult.value : [];
-  const otherItems = (mergedResult.status === 'fulfilled' ? mergedResult.value : []).filter((item) => item.external);
+  const result = await fetchOwnNews({ limit: INITIAL, locale });
+  const items = result ?? [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -48,16 +43,10 @@ export default async function NewsPage({ params }: Props) {
         <p className="text-muted text-sm mt-1">{t('subtitle')}</p>
       </div>
 
-      {ownItems.length > 0 && (
-        <section className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-            <h2 className="text-sm font-bold text-foreground">
-              {locale === 'ru' ? 'Материалы редакции' : 'Editorial picks'}
-            </h2>
-          </div>
+      {items.length > 0 ? (
+        <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {ownItems.map((item) => (
+            {items.map((item) => (
               <NewsCard
                 key={item.id}
                 title={item.title}
@@ -73,41 +62,15 @@ export default async function NewsPage({ params }: Props) {
               />
             ))}
           </div>
-          <NewsLoadMore locale={locale} initialCount={ownItems.length} pageSize={12} />
-        </section>
-      )}
-
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-muted shrink-0" />
-          <h2 className="text-sm font-bold text-foreground">
-            {locale === 'ru' ? 'Все новости' : 'All news'}
-          </h2>
+          <NewsLoadMore locale={locale} initialCount={items.length} pageSize={12} />
+        </>
+      ) : (
+        <div className="border border-dashed border-border rounded-lg py-20 flex items-center justify-center">
+          <span className="text-sm text-muted">
+            {locale === 'ru' ? 'Новостей пока нет' : 'No news yet'}
+          </span>
         </div>
-        {otherItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {otherItems.map((item) => (
-              <NewsCard
-                key={item.id}
-                title={item.title}
-                source={item.source}
-                href={item.href}
-                external={item.external}
-                publishedAt={item.publishedAt}
-                categories={item.categories}
-                imageUrl={item.imageUrl}
-                locale={locale}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="border border-dashed border-border rounded-lg py-20 flex items-center justify-center">
-            <span className="text-sm text-muted">
-              {locale === 'ru' ? 'Загружаем новости...' : 'Loading news...'}
-            </span>
-          </div>
-        )}
-      </section>
+      )}
     </div>
   );
 }

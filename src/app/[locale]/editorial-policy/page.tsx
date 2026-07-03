@@ -59,33 +59,15 @@ export default async function EditorialPolicyPage({ params }: Props) {
             <h2>Кто мы</h2>
             <p>
               {SITE_NAME} (cryptopulse.media) — независимый медиапроект о криптовалютах и блокчейне.
-              Мы собираем рыночные новости из открытых источников и публикуем собственные материалы:
-              авторские статьи, обзоры и интервью с участниками индустрии — на русском и английском языках.
+              Мы публикуем собственные материалы: авторские новости, статьи, обзоры и интервью с участниками
+              индустрии — на русском и английском языках.
             </p>
-
-            <h2>Два типа контента на сайте</h2>
-            <p>
-              Важно понимать разницу между двумя типами публикаций:
-            </p>
-            <ul>
-              <li>
-                <strong>Собственные материалы редакции</strong> — статьи, аналитика и интервью, которые мы
-                пишем сами и помечаем значком «Наш материал».
-              </li>
-              <li>
-                <strong>Агрегированные новости</strong> — заголовки и ссылки на публикации сторонних
-                источников (Decrypt, The Block, CoinTelegraph, CoinDesk и другие), которые мы собираем
-                автоматически через открытые RSS-ленты. Мы не редактируем и не переписываем эти материалы —
-                переход по ссылке ведёт на сайт оригинального издания, которое несёт полную ответственность
-                за содержание своей публикации.
-              </li>
-            </ul>
 
             <h2>Редакционная независимость</h2>
             <p>
-              Решения о том, какие собственные материалы публиковать и какие внешние новости агрегировать,
-              принимаются исключительно редакцией. Рекламные и партнёрские отношения с биржами, проектами или
-              другими компаниями не влияют на выбор тем и не дают права редактировать содержание материалов.
+              Решения о том, какие материалы публиковать, принимаются исключительно редакцией. Рекламные
+              и партнёрские отношения с биржами, проектами или другими компаниями не влияют на выбор тем
+              и не дают права редактировать содержание материалов.
             </p>
 
             <h2>Маркировка рекламы</h2>
@@ -95,21 +77,17 @@ export default async function EditorialPolicyPage({ params }: Props) {
               размещения рекламы — на странице <Link href={`/${locale}/advertising`}>«Реклама»</Link>.
             </p>
 
-            <h2>Стандарты точности и ответственность за источники</h2>
+            <h2>Стандарты точности</h2>
             <p>
-              Мы прилагаем разумные усилия, чтобы агрегировать новости из надёжных и известных отраслевых
-              изданий. Однако мы не являемся автором стороннего контента, не можем проверить каждый факт в
-              чужой публикации и не несём ответственности за точность, полноту или достоверность информации
-              из внешних источников. Подробное описание ограничений ответственности — в нашем
-              {' '}<Link href={`/${locale}/disclaimer`}>Дисклеймере</Link>.
+              Мы прилагаем разумные усилия, чтобы публиковать точную и актуальную информацию. Ни один
+              материал не является инвестиционной рекомендацией. Подробное описание ограничений
+              ответственности — в нашем {' '}<Link href={`/${locale}/disclaimer`}>Дисклеймере</Link>.
             </p>
 
             <h2>Исправления и обновления</h2>
             <p>
-              Если вы заметили фактическую ошибку в собственном материале редакции, напишите нам на
-              {' '}{CONTACT_EMAIL} — мы оперативно проверим информацию и внесём исправления. По ошибкам в
-              сторонних новостях, пожалуйста, обращайтесь напрямую к изданию-первоисточнику, указанному в
-              публикации.
+              Если вы заметили фактическую ошибку в материале редакции, напишите нам на
+              {' '}{CONTACT_EMAIL} — мы оперативно проверим информацию и внесём исправления.
             </p>
 
             <h2>Не является финансовой рекомендацией</h2>
@@ -126,31 +104,15 @@ export default async function EditorialPolicyPage({ params }: Props) {
             <h2>Who We Are</h2>
             <p>
               {SITE_NAME} (cryptopulse.media) is an independent media project covering cryptocurrency and
-              blockchain. We gather market news from public sources and publish our own original
-              content — authored articles, reviews, and interviews with industry participants — in Russian
-              and English.
+              blockchain. We publish original content — authored news, articles, reviews, and interviews with
+              industry participants — in Russian and English.
             </p>
-
-            <h2>Two Types of Content on This Site</h2>
-            <p>It is important to understand the difference between two types of publications here:</p>
-            <ul>
-              <li>
-                <strong>Original editorial content</strong> — articles, analysis, and interviews that we write
-                ourselves and label with an "Our story" badge.
-              </li>
-              <li>
-                <strong>Aggregated news</strong> — headlines and links to publications from third-party sources
-                (Decrypt, The Block, CoinTelegraph, CoinDesk, and others) that we collect automatically via
-                public RSS feeds. We do not edit or rewrite this material — clicking through takes you to the
-                original publisher's site, which holds full responsibility for the content of its publication.
-              </li>
-            </ul>
 
             <h2>Editorial Independence</h2>
             <p>
-              Decisions about which original material to publish and which external news to aggregate are made
-              solely by the editorial team. Advertising and partnership relationships with exchanges, projects,
-              or other companies do not influence topic selection and do not grant any right to edit content.
+              Decisions about which material to publish are made solely by the editorial team. Advertising
+              and partnership relationships with exchanges, projects, or other companies do not influence
+              topic selection and do not grant any right to edit content.
             </p>
 
             <h2>Advertising Disclosure</h2>
@@ -160,21 +122,18 @@ export default async function EditorialPolicyPage({ params }: Props) {
               <Link href={`/${locale}/advertising`}>Advertising page</Link> for details.
             </p>
 
-            <h2>Accuracy Standards &amp; Source Responsibility</h2>
+            <h2>Accuracy Standards</h2>
             <p>
-              We make reasonable efforts to aggregate news from reputable, well-known industry publications.
-              However, we are not the author of third-party content, cannot verify every fact in someone else's
-              publication, and accept no responsibility for the accuracy, completeness, or reliability of
-              information from external sources. See our{' '}
+              We make reasonable efforts to publish accurate and up-to-date information. No content on this
+              site constitutes investment advice. See our{' '}
               <Link href={`/${locale}/disclaimer`}>Disclaimer</Link> for the full scope of our liability
               limitations.
             </p>
 
             <h2>Corrections &amp; Updates</h2>
             <p>
-              If you spot a factual error in one of our own editorial pieces, email us at {CONTACT_EMAIL} and
-              we will review and correct it promptly. For errors in aggregated news, please contact the
-              original publisher named in the article directly.
+              If you spot a factual error in one of our editorial pieces, email us at {CONTACT_EMAIL} and
+              we will review and correct it promptly.
             </p>
 
             <h2>Not Financial Advice</h2>
