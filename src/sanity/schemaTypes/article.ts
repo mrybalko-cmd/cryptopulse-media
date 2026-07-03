@@ -23,7 +23,12 @@ export const articleType = defineType({
       name: 'slug',
       title: 'Slug (URL)',
       type: 'slug',
-      options: { source: 'title', maxLength: 96 },
+      options: {
+        source: 'title',
+        maxLength: 96,
+        slugify: (input: string) =>
+          input.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').slice(0, 96),
+      },
       validation: Rule => Rule.required(),
     }),
     defineField({
