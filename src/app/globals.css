@@ -92,3 +92,26 @@ h1, h2, h3, h4, h5, h6, p, li, a {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* prose-invert uses light-on-dark color tokens by default.
+   In light theme, remap all tw-prose vars to our dark CSS variables
+   so text stays readable on a white background. */
+html.light .prose-invert {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-kbd: var(--foreground);
+  --tw-prose-code: var(--accent);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--card);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+}
