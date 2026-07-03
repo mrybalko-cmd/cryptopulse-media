@@ -102,8 +102,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           </main>
           <Footer />
         </NextIntlClientProvider>
+        <GoogleAnalytics gaId={GA_ID} />
       </body>
-      <GoogleAnalytics gaId={GA_ID} />
     </html>
   );
 }

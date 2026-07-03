@@ -65,11 +65,12 @@ export default function Header() {
         <div />
 
         {/* Logo */}
-        <Link href={`/${locale}`} className="flex items-center justify-center gap-3 group">
-          <div className="w-11 h-11 rounded-xl bg-red-600 flex items-center justify-center">
-            <Zap size={20} className="text-yellow-400" fill="currentColor" />
+        <Link href={`/${locale}`} className="flex items-center justify-center gap-2 sm:gap-3 group">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl bg-red-600 flex items-center justify-center shrink-0">
+            <Zap size={15} className="text-yellow-400 sm:hidden" fill="currentColor" />
+            <Zap size={20} className="text-yellow-400 hidden sm:block" fill="currentColor" />
           </div>
-          <span className="font-bold text-2xl sm:text-3xl tracking-tight">
+          <span className="font-bold text-base sm:text-2xl md:text-3xl tracking-tight whitespace-nowrap">
             CryptoPulse<span className="text-accent">.media</span>
           </span>
         </Link>
