@@ -55,7 +55,13 @@
     "security": "Security",
     "editorialPolicy": "Editorial Policy",
     "disclaimerText": "This site is for informational purposes only. Not financial advice.",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "content": "Content",
+    "tools": "Tools",
+    "news": "News",
+    "articles": "Articles",
+    "interviews": "Interviews",
+    "aboutUs": "About"
   },
   "legal": {
     "privacyTitle": "Privacy Policy",
