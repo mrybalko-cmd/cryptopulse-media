@@ -21,7 +21,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const article = await fetchArticleBySlug(slug, locale);
+  const article = await fetchArticleBySlug(slug.trim(), locale);
   if (!article) return {};
 
   const title = article.seo?.metaTitle || article.title;
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
-  const article = await fetchArticleBySlug(slug, locale);
+  const article = await fetchArticleBySlug(slug.trim(), locale);
 
   if (!article) notFound();
 
