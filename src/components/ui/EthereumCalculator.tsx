@@ -12,7 +12,7 @@ export default function EthereumCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd')
+    fetch('/api/price?ids=ethereum&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.ethereum?.usd ?? null))
       .catch(() => {});

@@ -20,7 +20,7 @@ export default function PriceTicker() {
     const fetchPrices = async () => {
       try {
         const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${COINS.join(',')}&order=market_cap_desc&per_page=8&page=1&sparkline=false&price_change_percentage=24h`,
+          `/api/market?ids=${COINS.join(',')}`,
           { next: { revalidate: 60 } }
         );
         if (res.ok) {

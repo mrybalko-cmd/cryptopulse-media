@@ -44,7 +44,7 @@ export default function CurrencyConverter({ locale }: { locale: string }) {
       const ids = CRYPTO_CURRENCIES.map((c) => c.id).join(',');
       const vs = FIAT_CURRENCIES.map((c) => c.code).join(',');
       const res = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=${vs}`,
+        `/api/price?ids=${ids}&vs_currencies=${vs}`,
         { cache: 'no-store' }
       );
       if (!res.ok) throw new Error('bad response');

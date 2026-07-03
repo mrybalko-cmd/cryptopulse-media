@@ -12,7 +12,7 @@ export default function TonCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd')
+    fetch('/api/price?ids=the-open-network&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.['the-open-network']?.usd ?? null))
       .catch(() => {});

@@ -12,7 +12,7 @@ export default function AvaxCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=avalanche-2&vs_currencies=usd')
+    fetch('/api/price?ids=avalanche-2&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.['avalanche-2']?.usd ?? null))
       .catch(() => {});

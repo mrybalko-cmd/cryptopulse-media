@@ -12,7 +12,7 @@ export default function AdaCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd')
+    fetch('/api/price?ids=cardano&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.cardano?.usd ?? null))
       .catch(() => {});

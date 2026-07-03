@@ -12,7 +12,7 @@ export default function ShibCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=shiba-inu&vs_currencies=usd')
+    fetch('/api/price?ids=shiba-inu&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.['shiba-inu']?.usd ?? null))
       .catch(() => {});

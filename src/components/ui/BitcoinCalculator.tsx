@@ -12,7 +12,7 @@ export default function BitcoinCalculator({ locale }: { locale: string }) {
   const [useCustom, setUseCustom] = useState(false);
 
   useEffect(() => {
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+    fetch('/api/price?ids=bitcoin&vs_currencies=usd')
       .then(r => r.json())
       .then(d => setCurrentPrice(d?.bitcoin?.usd ?? null))
       .catch(() => {});
