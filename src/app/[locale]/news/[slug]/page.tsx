@@ -125,11 +125,6 @@ export default async function NewsDetailPage({ params }: Props) {
         {locale === 'ru' ? 'Все новости' : 'All news'}
       </Link>
 
-      {/* Share (mobile) */}
-      <div className="lg:hidden mb-6">
-        <ShareButtons url={pageUrl} title={news.title} locale={locale} vertical={false} />
-      </div>
-
       {/* Cover */}
       {news.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
@@ -148,7 +143,7 @@ export default async function NewsDetailPage({ params }: Props) {
         {news.title}
       </h1>
 
-      <div className="flex items-center justify-between gap-4 mb-8 pb-8 border-b border-border">
+      <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-border">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
@@ -170,6 +165,11 @@ export default async function NewsDetailPage({ params }: Props) {
           <Eye size={12} />
           <span>{news.views || 0}</span>
         </div>
+      </div>
+
+      {/* Share (mobile) — after header, before body */}
+      <div className="lg:hidden mb-6">
+        <ShareButtons url={pageUrl} title={news.title} locale={locale} vertical={false} />
       </div>
 
       {/* Body */}

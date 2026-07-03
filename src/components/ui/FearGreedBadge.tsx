@@ -24,7 +24,7 @@ export default function FearGreedBadge({ value, classification, locale }: FearGr
 
   return (
     <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${colorClass}`}>
-      <span className="text-xs font-medium uppercase tracking-widest">
+      <span className="hidden sm:inline text-xs font-medium uppercase tracking-widest">
         {locale === 'ru' ? 'Индекс страха' : 'Fear & Greed'}
       </span>
       <span className="font-bold text-sm">{value}</span>

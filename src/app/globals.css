@@ -49,6 +49,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, p, li, a {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Layered (not plain CSS) so utility classes like text-blue-500/underline on
@@ -78,4 +84,11 @@ body {
 
 .ticker-animate:hover {
   animation-play-state: paused;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

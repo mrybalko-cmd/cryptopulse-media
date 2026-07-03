@@ -126,11 +126,6 @@ export default async function ArticlePage({ params }: Props) {
         {locale === 'ru' ? 'Все статьи' : 'All articles'}
       </Link>
 
-      {/* Share (mobile) */}
-      <div className="lg:hidden mb-6">
-        <ShareButtons url={pageUrl} title={article.title} locale={locale} vertical={false} />
-      </div>
-
       {/* Cover */}
       {article.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
@@ -148,7 +143,7 @@ export default async function ArticlePage({ params }: Props) {
         {article.title}
       </h1>
 
-      <div className="flex items-center justify-between gap-4 mb-8 pb-8 border-b border-border">
+      <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-border">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
@@ -165,6 +160,11 @@ export default async function ArticlePage({ params }: Props) {
           <Eye size={12} />
           <span>{article.views || 0}</span>
         </div>
+      </div>
+
+      {/* Share (mobile) — after header, before body */}
+      <div className="lg:hidden mb-6">
+        <ShareButtons url={pageUrl} title={article.title} locale={locale} vertical={false} />
       </div>
 
       {/* Body */}

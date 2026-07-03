@@ -88,7 +88,7 @@ export default function CalendarFilter({ events, locale, pageUrl }: Props) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-1.5 mb-8">
+      <div className="flex gap-1.5 mb-8 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         <button
           onClick={() => setCategory('all')}
           className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${

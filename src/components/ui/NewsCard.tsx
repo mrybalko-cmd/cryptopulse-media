@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
@@ -24,6 +25,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
+  const [imgError, setImgError] = useState(false);
 
   const className = `group relative block bg-card border rounded-lg overflow-hidden transition-all duration-200 ${
     external ? 'border-border hover:border-accent/40' : 'border-accent/40 hover:border-accent'
@@ -49,8 +51,8 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
           {locale === 'ru' ? 'Закреплено' : 'Pinned'}
         </div>
       )}
-      {imageUrl && (
-        <div className="relative h-32 overflow-hidden">
+      {imageUrl && !imgError && (
+        <div className="relative h-32 overflow-hidden bg-card">
           <Image
             src={imageUrl}
             alt={title}
@@ -58,6 +60,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             unoptimized={!imageUrl.includes('cdn.sanity.io')}
+            onError={() => setImgError(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
         </div>

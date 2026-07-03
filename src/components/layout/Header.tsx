@@ -84,10 +84,11 @@ export default function Header() {
             {t('switchLang')}
           </Link>
           <button
-            className="md:hidden p-1.5 text-muted hover:text-foreground"
+            className="md:hidden p-2 rounded-lg bg-card border border-border text-foreground hover:border-accent transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Меню"
           >
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -111,29 +112,30 @@ export default function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-border bg-background px-4 py-3 flex flex-col gap-1">
+        <div className="md:hidden border-t border-border bg-background px-4 py-4 flex flex-col gap-1">
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className={`px-3 py-2 rounded text-sm ${
-                isActive(link.href) ? 'text-foreground bg-card' : 'text-muted'
+              className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                isActive(link.href)
+                  ? 'text-foreground bg-card border border-border'
+                  : 'text-muted hover:text-foreground hover:bg-card/50'
               }`}
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href={switchPath}
-            onClick={() => setMenuOpen(false)}
-            className="mt-1 px-3 py-2 text-sm text-muted border-t border-border"
-          >
-            {t('switchLang')}
-          </Link>
-          <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted">
+          <div className="flex items-center justify-between pt-3 mt-2 border-t border-border">
+            <Link
+              href={switchPath}
+              onClick={() => setMenuOpen(false)}
+              className="px-4 py-2 text-sm text-muted border border-border rounded-lg hover:text-foreground transition-colors"
+            >
+              {t('switchLang')}
+            </Link>
             <ThemeToggle />
-            <span>{locale === 'ru' ? 'Тема оформления' : 'Theme'}</span>
           </div>
         </div>
       )}
