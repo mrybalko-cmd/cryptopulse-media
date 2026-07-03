@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 import { buildOg, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
 import { GLOSSARY } from '@/lib/glossary';
@@ -8,6 +9,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu ? 'Глоссарий криптовалют — словарь терминов' : 'Crypto Glossary — Dictionary of Terms';
   const description = isRu

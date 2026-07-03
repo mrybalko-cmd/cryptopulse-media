@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { routing } from '@/i18n/routing';
@@ -19,6 +19,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const isRu = locale === 'ru';
 
   return {

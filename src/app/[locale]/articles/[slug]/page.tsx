@@ -1,6 +1,6 @@
 export const revalidate = 300;
 
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 import Image from 'next/image';
@@ -21,6 +21,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const article = await fetchArticleBySlug(slug.trim(), locale);
   if (!article) return {};
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 import CurrencyConverter from '@/components/ui/CurrencyConverter';
 
 const BASE = 'https://cryptopulse.media';
@@ -7,6 +8,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
     ? 'Конвертер валют в криптовалюту — курс онлайн'

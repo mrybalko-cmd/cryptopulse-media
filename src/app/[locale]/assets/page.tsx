@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, BASE } from '@/lib/metadata';
 
@@ -6,6 +7,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu ? 'Крипто-активы — Гид по Bitcoin, Ethereum и другим' : 'Crypto Assets — Guide to Bitcoin, Ethereum & More';
   const description = isRu

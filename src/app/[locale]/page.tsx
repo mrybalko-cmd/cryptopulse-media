@@ -1,6 +1,6 @@
 export const revalidate = 300;
 
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale} from 'next-intl/server';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
@@ -19,6 +19,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('home');
 
   const [news, articles, videos, fearGreed, calendarEvents, popular] = await Promise.allSettled([

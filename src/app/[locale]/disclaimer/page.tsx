@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
@@ -7,6 +7,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'legal' });
   return {
     title: t('disclaimerTitle'),
