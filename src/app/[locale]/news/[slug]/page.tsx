@@ -42,9 +42,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
         ...(translationLang && translationSlug
-          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}` }
-          : { [otherLocale]: `https://cryptopulse.media/${otherLocale}/news/${slug}` }),
-        'x-default': `https://cryptopulse.media/en/news/${translationLang === 'en' && translationSlug ? translationSlug : slug}`,
+          ? {
+              [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}`,
+              'x-default': `https://cryptopulse.media/en/news/${translationLang === 'en' ? translationSlug : slug}`,
+            }
+          : {}),
       },
     },
     openGraph: {
