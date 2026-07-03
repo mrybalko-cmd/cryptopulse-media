@@ -2,12 +2,12 @@ export const revalidate = 300;
 
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { after } from 'next/server';
+import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
-import { fetchArticleBySlug, incrementViews, fetchComments, fetchRelatedArticles } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchComments, fetchRelatedArticles } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
 import ArticleBadge from '@/components/ui/ArticleBadge';
@@ -73,7 +73,6 @@ export default async function ArticlePage({ params }: Props) {
 
   if (!article) notFound();
 
-  after(() => incrementViews(article._id));
 
   const commentsEnabled = article.commentsEnabled !== false;
   const comments = commentsEnabled ? await fetchComments(article._id) : [];
@@ -121,6 +120,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <ViewTracker id={article._id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">

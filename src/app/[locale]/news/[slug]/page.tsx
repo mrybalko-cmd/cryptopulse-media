@@ -2,14 +2,14 @@ export const revalidate = 300;
 
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import { after } from 'next/server';
+import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { fetchNewsBySlug, incrementViews, fetchComments, fetchRelatedNews } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchComments, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
 import NewsCard from '@/components/ui/NewsCard';
@@ -73,7 +73,6 @@ export default async function NewsDetailPage({ params }: Props) {
 
   if (!news) notFound();
 
-  after(() => incrementViews(news._id));
 
   const commentsEnabled = news.commentsEnabled !== false;
   const comments = commentsEnabled ? await fetchComments(news._id) : [];
@@ -121,6 +120,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <ViewTracker id={news._id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">
