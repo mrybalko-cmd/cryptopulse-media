@@ -9,6 +9,9 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/studio/',
       },
     ],
-    sitemap: 'https://cryptopulse.media/sitemap.xml',
+    sitemap: [
+      'https://cryptopulse.media/sitemap.xml',
+      'https://cryptopulse.media/news-sitemap.xml',
+    ],
   };
 }
