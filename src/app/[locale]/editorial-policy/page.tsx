@@ -33,8 +33,18 @@ export default async function EditorialPolicyPage({ params }: Props) {
     year: 'numeric',
   });
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isRu ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'Редакционная политика' : 'Editorial Policy', item: `${BASE}/${locale}/editorial-policy` },
+    ],
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t('editorialPolicyTitle')}</h1>
       <p className="text-muted text-xs mb-8">{t('lastUpdated')}: {lastUpdated}</p>
 

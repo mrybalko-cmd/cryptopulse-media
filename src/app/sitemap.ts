@@ -12,10 +12,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchSanityNews({ limit: 200, locale: 'en' }),
   ]);
 
-  const staticPages = ['', '/news', '/articles', '/interviews', '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib', '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy', '/about'].flatMap(path => [
-    { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
-    { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.8 },
-  ]);
+  const STATIC_DATE = new Date('2026-06-01');
+
+  // Listing pages: new content daily
+  const listingPaths = ['', '/news', '/articles', '/interviews'];
+  // Tool/asset pages: content changes but template doesn't
+  const toolPaths = ['/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib'];
+  // Info pages: rarely change
+  const infoPaths = ['/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy', '/about'];
+
+  const staticPages = [
+    ...listingPaths.flatMap(path => [
+      { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
+      { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
+    ]),
+    ...toolPaths.flatMap(path => [
+      { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+      { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+    ]),
+    ...infoPaths.flatMap(path => [
+      { url: `${BASE}/ru${path}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.5 },
+      { url: `${BASE}/en${path}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.5 },
+    ]),
+  ];
 
   const articlePages = [
     ...articlesRu.map((a: any) => ({

@@ -28,8 +28,18 @@ export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isRu ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'О нас' : 'About Us', item: `${BASE}/${locale}/about` },
+    ],
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
         <Link href={`/${locale}`} className="hover:text-accent transition-colors">
           {isRu ? 'Главная' : 'Home'}

@@ -70,14 +70,6 @@ export default async function LocaleLayout({ children, params }: Props) {
         url: BASE,
         publisher: { '@id': `${BASE}/#organization` },
         inLanguage: locale,
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: `${BASE}/${locale}?search={search_term_string}`,
-          },
-          'query-input': 'required name=search_term_string',
-        },
       },
     ],
   };

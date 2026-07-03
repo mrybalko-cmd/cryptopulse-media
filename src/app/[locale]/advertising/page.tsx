@@ -25,8 +25,18 @@ export default async function AdvertisingPage({ params }: Props) {
   const t = await getTranslations('legal');
   const isRu = locale === 'ru';
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isRu ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'Реклама' : 'Advertising', item: `${BASE}/${locale}/advertising` },
+    ],
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8">{t('advertisingTitle')}</h1>
 
       <div className="prose prose-invert prose-sm max-w-none
