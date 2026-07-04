@@ -87,11 +87,11 @@ export default async function LocaleLayout({ children, params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body suppressHydrationWarning className="overflow-x-hidden">
+      <body suppressHydrationWarning className="overflow-x-clip">
         <NextIntlClientProvider messages={messages}>
           <PriceTicker />
           <Header />
-          <main className="min-h-screen overflow-x-hidden">
+          <main className="min-h-screen overflow-x-clip">
             {children}
           </main>
           <Footer />
