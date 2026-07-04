@@ -188,7 +188,7 @@ export default async function AssetsPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem' }}>
         <div>
           <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
             <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>

@@ -59,7 +59,7 @@ export default async function CalendarPage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem' }}>
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             {isRu ? 'Криптокалендарь' : 'Crypto Calendar'}

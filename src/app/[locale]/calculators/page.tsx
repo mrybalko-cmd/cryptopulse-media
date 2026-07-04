@@ -53,7 +53,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem' }}>
         <div>
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground">{isRu ? 'Калькуляторы' : 'Calculators'}</h1>
