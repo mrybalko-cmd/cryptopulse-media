@@ -118,7 +118,7 @@ export default async function HomePage({ params }: Props) {
           </div>
           {articleItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {firstArticles.map((article: any) => (
+              {firstArticles.map((article: any, i: number) => (
                 <ArticleCard
                   key={article._id}
                   title={article.title}
@@ -130,6 +130,7 @@ export default async function HomePage({ params }: Props) {
                   badge={article.badge}
                   views={article.views}
                   locale={locale}
+                  priority={i < 2}
                 />
               ))}
               {hasPopular && (

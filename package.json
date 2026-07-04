@@ -38,5 +38,18 @@
   },
   "allowScripts": {
     "puppeteer@25.3.0": true
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 87",
+      "firefox >= 78",
+      "safari >= 14",
+      "edge >= 87"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

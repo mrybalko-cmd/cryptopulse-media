@@ -14,10 +14,11 @@ interface ArticleCardProps {
   featured?: boolean;
   badge?: string;
   views?: number;
+  priority?: boolean;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge, views
+  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge, views, priority
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -37,6 +38,7 @@ export default function ArticleCard({
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
+            priority={priority}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
           {badge && badge !== 'none' && (

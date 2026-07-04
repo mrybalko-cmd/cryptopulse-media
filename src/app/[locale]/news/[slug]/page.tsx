@@ -137,7 +137,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {/* Cover */}
       {news.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image src={news.coverImage} alt={news.title} fill className="object-cover" />
+          <Image src={news.coverImage} alt={news.title} fill className="object-cover" priority sizes="(min-width: 1024px) 65vw, 100vw" />
         </div>
       )}
 
