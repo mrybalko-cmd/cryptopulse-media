@@ -321,8 +321,8 @@ export const fetchPopularContent = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now() && views > 0] | order(views desc) [0...$limit] {
-          _type, _id, title, "slug": slug.current, views
+        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] | order(coalesce(views, 0) desc, publishedAt desc) [0...$limit] {
+          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0)
         }`,
         { locale, limit }
       );

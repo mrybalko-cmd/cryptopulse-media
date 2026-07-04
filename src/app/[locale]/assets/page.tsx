@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, BASE } from '@/lib/metadata';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -183,62 +184,68 @@ export default async function AssetsPage({ params }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <span className="text-foreground">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</span>
-      </nav>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 256px', gap: '2rem', alignItems: 'start' }}>
+        <div>
+          <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
+            <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
+            <span>›</span>
+            <span className="text-foreground">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</span>
+          </nav>
 
-      <h1 className="text-3xl font-bold text-foreground mb-3">
-        {isRu ? 'Крипто-активы' : 'Crypto Assets'}
-      </h1>
-      <p className="text-muted text-sm leading-relaxed mb-10 max-w-xl">
-        {isRu
-          ? 'Глубокие гиды по главным криптовалютам: история создания, ключевые события, рост цены и интерактивные калькуляторы инвестиций.'
-          : 'In-depth guides to major cryptocurrencies: creation history, key events, price growth and interactive investment calculators.'}
-      </p>
+          <h1 className="text-3xl font-bold text-foreground mb-3">
+            {isRu ? 'Крипто-активы' : 'Crypto Assets'}
+          </h1>
+          <p className="text-muted text-sm leading-relaxed mb-10 max-w-xl">
+            {isRu
+              ? 'Глубокие гиды по главным криптовалютам: история создания, ключевые события, рост цены и интерактивные калькуляторы инвестиций.'
+              : 'In-depth guides to major cryptocurrencies: creation history, key events, price growth and interactive investment calculators.'}
+          </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {ASSETS.map(asset => (
-          asset.available ? (
-            <Link
-              key={asset.slug}
-              href={`/${locale}/assets/${asset.slug}`}
-              className="group bg-card border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl font-bold text-accent">{asset.icon}</span>
-                <div>
-                  <p className="font-bold text-foreground">{asset.name}</p>
-                  <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {ASSETS.map(asset => (
+              asset.available ? (
+                <Link
+                  key={asset.slug}
+                  href={`/${locale}/assets/${asset.slug}`}
+                  className="group bg-card border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-3xl font-bold text-accent">{asset.icon}</span>
+                    <div>
+                      <p className="font-bold text-foreground">{asset.name}</p>
+                      <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted">{asset.tagline[loc]}</p>
+                  <p className="text-xs text-accent mt-3 group-hover:underline">
+                    {isRu ? 'Читать гид →' : 'Read guide →'}
+                  </p>
+                </Link>
+              ) : (
+                <div
+                  key={asset.slug}
+                  className="bg-card border border-dashed border-border rounded-2xl p-5 opacity-50"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-3xl font-bold text-muted">{asset.icon}</span>
+                    <div>
+                      <p className="font-bold text-foreground">{asset.name}</p>
+                      <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted">{asset.tagline[loc]}</p>
+                  <p className="text-xs text-muted mt-3">{isRu ? 'Скоро...' : 'Coming soon...'}</p>
                 </div>
-              </div>
-              <p className="text-sm text-muted">{asset.tagline[loc]}</p>
-              <p className="text-xs text-accent mt-3 group-hover:underline">
-                {isRu ? 'Читать гид →' : 'Read guide →'}
-              </p>
-            </Link>
-          ) : (
-            <div
-              key={asset.slug}
-              className="bg-card border border-dashed border-border rounded-2xl p-5 opacity-50"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl font-bold text-muted">{asset.icon}</span>
-                <div>
-                  <p className="font-bold text-foreground">{asset.name}</p>
-                  <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
-                </div>
-              </div>
-              <p className="text-sm text-muted">{asset.tagline[loc]}</p>
-              <p className="text-xs text-muted mt-3">{isRu ? 'Скоро...' : 'Coming soon...'}</p>
-            </div>
-          )
-        ))}
+              )
+            ))}
+          </div>
+        </div>
+
+        <PopularSidebar locale={locale} />
       </div>
     </div>
   );
