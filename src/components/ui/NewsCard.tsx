@@ -19,9 +19,10 @@ interface NewsCardProps {
   imageUrl?: string | null;
   pinned?: boolean;
   breaking?: boolean;
+  ownBadge?: boolean;
 }
 
-export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking }: NewsCardProps) {
+export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking, ownBadge = true }: NewsCardProps) {
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
@@ -39,7 +40,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
           {locale === 'ru' ? 'Важное' : 'Breaking'}
         </div>
       )}
-      {!external && !breaking && (
+      {!external && !breaking && ownBadge && (
         <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-medium">
           <Zap size={10} className="text-yellow-400" fill="currentColor" />
           {locale === 'ru' ? 'Наш материал' : 'Our story'}

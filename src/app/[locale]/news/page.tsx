@@ -59,6 +59,7 @@ export default async function NewsPage({ params }: Props) {
                 locale={locale}
                 pinned={item.pinned}
                 breaking={item.breaking}
+                ownBadge={item.ownBadge}
               />
             ))}
           </div>

@@ -13,6 +13,7 @@ export interface UnifiedNewsItem {
   external: boolean;
   pinned?: boolean;
   breaking?: boolean;
+  ownBadge?: boolean;
   views?: number;
 }
 
@@ -32,6 +33,7 @@ export async function fetchOwnNews({
     external: false,
     pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
     breaking: !!n.breaking,
+    ownBadge: n.ownBadge !== false,
     views: typeof n.views === 'number' ? n.views : undefined,
   }));
 }

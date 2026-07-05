@@ -13,6 +13,7 @@ interface NewsItem {
   coverImage?: string;
   publishedAt: string;
   breaking?: boolean;
+  ownBadge?: boolean;
   views?: number;
 }
 
@@ -60,6 +61,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20 }: Pr
               imageUrl={item.coverImage}
               locale={locale}
               breaking={item.breaking}
+              ownBadge={item.ownBadge !== false}
             />
           ))}
         </div>

@@ -94,6 +94,7 @@ export default async function HomePage({ params }: Props) {
                   locale={locale}
                   pinned={item.pinned}
                   breaking={item.breaking}
+                  ownBadge={item.ownBadge}
                   views={item.views}
                 />
               ))}

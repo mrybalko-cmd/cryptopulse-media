@@ -176,6 +176,13 @@ export const newsType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'ownBadge',
+      title: '⚡ Значок «Наш материал» / Own story badge',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Показывать молнию «Наш материал» в ленте новостей. По умолчанию включено для всех наших публикаций.',
+    }),
+    defineField({
       name: 'breaking',
       title: '⚡ Молния / Breaking news',
       type: 'boolean',
