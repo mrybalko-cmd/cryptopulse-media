@@ -71,7 +71,6 @@ export default function AuthorCard({ author, locale }: Props) {
                 className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5"
                 title={author.email}>
                 <Mail size={11} />
-                {author.email}
               </a>
             )}
             {author.telegram && (

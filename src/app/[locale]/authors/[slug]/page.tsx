@@ -99,8 +99,9 @@ export default async function AuthorPage({ params }: Props) {
             <div className="flex items-center gap-2 flex-wrap">
               {author.email && (
                 <a href={`mailto:${author.email}`}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">
-                  <Mail size={11} /> {author.email}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors"
+                  title={author.email}>
+                  <Mail size={11} />
                 </a>
               )}
               {author.telegram && (
