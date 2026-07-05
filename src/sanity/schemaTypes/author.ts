@@ -73,6 +73,13 @@ export const authorType = defineType({
       title: 'X / Twitter URL',
       type: 'url',
     }),
+    defineField({
+      name: 'email',
+      title: 'Email',
+      type: 'string',
+      description: 'Публичный email автора — будет показан как иконка конверта под материалами',
+      validation: Rule => Rule.email(),
+    }),
   ],
   preview: {
     select: { title: 'name', subtitleRu: 'roleRu', subtitleEn: 'roleEn', media: 'photo' },

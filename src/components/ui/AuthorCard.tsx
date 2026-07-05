@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Mail } from 'lucide-react';
 
 interface Author {
   name: string;
@@ -9,6 +10,7 @@ interface Author {
   bioRu?: string;
   bioEn?: string;
   photo?: string;
+  email?: string;
   telegram?: string;
   linkedin?: string;
   facebook?: string;
@@ -22,7 +24,7 @@ interface Props {
 
 export default function AuthorCard({ author, locale }: Props) {
   const isRu = locale === 'ru';
-  const hasSocials = author.telegram || author.linkedin || author.facebook || author.twitter;
+  const hasSocials = author.email || author.telegram || author.linkedin || author.facebook || author.twitter;
   const authorHref = author.slug ? `/${locale}/authors/${author.slug}` : undefined;
 
   return (
@@ -64,6 +66,14 @@ export default function AuthorCard({ author, locale }: Props) {
         )}
         {hasSocials && (
           <div className="flex items-center gap-3 mt-3 flex-wrap">
+            {author.email && (
+              <a href={`mailto:${author.email}`}
+                className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5"
+                title={author.email}>
+                <Mail size={11} />
+                {author.email}
+              </a>
+            )}
             {author.telegram && (
               <a href={author.telegram} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5">

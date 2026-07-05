@@ -7,7 +7,7 @@ import { buildOg, BASE } from '@/lib/metadata';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchAuthorBySlug, fetchAuthorContent } from '@/lib/sanity';
-import { ArrowLeft, Calendar, Clock, Eye, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, ExternalLink, Mail } from 'lucide-react';
 import ArticleCard from '@/components/ui/ArticleCard';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -95,8 +95,14 @@ export default async function AuthorPage({ params }: Props) {
             <p className="text-sm text-muted leading-relaxed mb-4">{isRu ? author.bioRu : author.bioEn}</p>
           )}
 
-          {(author.telegram || author.linkedin || author.facebook || author.twitter) && (
+          {(author.email || author.telegram || author.linkedin || author.facebook || author.twitter) && (
             <div className="flex items-center gap-2 flex-wrap">
+              {author.email && (
+                <a href={`mailto:${author.email}`}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">
+                  <Mail size={11} /> {author.email}
+                </a>
+              )}
               {author.telegram && (
                 <a href={author.telegram} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">

@@ -61,7 +61,7 @@ export const fetchArticleBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -115,7 +115,7 @@ export const fetchNewsBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -325,7 +325,7 @@ export const fetchAuthors = unstable_cache(
       return await client.fetch(
         `*[_type == "author"] | order(name asc) {
           _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
-          "photo": photo.asset->url, telegram, linkedin, facebook, twitter
+          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter
         }`
       );
     } catch {
@@ -343,7 +343,7 @@ export const fetchAuthorBySlug = unstable_cache(
       return await client.fetch(
         `*[_type == "author" && slug.current == $slug][0] {
           _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
-          "photo": photo.asset->url, telegram, linkedin, facebook, twitter
+          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter
         }`,
         { slug }
       );
