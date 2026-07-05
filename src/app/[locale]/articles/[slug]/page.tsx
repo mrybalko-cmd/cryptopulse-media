@@ -269,7 +269,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Share (desktop, sticky) */}
       <aside className="hidden lg:block shrink-0">
-        <div className="sticky top-24">
+        <div className="sticky top-20 md:top-[8rem]">
           <ShareButtons url={pageUrl} title={article.title} locale={locale} />
         </div>
       </aside>

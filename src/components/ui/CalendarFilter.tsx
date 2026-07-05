@@ -37,7 +37,7 @@ function EventRow({ event, locale, pageUrl }: { event: CalendarEvent; locale: st
   const dateStr = date.toLocaleDateString(isRu ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', timeZone: 'UTC' });
 
   return (
-    <div id={event.slug} className="flex gap-4 bg-card border border-border rounded-xl p-4 scroll-mt-24">
+    <div id={event.slug} className="flex gap-4 bg-card border border-border rounded-xl p-4 scroll-mt-20 md:scroll-mt-32">
       <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center text-base relative">
         {event.iconUrl ? (
           <Image src={event.iconUrl} alt="" fill className="object-cover" />
