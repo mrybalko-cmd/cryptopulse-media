@@ -45,7 +45,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         )}
         {title}
       </h3>
-      <div className="flex items-center justify-between gap-3 mt-1.5">
+      <div className="flex items-center justify-between gap-x-3 gap-y-1 mt-1.5 flex-wrap">
         <span className="text-xs text-muted whitespace-nowrap">
           {dateStr} <span className="text-muted/60">•</span> {timeStr}
         </span>

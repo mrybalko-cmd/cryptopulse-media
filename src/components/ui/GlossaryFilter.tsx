@@ -68,7 +68,7 @@ export default function GlossaryFilter({ terms, locale }: Props) {
                   <details
                     key={t.slug}
                     id={t.slug}
-                    className="group bg-card border border-border rounded-lg px-4 py-3 open:border-accent/40 scroll-mt-24"
+                    className="group bg-card border border-border rounded-lg px-4 py-3 open:border-accent/40 scroll-mt-20 md:scroll-mt-32"
                   >
                     <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-foreground">
                       <span>{t.term[locale as 'ru' | 'en']}</span>

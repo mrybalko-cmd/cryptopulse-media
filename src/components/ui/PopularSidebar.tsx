@@ -12,7 +12,7 @@ export default async function PopularSidebar({ locale, limit = 10 }: Props) {
   if (items.length === 0) return null;
 
   return (
-    <aside>
+    <aside className="hidden lg:block">
       <div className="sticky top-20 md:top-[8rem]">
         <PopularList items={items} locale={locale} />
       </div>
