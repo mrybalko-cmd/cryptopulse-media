@@ -79,7 +79,7 @@ export const fetchSanityNews = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, views,
+          _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views,
           "coverImage": coverImage.asset->url
         }`,
         { locale, limit }
@@ -89,6 +89,25 @@ export const fetchSanityNews = unstable_cache(
     }
   },
   ['fetchSanityNews'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export const fetchNewsByTopic = unstable_cache(
+  async (topic: string, locale: string, limit = 50) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "news" && language == $locale && topic == $topic && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt, breaking, ownBadge, views,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, topic, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchNewsByTopic'],
   { revalidate: READ_CACHE_SECONDS }
 );
 

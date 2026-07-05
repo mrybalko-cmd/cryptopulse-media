@@ -176,6 +176,25 @@ export const newsType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'topic',
+      title: 'Тема / Topic',
+      type: 'string',
+      description: 'Категория новости для фильтрации в разделе Новости',
+      options: {
+        list: [
+          { title: 'Регулирование / Regulation', value: 'regulation' },
+          { title: 'DeFi & Web3', value: 'defi' },
+          { title: 'Bitcoin', value: 'bitcoin' },
+          { title: 'Рынок / Market', value: 'market' },
+          { title: 'Технологии / Technology', value: 'technology' },
+          { title: 'Безопасность / Security', value: 'security' },
+          { title: 'Обучение / Education', value: 'education' },
+          { title: 'Пресс-релиз / Press Release', value: 'press-release' },
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
       name: 'ownBadge',
       title: '⚡ Значок «Наш материал» / Own story badge',
       type: 'boolean',

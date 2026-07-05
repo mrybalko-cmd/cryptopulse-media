@@ -6,6 +6,18 @@ import type { Metadata } from 'next';
 import NewsCard from '@/components/ui/NewsCard';
 import NewsLoadMore from '@/components/ui/NewsLoadMore';
 import { fetchOwnNews } from '@/lib/news';
+import Link from 'next/link';
+
+const NEWS_TOPICS: Record<string, { ru: string; en: string }> = {
+  regulation: { ru: 'Регулирование', en: 'Regulation' },
+  defi: { ru: 'DeFi & Web3', en: 'DeFi & Web3' },
+  bitcoin: { ru: 'Bitcoin', en: 'Bitcoin' },
+  market: { ru: 'Рынок', en: 'Market' },
+  technology: { ru: 'Технологии', en: 'Technology' },
+  security: { ru: 'Безопасность', en: 'Security' },
+  education: { ru: 'Обучение', en: 'Education' },
+  'press-release': { ru: 'Пресс-релиз', en: 'Press Release' },
+};
 
 const INITIAL = 30;
 
@@ -38,9 +50,25 @@ export default async function NewsPage({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
         <p className="text-muted text-sm mt-1">{t('subtitle')}</p>
+      </div>
+
+      {/* Topic filter pills */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-accent text-background border border-accent">
+          {locale === 'ru' ? 'Все' : 'All'}
+        </span>
+        {Object.entries(NEWS_TOPICS).map(([key, labels]) => (
+          <Link
+            key={key}
+            href={`/${locale}/news/topic/${key}`}
+            className="px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+          >
+            {locale === 'ru' ? labels.ru : labels.en}
+          </Link>
+        ))}
       </div>
 
       {items.length > 0 ? (

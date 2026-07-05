@@ -3,6 +3,7 @@ import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
 
 const TOPIC_SLUGS = ['regulation', 'defi', 'bitcoin', 'market', 'technology', 'security', 'education'];
+const NEWS_TOPIC_SLUGS = [...TOPIC_SLUGS, 'press-release'];
 
 const BASE = 'https://cryptopulse.media';
 
@@ -84,5 +85,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...authorPages, ...topicPages];
+  const newsTopicPages = NEWS_TOPIC_SLUGS.flatMap(topic => [
+    { url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+  ]);
+
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];
 }
