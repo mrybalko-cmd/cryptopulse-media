@@ -61,7 +61,7 @@ export const fetchArticleBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -115,7 +115,7 @@ export const fetchNewsBySlug = unstable_cache(
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled,
           "coverImage": coverImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -315,6 +315,95 @@ export interface PopularItem {
   slug: string;
   views: number;
 }
+
+// ── Authors ──────────────────────────────────────────────────────────────────
+
+export const fetchAuthors = unstable_cache(
+  async () => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "author"] | order(name asc) {
+          _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          "photo": photo.asset->url, telegram, linkedin, facebook, twitter
+        }`
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchAuthors'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export const fetchAuthorBySlug = unstable_cache(
+  async (slug: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    try {
+      return await client.fetch(
+        `*[_type == "author" && slug.current == $slug][0] {
+          _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          "photo": photo.asset->url, telegram, linkedin, facebook, twitter
+        }`,
+        { slug }
+      );
+    } catch {
+      return null;
+    }
+  },
+  ['fetchAuthorBySlug'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export const fetchAuthorContent = unstable_cache(
+  async (authorSlug: string, locale: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { articles: [], news: [] };
+    try {
+      const [articles, news] = await Promise.all([
+        client.fetch(
+          `*[_type == "article" && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...20] {
+            _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+            "coverImage": coverImage.asset->url
+          }`,
+          { slug: authorSlug, locale }
+        ),
+        client.fetch(
+          `*[_type == "news" && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...20] {
+            _id, title, slug, publishedAt, views,
+            "coverImage": coverImage.asset->url
+          }`,
+          { slug: authorSlug, locale }
+        ),
+      ]);
+      return { articles, news };
+    } catch {
+      return { articles: [], news: [] };
+    }
+  },
+  ['fetchAuthorContent'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+// ── Article Topics ────────────────────────────────────────────────────────────
+
+export const fetchArticlesByTopic = unstable_cache(
+  async (topic: string, locale: string, limit = 30) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "article" && topic == $topic && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, topic,
+          "coverImage": coverImage.asset->url
+        }`,
+        { topic, locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchArticlesByTopic'],
+  { revalidate: READ_CACHE_SECONDS }
+);
 
 export const fetchPopularContent = unstable_cache(
   async (locale: string, limit = 6): Promise<PopularItem[]> => {

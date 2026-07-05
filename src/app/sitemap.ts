@@ -1,21 +1,24 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews } from '@/lib/sanity';
+import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
+
+const TOPIC_SLUGS = ['regulation', 'defi', 'bitcoin', 'market', 'technology', 'security', 'education'];
 
 const BASE = 'https://cryptopulse.media';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articlesRu, articlesEn, newsRu, newsEn] = await Promise.all([
+  const [articlesRu, articlesEn, newsRu, newsEn, authors] = await Promise.all([
     fetchArticles({ limit: 100, locale: 'ru' }),
     fetchArticles({ limit: 100, locale: 'en' }),
     fetchSanityNews({ limit: 200, locale: 'ru' }),
     fetchSanityNews({ limit: 200, locale: 'en' }),
+    fetchAuthors(),
   ]);
 
   const STATIC_DATE = new Date('2026-06-01');
 
   // Listing pages: new content daily
-  const listingPaths = ['', '/news', '/articles', '/interviews'];
+  const listingPaths = ['', '/news', '/articles', '/interviews', '/authors'];
   // Tool/asset pages: content changes but template doesn't
   const toolPaths = ['/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib'];
   // Info pages: rarely change
@@ -71,5 +74,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages];
+  const authorPages = (authors as any[]).flatMap((a: any) => [
+    { url: `${BASE}/ru/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE}/en/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+  ]);
+
+  const topicPages = TOPIC_SLUGS.flatMap(topic => [
+    { url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+  ]);
+
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...authorPages, ...topicPages];
 }

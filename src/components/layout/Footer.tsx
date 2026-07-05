@@ -48,6 +48,11 @@ export default async function Footer() {
                   {t('interviews')}
                 </Link>
               </li>
+              <li>
+                <Link href={`/${locale}/authors`} className="text-sm text-muted hover:text-foreground transition-colors">
+                  {t('authors')}
+                </Link>
+              </li>
             </ul>
           </nav>
 

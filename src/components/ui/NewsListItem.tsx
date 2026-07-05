@@ -29,7 +29,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
       {breaking && (
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-red-600 text-white mb-1.5 animate-pulse">
           <Zap size={10} fill="currentColor" />
-          {locale === 'ru' ? 'Молния' : 'Breaking'}
+          {locale === 'ru' ? 'Важное' : 'Breaking'}
         </span>
       )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">

@@ -36,7 +36,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
       {breaking && (
         <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-bold animate-pulse">
           <Zap size={10} fill="currentColor" />
-          {locale === 'ru' ? 'Молния' : 'Breaking'}
+          {locale === 'ru' ? 'Важное' : 'Breaking'}
         </div>
       )}
       {!external && !breaking && (

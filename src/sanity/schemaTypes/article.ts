@@ -92,6 +92,24 @@ export const articleType = defineType({
       type: 'number',
     }),
     defineField({
+      name: 'topic',
+      title: 'Тема / Topic',
+      type: 'string',
+      description: 'Категория статьи для фильтрации в разделе Статьи',
+      options: {
+        list: [
+          { title: 'Регулирование / Regulation', value: 'regulation' },
+          { title: 'DeFi & Web3', value: 'defi' },
+          { title: 'Bitcoin', value: 'bitcoin' },
+          { title: 'Рынок / Market', value: 'market' },
+          { title: 'Технологии / Technology', value: 'technology' },
+          { title: 'Безопасность / Security', value: 'security' },
+          { title: 'Обучение / Education', value: 'education' },
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
       name: 'badge',
       title: 'Badge',
       type: 'string',

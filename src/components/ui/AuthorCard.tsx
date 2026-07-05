@@ -1,7 +1,9 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Author {
   name: string;
+  slug?: string;
   roleRu?: string;
   roleEn?: string;
   bioRu?: string;
@@ -21,6 +23,7 @@ interface Props {
 export default function AuthorCard({ author, locale }: Props) {
   const isRu = locale === 'ru';
   const hasSocials = author.telegram || author.linkedin || author.facebook || author.twitter;
+  const authorHref = author.slug ? `/${locale}/authors/${author.slug}` : undefined;
 
   return (
     <div className="flex gap-4 rounded-xl bg-card border border-border p-5 my-8">
@@ -46,7 +49,13 @@ export default function AuthorCard({ author, locale }: Props) {
         <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-0.5">
           {isRu ? 'Автор' : 'Author'}
         </p>
-        <p className="font-bold text-foreground text-sm">{author.name}</p>
+        {authorHref ? (
+          <Link href={authorHref} className="font-bold text-foreground text-sm hover:text-accent transition-colors">
+            {author.name}
+          </Link>
+        ) : (
+          <p className="font-bold text-foreground text-sm">{author.name}</p>
+        )}
         {(isRu ? author.roleRu : author.roleEn) && (
           <p className="text-xs text-accent mb-2">{isRu ? author.roleRu : author.roleEn}</p>
         )}
