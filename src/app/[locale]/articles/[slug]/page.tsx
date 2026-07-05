@@ -212,14 +212,14 @@ export default async function ArticlePage({ params }: Props) {
                 link: ({ value, children }) => {
                   const isExternal = value?.href?.startsWith('http');
                   const relParts = [
-                    ...(isExternal ? ['noopener', 'noreferrer'] : []),
+                    'noopener', 'noreferrer',
                     ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
                   ];
                   return (
                     <a
                       href={value?.href}
-                      target={isExternal ? '_blank' : undefined}
-                      rel={relParts.length > 0 ? relParts.join(' ') : undefined}
+                      target="_blank"
+                      rel={relParts.join(' ')}
                       className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
                     >
                       {children}
