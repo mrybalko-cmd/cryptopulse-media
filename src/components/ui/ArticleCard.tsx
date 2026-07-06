@@ -29,10 +29,10 @@ export default function ArticleCard({
   return (
     <Link
       href={`/${locale}/articles/${slug}`}
-      className={`group block bg-card border border-border rounded-lg overflow-hidden hover:border-accent/40 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
+      className={`group block bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
     >
       {coverImage && (
-        <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-28 sm:h-32 md:h-36'}`}>
+        <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-36 sm:h-40 md:h-44'}`}>
           <Image
             src={coverImage}
             alt={coverImageAlt || title}
