@@ -4,6 +4,11 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
+        userAgent: 'Googlebot-News',
+        allow: '/',
+        disallow: '/studio/',
+      },
+      {
         userAgent: '*',
         allow: ['/', '/_next/static/', '/_next/image'],
         disallow: '/studio/',

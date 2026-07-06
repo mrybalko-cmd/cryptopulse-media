@@ -6,7 +6,7 @@ import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
 import { fetchArticleBySlug, fetchComments, fetchRelatedArticles } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -155,7 +155,22 @@ export default async function ArticlePage({ params }: Props) {
       </h1>
 
       <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-border">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center flex-wrap gap-3">
+          {/* Byline — always visible, required for Google News */}
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <User size={12} />
+            {article.author?.slug ? (
+              <a
+                href={`/${locale}/authors/${article.author.slug}`}
+                className="hover:text-accent transition-colors"
+                rel="author"
+              >
+                {article.author.name}
+              </a>
+            ) : (
+              <span rel="author">{article.author?.name || 'CryptoPulse.media'}</span>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
             <span>{date}</span>

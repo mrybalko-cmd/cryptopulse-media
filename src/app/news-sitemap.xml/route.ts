@@ -9,7 +9,7 @@ const client = createClient({
 
 const BASE = 'https://cryptopulse.media';
 
-export const revalidate = 600;
+export const revalidate = 300;
 
 type NewsItem = {
   slug: { current: string };

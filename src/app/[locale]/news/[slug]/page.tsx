@@ -6,7 +6,7 @@ import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import { fetchNewsBySlug, fetchComments, fetchRelatedNews } from '@/lib/sanity';
@@ -156,7 +156,22 @@ export default async function NewsDetailPage({ params }: Props) {
       </h1>
 
       <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-border">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center flex-wrap gap-3">
+          {/* Byline — always visible, required for Google News */}
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <User size={12} />
+            {news.author?.slug ? (
+              <a
+                href={`/${locale}/authors/${news.author.slug}`}
+                className="hover:text-accent transition-colors"
+                rel="author"
+              >
+                {news.author.name}
+              </a>
+            ) : (
+              <span rel="author">{news.author?.name || 'CryptoPulse.media'}</span>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
             <span>{date}</span>
