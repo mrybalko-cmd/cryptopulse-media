@@ -56,6 +56,14 @@ export const articleType = defineType({
       title: 'Cover Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text (SEO & accessibility)',
+          type: 'string',
+          description: 'Краткое описание изображения — для SEO и скринридеров. Пример: "Биткоин достигает ATH в 2026 году". Если пусто — используется заголовок статьи.',
+        }),
+      ],
     }),
     defineField({
       name: 'publishTiming',
@@ -122,6 +130,12 @@ export const articleType = defineType({
         ],
       },
       initialValue: 'none',
+    }),
+    defineField({
+      name: 'updatedAt',
+      title: 'Обновлено / Last Updated',
+      type: 'datetime',
+      description: 'Дата последнего существенного обновления материала. Попадает в dateModified JSON-LD — сигнал свежести для Google. Оставьте пустым, если материал не обновлялся.',
     }),
     defineField({
       name: 'views',
@@ -200,17 +214,23 @@ export const articleType = defineType({
       options: { collapsible: true, collapsed: true },
       fields: [
         defineField({
+          name: 'focusKeyphrase',
+          title: '🎯 Фокусный запрос / Focus Keyphrase',
+          type: 'string',
+          description: 'Главное ключевое слово или фраза, под которую оптимизирован материал. Пример: "биткоин халвинг 2026". Используется только для редакционного контроля.',
+        }),
+        defineField({
           name: 'metaTitle',
           title: 'Meta Title',
           type: 'string',
-          description: 'Overrides the page title shown in search results. Falls back to the article title if empty.',
+          description: 'Overrides the page title shown in search results. Falls back to the article title if empty. Optimal: 50–60 characters.',
         }),
         defineField({
           name: 'metaDescription',
           title: 'Meta Description',
           type: 'text',
           rows: 3,
-          description: 'Shown in search results and social previews. Falls back to the excerpt if empty.',
+          description: 'Shown in search results and social previews. Falls back to the excerpt if empty. Optimal: 120–155 characters.',
         }),
         defineField({
           name: 'keywords',
@@ -218,6 +238,42 @@ export const articleType = defineType({
           type: 'array',
           of: [{ type: 'string' }],
           options: { layout: 'tags' },
+          description: 'Secondary keywords. Not a direct ranking factor, but helps with internal categorisation.',
+        }),
+        defineField({
+          name: 'ogImage',
+          title: '📸 OG Image (соцсети) / Social Sharing Image',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Картинка для предпросмотра в соцсетях и мессенджерах. Рекомендуемый размер: 1200×630 px. Если пусто — используется обложка статьи.',
+        }),
+        defineField({
+          name: 'schemaType',
+          title: '🏷️ Тип структурированных данных / Schema.org Type',
+          type: 'string',
+          description: 'Влияет на то, как Google отображает материал. NewsArticle — для актуальных новостных статей (попадает в Top Stories). BlogPosting — для аналитики и вечнозелёного контента. Article — нейтральный тип.',
+          options: {
+            list: [
+              { title: 'BlogPosting — аналитика, обзоры, evergreen', value: 'BlogPosting' },
+              { title: 'NewsArticle — новостные статьи (Top Stories, Google News)', value: 'NewsArticle' },
+              { title: 'Article — нейтральный тип', value: 'Article' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'BlogPosting',
+        }),
+        defineField({
+          name: 'canonicalUrl',
+          title: '🔗 Canonical URL (при синдикации)',
+          type: 'url',
+          description: 'Укажите, только если этот материал — перепечатка с другого ресурса, и вы хотите передать SEO-вес оригиналу. Обычно оставляйте пустым.',
+        }),
+        defineField({
+          name: 'noIndex',
+          title: '🚫 Скрыть из поисковиков / No-index',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Включите для рекламных материалов, черновиков или контента, который не должен индексироваться. По умолчанию — выключено (страница индексируется).',
         }),
       ],
     }),

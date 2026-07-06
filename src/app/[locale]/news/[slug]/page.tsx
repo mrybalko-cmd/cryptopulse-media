@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = news.seo?.metaTitle || news.title;
   const description = truncateDesc(news.seo?.metaDescription || news.excerpt || '');
-  const ogImage = news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
-  const otherLocale = locale === 'ru' ? 'en' : 'ru';
+  const ogImageUrl = news.seoOgImageUrl || news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
+  const canonicalUrl = news.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/news/${slug}`;
   const translationLang = news.translation?.language;
   const translationSlug = news.translation?.slug;
 
@@ -37,8 +37,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: news.seo?.keywords,
+    ...(news.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),
     alternates: {
-      canonical: `https://cryptopulse.media/${locale}/news/${slug}`,
+      canonical: canonicalUrl,
       languages: {
         [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
         ...(translationLang && translationSlug
@@ -56,13 +57,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `https://cryptopulse.media/${locale}/news/${slug}`,
       siteName: 'CryptoPulse.media',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
-      images: [{ url: ogImage }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage],
+      images: [ogImageUrl],
     },
   };
 }
@@ -88,11 +89,13 @@ export default async function NewsDetailPage({ params }: Props) {
     '@type': 'NewsArticle',
     headline: news.title,
     description: news.excerpt,
-    image: [news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
+    image: [news.seoOgImageUrl || news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
     datePublished: news.publishedAt,
-    dateModified: news._updatedAt || news.publishedAt,
+    dateModified: news.updatedAt || news._updatedAt || news.publishedAt,
     inLanguage: locale,
-    author: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    author: news.author
+      ? { '@type': 'Person', name: news.author.name, url: `https://cryptopulse.media/${locale}/authors/${news.author.slug}` }
+      : { '@type': 'Organization', name: 'CryptoPulse.media' },
     publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
     commentCount: comments.length,
@@ -137,7 +140,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {/* Cover */}
       {news.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image src={news.coverImage} alt={news.title} fill className="object-cover" priority sizes="(min-width: 1024px) 65vw, 100vw" />
+          <Image src={news.coverImage} alt={news.coverImageAlt || news.title} fill className="object-cover" priority sizes="(min-width: 1024px) 65vw, 100vw" />
         </div>
       )}
 

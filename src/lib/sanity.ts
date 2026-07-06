@@ -58,8 +58,10 @@ export const fetchArticleBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, views, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
+          "coverImageAlt": coverImage.alt,
+          "seoOgImageUrl": seo.ogImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
           "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,
@@ -131,8 +133,10 @@ export const fetchNewsBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, views, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
+          "coverImageAlt": coverImage.alt,
+          "seoOgImageUrl": seo.ogImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
           "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
         }`,

@@ -56,6 +56,14 @@ export const newsType = defineType({
       title: 'Cover Image',
       type: 'image',
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text (SEO & accessibility)',
+          type: 'string',
+          description: 'Краткое описание изображения — для SEO и скринридеров. Если пусто — используется заголовок новости.',
+        }),
+      ],
     }),
     defineField({
       name: 'publishTiming',
@@ -146,17 +154,23 @@ export const newsType = defineType({
       options: { collapsible: true, collapsed: true },
       fields: [
         defineField({
+          name: 'focusKeyphrase',
+          title: '🎯 Фокусный запрос / Focus Keyphrase',
+          type: 'string',
+          description: 'Главное ключевое слово или фраза для этой новости. Пример: "SEC регулирование крипто 2026".',
+        }),
+        defineField({
           name: 'metaTitle',
           title: 'Meta Title',
           type: 'string',
-          description: 'Overrides the page title shown in search results. Falls back to the news title if empty.',
+          description: 'Overrides the page title shown in search results. Falls back to the news title if empty. Optimal: 50–60 characters.',
         }),
         defineField({
           name: 'metaDescription',
           title: 'Meta Description',
           type: 'text',
           rows: 3,
-          description: 'Shown in search results and social previews. Falls back to the excerpt if empty.',
+          description: 'Shown in search results and social previews. Falls back to the excerpt if empty. Optimal: 120–155 characters.',
         }),
         defineField({
           name: 'keywords',
@@ -164,8 +178,35 @@ export const newsType = defineType({
           type: 'array',
           of: [{ type: 'string' }],
           options: { layout: 'tags' },
+          description: 'Secondary keywords for internal categorisation.',
+        }),
+        defineField({
+          name: 'ogImage',
+          title: '📸 OG Image (соцсети) / Social Sharing Image',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Картинка для предпросмотра в соцсетях. Рекомендуемый размер: 1200×630 px. Если пусто — используется обложка новости.',
+        }),
+        defineField({
+          name: 'canonicalUrl',
+          title: '🔗 Canonical URL (при синдикации)',
+          type: 'url',
+          description: 'Укажите, если новость — перепечатка с другого ресурса. Обычно оставляйте пустым.',
+        }),
+        defineField({
+          name: 'noIndex',
+          title: '🚫 Скрыть из поисковиков / No-index',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Включите для пресс-релизов и рекламных материалов, которые не должны индексироваться.',
         }),
       ],
+    }),
+    defineField({
+      name: 'updatedAt',
+      title: 'Обновлено / Last Updated',
+      type: 'datetime',
+      description: 'Дата последнего существенного обновления новости. Попадает в dateModified JSON-LD. Оставьте пустым, если новость не редактировалась.',
     }),
     defineField({
       name: 'views',
