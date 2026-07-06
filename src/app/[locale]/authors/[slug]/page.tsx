@@ -12,6 +12,10 @@ import ArticleCard from '@/components/ui/ArticleCard';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   setRequestLocale(locale);
