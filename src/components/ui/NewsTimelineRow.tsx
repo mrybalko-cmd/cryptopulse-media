@@ -1,0 +1,145 @@
+'use client';
+
+import Link from 'next/link';
+import Image from 'next/image';
+import { useState } from 'react';
+import { ArrowRight, ExternalLink, Zap, Pin } from 'lucide-react';
+
+const TZ = 'Europe/Prague';
+
+export const TOPIC_META: Record<string, { ru: string; en: string; rowCls: string; dotCls: string; fallback: string }> = {
+  regulation:      { ru: 'Регулирование', en: 'Regulation',    rowCls: 'text-violet-400 bg-violet-400/10', dotCls: 'bg-violet-400',  fallback: '⚖' },
+  defi:            { ru: 'DeFi & Web3',   en: 'DeFi & Web3',  rowCls: 'text-blue-400 bg-blue-400/10',    dotCls: 'bg-blue-400',    fallback: '🔗' },
+  bitcoin:         { ru: 'Bitcoin',        en: 'Bitcoin',       rowCls: 'text-orange-400 bg-orange-400/10',dotCls: 'bg-orange-400',  fallback: '₿' },
+  market:          { ru: 'Рынок',          en: 'Market',        rowCls: 'text-emerald-400 bg-emerald-400/10',dotCls: 'bg-emerald-400', fallback: '📈' },
+  technology:      { ru: 'Технологии',     en: 'Technology',    rowCls: 'text-cyan-400 bg-cyan-400/10',    dotCls: 'bg-cyan-400',    fallback: '💻' },
+  security:        { ru: 'Безопасность',   en: 'Security',      rowCls: 'text-red-400 bg-red-400/10',      dotCls: 'bg-red-400',     fallback: '🔐' },
+  education:       { ru: 'Обучение',       en: 'Education',     rowCls: 'text-yellow-400 bg-yellow-400/10',dotCls: 'bg-yellow-400',  fallback: '📚' },
+  'press-release': { ru: 'Пресс-релиз',   en: 'Press Release', rowCls: 'text-muted/70 bg-muted/10',       dotCls: 'bg-muted',       fallback: '📢' },
+};
+
+interface Props {
+  title: string;
+  href: string;
+  external: boolean;
+  publishedAt: number;
+  imageUrl?: string | null;
+  topic?: string;
+  locale: string;
+  pinned?: boolean;
+  breaking?: boolean;
+  ownBadge?: boolean;
+}
+
+export default function NewsTimelineRow({
+  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true,
+}: Props) {
+  const [imgErr, setImgErr] = useState(false);
+
+  const d = new Date(publishedAt * 1000);
+  const isoStr = d.toISOString();
+  const timeStr = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: TZ,
+  });
+
+  const meta = topic ? TOPIC_META[topic] : null;
+
+  const inner = (
+    <article
+      className="group flex items-start gap-2.5 py-2.5 border-b border-border/50 last:border-b-0 hover:bg-foreground/[0.03] -mx-2 px-2 rounded-lg transition-colors"
+      itemScope
+      itemType="https://schema.org/NewsArticle"
+    >
+      {/* Time */}
+      <time
+        dateTime={isoStr}
+        itemProp="datePublished"
+        content={isoStr}
+        suppressHydrationWarning
+        className="w-[38px] shrink-0 font-mono text-[11px] leading-none text-muted text-right tabular-nums mt-[3px]"
+      >
+        {timeStr}
+      </time>
+
+      {/* Thumbnail */}
+      <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden relative border border-border/60 bg-card flex items-center justify-center">
+        {imageUrl && !imgErr ? (
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="40px"
+            unoptimized={!imageUrl.includes('cdn.sanity.io')}
+            onError={() => setImgErr(true)}
+          />
+        ) : (
+          <span className={`w-full h-full flex items-center justify-center text-sm ${meta ? meta.rowCls.split(' ')[1] : 'bg-accent/10'}`}>
+            {meta ? meta.fallback : '📰'}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        {/* Badges row */}
+        {(breaking || pinned) && (
+          <div className="flex items-center gap-1.5 mb-1">
+            {breaking && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white animate-pulse">
+                <Zap size={8} fill="currentColor" />
+                {locale === 'ru' ? 'Срочно' : 'Breaking'}
+              </span>
+            )}
+            {pinned && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-500/20 text-yellow-500">
+                <Pin size={8} fill="currentColor" />
+                {locale === 'ru' ? 'Закреплено' : 'Pinned'}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Title */}
+        <h3
+          className="text-[13px] font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2"
+          itemProp="headline"
+        >
+          {!external && ownBadge && !breaking && (
+            <Zap
+              size={11}
+              className="inline mr-1 -mt-px text-yellow-500 shrink-0"
+              fill="currentColor"
+              aria-label={locale === 'ru' ? 'Наш материал' : 'Our story'}
+            />
+          )}
+          {title}
+        </h3>
+
+        {/* Topic pill */}
+        {meta && (
+          <span className={`inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${meta.rowCls}`}>
+            <span className={`w-1 h-1 rounded-full shrink-0 ${meta.dotCls}`} />
+            {locale === 'ru' ? meta.ru : meta.en}
+          </span>
+        )}
+      </div>
+
+      {/* Arrow */}
+      <span className="shrink-0 mt-[3px] opacity-0 group-hover:opacity-50 transition-opacity text-muted">
+        {external
+          ? <ExternalLink size={12} />
+          : <ArrowRight size={12} />}
+      </span>
+    </article>
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className="block">
+        {inner}
+      </a>
+    );
+  }
+  return <Link href={href} className="block">{inner}</Link>;
+}

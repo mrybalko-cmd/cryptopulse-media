@@ -9,6 +9,7 @@ export interface UnifiedNewsItem {
   source: string;
   publishedAt: number;
   categories?: string;
+  topic?: string;
   href: string;
   external: boolean;
   pinned?: boolean;
@@ -31,6 +32,7 @@ export async function fetchOwnNews({
     publishedAt: Math.floor(new Date(n.publishedAt).getTime() / 1000),
     href: `/${locale}/news/${n.slug.current}`,
     external: false,
+    topic: n.topic,
     pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
     breaking: !!n.breaking,
     ownBadge: n.ownBadge !== false,
