@@ -44,14 +44,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...articlesRu.map((a: any) => ({
       url: `${BASE}/ru/articles/${a.slug.current}`,
       lastModified: new Date(a.publishedAt),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
     })),
     ...articlesEn.map((a: any) => ({
       url: `${BASE}/en/articles/${a.slug.current}`,
       lastModified: new Date(a.publishedAt),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
     })),
   ];
 
@@ -59,14 +59,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...newsRu.map((n: any) => ({
       url: `${BASE}/ru/news/${n.slug.current}`,
       lastModified: new Date(n.publishedAt),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
     })),
     ...newsEn.map((n: any) => ({
       url: `${BASE}/en/news/${n.slug.current}`,
       lastModified: new Date(n.publishedAt),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
     })),
   ];
 

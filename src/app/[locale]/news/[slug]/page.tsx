@@ -95,7 +95,7 @@ export default async function NewsDetailPage({ params }: Props) {
     author: news.author
       ? { '@type': 'Person', name: news.author.name, url: `https://cryptopulse.media/${locale}/authors/${news.author.slug}` }
       : { '@type': 'Organization', name: 'CryptoPulse.media' },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', logo: { '@type': 'ImageObject', url: 'https://cryptopulse.media/icon.png', width: 96, height: 96 } },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
   };
 

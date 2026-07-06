@@ -80,6 +80,8 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="alternate" type="application/rss+xml" title="CryptoPulse.media" href="/rss.xml" />
+        <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
         {process.env.GOOGLE_PUBLISHER_CENTER_TOKEN && (
           <meta name="google-site-verification" content={process.env.GOOGLE_PUBLISHER_CENTER_TOKEN} />
