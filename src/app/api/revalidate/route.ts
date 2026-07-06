@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   const urlsToIndex: string[] = [];
 
   if (type === 'article' && slug) {
-    revalidateTag('articles');
+    revalidateTag('articles', 'max');
     if (locale) {
       revalidatePath(`/${locale}/articles/${slug}`);
       revalidatePath(`/${locale}`, 'page');
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/ru/articles', 'page');
     revalidatePath('/en/articles', 'page');
   } else if (type === 'news' && slug) {
-    revalidateTag('news');
+    revalidateTag('news', 'max');
     if (locale) {
       revalidatePath(`/${locale}/news/${slug}`);
       revalidatePath(`/${locale}`, 'page');
