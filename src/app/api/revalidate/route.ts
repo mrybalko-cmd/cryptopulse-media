@@ -1,4 +1,4 @@
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 const BASE = 'https://cryptopulse.media';
@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
   const urlsToIndex: string[] = [];
 
   if (type === 'article' && slug) {
-    revalidateTag('articles', 'max');
     if (locale) {
       revalidatePath(`/${locale}/articles/${slug}`);
       revalidatePath(`/${locale}`, 'page');
@@ -62,7 +61,6 @@ export async function POST(request: NextRequest) {
     revalidatePath('/ru/articles', 'page');
     revalidatePath('/en/articles', 'page');
   } else if (type === 'news' && slug) {
-    revalidateTag('news', 'max');
     if (locale) {
       revalidatePath(`/${locale}/news/${slug}`);
       revalidatePath(`/${locale}`, 'page');

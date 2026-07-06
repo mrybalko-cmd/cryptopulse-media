@@ -33,24 +33,20 @@ interface FetchArticlesOptions {
   slug?: string;
 }
 
-export const fetchArticles = unstable_cache(
-  async ({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) => {
-    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-    try {
-      return await client.fetch(
-        `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
-          "coverImage": coverImage.asset->url
-        }`,
-        { locale, limit }
-      );
-    } catch {
-      return [];
-    }
-  },
-  ['fetchArticles'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
-);
+export async function fetchArticles({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    return await client.fetch(
+      `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
+        _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+        "coverImage": coverImage.asset->url
+      }`,
+      { locale, limit }
+    );
+  } catch {
+    return [];
+  }
+}
 
 export const fetchArticleBySlug = unstable_cache(
   async (slug: string, locale: string) => {
@@ -75,24 +71,20 @@ export const fetchArticleBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
-export const fetchSanityNews = unstable_cache(
-  async ({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) => {
-    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-    try {
-      return await client.fetch(
-        `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views,
-          "coverImage": coverImage.asset->url
-        }`,
-        { locale, limit }
-      );
-    } catch {
-      return [];
-    }
-  },
-  ['fetchSanityNews'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
-);
+export async function fetchSanityNews({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    return await client.fetch(
+      `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
+        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views,
+        "coverImage": coverImage.asset->url
+      }`,
+      { locale, limit }
+    );
+  } catch {
+    return [];
+  }
+}
 
 export const fetchNewsByTopic = unstable_cache(
   async (topic: string, locale: string, limit = 50) => {
