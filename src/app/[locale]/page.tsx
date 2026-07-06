@@ -42,17 +42,8 @@ export default async function HomePage({ params }: Props) {
     .slice(0, 10);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      {/* Hero */}
-      <div className="mb-12">
-        <div className="flex items-center mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span className="text-accent text-xs font-medium uppercase tracking-widest">Live</span>
-          </div>
-        </div>
-        <h1 className="sr-only">{t('hero')}</h1>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <h1 className="sr-only">{t('hero')}</h1>
 
       {/* News rail + Articles */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mb-14">
