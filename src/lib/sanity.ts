@@ -49,7 +49,7 @@ export const fetchArticles = unstable_cache(
     }
   },
   ['fetchArticles'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
 export const fetchArticleBySlug = unstable_cache(
@@ -72,7 +72,7 @@ export const fetchArticleBySlug = unstable_cache(
     }
   },
   ['fetchArticleBySlug'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
 export const fetchSanityNews = unstable_cache(
@@ -91,7 +91,7 @@ export const fetchSanityNews = unstable_cache(
     }
   },
   ['fetchSanityNews'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
 export const fetchNewsByTopic = unstable_cache(
@@ -110,7 +110,7 @@ export const fetchNewsByTopic = unstable_cache(
     }
   },
   ['fetchNewsByTopic'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
 export async function searchContent(query: string, locale: string) {
@@ -147,7 +147,7 @@ export const fetchNewsBySlug = unstable_cache(
     }
   },
   ['fetchNewsBySlug'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
 export interface SanityComment {

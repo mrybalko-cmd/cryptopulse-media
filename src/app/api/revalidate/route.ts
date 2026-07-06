@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 const BASE = 'https://cryptopulse.media';
@@ -47,23 +47,31 @@ export async function POST(request: NextRequest) {
   const urlsToIndex: string[] = [];
 
   if (type === 'article' && slug) {
+    revalidateTag('articles');
     if (locale) {
       revalidatePath(`/${locale}/articles/${slug}`);
+      revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/articles/${slug}`);
     } else {
       revalidatePath('/ru/articles/[slug]', 'page');
       revalidatePath('/en/articles/[slug]', 'page');
+      revalidatePath('/ru', 'page');
+      revalidatePath('/en', 'page');
       urlsToIndex.push(`${BASE}/ru/articles/${slug}`, `${BASE}/en/articles/${slug}`);
     }
     revalidatePath('/ru/articles', 'page');
     revalidatePath('/en/articles', 'page');
   } else if (type === 'news' && slug) {
+    revalidateTag('news');
     if (locale) {
       revalidatePath(`/${locale}/news/${slug}`);
+      revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/news/${slug}`);
     } else {
       revalidatePath('/ru/news/[slug]', 'page');
       revalidatePath('/en/news/[slug]', 'page');
+      revalidatePath('/ru', 'page');
+      revalidatePath('/en', 'page');
       urlsToIndex.push(`${BASE}/ru/news/${slug}`, `${BASE}/en/news/${slug}`);
     }
     revalidatePath('/ru/news', 'page');
