@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createComment, countRecentCommentsByIpHash, isCommentingAllowed } from '@/lib/sanity';
+import { createComment, countRecentCommentsByIpHash, isCommentingAllowed, fetchComments } from '@/lib/sanity';
 import { getIpHash } from '@/lib/request';
 
 const RATE_LIMIT_COUNT = 3;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+
+export async function GET(req: NextRequest) {
+  const targetId = req.nextUrl.searchParams.get('targetId');
+  if (!targetId) return NextResponse.json([], { status: 200 });
+  const comments = await fetchComments(targetId);
+  return NextResponse.json(comments, {
+    headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' },
+  });
+}
 
 export async function POST(req: NextRequest) {
   let body: {

@@ -7,7 +7,7 @@ import type { SanityComment } from '@/lib/sanity';
 interface Props {
   targetId: string;
   locale: string;
-  initialComments: SanityComment[];
+  initialComments?: SanityComment[];
 }
 
 interface PendingComment {
@@ -231,14 +231,22 @@ function CommentItem({
   );
 }
 
-export default function CommentSection({ targetId, locale, initialComments }: Props) {
+export default function CommentSection({ targetId, locale, initialComments = [] }: Props) {
   const isRu = locale === 'ru';
+  const [serverComments, setServerComments] = useState<SanityComment[]>(initialComments);
   const [pendingComments, setPendingComments] = useState<PendingComment[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetch(`/api/comments?targetId=${encodeURIComponent(targetId)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data: SanityComment[]) => setServerComments(data))
+      .catch(() => {});
+  }, [targetId]);
+
   const allComments = useMemo(
-    () => [...initialComments, ...pendingComments],
-    [initialComments, pendingComments]
+    () => [...serverComments, ...pendingComments],
+    [serverComments, pendingComments]
   );
 
   const topLevel = allComments.filter((c) => !c.parentId);

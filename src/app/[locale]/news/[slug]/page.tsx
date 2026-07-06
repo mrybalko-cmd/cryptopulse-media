@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { fetchNewsBySlug, fetchComments, fetchRelatedNews } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
 import NewsCard from '@/components/ui/NewsCard';
@@ -76,7 +76,6 @@ export default async function NewsDetailPage({ params }: Props) {
 
 
   const commentsEnabled = news.commentsEnabled !== false;
-  const comments = commentsEnabled ? await fetchComments(news._id) : [];
   const relatedNews = await fetchRelatedNews(news._id, locale, 3);
 
   const date = new Date(news.publishedAt).toLocaleDateString(
@@ -98,15 +97,6 @@ export default async function NewsDetailPage({ params }: Props) {
       : { '@type': 'Organization', name: 'CryptoPulse.media' },
     publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
-    commentCount: comments.length,
-    ...(comments.length > 0 && {
-      comment: comments.slice(0, 20).map((c) => ({
-        '@type': 'Comment',
-        author: { '@type': 'Person', name: c.authorName },
-        text: c.text,
-        dateCreated: c.createdAt,
-      })),
-    }),
   };
 
   const breadcrumbLd = {
@@ -260,7 +250,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {news.author && <AuthorCard author={news.author} locale={locale} />}
 
       {commentsEnabled && (
-        <CommentSection targetId={news._id} locale={locale} initialComments={comments} />
+        <CommentSection targetId={news._id} locale={locale} />
       )}
 
       <EmailSubscribeForm locale={locale} source="news-detail" />
