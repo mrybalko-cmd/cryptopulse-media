@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { REGULATION_DATA, STATUS_META, type CountryReg, type RegStatus } from '@/lib/regulationData';
 import { X, ChevronDown, Globe, MapPin } from 'lucide-react';
 
+function flag(iso2: string): string {
+  return [...iso2.toUpperCase()].map(c => String.fromCodePoint(127397 + c.charCodeAt(0))).join('');
+}
+
 const STATUS_COLOR: Record<RegStatus, string> = {
   legal:      '#16a34a',
   restricted: '#d97706',
@@ -100,10 +104,7 @@ export default function RegulationMap({ locale, filter, onFilterChange }: Props)
                         ...(isSelected ? { ringColor: STATUS_COLOR[country.status] } : {}),
                       } : { borderColor: 'transparent', backgroundColor: 'transparent', color: 'var(--muted)' }}
                     >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: isVisible ? STATUS_COLOR[country.status] : '#6b7280' }}
-                      />
+                      <span className="text-sm leading-none">{flag(country.iso2)}</span>
                       {isRu ? country.name.ru : country.name.en}
                     </button>
                   );
@@ -130,7 +131,8 @@ function CountryPanel({ country, isRu, onClose }: { country: CountryReg; isRu: b
     <div className={`rounded-xl border p-5 mb-6 animate-in fade-in slide-in-from-top-2 duration-200 ${meta.bg} ${meta.border}`}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <h3 className="text-base font-bold text-foreground">
+          <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <span className="text-xl leading-none">{flag(country.iso2)}</span>
             {isRu ? country.name.ru : country.name.en}
           </h3>
           <span
@@ -228,6 +230,7 @@ export function CountryList({ locale, filter }: { locale: string; filter: RegSta
               <div className="flex items-center justify-between px-4 py-3 gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLOR[country.status] }} />
+                  <span className="text-base leading-none shrink-0">{flag(country.iso2)}</span>
                   <span className="text-sm font-medium text-foreground truncate">{isRu ? country.name.ru : country.name.en}</span>
                 </div>
                 <ChevronDown size={14} className={`text-muted shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
