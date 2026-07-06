@@ -10,6 +10,7 @@ interface Article {
   excerpt?: string;
   slug: { current: string };
   coverImage?: string;
+  coverImageAlt?: string;
   publishedAt: string;
   readingTime?: number;
   badge?: string;
@@ -22,7 +23,7 @@ interface Props {
   pageSize?: number;
 }
 
-export default function ArticlesLoadMore({ locale, initialCount, pageSize = 12 }: Props) {
+export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15 }: Props) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [offset, setOffset] = useState(initialCount);
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 12 }
   return (
     <>
       {articles.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
           {articles.map(article => (
             <ArticleCard
               key={article._id}
@@ -56,6 +57,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 12 }
               excerpt={article.excerpt ?? ''}
               slug={article.slug.current}
               coverImage={article.coverImage}
+              coverImageAlt={article.coverImageAlt}
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               badge={article.badge}

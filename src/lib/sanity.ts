@@ -39,7 +39,8 @@ export async function fetchArticles({ limit = 10, locale = 'ru' }: FetchArticles
     return await client.fetch(
       `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
         _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
-        "coverImage": coverImage.asset->url
+        "coverImage": coverImage.asset->url,
+        "coverImageAlt": coverImage.alt
       }`,
       { locale, limit }
     );
@@ -408,7 +409,8 @@ export const fetchArticlesByTopic = unstable_cache(
       return await client.fetch(
         `*[_type == "article" && topic == $topic && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
           _id, title, excerpt, slug, publishedAt, readingTime, badge, views, topic,
-          "coverImage": coverImage.asset->url
+          "coverImage": coverImage.asset->url,
+          "coverImageAlt": coverImage.alt
         }`,
         { topic, locale, limit }
       );

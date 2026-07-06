@@ -18,7 +18,7 @@ const TOPICS: Record<string, { ru: string; en: string }> = {
   education: { ru: 'Обучение', en: 'Education' },
 };
 
-const INITIAL_LIMIT = 12;
+const INITIAL_LIMIT = 15;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -46,8 +46,41 @@ export default async function ArticlesPage({ params }: Props) {
 
   const articles = await fetchArticles({ limit: INITIAL_LIMIT, locale });
 
+  const pageUrl = `${BASE}/${locale}/articles`;
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: t('title'), item: pageUrl },
+    ],
+  };
+
+  const collectionLd = articles.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: t('title'),
+    description: t('subtitle'),
+    url: pageUrl,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: articles.map((article: any, i: number) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${BASE}/${locale}/articles/${article.slug.current}`,
+        name: article.title,
+      })),
+    },
+  } : null;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-[100rem] mx-auto px-4 sm:px-6 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      {collectionLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
+      )}
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
         <p className="text-muted text-sm mt-1">{t('subtitle')}</p>
@@ -71,7 +104,7 @@ export default async function ArticlesPage({ params }: Props) {
 
       {articles.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {articles.map((article: any, i: number) => (
               <ArticleCard
                 key={article._id}
@@ -79,16 +112,17 @@ export default async function ArticlesPage({ params }: Props) {
                 excerpt={article.excerpt}
                 slug={article.slug.current}
                 coverImage={article.coverImage}
+                coverImageAlt={article.coverImageAlt}
                 publishedAt={article.publishedAt}
                 readingTime={article.readingTime}
                 badge={article.badge}
                 views={article.views}
                 locale={locale}
-                featured={i === 0}
+                priority={i < 2}
               />
             ))}
           </div>
-          <ArticlesLoadMore locale={locale} initialCount={articles.length} pageSize={12} />
+          <ArticlesLoadMore locale={locale} initialCount={articles.length} pageSize={INITIAL_LIMIT} />
         </>
       ) : (
         <div className="border border-dashed border-border rounded-lg py-20 flex flex-col items-center justify-center gap-3">

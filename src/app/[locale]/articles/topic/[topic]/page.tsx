@@ -67,17 +67,41 @@ export default async function TopicPage({ params }: Props) {
     ? `Статьи по теме: ${topicName} — CryptoPulse.media`
     : `Articles: ${topicName} — CryptoPulse.media`;
 
+  const pageUrl = `${BASE}/${locale}/articles/topic/${topic}`;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: pageTitle,
-    url: `${BASE}/${locale}/articles/topic/${topic}`,
+    url: pageUrl,
     about: { '@type': 'Thing', name: topicName },
+    ...(articles.length > 0 && {
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: articles.map((article: any, i: number) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `${BASE}/${locale}/articles/${article.slug.current}`,
+          name: article.title,
+        })),
+      },
+    }),
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isRu ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: isRu ? 'Статьи' : 'Articles', item: `${BASE}/${locale}/articles` },
+      { '@type': 'ListItem', position: 3, name: topicName, item: pageUrl },
+    ],
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-[100rem] mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <Link
         href={`/${locale}/articles`}
@@ -122,7 +146,7 @@ export default async function TopicPage({ params }: Props) {
       </div>
 
       {articles.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {articles.map((article: any, i: number) => (
             <ArticleCard
               key={article._id}
@@ -130,12 +154,13 @@ export default async function TopicPage({ params }: Props) {
               excerpt={article.excerpt}
               slug={article.slug.current}
               coverImage={article.coverImage}
+              coverImageAlt={article.coverImageAlt}
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               badge={article.badge}
               views={article.views}
               locale={locale}
-              featured={i === 0}
+              priority={i < 2}
             />
           ))}
         </div>

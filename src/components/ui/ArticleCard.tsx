@@ -8,6 +8,7 @@ interface ArticleCardProps {
   excerpt: string;
   slug: string;
   coverImage?: string;
+  coverImageAlt?: string;
   publishedAt: string;
   readingTime?: number;
   locale: string;
@@ -18,7 +19,7 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, publishedAt, readingTime, locale, featured, badge, views, priority
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, priority
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -31,12 +32,12 @@ export default function ArticleCard({
       className={`group block bg-card border border-border rounded-lg overflow-hidden hover:border-accent/40 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
     >
       {coverImage && (
-        <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-36'}`}>
+        <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-28 sm:h-32 md:h-36'}`}>
           <Image
             src={coverImage}
-            alt={title}
+            alt={coverImageAlt || title}
             fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             priority={priority}
           />

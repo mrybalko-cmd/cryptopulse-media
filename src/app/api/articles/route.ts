@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
       `*[_type == "article" && language == $locale && publishedAt <= now()]
       | order(publishedAt desc) [$offset...$end] {
         _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
-        "coverImage": coverImage.asset->url
+        "coverImage": coverImage.asset->url,
+        "coverImageAlt": coverImage.alt
       }`,
       { locale, offset, end: offset + limit }
     );
