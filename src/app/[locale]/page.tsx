@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
-import FearGreedBadge from '@/components/ui/FearGreedBadge';
+import FearGreedWidget from '@/components/ui/FearGreedWidget';
 import SiteSearch from '@/components/ui/SiteSearch';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
@@ -58,7 +58,7 @@ export default async function HomePage({ params }: Props) {
           </div>
           <div className="flex flex-col items-end gap-2">
             {fearGreedData && (
-              <FearGreedBadge value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
+              <FearGreedWidget value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
             )}
             <SiteSearch locale={locale} />
           </div>
