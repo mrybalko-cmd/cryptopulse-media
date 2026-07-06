@@ -11,7 +11,7 @@ interface SearchResult {
   publishedAt: string;
 }
 
-export default function SiteSearch({ locale }: { locale: string }) {
+export default function SiteSearch({ locale, iconOnly }: { locale: string; iconOnly?: boolean }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[] | null>(null);
@@ -48,13 +48,23 @@ export default function SiteSearch({ locale }: { locale: string }) {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-muted text-xs hover:text-foreground hover:border-accent/40 transition-colors"
-      >
-        <Search size={13} />
-        {locale === 'ru' ? 'Поиск по сайту' : 'Site search'}
-      </button>
+      {iconOnly ? (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label={locale === 'ru' ? 'Поиск по сайту' : 'Search'}
+          className="p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors"
+        >
+          <Search size={16} />
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-muted text-xs hover:text-foreground hover:border-accent/40 transition-colors"
+        >
+          <Search size={13} />
+          {locale === 'ru' ? 'Поиск по сайту' : 'Site search'}
+        </button>
+      )}
 
       {open && (
         <div

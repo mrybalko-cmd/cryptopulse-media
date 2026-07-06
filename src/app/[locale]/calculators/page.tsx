@@ -4,6 +4,8 @@ import { buildOg, BASE } from '@/lib/metadata';
 import Link from 'next/link';
 import { Scale, ArrowRightLeft, ArrowRight } from 'lucide-react';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import FearGreedWidget from '@/components/ui/FearGreedWidget';
+import { fetchFearGreedIndex } from '@/lib/feargreed';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -12,10 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Калькуляторы — CryptoPulse.media' : 'Calculators — CryptoPulse.media';
+  const title = isRu ? 'Калькуляторы и показатели — CryptoPulse.media' : 'Calculators & Metrics — CryptoPulse.media';
   const description = isRu
-    ? 'Сравни своё богатство с миллиардерами или переведи фиатные валюты в криптовалюту в пару кликов.'
-    : 'Compare your wealth to a billionaire or convert fiat currencies to crypto in a couple of clicks.';
+    ? 'Индекс страха и жадности, конвертер валют и сравнение богатства — всё в одном месте.'
+    : 'Fear & Greed Index, currency converter, wealth comparison — all in one place.';
 
   return {
     title,
@@ -31,6 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CalculatorsHubPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
+
+  const fearGreedData = await fetchFearGreedIndex().catch(() => null);
 
   const cards = [
     {
@@ -56,13 +60,29 @@ export default async function CalculatorsHubPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div>
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground">{isRu ? 'Калькуляторы' : 'Calculators'}</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isRu ? 'Калькуляторы и показатели' : 'Calculators & Metrics'}
+            </h1>
             <p className="text-muted text-sm mt-2">
               {isRu
-                ? 'Два простых инструмента, чтобы лучше понимать деньги и крипторынок.'
-                : 'Two simple tools to help you make sense of money and the crypto market.'}
+                ? 'Индекс страха и жадности, конвертер валют и сравнение богатства.'
+                : 'Fear & Greed Index, currency converter, and wealth comparison.'}
             </p>
           </div>
+
+          {/* Fear & Greed Index */}
+          {fearGreedData && (
+            <div className="mb-6 p-5 rounded-2xl border border-border bg-card">
+              <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
+                {isRu ? 'Индекс страха и жадности' : 'Fear & Greed Index'}
+              </p>
+              <FearGreedWidget
+                value={fearGreedData.value}
+                classification={fearGreedData.classification}
+                locale={locale}
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {cards.map((card) => {

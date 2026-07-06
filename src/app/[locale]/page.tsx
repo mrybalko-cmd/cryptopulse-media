@@ -6,15 +6,11 @@ import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
-import FearGreedWidget from '@/components/ui/FearGreedWidget';
-import SiteSearch from '@/components/ui/SiteSearch';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import { fetchOwnNews } from '@/lib/news';
 import { fetchArticles, fetchCalendarEvents, fetchPopularContent } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
-import { fetchFearGreedIndex } from '@/lib/feargreed';
-
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function HomePage({ params }: Props) {
@@ -22,11 +18,10 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, videos, fearGreed, calendarEvents, popular] = await Promise.allSettled([
+  const [news, articles, videos, calendarEvents, popular] = await Promise.allSettled([
     fetchOwnNews({ limit: 12, locale }),
     fetchArticles({ limit: 12, locale }),
     fetchVideos({ limit: 5 }),
-    fetchFearGreedIndex(),
     fetchCalendarEvents(),
     fetchPopularContent(locale, 7),
   ]);
@@ -34,7 +29,6 @@ export default async function HomePage({ params }: Props) {
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
-  const fearGreedData = fearGreed.status === 'fulfilled' ? fearGreed.value : null;
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
   const hasPopular = popularItems.length > 0;
   // The popular widget occupies grid slots 3+6 (a 2-row span in the
@@ -51,16 +45,10 @@ export default async function HomePage({ params }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       {/* Hero */}
       <div className="mb-12">
-        <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center mb-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
             <span className="text-accent text-xs font-medium uppercase tracking-widest">Live</span>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            {fearGreedData && (
-              <FearGreedWidget value={fearGreedData.value} classification={fearGreedData.classification} locale={locale} />
-            )}
-            <SiteSearch locale={locale} />
           </div>
         </div>
         <h1 className="sr-only">{t('hero')}</h1>
