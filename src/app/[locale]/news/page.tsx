@@ -94,32 +94,60 @@ export default async function NewsPage({ params }: Props) {
     })),
   };
 
+  // Count items per topic for the topic bar
+  const topicCounts: Record<string, number> = {};
+  for (const item of items) {
+    if (item.topic) topicCounts[item.topic] = (topicCounts[item.topic] ?? 0) + 1;
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Header */}
-      <div className="mb-7">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
         <p className="text-muted text-sm mt-1">{t('subtitle')}</p>
       </div>
 
-      {/* Topic filter pills */}
-      <div className="flex flex-wrap gap-1.5 mb-8" role="navigation" aria-label={isRu ? 'Фильтр по теме' : 'Filter by topic'}>
-        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-accent text-background">
-          {isRu ? 'Все' : 'All'}
-        </span>
-        {Object.entries(TOPIC_META).map(([key, meta]) => (
-          <Link
-            key={key}
-            href={`/${locale}/news/topic/${key}`}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta.dotCls}`} />
-            {isRu ? meta.ru : meta.en}
-          </Link>
-        ))}
-      </div>
+      {/* Topic navigation bar — scrollable on mobile */}
+      <nav
+        aria-label={isRu ? 'Фильтр по теме' : 'Filter by topic'}
+        className="relative -mx-4 sm:mx-0 mb-8"
+      >
+        {/* Scroll container */}
+        <div className="flex items-stretch overflow-x-auto scrollbar-none border-b border-border px-4 sm:px-0 gap-0">
+          {/* All — active */}
+          <span className="relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-semibold text-foreground cursor-default select-none whitespace-nowrap">
+            {isRu ? 'Все новости' : 'All news'}
+            {/* active underline */}
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent rounded-full" />
+          </span>
+
+          {/* Topic tabs */}
+          {Object.entries(TOPIC_META)
+            .filter(([key]) => key !== 'press-release')
+            .map(([key, meta]) => (
+            <Link
+              key={key}
+              href={`/${locale}/news/topic/${key}`}
+              className="relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-medium text-muted hover:text-foreground transition-colors whitespace-nowrap group"
+            >
+              <span className={`w-2 h-2 rounded-full shrink-0 ${meta.dotCls} opacity-80 group-hover:opacity-100 transition-opacity`} />
+              {isRu ? meta.ru : meta.en}
+              {topicCounts[key] ? (
+                <span className="text-[10px] font-mono tabular-nums text-muted/60 group-hover:text-muted transition-colors">
+                  {topicCounts[key]}
+                </span>
+              ) : null}
+              {/* hover underline */}
+              <span className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${meta.dotCls} opacity-0 group-hover:opacity-60 transition-opacity`} />
+            </Link>
+          ))}
+        </div>
+        {/* Right fade for mobile scroll hint */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent sm:hidden" />
+      </nav>
 
       {/* Timeline */}
       {items.length > 0 ? (
