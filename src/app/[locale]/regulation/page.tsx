@@ -95,6 +95,14 @@ export default async function RegulationPage({ params }: Props) {
             : `Which countries allow you to freely buy bitcoin and other cryptocurrencies, where there are restrictions, and where crypto trading is completely banned. Data for ${REGULATION_DATA.length} countries, updated 2025.`}
         </p>
 
+        {/* Last updated */}
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+          {isRu ? 'Данные проверены: июнь 2025' : 'Data verified: June 2025'}
+          <span className="text-border">·</span>
+          <span>{isRu ? `${REGULATION_DATA.length} стран` : `${REGULATION_DATA.length} countries`}</span>
+        </div>
+
         {/* Disclaimer */}
         <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-xs text-muted leading-relaxed">
           <strong className="text-foreground">
