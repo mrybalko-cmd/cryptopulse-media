@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Tool/asset pages: content changes but template doesn't
   const toolPaths = ['/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib'];
   // Info pages: rarely change
-  const infoPaths = ['/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy', '/about', '/fear-greed'];
+  const infoPaths = ['/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy', '/about', '/fear-greed', '/regulation'];
 
   const staticPages = [
     ...listingPaths.flatMap(path => [
