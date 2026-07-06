@@ -70,6 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const article = await fetchArticleBySlug(slug.trim(), locale);
 
   if (!article) notFound();
