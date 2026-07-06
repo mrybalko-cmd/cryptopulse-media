@@ -1,22 +1,23 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
+import { useState } from 'react';
 import { REGULATION_DATA, STATUS_META, type CountryReg, type RegStatus } from '@/lib/regulationData';
-import { X, ChevronDown, Globe } from 'lucide-react';
+import { X, ChevronDown, Globe, MapPin } from 'lucide-react';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
-
-const isoNumToCountry = new Map(REGULATION_DATA.map(c => [c.isoNum, c]));
-
-const STATUS_FILL: Record<RegStatus, string> = {
+const STATUS_COLOR: Record<RegStatus, string> = {
   legal:      '#16a34a',
   restricted: '#d97706',
   banned:     '#dc2626',
   unclear:    '#6b7280',
 };
 
-const UNKNOWN_FILL = '#1e293b';
+// Regions grouping for visual display
+const REGIONS: { id: string; labelRu: string; labelEn: string; isoCodes: string[] }[] = [
+  { id: 'eu',       labelRu: 'Европа',          labelEn: 'Europe',          isoCodes: ['CZ','DE','FR','CH','GB','PT','ES','NL','NO','SE','EE','PL','IT','BY','UA'] },
+  { id: 'americas', labelRu: 'Америка',          labelEn: 'Americas',        isoCodes: ['US','CA','SV','BR','MX','AR','BO'] },
+  { id: 'asia',     labelRu: 'Азия',             labelEn: 'Asia',            isoCodes: ['SG','JP','AU','KR','IN','CN','TR','KZ','GE','TH','ID','PH','PK','UZ','BD','NP'] },
+  { id: 'mena',     labelRu: 'Ближний Восток / Африка', labelEn: 'Middle East / Africa', isoCodes: ['AE','SA','EG','DZ','MA','TN','ZA'] },
+];
 
 interface Props {
   locale: string;
@@ -27,12 +28,6 @@ interface Props {
 export default function RegulationMap({ locale, filter, onFilterChange }: Props) {
   const isRu = locale === 'ru';
   const [selected, setSelected] = useState<CountryReg | null>(null);
-  const [tooltip, setTooltip] = useState<{ country: CountryReg; x: number; y: number } | null>(null);
-
-  const handleClick = useCallback((country: CountryReg | undefined) => {
-    if (!country) return;
-    setSelected(prev => (prev?.iso2 === country.iso2 ? null : country));
-  }, []);
 
   const counts = {
     legal:      REGULATION_DATA.filter(c => c.status === 'legal').length,
@@ -42,11 +37,11 @@ export default function RegulationMap({ locale, filter, onFilterChange }: Props)
   };
 
   const filters: { key: RegStatus | 'all'; labelRu: string; labelEn: string; color?: string }[] = [
-    { key: 'all',        labelRu: 'Все страны',        labelEn: 'All countries' },
-    { key: 'legal',      labelRu: `Разрешено (${counts.legal})`,          labelEn: `Legal (${counts.legal})`,       color: '#16a34a' },
-    { key: 'restricted', labelRu: `С ограничениями (${counts.restricted})`, labelEn: `Restricted (${counts.restricted})`, color: '#d97706' },
-    { key: 'banned',     labelRu: `Запрещено (${counts.banned})`,          labelEn: `Banned (${counts.banned})`,     color: '#dc2626' },
-    { key: 'unclear',    labelRu: `Нет данных (${counts.unclear})`,        labelEn: `Unclear (${counts.unclear})`,   color: '#6b7280' },
+    { key: 'all',        labelRu: 'Все страны',                         labelEn: 'All countries' },
+    { key: 'legal',      labelRu: `Разрешено (${counts.legal})`,        labelEn: `Legal (${counts.legal})`,            color: STATUS_COLOR.legal },
+    { key: 'restricted', labelRu: `С ограничениями (${counts.restricted})`, labelEn: `Restricted (${counts.restricted})`, color: STATUS_COLOR.restricted },
+    { key: 'banned',     labelRu: `Запрещено (${counts.banned})`,       labelEn: `Banned (${counts.banned})`,          color: STATUS_COLOR.banned },
+    { key: 'unclear',    labelRu: `Нет данных (${counts.unclear})`,     labelEn: `Unclear (${counts.unclear})`,        color: STATUS_COLOR.unclear },
   ];
 
   return (
@@ -56,116 +51,72 @@ export default function RegulationMap({ locale, filter, onFilterChange }: Props)
         {filters.map(f => (
           <button
             key={f.key}
-            onClick={() => onFilterChange(f.key)}
+            onClick={() => { onFilterChange(f.key); setSelected(null); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${
               filter === f.key
                 ? 'bg-accent text-background border-accent'
                 : 'border-border text-muted hover:text-foreground hover:border-accent/40'
             }`}
           >
-            {f.color && (
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
-            )}
+            {f.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: f.color }} />}
             {isRu ? f.labelRu : f.labelEn}
           </button>
         ))}
       </div>
 
-      {/* Map */}
-      <div className="relative rounded-xl overflow-hidden border border-border bg-[#0f172a] mb-6">
-        <ComposableMap
-          projectionConfig={{ scale: 140, center: [10, 10] }}
-          style={{ width: '100%', height: 'auto' }}
-          viewBox="0 0 800 420"
-        >
-          <ZoomableGroup center={[0, 0]} zoom={1}>
-            <Geographies geography={GEO_URL}>
-              {({ geographies }: { geographies: any[] }) =>
-                geographies.map((geo: any) => {
-                  const isoNum = String(geo.id);
-                  const country = isoNumToCountry.get(isoNum);
-                  const isVisible = !country || filter === 'all' || country.status === filter;
-                  const fill = country
-                    ? (isVisible ? STATUS_FILL[country.status] : '#1e293b')
-                    : UNKNOWN_FILL;
-                  const isSelected = selected?.isoNum === isoNum;
+      {/* Regional visual grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {REGIONS.map(region => {
+          const regionCountries = REGULATION_DATA.filter(c => region.isoCodes.includes(c.iso2));
+          const visible = filter === 'all' ? regionCountries : regionCountries.filter(c => c.status === filter);
+          if (visible.length === 0 && filter !== 'all') return null;
 
+          return (
+            <div key={region.id} className="rounded-xl border border-border bg-card p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3 flex items-center gap-1.5">
+                <MapPin size={11} />
+                {isRu ? region.labelRu : region.labelEn}
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {regionCountries.map(country => {
+                  const isVisible = filter === 'all' || country.status === filter;
+                  const isSelected = selected?.iso2 === country.iso2;
                   return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill={fill}
-                      stroke={isSelected ? '#f8fafc' : '#0f172a'}
-                      strokeWidth={isSelected ? 1 : 0.4}
-                      style={{
-                        default: { outline: 'none', opacity: isVisible ? 1 : 0.3 },
-                        hover:   { outline: 'none', opacity: 1, fill: country ? STATUS_FILL[country.status] : '#334155', cursor: country ? 'pointer' : 'default', filter: 'brightness(1.2)' },
-                        pressed: { outline: 'none' },
-                      }}
-                      onMouseEnter={(e: React.MouseEvent) => {
-                        if (country) setTooltip({ country, x: e.clientX, y: e.clientY });
-                      }}
-                      onMouseLeave={() => setTooltip(null)}
-                      onMouseMove={(e: React.MouseEvent) => {
-                        if (country) setTooltip({ country, x: e.clientX, y: e.clientY });
-                      }}
-                      onClick={() => handleClick(country)}
-                    />
+                    <button
+                      key={country.iso2}
+                      onClick={() => setSelected(isSelected ? null : country)}
+                      title={isRu ? country.name.ru : country.name.en}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border transition-all duration-150 ${
+                        isVisible ? 'opacity-100' : 'opacity-25 pointer-events-none'
+                      } ${
+                        isSelected
+                          ? 'ring-2 ring-offset-1 ring-offset-card'
+                          : 'hover:brightness-110'
+                      }`}
+                      style={isVisible ? {
+                        backgroundColor: STATUS_COLOR[country.status] + '18',
+                        borderColor: STATUS_COLOR[country.status] + '50',
+                        color: STATUS_COLOR[country.status],
+                        ...(isSelected ? { ringColor: STATUS_COLOR[country.status] } : {}),
+                      } : { borderColor: 'transparent', backgroundColor: 'transparent', color: 'var(--muted)' }}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: isVisible ? STATUS_COLOR[country.status] : '#6b7280' }}
+                      />
+                      {isRu ? country.name.ru : country.name.en}
+                    </button>
                   );
-                })
-              }
-            </Geographies>
-          </ZoomableGroup>
-        </ComposableMap>
-
-        {/* Map legend */}
-        <div className="absolute bottom-3 left-3 flex flex-col gap-1 pointer-events-none">
-          {Object.entries(STATUS_FILL).map(([status, color]) => {
-            const meta = STATUS_META[status as RegStatus];
-            return (
-              <div key={status} className="flex items-center gap-1.5 bg-background/80 backdrop-blur px-2 py-0.5 rounded text-[10px] text-foreground">
-                <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: color }} />
-                {isRu ? meta.labelRu : meta.labelEn}
+                })}
               </div>
-            );
-          })}
-          <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur px-2 py-0.5 rounded text-[10px] text-muted">
-            <span className="w-2.5 h-2.5 rounded-sm shrink-0 bg-[#1e293b]" />
-            {isRu ? 'Нет в базе' : 'Not in database'}
-          </div>
-        </div>
-
-        {/* Zoom hint */}
-        <div className="absolute top-3 right-3 text-[10px] text-muted/60 bg-background/60 backdrop-blur px-2 py-1 rounded pointer-events-none">
-          {isRu ? 'Скролл — масштаб · Клик — детали' : 'Scroll to zoom · Click for details'}
-        </div>
+            </div>
+          );
+        })}
       </div>
-
-      {/* Tooltip (fixed to viewport) */}
-      {tooltip && (
-        <div
-          className="fixed z-50 pointer-events-none bg-card border border-border rounded-lg px-3 py-2 shadow-xl text-xs max-w-48"
-          style={{ left: tooltip.x + 14, top: tooltip.y - 10 }}
-        >
-          <div className="font-semibold text-foreground mb-0.5">
-            {isRu ? tooltip.country.name.ru : tooltip.country.name.en}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: STATUS_FILL[tooltip.country.status] }} />
-            <span style={{ color: STATUS_FILL[tooltip.country.status] }} className="font-medium">
-              {isRu ? STATUS_META[tooltip.country.status].labelRu : STATUS_META[tooltip.country.status].labelEn}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Country detail panel */}
       {selected && (
-        <CountryPanel
-          country={selected}
-          isRu={isRu}
-          onClose={() => setSelected(null)}
-        />
+        <CountryPanel country={selected} isRu={isRu} onClose={() => setSelected(null)} />
       )}
     </div>
   );
@@ -184,17 +135,13 @@ function CountryPanel({ country, isRu, onClose }: { country: CountryReg; isRu: b
           </h3>
           <span
             className="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: meta.color + '22', color: meta.color }}
+            style={{ backgroundColor: STATUS_COLOR[country.status] + '22', color: STATUS_COLOR[country.status] }}
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: STATUS_COLOR[country.status] }} />
             {isRu ? meta.labelRu : meta.labelEn}
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-lg text-muted hover:text-foreground hover:bg-foreground/10 transition-colors shrink-0"
-          aria-label="Close"
-        >
+        <button onClick={onClose} className="p-1 rounded-lg text-muted hover:text-foreground hover:bg-foreground/10 transition-colors shrink-0" aria-label="Close">
           <X size={16} />
         </button>
       </div>
@@ -203,10 +150,7 @@ function CountryPanel({ country, isRu, onClose }: { country: CountryReg; isRu: b
         {isRu ? country.summary.ru : country.summary.en}
       </p>
 
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
-      >
+      <button onClick={() => setOpen(v => !v)} className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors">
         <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
         {isRu ? 'Подробнее' : 'More details'}
       </button>
@@ -220,9 +164,7 @@ function CountryPanel({ country, isRu, onClose }: { country: CountryReg; isRu: b
               <span><strong className="text-foreground">{isRu ? 'Налоги:' : 'Taxes:'}</strong> {isRu ? country.taxNote.ru : country.taxNote.en}</span>
             </p>
           )}
-          <p className="text-muted/50">
-            {isRu ? `Обновлено: ${country.updatedYear}` : `Updated: ${country.updatedYear}`}
-          </p>
+          <p className="text-muted/50">{isRu ? `Обновлено: ${country.updatedYear}` : `Updated: ${country.updatedYear}`}</p>
         </div>
       )}
     </div>
@@ -231,11 +173,11 @@ function CountryPanel({ country, isRu, onClose }: { country: CountryReg; isRu: b
 
 export function RegulationStats({ locale }: { locale: string }) {
   const isRu = locale === 'ru';
-  const stats = [
-    { status: 'legal' as RegStatus,      count: REGULATION_DATA.filter(c => c.status === 'legal').length },
-    { status: 'restricted' as RegStatus, count: REGULATION_DATA.filter(c => c.status === 'restricted').length },
-    { status: 'banned' as RegStatus,     count: REGULATION_DATA.filter(c => c.status === 'banned').length },
-    { status: 'unclear' as RegStatus,    count: REGULATION_DATA.filter(c => c.status === 'unclear').length },
+  const stats: { status: RegStatus; count: number }[] = [
+    { status: 'legal',      count: REGULATION_DATA.filter(c => c.status === 'legal').length },
+    { status: 'restricted', count: REGULATION_DATA.filter(c => c.status === 'restricted').length },
+    { status: 'banned',     count: REGULATION_DATA.filter(c => c.status === 'banned').length },
+    { status: 'unclear',    count: REGULATION_DATA.filter(c => c.status === 'unclear').length },
   ];
 
   return (
@@ -244,10 +186,8 @@ export function RegulationStats({ locale }: { locale: string }) {
         const meta = STATUS_META[status];
         return (
           <div key={status} className={`rounded-xl border p-4 ${meta.bg} ${meta.border}`}>
-            <div className="text-2xl font-bold tabular-nums" style={{ color: meta.color }}>{count}</div>
-            <div className="text-xs text-muted mt-0.5 leading-tight">
-              {isRu ? meta.labelRu : meta.labelEn}
-            </div>
+            <div className="text-2xl font-bold tabular-nums" style={{ color: STATUS_COLOR[status] }}>{count}</div>
+            <div className="text-xs text-muted mt-0.5 leading-tight">{isRu ? meta.labelRu : meta.labelEn}</div>
           </div>
         );
       })}
@@ -259,10 +199,7 @@ export function CountryList({ locale, filter }: { locale: string; filter: RegSta
   const isRu = locale === 'ru';
   const [selected, setSelected] = useState<CountryReg | null>(null);
 
-  const visible = filter === 'all'
-    ? REGULATION_DATA
-    : REGULATION_DATA.filter(c => c.status === filter);
-
+  const visible = filter === 'all' ? REGULATION_DATA : REGULATION_DATA.filter(c => c.status === filter);
   const sorted = [...visible].sort((a, b) => {
     const order: Record<RegStatus, number> = { legal: 0, restricted: 1, banned: 2, unclear: 3 };
     return order[a.status] - order[b.status] || (isRu ? a.name.ru : a.name.en).localeCompare(isRu ? b.name.ru : b.name.en);
@@ -284,43 +221,25 @@ export function CountryList({ locale, filter }: { locale: string; filter: RegSta
               key={country.iso2}
               id={country.slug}
               className={`rounded-xl border transition-all duration-150 cursor-pointer ${
-                isOpen ? `${meta.bg} ${meta.border}` : 'border-border bg-card hover:border-accent/30 hover:bg-card/80'
+                isOpen ? `${meta.bg} ${meta.border}` : 'border-border bg-card hover:border-accent/30'
               }`}
               onClick={() => setSelected(isOpen ? null : country)}
             >
               <div className="flex items-center justify-between px-4 py-3 gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: meta.color }}
-                  />
-                  <span className="text-sm font-medium text-foreground truncate">
-                    {isRu ? country.name.ru : country.name.en}
-                  </span>
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLOR[country.status] }} />
+                  <span className="text-sm font-medium text-foreground truncate">{isRu ? country.name.ru : country.name.en}</span>
                 </div>
-                <ChevronDown
-                  size={14}
-                  className={`text-muted shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                />
+                <ChevronDown size={14} className={`text-muted shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </div>
-
               {isOpen && (
                 <div className="px-4 pb-4 border-t border-current/10 pt-3 space-y-2">
-                  <p className="text-xs text-muted leading-relaxed">
-                    {isRu ? country.summary.ru : country.summary.en}
-                  </p>
-                  <p className="text-xs text-muted leading-relaxed">
-                    {isRu ? country.details.ru : country.details.en}
-                  </p>
+                  <p className="text-xs text-muted leading-relaxed">{isRu ? country.summary.ru : country.summary.en}</p>
+                  <p className="text-xs text-muted leading-relaxed">{isRu ? country.details.ru : country.details.en}</p>
                   {country.taxNote && (
-                    <p className="text-xs text-muted leading-relaxed">
-                      <strong className="text-foreground">{isRu ? 'Налоги: ' : 'Taxes: '}</strong>
-                      {isRu ? country.taxNote.ru : country.taxNote.en}
-                    </p>
+                    <p className="text-xs text-muted"><strong className="text-foreground">{isRu ? 'Налоги: ' : 'Taxes: '}</strong>{isRu ? country.taxNote.ru : country.taxNote.en}</p>
                   )}
-                  <p className="text-[10px] text-muted/50">
-                    {isRu ? `Обновлено: ${country.updatedYear}` : `Updated: ${country.updatedYear}`}
-                  </p>
+                  <p className="text-[10px] text-muted/50">{isRu ? `Обновлено: ${country.updatedYear}` : `Updated: ${country.updatedYear}`}</p>
                 </div>
               )}
             </div>
