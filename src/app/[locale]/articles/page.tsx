@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: buildOg({ url: `${BASE}/${locale}/articles`, title, description, locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/articles`,
-      languages: { ru: 'https://cryptopulse.media/ru/articles', en: 'https://cryptopulse.media/en/articles', 'x-default': 'https://cryptopulse.media/en/articles' },
+      languages: { ru: 'https://cryptopulse.media/ru/articles', en: 'https://cryptopulse.media/en/articles' },
     },
   };
 }

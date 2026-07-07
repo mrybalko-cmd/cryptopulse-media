@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/assets/shib`,
         en: `${BASE}/en/assets/shib`,
-        'x-default': `${BASE}/en/assets/shib`,
       },
     },
   };

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: buildOg({ url: `${BASE}/${locale}/calculators`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/calculators`,
-      languages: { ru: `${BASE}/ru/calculators`, en: `${BASE}/en/calculators`, 'x-default': `${BASE}/en/calculators` },
+      languages: { ru: `${BASE}/ru/calculators`, en: `${BASE}/en/calculators` },
     },
   };
 }

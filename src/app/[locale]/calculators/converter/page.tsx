@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: {
       canonical: `${BASE}/${locale}/calculators/converter`,
-      languages: { ru: `${BASE}/ru/calculators/converter`, en: `${BASE}/en/calculators/converter`, 'x-default': `${BASE}/en/calculators/converter` },
+      languages: { ru: `${BASE}/ru/calculators/converter`, en: `${BASE}/en/calculators/converter` },
     },
     openGraph: {
       type: 'website',

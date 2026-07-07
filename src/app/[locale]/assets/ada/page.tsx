@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/assets/ada`,
         en: `${BASE}/en/assets/ada`,
-        'x-default': `${BASE}/en/assets/ada`,
       },
     },
   };

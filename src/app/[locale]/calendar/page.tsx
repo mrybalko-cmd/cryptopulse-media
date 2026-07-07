@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: buildOg({ url: `${BASE}/${locale}/calendar`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/calendar`,
-      languages: { ru: `${BASE}/ru/calendar`, en: `${BASE}/en/calendar`, 'x-default': `${BASE}/en/calendar` },
+      languages: { ru: `${BASE}/ru/calendar`, en: `${BASE}/en/calendar` },
     },
   };
 }

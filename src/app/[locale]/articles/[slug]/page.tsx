@@ -37,10 +37,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationLang = article.translation?.language;
   const translationSlug = article.translation?.slug;
 
-  const xDefault = translationLang && translationSlug
-    ? `https://cryptopulse.media/en/articles/${translationLang === 'en' ? translationSlug : slug}`
-    : `https://cryptopulse.media/${locale}/articles/${slug}`;
-
   return {
     title,
     description,
@@ -53,7 +49,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ...(translationLang && translationSlug
           ? { [translationLang]: `https://cryptopulse.media/${translationLang}/articles/${translationSlug}` }
           : {}),
-        'x-default': xDefault,
       },
     },
     openGraph: {

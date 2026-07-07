@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: buildOg({ url: `${BASE}/${locale}/authors/${slug}`, title, description, locale, image: author.photo }),
     alternates: {
       canonical: `${BASE}/${locale}/authors/${slug}`,
-      languages: { ru: `${BASE}/ru/authors/${slug}`, en: `${BASE}/en/authors/${slug}`, 'x-default': `${BASE}/en/authors/${slug}` },
+      languages: { ru: `${BASE}/ru/authors/${slug}`, en: `${BASE}/en/authors/${slug}` },
     },
   };
 }

@@ -30,7 +30,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/assets/xrp`,
         en: `${BASE}/en/assets/xrp`,
-        'x-default': `${BASE}/en/assets/xrp`,
       },
     },
   };
