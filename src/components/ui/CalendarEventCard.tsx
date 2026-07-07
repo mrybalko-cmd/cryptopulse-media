@@ -24,7 +24,7 @@ function EventIcon({ event }: { event: CalendarEvent }) {
   if (event.iconUrl) {
     return (
       <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 bg-background border border-border">
-        <Image src={event.iconUrl} alt="" fill className="object-cover" />
+        <Image src={event.iconUrl} alt={event.title?.en || event.title?.ru || ''} fill className="object-cover" />
       </div>
     );
   }

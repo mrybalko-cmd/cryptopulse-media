@@ -223,7 +223,7 @@ export default async function ArticlePage({ params }: Props) {
                     <figure className="my-6">
                       <img
                         src={src}
-                        alt={value.alt || ''}
+                        alt={value.alt || article.title}
                         loading="lazy"
                         className="w-full h-auto rounded-lg"
                       />

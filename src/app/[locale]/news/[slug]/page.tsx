@@ -229,7 +229,7 @@ export default async function NewsDetailPage({ params }: Props) {
                     <figure className="my-6">
                       <img
                         src={src}
-                        alt={value.alt || ''}
+                        alt={value.alt || news.title}
                         loading="lazy"
                         className="w-full h-auto rounded-lg"
                       />

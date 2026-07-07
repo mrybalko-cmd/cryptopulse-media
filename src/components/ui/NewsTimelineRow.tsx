@@ -58,7 +58,7 @@ export default function NewsTimelineRow({
         {imageUrl && !imgErr ? (
           <Image
             src={imageUrl}
-            alt=""
+            alt={title}
             fill
             className="object-cover"
             sizes="40px"
