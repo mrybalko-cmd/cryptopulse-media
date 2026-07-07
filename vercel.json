@@ -1,5 +1,7 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/en", "permanent": true }
+    { "source": "/", "destination": "/en", "permanent": true },
+    { "source": "/en/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/en/news/ripple-secures-full-casp-license-in-luxembourg-under-mica", "permanent": true },
+    { "source": "/ru/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/ru/news/ripple-poluchila-polnuyu-litsenziyu-casp-v-lyuksemburge-po-mica", "permanent": true }
   ]
 }
