@@ -113,6 +113,7 @@ export const articleType = defineType({
           { title: 'Технологии / Technology', value: 'technology' },
           { title: 'Безопасность / Security', value: 'security' },
           { title: 'Обучение / Education', value: 'education' },
+          { title: 'AI & Машинное обучение / AI & ML', value: 'ai' },
         ],
         layout: 'radio',
       },

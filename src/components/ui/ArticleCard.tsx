@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, ArrowRight, Eye } from 'lucide-react';
+import { Clock, ArrowRight, Eye, Zap } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 
 interface ArticleCardProps {
@@ -16,10 +16,11 @@ interface ArticleCardProps {
   badge?: string;
   views?: number;
   priority?: boolean;
+  topic?: string;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, priority
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, priority, topic
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -45,6 +46,11 @@ export default function ArticleCard({
           {badge && badge !== 'none' && (
             <div className="absolute top-2 left-2">
               <ArticleBadge badge={badge} locale={locale} />
+            </div>
+          )}
+          {topic === 'ai' && (
+            <div className="absolute top-2 right-2 w-5 h-5 rounded bg-blue-600 flex items-center justify-center" title="AI">
+              <Zap size={11} className="text-white" fill="currentColor" />
             </div>
           )}
         </div>

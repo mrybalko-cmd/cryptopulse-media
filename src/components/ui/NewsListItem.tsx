@@ -12,9 +12,10 @@ interface NewsListItemProps {
   breaking?: boolean;
   ownBadge?: boolean;
   views?: number;
+  aiTopic?: boolean;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, views }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, views, aiTopic }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -34,7 +35,12 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         </span>
       )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
-        {!external && ownBadge && (
+        {aiTopic && (
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center" title="AI">
+            <Zap size={10} className="text-white" fill="currentColor" />
+          </span>
+        )}
+        {!external && ownBadge && !aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-red-600 flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
             <Zap size={10} className="text-yellow-400" fill="currentColor" />
           </span>

@@ -60,6 +60,8 @@ export async function POST(request: NextRequest) {
     }
     revalidatePath('/ru/articles', 'page');
     revalidatePath('/en/articles', 'page');
+    revalidatePath('/ru/ai', 'page');
+    revalidatePath('/en/ai', 'page');
   } else if (type === 'news' && slug) {
     if (locale) {
       revalidatePath(`/${locale}/news/${slug}`);
@@ -74,6 +76,8 @@ export async function POST(request: NextRequest) {
     }
     revalidatePath('/ru/news', 'page');
     revalidatePath('/en/news', 'page');
+    revalidatePath('/ru/ai', 'page');
+    revalidatePath('/en/ai', 'page');
   } else {
     revalidatePath('/', 'layout');
   }

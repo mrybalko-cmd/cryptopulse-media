@@ -230,6 +230,7 @@ export const newsType = defineType({
           { title: 'Технологии / Technology', value: 'technology' },
           { title: 'Безопасность / Security', value: 'security' },
           { title: 'Обучение / Education', value: 'education' },
+          { title: 'AI & Машинное обучение / AI & ML', value: 'ai' },
           { title: 'Пресс-релиз / Press Release', value: 'press-release' },
         ],
         layout: 'radio',
