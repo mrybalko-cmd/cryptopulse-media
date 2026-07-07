@@ -77,6 +77,7 @@ export default async function HomePage({ params }: Props) {
                   breaking={item.breaking}
                   ownBadge={item.ownBadge}
                   views={item.views}
+                  aiTopic={item.topic === 'ai'}
                 />
               ))}
             </div>
