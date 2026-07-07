@@ -44,14 +44,6 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}/ai`} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-blue-400 transition-colors">
-                  <span className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center shrink-0">
-                    <Zap size={8} className="text-white" fill="currentColor" />
-                  </span>
-                  AI
-                </Link>
-              </li>
-              <li>
                 <Link href={`/${locale}/interviews`} className="text-sm text-muted hover:text-foreground transition-colors">
                   {t('interviews')}
                 </Link>

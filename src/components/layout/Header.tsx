@@ -46,10 +46,11 @@ export default function Header() {
     { href: `/${locale}/calculators`, label: t('calculators') },
     { href: `/${locale}/calendar`, label: t('calendar') },
     { href: `/${locale}/assets`, label: t('assets') },
+    { href: `/${locale}/ai`, label: 'AI', ai: true },
   ];
 
   const isActive = (href: string) =>
-    href.endsWith('/calculators') || href.endsWith('/assets')
+    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai')
       ? pathname.startsWith(href)
       : pathname === href;
 
@@ -113,13 +114,18 @@ export default function Header() {
               <Link
                 href={link.href}
                 aria-current={isActive(link.href) ? 'page' : undefined}
-                className={`flex items-center px-4 text-sm border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-1 px-4 text-sm border-b-2 transition-colors whitespace-nowrap ${
                   isActive(link.href)
                     ? 'text-foreground font-semibold border-accent'
                     : 'text-muted hover:text-foreground border-transparent hover:border-border'
-                }`}
+                } ${'ai' in link && link.ai ? 'hover:text-blue-400' : ''}`}
               >
                 {link.label}
+                {'ai' in link && link.ai && (
+                  <span className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center shrink-0 ml-0.5">
+                    <Zap size={8} className="text-white" fill="currentColor" />
+                  </span>
+                )}
               </Link>
             </li>
           ))}
@@ -137,13 +143,18 @@ export default function Header() {
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
                     aria-current={isActive(link.href) ? 'page' : undefined}
-                    className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       isActive(link.href)
                         ? 'text-foreground bg-card border border-border'
                         : 'text-muted hover:text-foreground hover:bg-card/50'
-                    }`}
+                    } ${'ai' in link && link.ai ? 'hover:text-blue-400' : ''}`}
                   >
                     {link.label}
+                    {'ai' in link && link.ai && (
+                      <span className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center shrink-0">
+                        <Zap size={9} className="text-white" fill="currentColor" />
+                      </span>
+                    )}
                   </Link>
                 </li>
               ))}
