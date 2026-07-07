@@ -2,17 +2,17 @@ import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
 
-const TOPIC_SLUGS = ['regulation', 'defi', 'bitcoin', 'market', 'technology', 'security', 'education'];
+const TOPIC_SLUGS = ['regulation', 'defi', 'bitcoin', 'market', 'technology', 'security', 'education', 'ai'];
 const NEWS_TOPIC_SLUGS = [...TOPIC_SLUGS, 'press-release'];
 
 const BASE = 'https://cryptopulse.media';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articlesRu, articlesEn, newsRu, newsEn, authors] = await Promise.all([
-    fetchArticles({ limit: 100, locale: 'ru' }),
-    fetchArticles({ limit: 100, locale: 'en' }),
-    fetchSanityNews({ limit: 200, locale: 'ru' }),
-    fetchSanityNews({ limit: 200, locale: 'en' }),
+    fetchArticles({ limit: 500, locale: 'ru' }),
+    fetchArticles({ limit: 500, locale: 'en' }),
+    fetchSanityNews({ limit: 1000, locale: 'ru' }),
+    fetchSanityNews({ limit: 1000, locale: 'en' }),
     fetchAuthors(),
   ]);
 

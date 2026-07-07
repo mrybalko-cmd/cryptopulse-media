@@ -37,6 +37,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationLang = news.translation?.language;
   const translationSlug = news.translation?.slug;
 
+  const xDefault = translationLang && translationSlug
+    ? `https://cryptopulse.media/en/news/${translationLang === 'en' ? translationSlug : slug}`
+    : `https://cryptopulse.media/${locale}/news/${slug}`;
+
   return {
     title,
     description,
@@ -47,11 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
         ...(translationLang && translationSlug
-          ? {
-              [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}`,
-              'x-default': `https://cryptopulse.media/en/news/${translationLang === 'en' ? translationSlug : slug}`,
-            }
+          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}` }
           : {}),
+        'x-default': xDefault,
       },
     },
     openGraph: {
@@ -62,6 +64,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'CryptoPulse.media',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
+      publishedTime: news.publishedAt,
+      modifiedTime: news.updatedAt || news._updatedAt || news.publishedAt,
+      ...(news.author?.slug && {
+        authors: [`https://cryptopulse.media/${locale}/authors/${news.author.slug}`],
+      }),
+      ...(news.topic && { section: news.topic }),
+      ...(news.seo?.keywords?.length && { tags: news.seo.keywords }),
     },
     twitter: {
       card: 'summary_large_image',
