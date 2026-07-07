@@ -17,6 +17,7 @@ const TOPICS: Record<string, { ru: string; en: string }> = {
   technology: { ru: 'Технологии', en: 'Technology' },
   security: { ru: 'Безопасность', en: 'Security' },
   education: { ru: 'Обучение', en: 'Education' },
+  ai: { ru: 'Искусственный интеллект', en: 'AI & Machine Learning' },
 };
 
 type Props = { params: Promise<{ locale: string; topic: string }> };
