@@ -9,18 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { fetchNewsByTopic } from '@/lib/sanity';
 import { SITE_NAME } from '@/lib/constants';
 import NewsCard from '@/components/ui/NewsCard';
-
-const TOPICS: Record<string, { ru: string; en: string }> = {
-  regulation: { ru: 'Регулирование', en: 'Regulation' },
-  defi: { ru: 'DeFi & Web3', en: 'DeFi & Web3' },
-  bitcoin: { ru: 'Bitcoin', en: 'Bitcoin' },
-  market: { ru: 'Рынок', en: 'Market' },
-  technology: { ru: 'Технологии', en: 'Technology' },
-  security: { ru: 'Безопасность', en: 'Security' },
-  education: { ru: 'Обучение', en: 'Education' },
-  ai: { ru: 'Искусственный интеллект', en: 'AI & Machine Learning' },
-  'press-release': { ru: 'Пресс-релиз', en: 'Press Release' },
-};
+import { NEWS_TOPICS as TOPICS } from '@/lib/topics';
 
 type Props = { params: Promise<{ locale: string; topic: string }> };
 

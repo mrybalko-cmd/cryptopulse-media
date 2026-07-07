@@ -1,9 +1,7 @@
 import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
-
-const TOPIC_SLUGS = ['regulation', 'defi', 'bitcoin', 'market', 'technology', 'security', 'education', 'ai'];
-const NEWS_TOPIC_SLUGS = [...TOPIC_SLUGS, 'press-release'];
+import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 
 const BASE = 'https://cryptopulse.media';
 
