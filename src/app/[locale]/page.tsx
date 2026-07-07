@@ -149,14 +149,12 @@ export default async function HomePage({ params }: Props) {
         <section className="mb-14">
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <div className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center shrink-0">
-                <Zap size={9} className="text-white" fill="currentColor" />
-              </div>
-              <Link href={`/${locale}/ai`} className="hover:text-blue-400 transition-colors">
+              <Zap size={13} className="text-yellow-400 shrink-0" fill="currentColor" />
+              <Link href={`/${locale}/ai`} className="hover:text-accent transition-colors">
                 AI
               </Link>
             </h2>
-            <Link href={`/${locale}/ai`} className="flex items-center gap-1 text-xs text-muted hover:text-blue-400 transition-colors">
+            <Link href={`/${locale}/ai`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
               {locale === 'ru' ? 'Смотреть все' : 'View all'} <ArrowRight size={12} />
             </Link>
           </div>
@@ -171,7 +169,7 @@ export default async function HomePage({ params }: Props) {
                 <Link
                   key={item._id}
                   href={href}
-                  className="group flex gap-3 bg-card border border-border/70 rounded-xl p-4 shadow-sm hover:border-blue-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  className="group flex gap-3 bg-card border border-border/70 rounded-xl p-4 shadow-sm hover:border-accent/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                 >
                   {item.coverImage && (
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0">
@@ -180,10 +178,8 @@ export default async function HomePage({ params }: Props) {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-1.5 mb-1">
-                      <span className="shrink-0 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center">
-                        <Zap size={9} className="text-white" fill="currentColor" />
-                      </span>
-                      <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-blue-400 transition-colors line-clamp-2">
+                      <Zap size={12} className="text-yellow-400 shrink-0 mt-0.5" fill="currentColor" />
+                      <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">
                         {item.title}
                       </h3>
                     </div>

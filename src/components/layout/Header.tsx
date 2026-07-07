@@ -118,11 +118,11 @@ export default function Header() {
                   isActive(link.href)
                     ? 'text-foreground font-semibold border-accent'
                     : 'text-muted hover:text-foreground border-transparent hover:border-border'
-                } ${'ai' in link && link.ai ? 'hover:text-blue-400' : ''}`}
+                } ${'ai' in link && link.ai ? 'hover:text-yellow-400' : ''}`}
               >
                 {link.label}
                 {'ai' in link && link.ai && (
-                  <Zap size={11} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
+                  <Zap size={11} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
                 )}
               </Link>
             </li>
@@ -145,11 +145,11 @@ export default function Header() {
                       isActive(link.href)
                         ? 'text-foreground bg-card border border-border'
                         : 'text-muted hover:text-foreground hover:bg-card/50'
-                    } ${'ai' in link && link.ai ? 'hover:text-blue-400' : ''}`}
+                    } ${'ai' in link && link.ai ? 'hover:text-yellow-400' : ''}`}
                   >
                     {link.label}
                     {'ai' in link && link.ai && (
-                      <Zap size={12} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
+                      <Zap size={12} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
                     )}
                   </Link>
                 </li>
