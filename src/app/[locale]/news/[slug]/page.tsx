@@ -97,19 +97,23 @@ export default async function NewsDetailPage({ params }: Props) {
     { day: 'numeric', month: 'long', year: 'numeric' }
   );
 
+  const wordCount = countBodyWords(news.body);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: news.title,
     description: news.excerpt,
+    url: `https://cryptopulse.media/${locale}/news/${slug}`,
     image: [news.seoOgImageUrl || news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
     datePublished: news.publishedAt,
     dateModified: news.updatedAt || news._updatedAt || news.publishedAt,
     inLanguage: locale,
+    ...(wordCount > 0 && { wordCount }),
     author: news.author
-      ? { '@type': 'Person', name: news.author.name, url: `https://cryptopulse.media/${locale}/authors/${news.author.slug}` }
-      : { '@type': 'Organization', name: 'CryptoPulse.media' },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', logo: { '@type': 'ImageObject', url: 'https://cryptopulse.media/icon.png', width: 96, height: 96 } },
+      ? { '@type': 'Person', name: news.author.name.trim(), url: `https://cryptopulse.media/${locale}/authors/${news.author.slug}` }
+      : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
+    publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
   };
 
@@ -301,4 +305,13 @@ export default async function NewsDetailPage({ params }: Props) {
       </div>
     </div>
   );
+}
+
+function countBodyWords(body: any[]): number {
+  if (!Array.isArray(body)) return 0;
+  return body
+    .filter((b: any) => b._type === 'block')
+    .flatMap((b: any) => b.children ?? [])
+    .filter((c: any) => c._type === 'span')
+    .reduce((acc: number, c: any) => acc + (c.text ?? '').trim().split(/\s+/).filter(Boolean).length, 0);
 }
