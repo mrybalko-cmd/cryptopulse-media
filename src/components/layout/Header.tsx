@@ -65,8 +65,8 @@ export default function Header() {
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-2 sm:gap-2.5 group">
           <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0">
-            <Zap size={13} className="text-yellow-400 sm:hidden" fill="currentColor" />
-            <Zap size={17} className="text-yellow-400 hidden sm:block" fill="currentColor" />
+            <Zap size={13} className="text-blue-400 sm:hidden" fill="currentColor" />
+            <Zap size={17} className="text-blue-400 hidden sm:block" fill="currentColor" />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             CryptoPulse<span className="text-accent">.media</span>
@@ -122,7 +122,7 @@ export default function Header() {
               >
                 {link.label}
                 {'ai' in link && link.ai && (
-                  <Zap size={11} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
+                  <Zap size={11} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
                 )}
               </Link>
             </li>
@@ -149,7 +149,7 @@ export default function Header() {
                   >
                     {link.label}
                     {'ai' in link && link.ai && (
-                      <Zap size={12} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
+                      <Zap size={12} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
                     )}
                   </Link>
                 </li>

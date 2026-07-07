@@ -36,9 +36,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
       )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {aiTopic && (
-          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center" title="AI">
-            <Zap size={10} className="text-white" fill="currentColor" />
-          </span>
+          <Zap size={13} className="float-left mr-1 mt-0.5 text-blue-400 shrink-0" fill="currentColor" title="AI" />
         )}
         {!external && ownBadge && !aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-red-600 flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
