@@ -122,7 +122,7 @@ export default function Header() {
               >
                 {link.label}
                 {'ai' in link && link.ai && (
-                  <Zap size={11} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
+                  <Zap size={11} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
                 )}
               </Link>
             </li>
@@ -149,7 +149,7 @@ export default function Header() {
                   >
                     {link.label}
                     {'ai' in link && link.ai && (
-                      <Zap size={12} className="text-yellow-400 -ml-0.5 shrink-0" fill="currentColor" />
+                      <Zap size={12} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
                     )}
                   </Link>
                 </li>

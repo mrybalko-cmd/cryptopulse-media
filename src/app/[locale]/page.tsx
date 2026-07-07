@@ -149,7 +149,7 @@ export default async function HomePage({ params }: Props) {
         <section className="mb-14">
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <Zap size={13} className="text-yellow-400 shrink-0" fill="currentColor" />
+              <Zap size={13} className="text-blue-400 shrink-0" fill="currentColor" />
               <Link href={`/${locale}/ai`} className="hover:text-accent transition-colors">
                 AI
               </Link>
@@ -178,7 +178,7 @@ export default async function HomePage({ params }: Props) {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start gap-1.5 mb-1">
-                      <Zap size={12} className="text-yellow-400 shrink-0 mt-0.5" fill="currentColor" />
+                      <Zap size={12} className="text-blue-400 shrink-0 mt-0.5" fill="currentColor" />
                       <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">
                         {item.title}
                       </h3>

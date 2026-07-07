@@ -87,7 +87,9 @@ export default async function AIPage({ params }: Props) {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-3">
-          <Zap size={28} className="text-yellow-400 shrink-0" fill="currentColor" />
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+            <Zap size={16} className="text-white" fill="currentColor" />
+          </div>
           <h1 className="text-3xl font-bold text-foreground">AI</h1>
         </div>
         <p className="text-muted text-sm max-w-2xl">
@@ -129,7 +131,9 @@ export default async function AIPage({ params }: Props) {
 
       {items.length === 0 && (
         <div className="border border-dashed border-border rounded-xl py-24 flex flex-col items-center justify-center gap-4">
-          <Zap size={32} className="text-yellow-400/60" fill="currentColor" />
+          <div className="w-12 h-12 rounded-xl bg-blue-600/10 flex items-center justify-center">
+            <Zap size={24} className="text-blue-400" fill="currentColor" />
+          </div>
           <p className="text-muted text-sm text-center max-w-xs">
             {isRu
               ? 'Публикации об AI появятся здесь. Выберите тему "AI & Машинное обучение" при создании статьи или новости в Sanity.'
@@ -165,12 +169,12 @@ function AIArticleCard({ item, locale }: { item: any; locale: string }) {
             <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
           </>
         ) : (
-          <div className="w-full h-full bg-card flex items-center justify-center">
-            <Zap size={32} className="text-yellow-400/30" fill="currentColor" />
+          <div className="w-full h-full bg-blue-600/5 flex items-center justify-center">
+            <Zap size={32} className="text-blue-400/30" fill="currentColor" />
           </div>
         )}
-        <div className="absolute top-2 right-2" title="AI">
-          <Zap size={14} className="text-yellow-400" fill="currentColor" />
+        <div className="absolute top-2 right-2 w-5 h-5 rounded bg-blue-600 flex items-center justify-center" title="AI">
+          <Zap size={11} className="text-white" fill="currentColor" />
         </div>
       </div>
       <div className="p-4">
@@ -222,7 +226,9 @@ function AINewsCard({ item, locale }: { item: any; locale: string }) {
       )}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-1.5 mb-1.5">
-          <Zap size={13} className="text-yellow-400 shrink-0 mt-0.5" fill="currentColor" />
+          <span className="shrink-0 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center">
+            <Zap size={9} className="text-white" fill="currentColor" />
+          </span>
           <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-blue-400 transition-colors line-clamp-3">
             {item.title}
           </h3>

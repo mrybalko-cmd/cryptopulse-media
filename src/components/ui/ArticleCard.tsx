@@ -49,8 +49,8 @@ export default function ArticleCard({
             </div>
           )}
           {topic === 'ai' && (
-            <div className="absolute top-2 right-2" title="AI">
-              <Zap size={14} className="text-yellow-400" fill="currentColor" />
+            <div className="absolute top-2 right-2 w-5 h-5 rounded bg-blue-600 flex items-center justify-center" title="AI">
+              <Zap size={11} className="text-white" fill="currentColor" />
             </div>
           )}
         </div>

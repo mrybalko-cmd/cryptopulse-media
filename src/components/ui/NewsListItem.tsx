@@ -36,8 +36,8 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
       )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {aiTopic && (
-          <span className="float-left mr-1 mt-0.5" title="AI">
-            <Zap size={13} className="text-yellow-400 shrink-0" fill="currentColor" />
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center shrink-0" title="AI">
+            <Zap size={10} className="text-white" fill="currentColor" />
           </span>
         )}
         {!external && ownBadge && !aiTopic && (
