@@ -2,14 +2,14 @@ export const revalidate = 300;
 
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import Link from 'next/link';
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import VideoCard from '@/components/ui/VideoCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import { fetchOwnNews } from '@/lib/news';
-import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchAIContent } from '@/lib/sanity';
+import { fetchArticles, fetchCalendarEvents, fetchPopularContent } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
 type Props = { params: Promise<{ locale: string }> };
 
@@ -18,20 +18,18 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, videos, calendarEvents, popular, aiItems] = await Promise.allSettled([
+  const [news, articles, videos, calendarEvents, popular] = await Promise.allSettled([
     fetchOwnNews({ limit: 12, locale }),
     fetchArticles({ limit: 12, locale }),
     fetchVideos({ limit: 5 }),
     fetchCalendarEvents(),
     fetchPopularContent(locale, 7),
-    fetchAIContent({ limit: 6, locale }),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
-  const aiContent = aiItems.status === 'fulfilled' ? aiItems.value : [];
   const hasPopular = popularItems.length > 0;
   // The popular widget occupies grid slots 3+6 (a 2-row span in the
   // rightmost column), so with it present only 10 article cells remain;
@@ -144,54 +142,6 @@ export default async function HomePage({ params }: Props) {
 
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />
-
-      {/* AI section */}
-      {aiContent.length > 0 && (
-        <section className="mb-14">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <Zap size={13} className="text-blue-400 shrink-0" fill="currentColor" />
-              <Link href={`/${locale}/ai`} className="hover:text-accent transition-colors">
-                AI
-              </Link>
-            </h2>
-            <Link href={`/${locale}/ai`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
-              {locale === 'ru' ? 'Смотреть все' : 'View all'} <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {aiContent.slice(0, 6).map((item: any) => {
-              const isArticle = item._type === 'article';
-              const href = `/${locale}/${isArticle ? 'articles' : 'news'}/${item.slug.current}`;
-              const date = new Date(item.publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-                day: 'numeric', month: 'short', year: 'numeric',
-              });
-              return (
-                <Link
-                  key={item._id}
-                  href={href}
-                  className="group flex gap-3 bg-card border border-border/70 rounded-xl p-4 shadow-sm hover:border-accent/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  {item.coverImage && (
-                    <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0">
-                      <img src={item.coverImage} alt={item.title} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-1.5 mb-1">
-                      <Zap size={12} className="text-blue-400 shrink-0 mt-0.5" fill="currentColor" />
-                      <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-muted mt-1">{date}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       {/* Videos */}
       <section>
