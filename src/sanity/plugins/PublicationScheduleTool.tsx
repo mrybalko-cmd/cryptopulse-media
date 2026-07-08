@@ -20,12 +20,20 @@ type DashboardData = {
   drafts: Item[];
   recentTotal: number;
   draftsTotal: number;
+  dailyPublishedDates: string[];
 };
+
+const TREND_DAYS = 30;
 
 // "recent" and "drafts" are sliced for the on-screen list only — the counts
 // shown in the header badges come from the separate count(...) totals below,
 // since data.recent.length/data.drafts.length would otherwise be capped at
 // the slice size regardless of how many items actually exist.
+//
+// "dailyPublishedDates" powers the per-day trend chart — fetched separately
+// (bounded by $windowStart) rather than derived from "recent" because
+// "recent" is capped at 60 items and would silently under-count days once
+// publishing volume exceeds that within the trend window.
 const QUERY = `{
   "scheduled": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now()] | order(publishedAt asc) {
     _id, _type, title, language, publishedAt
@@ -37,7 +45,8 @@ const QUERY = `{
   "drafts": *[_type in ["news", "article"] && _id in path("drafts.**")] | order(_updatedAt desc) [0...15] {
     _id, _type, title, language, _updatedAt
   },
-  "draftsTotal": count(*[_type in ["news", "article"] && _id in path("drafts.**")])
+  "draftsTotal": count(*[_type in ["news", "article"] && _id in path("drafts.**")]),
+  "dailyPublishedDates": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $windowStart].publishedAt
 }`;
 
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
@@ -115,6 +124,85 @@ function groupByDate(items: Item[], field: 'publishedAt' | '_updatedAt' = 'publi
 
 function docHref(item: Item) {
   return `/studio/intent/edit/id=${item._id};type=${item._type}/`;
+}
+
+type DayCount = { day: Date; key: string; count: number };
+
+function buildDailyCounts(dates: string[], days: number): DayCount[] {
+  const counts = new Map<string, number>();
+  dates.forEach(iso => {
+    const key = toDateKey(iso);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (days - 1 - i));
+    const key = toDateKey(d.toISOString());
+    return { day: d, key, count: counts.get(key) || 0 };
+  });
+}
+
+// ── Daily trend chart ─────────────────────────────────────────────────────────
+
+function DailyTrendChart({ data }: { data: DayCount[] }) {
+  const max = Math.max(1, ...data.map(d => d.count));
+  const total = data.reduce((s, d) => s + d.count, 0);
+  const avg = data.length ? (total / data.length).toFixed(1) : '0';
+  const todayKey = toDateKey(new Date().toISOString());
+
+  return (
+    <Card padding={4} radius={3} shadow={1}>
+      <Flex align="center" justify="space-between" marginBottom={3} style={{ flexWrap: 'wrap', gap: 12 }}>
+        <Flex align="center" gap={2}>
+          <Box style={{ color: '#15803D' }}><CheckmarkIcon /></Box>
+          <Text size={1} weight="bold">Динамика публикаций — последние {data.length} дн.</Text>
+        </Flex>
+        <Flex gap={4} align="center">
+          <Text size={1} muted>
+            Всего: <Text as="span" size={1} weight="semibold">{total}</Text>
+          </Text>
+          <Text size={1} muted>
+            В среднем: <Text as="span" size={1} weight="semibold">{avg}/день</Text>
+          </Text>
+        </Flex>
+      </Flex>
+      <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
+        <Flex gap={1} align="flex-end" style={{ minWidth: 'max-content', height: 130 }}>
+          {data.map(({ day, key, count }) => {
+            const isToday = key === todayKey;
+            const barHeight = count === 0 ? 2 : Math.max(6, (count / max) * 88);
+            return (
+              <Flex
+                key={key}
+                direction="column"
+                align="center"
+                justify="flex-end"
+                style={{ minWidth: 24, height: '100%' }}
+                title={`${fmtDayFull(day)}: ${count} опубликовано`}
+              >
+                <Text size={0} weight="semibold" style={{ marginBottom: 2, height: 14, color: count > 0 ? 'inherit' : 'transparent' }}>
+                  {count}
+                </Text>
+                <Box
+                  style={{
+                    width: 14,
+                    height: barHeight,
+                    borderRadius: 3,
+                    background: count > 0 ? (isToday ? '#2276FC' : '#15803D') : 'var(--card-border-color)',
+                  }}
+                />
+                <Text size={0} muted style={{ marginTop: 4, fontSize: 9, whiteSpace: 'nowrap' }}>
+                  {day.getDate()}.{String(day.getMonth() + 1).padStart(2, '0')}
+                </Text>
+              </Flex>
+            );
+          })}
+        </Flex>
+      </Box>
+    </Card>
+  );
 }
 
 // ── Calendar strip ────────────────────────────────────────────────────────────
@@ -452,7 +540,9 @@ export function PublicationScheduleTool() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await client.fetch<DashboardData>(QUERY);
+      const windowStart = new Date();
+      windowStart.setDate(windowStart.getDate() - TREND_DAYS);
+      const result = await client.fetch<DashboardData>(QUERY, { windowStart: windowStart.toISOString() });
       setData(result);
       setLastUpdated(new Date());
     } catch (e) {
@@ -484,6 +574,7 @@ export function PublicationScheduleTool() {
 
   const scheduledGroups = data ? groupByDate(data.scheduled, 'publishedAt') : [];
   const recentGroups = data ? groupByDate(data.recent, 'publishedAt') : [];
+  const dailyCounts = data ? buildDailyCounts(data.dailyPublishedDates, TREND_DAYS) : [];
 
   return (
     <Box padding={4} style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -568,6 +659,9 @@ export function PublicationScheduleTool() {
               onClose={handleDayClose}
             />
           )}
+
+          {/* Daily publication trend */}
+          <DailyTrendChart data={dailyCounts} />
 
           {/* Main columns (always visible) */}
           <Flex gap={4} align="flex-start" style={{ flexWrap: 'wrap' }}>
