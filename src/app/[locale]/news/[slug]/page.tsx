@@ -15,7 +15,7 @@ import ShareButtons from '@/components/ui/ShareButtons';
 import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
-import { urlFor } from '@/lib/sanityImage';
+import { urlFor, sanityImageTransform } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -32,7 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = news.seo?.metaTitle || news.title;
   const description = truncateDesc(news.seo?.metaDescription || news.excerpt || '');
-  const ogImageUrl = news.seoOgImageUrl || news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
+  const ogImageUrl = news.seoOgImageUrl
+    || sanityImageTransform(news.coverImage, { width: 1200, format: 'jpg' })
+    || `https://cryptopulse.media/${locale}/opengraph-image`;
   const canonicalUrl = news.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/news/${slug}`;
   const translationLang = news.translation?.language;
   const translationSlug = news.translation?.slug;
@@ -143,7 +145,14 @@ export default async function NewsDetailPage({ params }: Props) {
       {/* Cover */}
       {news.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image src={news.coverImage} alt={news.coverImageAlt || news.title} fill className="object-cover" priority sizes="(min-width: 1024px) 768px, 100vw" />
+          <Image
+            src={sanityImageTransform(news.coverImage, { width: 1536 })!}
+            alt={news.coverImageAlt || news.title}
+            fill
+            className="object-cover"
+            priority
+            unoptimized
+          />
         </div>
       )}
 

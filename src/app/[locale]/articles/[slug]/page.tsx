@@ -15,7 +15,7 @@ import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { urlFor } from '@/lib/sanityImage';
+import { urlFor, sanityImageTransform } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -32,7 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = article.seo?.metaTitle || article.title;
   const description = truncateDesc(article.seo?.metaDescription || article.excerpt || '');
-  const ogImageUrl = article.seoOgImageUrl || article.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`;
+  const ogImageUrl = article.seoOgImageUrl
+    || sanityImageTransform(article.coverImage, { width: 1200, format: 'jpg' })
+    || `https://cryptopulse.media/${locale}/opengraph-image`;
   const canonicalUrl = article.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/articles/${slug}`;
   const translationLang = article.translation?.language;
   const translationSlug = article.translation?.slug;
@@ -143,7 +145,14 @@ export default async function ArticlePage({ params }: Props) {
       {/* Cover */}
       {article.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill className="object-cover" priority sizes="(min-width: 1024px) 768px, 100vw" />
+          <Image
+            src={sanityImageTransform(article.coverImage, { width: 1536 })!}
+            alt={article.coverImageAlt || article.title}
+            fill
+            className="object-cover"
+            priority
+            unoptimized
+          />
         </div>
       )}
 
