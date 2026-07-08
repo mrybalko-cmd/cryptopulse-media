@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const definition = term.definition[loc];
 
   const title = isRu
-    ? `${name} — что это такое в крипто? | Глоссарий`
-    : `${name} — What Is It in Crypto? | Glossary`;
+    ? `${name} — что это такое в крипто?`
+    : `${name} — What Is It in Crypto?`;
   const description = definition.slice(0, 160);
 
   return {
