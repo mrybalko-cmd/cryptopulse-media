@@ -18,8 +18,14 @@ type DashboardData = {
   scheduled: Item[];
   recent: Item[];
   drafts: Item[];
+  recentTotal: number;
+  draftsTotal: number;
 };
 
+// "recent" and "drafts" are sliced for the on-screen list only — the counts
+// shown in the header badges come from the separate count(...) totals below,
+// since data.recent.length/data.drafts.length would otherwise be capped at
+// the slice size regardless of how many items actually exist.
 const QUERY = `{
   "scheduled": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now()] | order(publishedAt asc) {
     _id, _type, title, language, publishedAt
@@ -27,9 +33,11 @@ const QUERY = `{
   "recent": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) [0...60] {
     _id, _type, title, language, publishedAt
   },
+  "recentTotal": count(*[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()]),
   "drafts": *[_type in ["news", "article"] && _id in path("drafts.**")] | order(_updatedAt desc) [0...15] {
     _id, _type, title, language, _updatedAt
-  }
+  },
+  "draftsTotal": count(*[_type in ["news", "article"] && _id in path("drafts.**")])
 }`;
 
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
@@ -471,8 +479,8 @@ export function PublicationScheduleTool() {
   }, []);
 
   const scheduledCount = data?.scheduled.length ?? 0;
-  const recentCount = data?.recent.length ?? 0;
-  const draftsCount = data?.drafts.length ?? 0;
+  const recentCount = data?.recentTotal ?? 0;
+  const draftsCount = data?.draftsTotal ?? 0;
 
   const scheduledGroups = data ? groupByDate(data.scheduled, 'publishedAt') : [];
   const recentGroups = data ? groupByDate(data.recent, 'publishedAt') : [];
