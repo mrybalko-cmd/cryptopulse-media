@@ -46,6 +46,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${BASE}/${locale}`,
     },
     twitter: { card: 'summary_large_image' },
+    // Default for indexable pages. A page-level `robots` (e.g. the noindex,
+    // follow on paginated /page/[n] routes) replaces this wholesale rather
+    // than merging — previously this was also a hardcoded <meta> tag in the
+    // layout's raw <head>, which Next's metadata API can't see or dedupe,
+    // so indexed and noindex pages alike ended up with two robots tags.
+    robots: { 'max-snippet': -1, 'max-image-preview': 'large', 'max-video-preview': -1 },
   };
 }
 
@@ -82,7 +88,6 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="alternate" type="application/rss+xml" title="CryptoPulse.media" href="/rss.xml" />
-        <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
         {process.env.GOOGLE_PUBLISHER_CENTER_TOKEN && (
           <meta name="google-site-verification" content={process.env.GOOGLE_PUBLISHER_CENTER_TOKEN} />
