@@ -21,8 +21,9 @@ export interface UnifiedNewsItem {
 export async function fetchOwnNews({
   limit = 30,
   locale = 'ru',
-}: { limit?: number; locale?: string } = {}): Promise<UnifiedNewsItem[]> {
-  const cms = await fetchSanityNews({ limit, locale });
+  offset = 0,
+}: { limit?: number; locale?: string; offset?: number } = {}): Promise<UnifiedNewsItem[]> {
+  const cms = await fetchSanityNews({ limit, locale, offset });
   return (cms || []).map((n: any) => ({
     id: n._id,
     title: n.title,

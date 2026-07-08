@@ -31,18 +31,19 @@ interface FetchArticlesOptions {
   limit?: number;
   locale?: string;
   slug?: string;
+  offset?: number;
 }
 
-export async function fetchArticles({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
+export async function fetchArticles({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {
     return await client.fetch(
-      `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
+      `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
         _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,
-      { locale, limit }
+      { locale, offset, end: offset + limit }
     );
   } catch {
     return [];
@@ -72,15 +73,15 @@ export const fetchArticleBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
-export async function fetchSanityNews({ limit = 10, locale = 'ru' }: FetchArticlesOptions = {}) {
+export async function fetchSanityNews({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {
     return await client.fetch(
-      `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [0...$limit] {
+      `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
         _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views,
         "coverImage": coverImage.asset->url
       }`,
-      { locale, limit }
+      { locale, offset, end: offset + limit }
     );
   } catch {
     return [];

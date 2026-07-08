@@ -143,7 +143,7 @@ export default async function ArticlePage({ params }: Props) {
       {/* Cover */}
       {article.coverImage && (
         <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill className="object-cover" priority sizes="(min-width: 1024px) 65vw, 100vw" />
+          <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill className="object-cover" priority sizes="(min-width: 1024px) 768px, 100vw" />
         </div>
       )}
 

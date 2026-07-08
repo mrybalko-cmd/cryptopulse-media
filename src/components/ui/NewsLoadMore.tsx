@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import NewsTimelineRow from './NewsTimelineRow';
 
@@ -22,6 +23,8 @@ interface Props {
   initialCount: number;
   pageSize?: number;
   lastInitialDay?: string; // YYYY-MM-DD — to suppress duplicate day header on first loaded batch
+  nextPage: number; // page number the crawlable "load more" link points to
+  hasNext: boolean; // whether the server already knows there's more beyond this page
 }
 
 function toDayKey(isoOrMs: string | number): string {
@@ -50,11 +53,12 @@ function groupByDay(items: NewsItem[]): { day: string; items: NewsItem[] }[] {
   return [...map.entries()].map(([day, items]) => ({ day, items }));
 }
 
-export default function NewsLoadMore({ locale, initialCount, pageSize = 20, lastInitialDay }: Props) {
+export default function NewsLoadMore({ locale, initialCount, pageSize = 20, lastInitialDay, nextPage, hasNext }: Props) {
   const [allLoaded, setAllLoaded] = useState<NewsItem[]>([]);
   const [offset, setOffset] = useState(initialCount);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(hasNext);
+  const [page, setPage] = useState(nextPage);
   const isRu = locale === 'ru';
 
   const loadMore = async () => {
@@ -65,6 +69,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
       if (data.length < pageSize) setHasMore(false);
       setAllLoaded(prev => [...prev, ...data]);
       setOffset(prev => prev + data.length);
+      setPage(prev => prev + 1);
     } catch {
       // silent
     } finally {
@@ -114,9 +119,10 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
 
       {hasMore && (
         <div className="flex justify-center mt-8">
-          <button
-            onClick={loadMore}
-            disabled={loading}
+          <Link
+            href={`/${locale}/news/page/${page}`}
+            onClick={(e) => { e.preventDefault(); if (!loading) loadMore(); }}
+            aria-disabled={loading}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-medium border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors disabled:opacity-50"
           >
             {loading ? (
@@ -127,7 +133,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
             ) : (
               isRu ? 'Загрузить ещё' : 'Load more'
             )}
-          </button>
+          </Link>
         </div>
       )}
     </>

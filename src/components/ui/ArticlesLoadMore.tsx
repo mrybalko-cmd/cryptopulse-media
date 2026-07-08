@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import ArticleCard from './ArticleCard';
 
@@ -21,13 +22,16 @@ interface Props {
   locale: string;
   initialCount: number;
   pageSize?: number;
+  nextPage: number; // page number the crawlable "load more" link points to
+  hasNext: boolean; // whether the server already knows there's more beyond this page
 }
 
-export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15 }: Props) {
+export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15, nextPage, hasNext }: Props) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [offset, setOffset] = useState(initialCount);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(hasNext);
+  const [page, setPage] = useState(nextPage);
 
   const loadMore = async () => {
     setLoading(true);
@@ -37,6 +41,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15 }
       if (data.length < pageSize) setHasMore(false);
       setArticles(prev => [...prev, ...data]);
       setOffset(prev => prev + data.length);
+      setPage(prev => prev + 1);
     } catch {
       // silent
     } finally {
@@ -70,9 +75,10 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15 }
 
       {hasMore && (
         <div className="flex justify-center mt-8">
-          <button
-            onClick={loadMore}
-            disabled={loading}
+          <Link
+            href={`/${locale}/articles/page/${page}`}
+            onClick={(e) => { e.preventDefault(); if (!loading) loadMore(); }}
+            aria-disabled={loading}
             className="flex items-center gap-2 px-6 py-2.5 text-sm font-medium border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors disabled:opacity-50"
           >
             {loading ? (
@@ -83,7 +89,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15 }
             ) : (
               isRu ? 'Загрузить ещё' : 'Load more'
             )}
-          </button>
+          </Link>
         </div>
       )}
     </>
