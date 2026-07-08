@@ -48,6 +48,11 @@ export async function POST(request: NextRequest) {
 
   if (type === 'article' && slug) {
     revalidateTag('articles', { expire: 0 });
+    // Ping tells Google to re-fetch the sitemap, but that's pointless if our
+    // own ISR cache still serves the pre-publish version for up to 5 min —
+    // bust it here so the ping actually reflects the new item immediately.
+    revalidatePath('/sitemap.xml');
+    revalidatePath('/news-sitemap.xml');
     if (locale) {
       revalidatePath(`/${locale}/articles/${slug}`);
       revalidatePath(`/${locale}`, 'page');
@@ -67,6 +72,8 @@ export async function POST(request: NextRequest) {
     revalidatePath('/en/ai', 'page');
   } else if (type === 'news' && slug) {
     revalidateTag('news', { expire: 0 });
+    revalidatePath('/sitemap.xml');
+    revalidatePath('/news-sitemap.xml');
     if (locale) {
       revalidatePath(`/${locale}/news/${slug}`);
       revalidatePath(`/${locale}`, 'page');
