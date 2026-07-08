@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
+import { sanityImageTransform } from '@/lib/sanityImage';
 
 
 interface NewsCardProps {
@@ -55,12 +56,11 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
       {imageUrl && !imgError && (
         <div className="relative h-32 overflow-hidden bg-card">
           <Image
-            src={imageUrl}
+            src={imageUrl.includes('cdn.sanity.io') ? sanityImageTransform(imageUrl, { width: 640 })! : imageUrl}
             alt={title}
             fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            unoptimized={!imageUrl.includes('cdn.sanity.io')}
+            unoptimized
             onError={() => setImgError(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />

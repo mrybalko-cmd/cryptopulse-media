@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Zap, Clock, Eye, ArrowRight, Calendar } from 'lucide-react';
 import { fetchAIContent } from '@/lib/sanity';
 import { buildOg, BASE } from '@/lib/metadata';
+import { sanityImageTransform } from '@/lib/sanityImage';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -159,11 +160,11 @@ function AIArticleCard({ item, locale }: { item: any; locale: string }) {
         {item.coverImage ? (
           <>
             <Image
-              src={item.coverImage}
+              src={sanityImageTransform(item.coverImage, { width: 1280 })!}
               alt={item.title}
               fill
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
               className="object-cover group-hover:scale-105 transition-transform duration-500"
+              unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
           </>

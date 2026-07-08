@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ArrowRight, Eye, Zap } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
+import { sanityImageTransform } from '@/lib/sanityImage';
 
 interface ArticleCardProps {
   title: string;
@@ -35,12 +36,12 @@ export default function ArticleCard({
       {coverImage && (
         <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-36 sm:h-40 md:h-44'}`}>
           <Image
-            src={coverImage}
+            src={sanityImageTransform(coverImage, { width: 1280 })!}
             alt={coverImageAlt || title}
             fill
-            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             priority={priority}
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
           {badge && badge !== 'none' && (
