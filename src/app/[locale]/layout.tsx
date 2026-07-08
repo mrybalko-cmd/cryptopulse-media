@@ -11,6 +11,7 @@ import '../globals.css';
 
 const BASE = 'https://cryptopulse.media';
 const GA_ID = 'G-8YJT9B6XFV';
+const AHREFS_KEY = '9PVWiRWYIPxrsY1xzgp+vA';
 
 type Props = {
   children: React.ReactNode;
@@ -107,6 +108,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         </NextIntlClientProvider>
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
         <Script id="ga-init" strategy="lazyOnload">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}</Script>
+        <Script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} strategy="lazyOnload" />
       </body>
     </html>
   );
