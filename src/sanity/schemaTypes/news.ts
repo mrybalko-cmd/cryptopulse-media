@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { LockedSlugInput } from '../components/LockedSlugInput';
 
 export const newsType = defineType({
   name: 'news',
@@ -43,6 +44,7 @@ export const newsType = defineType({
         },
       },
       validation: Rule => Rule.required(),
+      components: { input: LockedSlugInput },
     }),
     defineField({
       name: 'excerpt',
