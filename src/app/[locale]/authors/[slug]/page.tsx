@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!author) return {};
   const isRu = locale === 'ru';
   const role = (isRu ? author.roleRu : author.roleEn) || '';
-  const title = `${author.name}${role ? ` — ${role}` : ''} | CryptoPulse.media`;
+  const title = `${author.name}${role ? ` — ${role}` : ''}`;
   const bio = isRu ? author.bioRu : author.bioEn;
   const description = bio
     ? bio.slice(0, 155)

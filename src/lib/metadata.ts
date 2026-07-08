@@ -28,6 +28,19 @@ export function truncateDesc(text: string, max = 155): string {
 }
 
 /**
+ * Truncates a page title so it stays readable once the root layout's
+ * `title.template` appends " | CryptoPulse.media" (20 chars) — pass only the
+ * page-specific text here, never a string that already includes the suffix.
+ */
+export function truncateTitle(text: string, max = 60, suffixLen = 20): string {
+  const budget = max - suffixLen;
+  if (!text || text.length <= budget) return text;
+  const cut = text.slice(0, budget);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > budget * 0.6 ? cut.slice(0, lastSpace) : cut) + '…';
+}
+
+/**
  * Builds the hreflang languages map without x-default duplication.
  *
  * x-default is omitted because for a bilingual EN/RU site it always equals the

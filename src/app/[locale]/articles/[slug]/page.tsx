@@ -16,7 +16,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import { urlFor } from '@/lib/sanityImage';
-import { truncateDesc } from '@/lib/metadata';
+import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationSlug = article.translation?.slug;
 
   return {
-    title,
+    title: truncateTitle(title),
     description,
     keywords: article.seo?.keywords,
     ...(article.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),

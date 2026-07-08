@@ -57,7 +57,9 @@ export async function POST(request: NextRequest) {
       revalidatePath('/en/articles/[slug]', 'page');
       revalidatePath('/ru', 'page');
       revalidatePath('/en', 'page');
-      urlsToIndex.push(`${BASE}/ru/articles/${slug}`, `${BASE}/en/articles/${slug}`);
+      // No locale given — slug is only valid for one language, so we can't
+      // build the other locale's URL (it has its own translated slug).
+      // Pinging both with this same slug would submit a non-existent URL.
     }
     revalidatePath('/ru/articles', 'page');
     revalidatePath('/en/articles', 'page');
@@ -74,7 +76,9 @@ export async function POST(request: NextRequest) {
       revalidatePath('/en/news/[slug]', 'page');
       revalidatePath('/ru', 'page');
       revalidatePath('/en', 'page');
-      urlsToIndex.push(`${BASE}/ru/news/${slug}`, `${BASE}/en/news/${slug}`);
+      // No locale given — slug is only valid for one language, so we can't
+      // build the other locale's URL (it has its own translated slug).
+      // Pinging both with this same slug would submit a non-existent URL.
     }
     revalidatePath('/ru/news', 'page');
     revalidatePath('/en/news', 'page');

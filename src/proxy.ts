@@ -22,8 +22,17 @@ export function proxy(request: NextRequest) {
   // and ISR entirely. Strip the cookie and restore public caching so Vercel
   // can serve cached HTML to Googlebot and users.
   if (response) {
+    const location = response.headers.get('Location');
+    if (location && response.status === 307) {
+      // Every bare (non-locale-prefixed) path redirects here to add the
+      // locale segment — this mapping never changes per-request, so it's a
+      // permanent redirect. next-intl issues a temporary 307 by default;
+      // reissue it as 308 so crawlers consolidate/drop the bare URL instead
+      // of re-checking it indefinitely.
+      return NextResponse.redirect(new URL(location, request.url), 308);
+    }
     response.headers.delete('Set-Cookie');
-    if (!response.headers.get('Location')) {
+    if (!location) {
       response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     }
   }

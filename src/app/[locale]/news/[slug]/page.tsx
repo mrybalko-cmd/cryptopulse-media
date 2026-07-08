@@ -16,7 +16,7 @@ import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
 import { urlFor } from '@/lib/sanityImage';
-import { truncateDesc } from '@/lib/metadata';
+import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationSlug = news.translation?.slug;
 
   return {
-    title,
+    title: truncateTitle(title),
     description,
     keywords: news.seo?.keywords,
     ...(news.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),
