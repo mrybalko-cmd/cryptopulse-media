@@ -414,32 +414,46 @@ export const fetchAuthorBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS }
 );
 
-export const fetchAuthorContent = unstable_cache(
-  async (authorSlug: string, locale: string) => {
-    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { articles: [], news: [] };
+export interface AuthorFeedItem {
+  _type: 'article' | 'news';
+  _id: string;
+  title: string;
+  excerpt?: string;
+  slug: { current: string };
+  publishedAt: string;
+  readingTime?: number;
+  badge?: string;
+  views?: number;
+  likes?: number;
+  coverImage?: string;
+  coverImageAlt?: string;
+}
+
+// Articles and news are merged into a single chronological feed (not two
+// separately-paginated sections) so an author's page count only depends on
+// their total output, not on hitting a per-type page boundary at different
+// times — see fetchAuthorFeed's pagination.
+export const fetchAuthorFeed = unstable_cache(
+  async (authorSlug: string, locale: string, limit = 20, offset = 0): Promise<{ items: AuthorFeedItem[]; total: number }> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { items: [], total: 0 };
     try {
-      const [articles, news] = await Promise.all([
-        client.fetch(
-          `*[_type == "article" && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...20] {
-            _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
-            "coverImage": coverImage.asset->url
-          }`,
-          { slug: authorSlug, locale }
-        ),
-        client.fetch(
-          `*[_type == "news" && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...20] {
-            _id, title, slug, publishedAt, views,
-            "coverImage": coverImage.asset->url
-          }`,
-          { slug: authorSlug, locale }
-        ),
-      ]);
-      return { articles, news };
+      const result = await client.fetch(
+        `{
+          "items": *[_type in ["article", "news"] && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
+            _type, _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
+            "coverImage": coverImage.asset->url,
+            "coverImageAlt": coverImage.alt
+          },
+          "total": count(*[_type in ["article", "news"] && author->slug.current == $slug && language == $locale && publishedAt <= now()])
+        }`,
+        { slug: authorSlug, locale, offset, end: offset + limit }
+      );
+      return result;
     } catch {
-      return { articles: [], news: [] };
+      return { items: [], total: 0 };
     }
   },
-  ['fetchAuthorContent'],
+  ['fetchAuthorFeed'],
   { revalidate: READ_CACHE_SECONDS }
 );
 
