@@ -113,13 +113,6 @@ export default async function NewsDetailPage({ params }: Props) {
       : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
     publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
-    ...(news.likes > 0 && {
-      interactionStatistic: {
-        '@type': 'InteractionCounter',
-        interactionType: 'https://schema.org/LikeAction',
-        userInteractionCount: news.likes,
-      },
-    }),
   };
 
   const breadcrumbLd = {
