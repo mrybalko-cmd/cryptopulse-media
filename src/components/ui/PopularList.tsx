@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Flame, Eye, Heart } from 'lucide-react';
+import { Flame, Eye } from 'lucide-react';
 import type { PopularItem } from '@/lib/sanity';
 
 export default function PopularList({ items, locale }: { items: PopularItem[]; locale: string }) {
@@ -24,17 +24,9 @@ export default function PopularList({ items, locale }: { items: PopularItem[]; l
               <h3 className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-accent transition-colors">
                 {item.title}
               </h3>
-              <p className="flex items-center gap-2 text-[11px] text-muted mt-1">
-                <span className="flex items-center gap-1">
-                  <Eye size={10} />
-                  {item.views}
-                </span>
-                {item.likes > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Heart size={10} />
-                    {item.likes}
-                  </span>
-                )}
+              <p className="flex items-center gap-1 text-[11px] text-muted mt-1">
+                <Eye size={10} />
+                {item.views} {isRu ? 'просмотров' : 'views'}
               </p>
             </div>
           </Link>

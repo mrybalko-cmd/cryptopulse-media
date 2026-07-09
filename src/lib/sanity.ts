@@ -373,7 +373,6 @@ export interface PopularItem {
   title: string;
   slug: string;
   views: number;
-  likes: number;
 }
 
 // ── Authors ──────────────────────────────────────────────────────────────────
@@ -471,13 +470,9 @@ export const fetchPopularContent = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        // A like is a deliberate action (worth far more than a passive pageview),
-        // so it's weighted 10x views when ranking "Popular" — tune LIKE_WEIGHT
-        // here if that balance ever needs to shift.
-        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] {
-          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0), "likes": coalesce(likes, 0),
-          "score": coalesce(views, 0) + coalesce(likes, 0) * 10
-        } | order(score desc, publishedAt desc) [0...$limit]`,
+        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] | order(coalesce(views, 0) desc, publishedAt desc) [0...$limit] {
+          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0)
+        }`,
         { locale, limit }
       );
     } catch {
