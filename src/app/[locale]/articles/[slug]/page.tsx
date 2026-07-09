@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
       publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt || article._updatedAt || article.publishedAt,
+      modifiedTime: article.updatedAt || article.publishedAt,
       ...(article.author?.slug && {
         authors: [`https://cryptopulse.media/${locale}/authors/${article.author.slug}`],
       }),
@@ -104,7 +104,7 @@ export default async function ArticlePage({ params }: Props) {
     url: `https://cryptopulse.media/${locale}/articles/${slug}`,
     image: [article.seoOgImageUrl || article.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
     datePublished: article.publishedAt,
-    dateModified: article.updatedAt || article._updatedAt || article.publishedAt,
+    dateModified: article.updatedAt || article.publishedAt,
     inLanguage: locale,
     ...(wordCount > 0 && { wordCount }),
     author: article.author
