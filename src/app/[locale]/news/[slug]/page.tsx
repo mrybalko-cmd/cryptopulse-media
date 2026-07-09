@@ -12,6 +12,7 @@ import AuthorCard from '@/components/ui/AuthorCard';
 import { fetchNewsBySlug, fetchRelatedNews } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
@@ -112,6 +113,13 @@ export default async function NewsDetailPage({ params }: Props) {
       : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
     publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
+    ...(news.likes > 0 && {
+      interactionStatistic: {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/LikeAction',
+        userInteractionCount: news.likes,
+      },
+    }),
   };
 
   const breadcrumbLd = {
@@ -200,9 +208,12 @@ export default async function NewsDetailPage({ params }: Props) {
             </a>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          <Eye size={12} />
-          <span>{news.views || 0}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <Eye size={12} />
+            <span>{news.views || 0}</span>
+          </div>
+          <LikeButton id={news._id} locale={locale} initialLikes={news.likes || 0} />
         </div>
       </div>
 

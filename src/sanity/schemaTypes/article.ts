@@ -149,6 +149,14 @@ export const articleType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'likes',
+      title: 'Likes',
+      type: 'number',
+      readOnly: true,
+      initialValue: 0,
+      description: 'Reader like counter, toggled from the like button on the article page',
+    }),
+    defineField({
       name: 'author',
       title: 'Автор / Author',
       type: 'reference',

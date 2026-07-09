@@ -27,6 +27,21 @@ export async function incrementViews(id: string) {
   }
 }
 
+export async function setLike(id: string, liked: boolean): Promise<number | null> {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return null;
+  try {
+    const doc = await writeClient
+      .patch(id)
+      .setIfMissing({ likes: 0 })
+      .inc({ likes: liked ? 1 : -1 })
+      .commit({ autoGenerateArrayKeys: false });
+    const likes = typeof doc.likes === 'number' ? doc.likes : 0;
+    return Math.max(0, likes);
+  } catch {
+    return null;
+  }
+}
+
 interface FetchArticlesOptions {
   limit?: number;
   locale?: string;
@@ -56,7 +71,7 @@ export const fetchArticleBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, topic, views, seo, commentsEnabled, updatedAt,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, topic, views, likes, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
@@ -154,7 +169,7 @@ export const fetchNewsBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, topic, views, seo, commentsEnabled, updatedAt,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, topic, views, likes, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,

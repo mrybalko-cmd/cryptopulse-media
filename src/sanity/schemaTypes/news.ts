@@ -219,6 +219,14 @@ export const newsType = defineType({
       description: 'Internal view counter, increments automatically on each visit',
     }),
     defineField({
+      name: 'likes',
+      title: 'Likes',
+      type: 'number',
+      readOnly: true,
+      initialValue: 0,
+      description: 'Reader like counter, toggled from the like button on the news page',
+    }),
+    defineField({
       name: 'topic',
       title: 'Тема / Topic',
       type: 'string',

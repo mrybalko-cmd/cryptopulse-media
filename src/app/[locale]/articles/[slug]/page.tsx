@@ -10,6 +10,7 @@ import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
 import { fetchArticleBySlug, fetchRelatedArticles } from '@/lib/sanity';
 import { PortableText } from '@portabletext/react';
 import ShareButtons from '@/components/ui/ShareButtons';
+import LikeButton from '@/components/ui/LikeButton';
 import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
@@ -112,6 +113,13 @@ export default async function ArticlePage({ params }: Props) {
       : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
     publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
+    ...(article.likes > 0 && {
+      interactionStatistic: {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/LikeAction',
+        userInteractionCount: article.likes,
+      },
+    }),
   };
 
   const breadcrumbLd = {
@@ -194,9 +202,12 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          <Eye size={12} />
-          <span>{article.views || 0}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <Eye size={12} />
+            <span>{article.views || 0}</span>
+          </div>
+          <LikeButton id={article._id} locale={locale} initialLikes={article.likes || 0} />
         </div>
       </div>
 
