@@ -16,6 +16,7 @@ export interface UnifiedNewsItem {
   breaking?: boolean;
   ownBadge?: boolean;
   views?: number;
+  likes?: number;
 }
 
 export async function fetchOwnNews({
@@ -38,5 +39,6 @@ export async function fetchOwnNews({
     breaking: !!n.breaking,
     ownBadge: n.ownBadge !== false,
     views: typeof n.views === 'number' ? n.views : undefined,
+    likes: typeof n.likes === 'number' ? n.likes : undefined,
   }));
 }

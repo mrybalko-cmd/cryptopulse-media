@@ -175,6 +175,7 @@ export default async function AuthorPage({ params }: Props) {
                 readingTime={article.readingTime}
                 badge={article.badge}
                 views={article.views}
+                likes={article.likes}
                 locale={locale}
               />
             ))}

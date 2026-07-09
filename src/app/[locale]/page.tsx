@@ -75,6 +75,7 @@ export default async function HomePage({ params }: Props) {
                   breaking={item.breaking}
                   ownBadge={item.ownBadge}
                   views={item.views}
+                  likes={item.likes}
                   aiTopic={item.topic === 'ai'}
                 />
               ))}
@@ -110,6 +111,7 @@ export default async function HomePage({ params }: Props) {
                   readingTime={article.readingTime}
                   badge={article.badge}
                   views={article.views}
+                  likes={article.likes}
                   locale={locale}
                   priority={i < 2}
                 />
@@ -130,6 +132,7 @@ export default async function HomePage({ params }: Props) {
                   readingTime={article.readingTime}
                   badge={article.badge}
                   views={article.views}
+                  likes={article.likes}
                   locale={locale}
                 />
               ))}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, ArrowRight, Eye, Zap } from 'lucide-react';
+import { Clock, ArrowRight, Eye, Heart, Zap } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 import { sanityImageTransform } from '@/lib/sanityImage';
 
@@ -16,12 +16,13 @@ interface ArticleCardProps {
   featured?: boolean;
   badge?: string;
   views?: number;
+  likes?: number;
   priority?: boolean;
   topic?: string;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, priority, topic
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, likes, priority, topic
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -82,6 +83,12 @@ export default function ArticleCard({
               <span className="flex items-center gap-1">
                 <Eye size={11} />
                 {views}
+              </span>
+            )}
+            {typeof likes === 'number' && likes > 0 && (
+              <span className="flex items-center gap-1">
+                <Heart size={11} />
+                {likes}
               </span>
             )}
             <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />

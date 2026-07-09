@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const articles = await client.fetch(
       `*[_type == "article" && language == $locale && publishedAt <= now()]
       | order(publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+        _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,

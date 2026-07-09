@@ -149,6 +149,7 @@ export default async function TopicPage({ params }: Props) {
               readingTime={article.readingTime}
               badge={article.badge}
               views={article.views}
+              likes={article.likes}
               locale={locale}
               priority={i < 2}
             />

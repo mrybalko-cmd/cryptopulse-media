@@ -54,7 +54,7 @@ export async function fetchArticles({ limit = 10, locale = 'ru', offset = 0 }: F
   try {
     return await client.fetch(
       `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+        _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,
@@ -93,7 +93,7 @@ export async function fetchSanityNews({ limit = 10, locale = 'ru', offset = 0 }:
   try {
     return await client.fetch(
       `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views,
+        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views, likes,
         "coverImage": coverImage.asset->url
       }`,
       { locale, offset, end: offset + limit }
@@ -335,7 +335,7 @@ export const fetchRelatedArticles = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && language == $locale && publishedAt <= now() && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
           "coverImage": coverImage.asset->url
         }`,
         { locale, excludeId, limit }
@@ -421,7 +421,7 @@ export const fetchAuthorContent = unstable_cache(
       const [articles, news] = await Promise.all([
         client.fetch(
           `*[_type == "article" && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...20] {
-            _id, title, excerpt, slug, publishedAt, readingTime, badge, views,
+            _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
             "coverImage": coverImage.asset->url
           }`,
           { slug: authorSlug, locale }
@@ -451,7 +451,7 @@ export const fetchArticlesByTopic = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && topic == $topic && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, topic,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes, topic,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt
         }`,
@@ -470,9 +470,13 @@ export const fetchPopularContent = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] | order(coalesce(views, 0) desc, publishedAt desc) [0...$limit] {
-          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0)
-        }`,
+        // A like is a deliberate action (worth far more than a passive pageview),
+        // so it's weighted 10x views when ranking "Popular" — tune LIKE_WEIGHT
+        // here if that balance ever needs to shift.
+        `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] {
+          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0), "likes": coalesce(likes, 0),
+          "score": coalesce(views, 0) + coalesce(likes, 0) * 10
+        } | order(score desc, publishedAt desc) [0...$limit]`,
         { locale, limit }
       );
     } catch {
@@ -480,5 +484,61 @@ export const fetchPopularContent = unstable_cache(
     }
   },
   ['fetchPopularContent'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export interface TopLikedItem {
+  _id: string;
+  title: string;
+  excerpt?: string;
+  slug: { current: string };
+  publishedAt: string;
+  readingTime?: number;
+  badge?: string;
+  views: number;
+  likes: number;
+  topic?: string;
+  coverImage?: string;
+  coverImageAlt?: string;
+  breaking?: boolean;
+  ownBadge?: boolean;
+}
+
+export const fetchTopLikedArticles = unstable_cache(
+  async (locale: string, limit = 30): Promise<TopLikedItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "article" && language == $locale && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc, views desc, publishedAt desc) [0...$limit] {
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes, topic,
+          "coverImage": coverImage.asset->url,
+          "coverImageAlt": coverImage.alt
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchTopLikedArticles'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export const fetchTopLikedNews = unstable_cache(
+  async (locale: string, limit = 30): Promise<TopLikedItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "news" && language == $locale && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc, views desc, publishedAt desc) [0...$limit] {
+          _id, title, slug, publishedAt, views, likes, breaking, ownBadge,
+          "coverImage": coverImage.asset->url
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchTopLikedNews'],
   { revalidate: READ_CACHE_SECONDS }
 );

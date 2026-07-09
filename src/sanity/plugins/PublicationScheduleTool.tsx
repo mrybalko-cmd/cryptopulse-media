@@ -14,6 +14,8 @@ type Item = {
   _updatedAt?: string;
 };
 
+type LikedItem = Item & { likes: number; views: number };
+
 type DashboardData = {
   scheduled: Item[];
   recent: Item[];
@@ -21,6 +23,7 @@ type DashboardData = {
   recentTotal: number;
   draftsTotal: number;
   dailyPublishedDates: string[];
+  topLiked: LikedItem[];
 };
 
 const TREND_DAYS = 30;
@@ -46,7 +49,10 @@ const QUERY = `{
     _id, _type, title, language, _updatedAt
   },
   "draftsTotal": count(*[_type in ["news", "article"] && _id in path("drafts.**")]),
-  "dailyPublishedDates": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $windowStart].publishedAt
+  "dailyPublishedDates": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $windowStart].publishedAt,
+  "topLiked": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc) [0...10] {
+    _id, _type, title, language, publishedAt, "likes": coalesce(likes, 0), "views": coalesce(views, 0)
+  }
 }`;
 
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
@@ -201,6 +207,42 @@ function DailyTrendChart({ data }: { data: DayCount[] }) {
           })}
         </Flex>
       </Box>
+    </Card>
+  );
+}
+
+// ── Top liked ─────────────────────────────────────────────────────────────────
+
+function TopLikedList({ data }: { data: LikedItem[] }) {
+  if (data.length === 0) return null;
+
+  return (
+    <Card padding={4} radius={3} shadow={1}>
+      <Flex align="center" gap={2} marginBottom={3}>
+        <Box style={{ color: '#DC2626' }}>❤</Box>
+        <Text size={1} weight="bold">Топ по лайкам</Text>
+      </Flex>
+      <Stack space={2}>
+        {data.map((item, i) => (
+          <Flex key={item._id} align="center" gap={3} justify="space-between">
+            <Flex align="center" gap={3} style={{ minWidth: 0, flex: 1 }}>
+              <Text size={1} weight="bold" muted style={{ minWidth: 18 }}>{i + 1}</Text>
+              <a href={docHref(item)} style={{ minWidth: 0, flex: 1, textDecoration: 'none', color: 'inherit' }}>
+                <Text size={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+                  {truncate(item.title, 80)}
+                </Text>
+              </a>
+              <Badge tone={item.language === 'ru' ? 'primary' : 'default'} fontSize={0}>
+                {item.language.toUpperCase()}
+              </Badge>
+            </Flex>
+            <Flex align="center" gap={3} style={{ flexShrink: 0 }}>
+              <Text size={1} muted>{item.views} 👁</Text>
+              <Text size={1} weight="semibold" style={{ color: '#DC2626' }}>{item.likes} ❤</Text>
+            </Flex>
+          </Flex>
+        ))}
+      </Stack>
     </Card>
   );
 }
@@ -662,6 +704,9 @@ export function PublicationScheduleTool() {
 
           {/* Daily publication trend */}
           <DailyTrendChart data={dailyCounts} />
+
+          {/* Top liked material */}
+          <TopLikedList data={data.topLiked} />
 
           {/* Main columns (always visible) */}
           <Flex gap={4} align="flex-start" style={{ flexWrap: 'wrap' }}>

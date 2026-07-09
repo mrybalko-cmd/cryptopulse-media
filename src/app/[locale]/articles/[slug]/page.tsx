@@ -312,6 +312,7 @@ export default async function ArticlePage({ params }: Props) {
                 readingTime={related.readingTime}
                 badge={related.badge}
                 views={related.views}
+                likes={related.likes}
                 locale={locale}
               />
             ))}

@@ -4,6 +4,7 @@ import NewsTimelineRow from '@/components/ui/NewsTimelineRow';
 import { TOPIC_META } from '@/lib/topicMeta';
 import type { UnifiedNewsItem } from '@/lib/news';
 import Link from 'next/link';
+import { Flame } from 'lucide-react';
 
 const TZ = 'Europe/Prague';
 
@@ -89,6 +90,15 @@ export default function NewsListingBody({ locale, title, subtitle, items, page, 
             {/* active underline */}
             <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent rounded-full" />
           </span>
+
+          <Link
+            href={`/${locale}/news/popular`}
+            className="relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-medium text-muted hover:text-foreground transition-colors whitespace-nowrap group"
+          >
+            <Flame size={14} className="text-red-600" fill="currentColor" />
+            {isRu ? 'Популярное' : 'Popular'}
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-red-600 opacity-0 group-hover:opacity-60 transition-opacity" />
+          </Link>
 
           {/* Topic tabs */}
           {Object.entries(TOPIC_META)

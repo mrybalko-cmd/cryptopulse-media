@@ -2,6 +2,7 @@ import { BASE } from '@/lib/metadata';
 import ArticleCard from '@/components/ui/ArticleCard';
 import ArticlesLoadMore from '@/components/ui/ArticlesLoadMore';
 import Link from 'next/link';
+import { Flame } from 'lucide-react';
 
 const TOPICS: Record<string, { ru: string; en: string }> = {
   regulation: { ru: 'Регулирование', en: 'Regulation' },
@@ -70,6 +71,13 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
         <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-accent text-background border border-accent">
           {locale === 'ru' ? 'Все' : 'All'}
         </span>
+        <Link
+          href={`/${locale}/articles/popular`}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+        >
+          <Flame size={12} className="text-red-600" fill="currentColor" />
+          {locale === 'ru' ? 'Популярное' : 'Popular'}
+        </Link>
         {Object.entries(TOPICS).map(([key, labels]) => (
           <Link
             key={key}
@@ -96,6 +104,7 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
                 readingTime={article.readingTime}
                 badge={article.badge}
                 views={article.views}
+                likes={article.likes}
                 locale={locale}
                 priority={page === 1 && i < 2}
               />

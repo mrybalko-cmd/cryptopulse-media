@@ -16,6 +16,7 @@ interface Article {
   readingTime?: number;
   badge?: string;
   views?: number;
+  likes?: number;
 }
 
 interface Props {
@@ -67,6 +68,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15, 
               readingTime={article.readingTime}
               badge={article.badge}
               views={article.views}
+              likes={article.likes}
               locale={locale}
             />
           ))}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap, Pin, Eye } from 'lucide-react';
+import { Zap, Pin, Eye, Heart } from 'lucide-react';
 
 interface NewsListItemProps {
   title: string;
@@ -12,10 +12,11 @@ interface NewsListItemProps {
   breaking?: boolean;
   ownBadge?: boolean;
   views?: number;
+  likes?: number;
   aiTopic?: boolean;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, views, aiTopic }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, views, likes, aiTopic }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -61,6 +62,12 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
             <span className="flex items-center gap-1 text-xs text-muted">
               <Eye size={11} />
               {views}
+            </span>
+          )}
+          {!external && typeof likes === 'number' && likes > 0 && (
+            <span className="flex items-center gap-1 text-xs text-muted">
+              <Heart size={11} />
+              {likes}
             </span>
           )}
           {category && (
