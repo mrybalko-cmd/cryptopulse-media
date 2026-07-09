@@ -81,10 +81,10 @@ export default function Header() {
           {/* Theme toggle — desktop only */}
           <ThemeToggle className="hidden md:flex p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
 
-          {/* Language switcher — desktop only */}
+          {/* Language switcher — always visible, including mobile (was reachable only via the burger menu before) */}
           <Link
             href={switchPath}
-            className="hidden md:flex px-3 py-1.5 text-xs font-semibold border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors"
+            className="flex px-2 sm:px-3 py-1.5 text-xs font-semibold border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors"
             hrefLang={otherLocale}
           >
             {t('switchLang')}
@@ -156,15 +156,7 @@ export default function Header() {
               ))}
             </ul>
           </nav>
-          <div className="flex items-center justify-between px-8 py-4 border-t border-border">
-            <Link
-              href={switchPath}
-              onClick={() => setMenuOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-muted border border-border rounded-lg hover:text-foreground transition-colors"
-              hrefLang={otherLocale}
-            >
-              {t('switchLang')}
-            </Link>
+          <div className="flex items-center justify-end px-8 py-4 border-t border-border">
             <ThemeToggle className="p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
           </div>
         </div>
