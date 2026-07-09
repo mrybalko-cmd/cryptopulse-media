@@ -150,99 +150,107 @@ function buildDailyCounts(dates: string[], days: number): DayCount[] {
   });
 }
 
-// ── Daily trend chart ─────────────────────────────────────────────────────────
+// ── Activity panel: daily trend + top liked, side by side ─────────────────────
 
-function DailyTrendChart({ data }: { data: DayCount[] }) {
-  const max = Math.max(1, ...data.map(d => d.count));
-  const total = data.reduce((s, d) => s + d.count, 0);
-  const avg = data.length ? (total / data.length).toFixed(1) : '0';
+function ActivityPanel({ trend, liked }: { trend: DayCount[]; liked: LikedItem[] }) {
+  const max = Math.max(1, ...trend.map(d => d.count));
+  const total = trend.reduce((s, d) => s + d.count, 0);
+  const avg = trend.length ? (total / trend.length).toFixed(1) : '0';
   const todayKey = toDateKey(new Date().toISOString());
 
   return (
     <Card padding={4} radius={3} shadow={1}>
-      <Flex align="center" justify="space-between" marginBottom={3} style={{ flexWrap: 'wrap', gap: 12 }}>
-        <Flex align="center" gap={2}>
-          <Box style={{ color: '#15803D' }}><CheckmarkIcon /></Box>
-          <Text size={1} weight="bold">Динамика публикаций — последние {data.length} дн.</Text>
-        </Flex>
-        <Flex gap={4} align="center">
-          <Text size={1} muted>
-            Всего: <Text as="span" size={1} weight="semibold">{total}</Text>
-          </Text>
-          <Text size={1} muted>
-            В среднем: <Text as="span" size={1} weight="semibold">{avg}/день</Text>
-          </Text>
-        </Flex>
-      </Flex>
-      <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
-        <Flex gap={1} align="flex-end" style={{ minWidth: 'max-content', height: 130 }}>
-          {data.map(({ day, key, count }) => {
-            const isToday = key === todayKey;
-            const barHeight = count === 0 ? 2 : Math.max(6, (count / max) * 88);
-            return (
-              <Flex
-                key={key}
-                direction="column"
-                align="center"
-                justify="flex-end"
-                style={{ minWidth: 24, height: '100%' }}
-                title={`${fmtDayFull(day)}: ${count} опубликовано`}
-              >
-                <Text size={0} weight="semibold" style={{ marginBottom: 2, height: 14, color: count > 0 ? 'inherit' : 'transparent' }}>
-                  {count}
-                </Text>
-                <Box
-                  style={{
-                    width: 14,
-                    height: barHeight,
-                    borderRadius: 3,
-                    background: count > 0 ? (isToday ? '#2276FC' : '#15803D') : 'var(--card-border-color)',
-                  }}
-                />
-                <Text size={0} muted style={{ marginTop: 4, fontSize: 9, whiteSpace: 'nowrap' }}>
-                  {day.getDate()}.{String(day.getMonth() + 1).padStart(2, '0')}
-                </Text>
-              </Flex>
-            );
-          })}
-        </Flex>
-      </Box>
-    </Card>
-  );
-}
-
-// ── Top liked ─────────────────────────────────────────────────────────────────
-
-function TopLikedList({ data }: { data: LikedItem[] }) {
-  if (data.length === 0) return null;
-
-  return (
-    <Card padding={4} radius={3} shadow={1}>
-      <Flex align="center" gap={2} marginBottom={3}>
-        <Box style={{ color: '#DC2626' }}>❤</Box>
-        <Text size={1} weight="bold">Топ по лайкам</Text>
-      </Flex>
-      <Stack space={2}>
-        {data.map((item, i) => (
-          <Flex key={item._id} align="center" gap={3} justify="space-between">
-            <Flex align="center" gap={3} style={{ minWidth: 0, flex: 1 }}>
-              <Text size={1} weight="bold" muted style={{ minWidth: 18 }}>{i + 1}</Text>
-              <a href={docHref(item)} style={{ minWidth: 0, flex: 1, textDecoration: 'none', color: 'inherit' }}>
-                <Text size={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-                  {truncate(item.title, 80)}
-                </Text>
-              </a>
-              <Badge tone={item.language === 'ru' ? 'primary' : 'default'} fontSize={0}>
-                {item.language.toUpperCase()}
-              </Badge>
+      <Flex gap={4} style={{ flexWrap: 'wrap' }}>
+        {/* Daily trend chart */}
+        <Box style={{ flex: '2 1 380px', minWidth: 0 }}>
+          <Flex align="center" justify="space-between" marginBottom={3} style={{ flexWrap: 'wrap', gap: 12 }}>
+            <Flex align="center" gap={2}>
+              <Box style={{ color: '#15803D' }}><CheckmarkIcon /></Box>
+              <Text size={1} weight="bold">Динамика — {trend.length} дн.</Text>
             </Flex>
-            <Flex align="center" gap={3} style={{ flexShrink: 0 }}>
-              <Text size={1} muted>{item.views} 👁</Text>
-              <Text size={1} weight="semibold" style={{ color: '#DC2626' }}>{item.likes} ❤</Text>
+            <Flex gap={3} align="center">
+              <Text size={1} muted>
+                Всего: <Text as="span" size={1} weight="semibold">{total}</Text>
+              </Text>
+              <Text size={1} muted>
+                Среднее: <Text as="span" size={1} weight="semibold">{avg}/день</Text>
+              </Text>
             </Flex>
           </Flex>
-        ))}
-      </Stack>
+          <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
+            <Flex gap={1} align="flex-end" style={{ minWidth: 'max-content', height: 130 }}>
+              {trend.map(({ day, key, count }) => {
+                const isToday = key === todayKey;
+                const barHeight = count === 0 ? 2 : Math.max(6, (count / max) * 88);
+                return (
+                  <Flex
+                    key={key}
+                    direction="column"
+                    align="center"
+                    justify="flex-end"
+                    style={{ minWidth: 24, height: '100%' }}
+                    title={`${fmtDayFull(day)}: ${count} опубликовано`}
+                  >
+                    <Text size={0} weight="semibold" style={{ marginBottom: 2, height: 14, color: count > 0 ? 'inherit' : 'transparent' }}>
+                      {count}
+                    </Text>
+                    <Box
+                      style={{
+                        width: 14,
+                        height: barHeight,
+                        borderRadius: 3,
+                        background: count > 0 ? (isToday ? '#2276FC' : '#15803D') : 'var(--card-border-color)',
+                      }}
+                    />
+                    <Text size={0} muted style={{ marginTop: 4, fontSize: 9, whiteSpace: 'nowrap' }}>
+                      {day.getDate()}.{String(day.getMonth() + 1).padStart(2, '0')}
+                    </Text>
+                  </Flex>
+                );
+              })}
+            </Flex>
+          </Box>
+        </Box>
+
+        {/* Divider */}
+        <Box style={{ width: 1, background: 'var(--card-border-color)', alignSelf: 'stretch' }} />
+
+        {/* Top liked — scrollable so the panel height stays fixed regardless of list length */}
+        <Box style={{ flex: '1 1 280px', minWidth: 240 }}>
+          <Flex align="center" gap={2} marginBottom={3}>
+            <Box style={{ color: '#DC2626' }}>❤</Box>
+            <Text size={1} weight="bold">Топ по лайкам</Text>
+          </Flex>
+          {liked.length > 0 ? (
+            <Stack space={1} style={{ maxHeight: 172, overflowY: 'auto' }}>
+              {liked.map((item, i) => (
+                <a key={item._id} href={docHref(item)} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <Flex
+                    align="center"
+                    gap={2}
+                    style={{ padding: '6px 8px', borderRadius: 6, cursor: 'pointer' }}
+                  >
+                    <Text size={1} weight="bold" muted style={{ minWidth: 16, flexShrink: 0 }}>{i + 1}</Text>
+                    <Box style={{ flex: 1, minWidth: 0 }}>
+                      <Text size={1} style={{ lineHeight: 1.4 }}>
+                        {truncate(item.title || '(без названия)', 60)}
+                      </Text>
+                    </Box>
+                    <Badge tone={item.language === 'ru' ? 'primary' : 'default'} fontSize={0} style={{ flexShrink: 0 }}>
+                      {item.language.toUpperCase()}
+                    </Badge>
+                    <Text size={1} weight="semibold" style={{ color: '#DC2626', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {item.likes} ❤
+                    </Text>
+                  </Flex>
+                </a>
+              ))}
+            </Stack>
+          ) : (
+            <Text size={1} muted>Пока нет лайков</Text>
+          )}
+        </Box>
+      </Flex>
     </Card>
   );
 }
@@ -702,11 +710,8 @@ export function PublicationScheduleTool() {
             />
           )}
 
-          {/* Daily publication trend */}
-          <DailyTrendChart data={dailyCounts} />
-
-          {/* Top liked material */}
-          <TopLikedList data={data.topLiked} />
+          {/* Daily publication trend + top liked, side by side in one compact panel */}
+          <ActivityPanel trend={dailyCounts} liked={data.topLiked} />
 
           {/* Main columns (always visible) */}
           <Flex gap={4} align="flex-start" style={{ flexWrap: 'wrap' }}>
