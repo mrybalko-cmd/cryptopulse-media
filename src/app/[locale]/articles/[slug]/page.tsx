@@ -16,7 +16,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import { urlFor, sanityImageTransform } from '@/lib/sanityImage';
-import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { truncateDesc, truncateTitle, BASE } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -240,14 +240,26 @@ export default async function ArticlePage({ params }: Props) {
               },
               marks: {
                 link: ({ value, children }) => {
-                  const isExternal = value?.href?.startsWith('http');
+                  const href = value?.href ?? '';
+                  const isInternal = href.startsWith('/') || href.startsWith(BASE);
+                  if (isInternal) {
+                    const path = href.startsWith(BASE) ? href.slice(BASE.length) || '/' : href;
+                    return (
+                      <Link
+                        href={path}
+                        className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
+                      >
+                        {children}
+                      </Link>
+                    );
+                  }
                   const relParts = [
                     'noopener', 'noreferrer',
                     ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
                   ];
                   return (
                     <a
-                      href={value?.href}
+                      href={href}
                       target="_blank"
                       rel={relParts.join(' ')}
                       className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
