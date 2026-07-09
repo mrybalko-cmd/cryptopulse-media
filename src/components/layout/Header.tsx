@@ -59,8 +59,18 @@ export default function Header() {
       {/* ── Main bar: logo centered, controls right ────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
 
-        {/* Left — empty (keeps logo centered) */}
-        <div />
+        {/* Left — burger on mobile (moved off the crowded right side), empty spacer on desktop */}
+        <div className="flex items-center">
+          <button
+            className="md:hidden p-2 rounded-lg border border-border text-foreground hover:border-accent transition-colors"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
 
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-2 sm:gap-2.5 group">
@@ -73,11 +83,8 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Right controls */}
+        {/* Right controls — burger moved to the left, so language switcher + search now have room to breathe */}
         <div className="flex items-center justify-end gap-1.5">
-          {/* Search icon — desktop + mobile */}
-          <SiteSearch locale={locale} iconOnly />
-
           {/* Theme toggle — desktop only */}
           <ThemeToggle className="hidden md:flex p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
 
@@ -90,16 +97,8 @@ export default function Header() {
             {t('switchLang')}
           </Link>
 
-          {/* Burger — mobile only */}
-          <button
-            className="md:hidden p-2 rounded-lg border border-border text-foreground hover:border-accent transition-colors"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-          >
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          {/* Search icon — desktop + mobile */}
+          <SiteSearch locale={locale} iconOnly />
         </div>
       </div>
 
