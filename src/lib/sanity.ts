@@ -373,6 +373,7 @@ export interface PopularItem {
   title: string;
   slug: string;
   views: number;
+  likes: number;
 }
 
 // ── Authors ──────────────────────────────────────────────────────────────────
