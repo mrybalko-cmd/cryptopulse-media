@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = news.seo?.metaTitle || news.title;
   const description = truncateDesc(news.seo?.metaDescription || news.excerpt || '');
   const ogImageUrl = news.seoOgImageUrl
-    || sanityImageTransform(news.coverImage, { width: 1200, format: 'jpg' })
+    || sanityImageTransform(news.coverImage, { width: 1200, height: 630, format: 'jpg' })
     || `https://cryptopulse.media/${locale}/opengraph-image`;
   const canonicalUrl = news.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/news/${slug}`;
   const translationLang = news.translation?.language;

@@ -22,12 +22,16 @@ export function urlFor(source: { asset?: { _ref?: string } }) {
  */
 export function sanityImageTransform(
   url: string | undefined | null,
-  { width, format = 'webp', quality = 75 }: { width: number; format?: 'webp' | 'jpg'; quality?: number }
+  { width, height, format = 'webp', quality = 75 }: { width: number; height?: number; format?: 'webp' | 'jpg'; quality?: number }
 ): string | undefined {
   if (!url) return url ?? undefined;
   try {
     const u = new URL(url);
     u.searchParams.set('w', String(width));
+    if (height) {
+      u.searchParams.set('h', String(height));
+      u.searchParams.set('fit', 'crop');
+    }
     u.searchParams.set('fm', format);
     u.searchParams.set('q', String(quality));
     return u.toString();
