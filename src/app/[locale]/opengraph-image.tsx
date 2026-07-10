@@ -26,19 +26,18 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
               width: 56,
               height: 56,
               borderRadius: 12,
-              background: '#0891b2',
+              background: '#dc2626',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 32,
-              color: '#0a0a0a',
-              fontWeight: 700,
             }}
           >
-            ⚡
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#facc15">
+              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+            </svg>
           </div>
           <div style={{ display: 'flex', fontSize: 36, fontWeight: 700, color: '#ffffff' }}>
-            CryptoPulse<span style={{ color: '#0891b2' }}>.media</span>
+            CryptoPulse<span style={{ color: '#06b6d4' }}>.media</span>
           </div>
         </div>
         <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#ffffff', maxWidth: 900, lineHeight: 1.2 }}>
