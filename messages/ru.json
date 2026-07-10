@@ -63,7 +63,9 @@
     "articles": "Статьи",
     "interviews": "Интервью",
     "authors": "Наши авторы",
-    "aboutUs": "О нас"
+    "aboutUs": "О нас",
+    "followX": "Читайте нас в X",
+    "followXHandle": "Крипто-новости и аналитика каждый день"
   },
   "legal": {
     "privacyTitle": "Политика конфиденциальности",

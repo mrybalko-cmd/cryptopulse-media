@@ -1,7 +1,17 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Zap, Mail } from 'lucide-react';
-import { CONTACT_EMAIL } from '@/lib/constants';
+import { CONTACT_EMAIL, X_PROFILE_URL } from '@/lib/constants';
+
+// lucide-react's "X" icon is a generic close/times glyph, not the X (Twitter)
+// brand mark — render the real logo shape directly instead.
+function XLogo({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
 
 export default async function Footer() {
   const t = await getTranslations('footer');
@@ -24,7 +34,21 @@ export default async function Footer() {
                 CryptoPulse<span className="text-accent">.media</span>
               </span>
             </Link>
-            <p className="text-muted text-xs leading-relaxed max-w-52">{t('tagline')}</p>
+            <p className="text-muted text-xs leading-relaxed max-w-52 mb-4">{t('tagline')}</p>
+            <a
+              href={X_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 hover:border-accent/40 hover:bg-foreground/5 transition-colors group max-w-52"
+            >
+              <span className="w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
+                <XLogo size={14} />
+              </span>
+              <span className="flex flex-col leading-tight min-w-0">
+                <span className="text-xs font-semibold text-foreground truncate">{t('followX')}</span>
+                <span className="text-[11px] text-muted truncate">{t('followXHandle')}</span>
+              </span>
+            </a>
           </div>
 
           {/* Col 2 — Content */}

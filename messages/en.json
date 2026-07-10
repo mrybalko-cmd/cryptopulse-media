@@ -63,7 +63,9 @@
     "articles": "Articles",
     "interviews": "Interviews",
     "authors": "Our Authors",
-    "aboutUs": "About"
+    "aboutUs": "About",
+    "followX": "Follow us on X",
+    "followXHandle": "Daily crypto news & analysis"
   },
   "legal": {
     "privacyTitle": "Privacy Policy",
