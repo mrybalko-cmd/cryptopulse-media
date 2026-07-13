@@ -24,13 +24,14 @@ interface ArticleCardProps {
   priority?: boolean;
   topic?: string;
   // Bottom-to-top gradient fade over the cover image, blending it into the
-  // card background — purely decorative (no text sits on the image), so it
-  // can be turned off per-instance without affecting badge/topic placement.
+  // card background — purely decorative (no text sits on the image).
+  // Defaults off site-wide per user preference; kept as an escape hatch
+  // rather than deleted outright in case a future usage wants it back.
   imageFade?: boolean;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = true
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = false
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'

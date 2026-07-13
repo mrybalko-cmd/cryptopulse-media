@@ -82,7 +82,6 @@ export default async function HomePage({ params }: Props) {
             likes={heroArticles[0].likes}
             locale={locale}
             priority
-            imageFade={false}
           />
         )}
 
@@ -140,7 +139,6 @@ export default async function HomePage({ params }: Props) {
             views={heroArticles[1].views}
             likes={heroArticles[1].likes}
             locale={locale}
-            imageFade={false}
           />
         )}
 
@@ -237,8 +235,7 @@ export default async function HomePage({ params }: Props) {
                     likes={article.likes}
                     locale={locale}
                     priority={i < 2}
-                    imageFade={false}
-                  />
+                          />
                 ))}
                 {hasPopular && (
                   <div className="lg:row-span-2">
