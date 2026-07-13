@@ -14,6 +14,10 @@ interface ArticleCardProps {
   readingTime?: number;
   locale: string;
   featured?: boolean;
+  // Smaller image/type-scale for dense grids (homepage rows 2/4/5) — same
+  // card, same hover/badge/link behavior, just less vertical footprint so
+  // more articles fit per row without a second component to keep in sync.
+  compact?: boolean;
   badge?: string;
   views?: number;
   likes?: number;
@@ -22,7 +26,7 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, badge, views, likes, priority, topic
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -32,12 +36,12 @@ export default function ArticleCard({
   return (
     <Link
       href={`/${locale}/articles/${slug}`}
-      className={`group block bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
+      className={`group block bg-card border border-border/70 ${compact ? 'rounded-lg' : 'rounded-xl'} overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
     >
       {coverImage && (
-        <div className={`relative overflow-hidden ${featured ? 'h-52' : 'h-36 sm:h-40 md:h-44'}`}>
+        <div className={`relative overflow-hidden ${featured ? 'h-52' : compact ? 'h-20 sm:h-24' : 'h-36 sm:h-40 md:h-44'}`}>
           <Image
-            src={sanityImageTransform(coverImage, { width: 1280 })!}
+            src={sanityImageTransform(coverImage, { width: compact ? 400 : 1280 })!}
             alt={coverImageAlt || title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -45,32 +49,32 @@ export default function ArticleCard({
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
-          {badge && badge !== 'none' && (
+          {badge && badge !== 'none' && !compact && (
             <div className="absolute top-2 left-2">
               <ArticleBadge badge={badge} locale={locale} />
             </div>
           )}
           {topic === 'ai' && (
-            <div className="absolute top-2 right-2 w-5 h-5 rounded bg-blue-600 flex items-center justify-center" title="AI">
-              <Zap size={11} className="text-white" fill="currentColor" />
+            <div className={`absolute top-2 right-2 rounded bg-blue-600 flex items-center justify-center ${compact ? 'w-4 h-4' : 'w-5 h-5'}`} title="AI">
+              <Zap size={compact ? 9 : 11} className="text-white" fill="currentColor" />
             </div>
           )}
         </div>
       )}
-      <div className="p-4">
-        {(!coverImage && badge && badge !== 'none') && (
+      <div className={compact ? 'p-2.5' : 'p-4'}>
+        {(!coverImage && badge && badge !== 'none' && !compact) && (
           <div className="mb-2">
             <ArticleBadge badge={badge} locale={locale} />
           </div>
         )}
-        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : 'text-sm'} line-clamp-2`}>
+        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} line-clamp-2`}>
           {title}
         </h3>
-        <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-2 text-xs text-muted">
+        {!compact && <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>}
+        <div className={`flex items-center justify-between ${compact ? 'mt-1.5' : 'mt-3'}`}>
+          <div className={`flex items-center gap-2 text-muted ${compact ? 'text-[10px]' : 'text-xs'}`}>
             <span>{date}</span>
-            {readingTime && (
+            {readingTime && !compact && (
               <>
                 <span className="text-border">·</span>
                 <Clock size={10} />
@@ -78,21 +82,23 @@ export default function ArticleCard({
               </>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted">
-            {typeof views === 'number' && (
-              <span className="flex items-center gap-1">
-                <Eye size={11} />
-                {views}
-              </span>
-            )}
-            {typeof likes === 'number' && likes > 0 && (
-              <span className="flex items-center gap-1">
-                <Heart size={11} />
-                {likes}
-              </span>
-            )}
-            <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
-          </div>
+          {!compact && (
+            <div className="flex items-center gap-2 text-xs text-muted">
+              {typeof views === 'number' && (
+                <span className="flex items-center gap-1">
+                  <Eye size={11} />
+                  {views}
+                </span>
+              )}
+              {typeof likes === 'number' && likes > 0 && (
+                <span className="flex items-center gap-1">
+                  <Heart size={11} />
+                  {likes}
+                </span>
+              )}
+              <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+            </div>
+          )}
         </div>
       </div>
     </Link>
