@@ -23,10 +23,14 @@ interface ArticleCardProps {
   likes?: number;
   priority?: boolean;
   topic?: string;
+  // Bottom-to-top gradient fade over the cover image, blending it into the
+  // card background — purely decorative (no text sits on the image), so it
+  // can be turned off per-instance without affecting badge/topic placement.
+  imageFade?: boolean;
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = true
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -48,7 +52,7 @@ export default function ArticleCard({
             priority={priority}
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+          {imageFade && <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />}
           {badge && badge !== 'none' && !compact && (
             <div className="absolute top-2 left-2">
               <ArticleBadge badge={badge} locale={locale} />
