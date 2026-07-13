@@ -20,11 +20,11 @@ export default async function HomePage({ params }: Props) {
   const t = await getTranslations('home');
 
   const [news, articles, videos, calendarEvents, popular, settings] = await Promise.allSettled([
-    // News rail runs the full height of the articles column beside it
-    // (through the hero block, author columns, and every compact row down
-    // to the calendar) — needs enough real items to naturally reach that
-    // far, not just the ~4 rows it used to sit next to.
-    fetchOwnNews({ limit: 24, locale }),
+    // News rail runs alongside the articles column, down to the calendar —
+    // but the articles column is not as tall as it looks (rows 4-7 are
+    // bare compact grids, not boxed sections), so 24 items overshot it and
+    // left a big gap between the articles column and the calendar below.
+    fetchOwnNews({ limit: 18, locale }),
     // 2 (hero) + 3 (row 2) + 5×4 (rows 4-7, compact) = 25
     fetchArticles({ limit: 25, locale }),
     fetchVideos({ limit: 5 }),
@@ -173,27 +173,23 @@ export default async function HomePage({ params }: Props) {
                 <AuthorColumns authors={authorItems} locale={locale} />
               )}
 
-              {/* Rows 4-7 — compact cards, 5 across, all in the same boxed
-                  treatment (card background + border, like the author
-                  columns block) so they read as one consistent family of
-                  sections instead of bare grids floating on the page. */}
+              {/* Rows 4-7 — same bare-grid treatment as row 2 (no card/border
+                  wrapper), just 5 across instead of 3, each its own block. */}
               {[row4Articles, row5Articles, row6Articles, row7Articles].map((rowArticles, rowIndex) =>
                 rowArticles.length > 0 ? (
-                  <div key={rowIndex} className="bg-card border border-border rounded-xl p-4 sm:p-5">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-                      {rowArticles.map((article: any) => (
-                        <ArticleCard
-                          key={article._id}
-                          title={article.title}
-                          excerpt={article.excerpt}
-                          slug={article.slug.current}
-                          coverImage={article.coverImage}
-                          publishedAt={article.publishedAt}
-                          locale={locale}
-                          compact
-                        />
-                      ))}
-                    </div>
+                  <div key={rowIndex} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                    {rowArticles.map((article: any) => (
+                      <ArticleCard
+                        key={article._id}
+                        title={article.title}
+                        excerpt={article.excerpt}
+                        slug={article.slug.current}
+                        coverImage={article.coverImage}
+                        publishedAt={article.publishedAt}
+                        locale={locale}
+                        compact
+                      />
+                    ))}
                   </div>
                 ) : null
               )}
