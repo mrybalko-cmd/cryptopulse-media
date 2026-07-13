@@ -11,6 +11,18 @@
   --positive: #22c55e;
   --negative: #ef4444;
   --card-hover: #1c2233;
+
+  /* Homepage "author columns" block — approved as its own fixed pair
+     (graphite in dark mode, silver in light mode), independent of the
+     --card/--accent tokens above so it doesn't just look like every
+     other card on the page. */
+  --author-bg-1: #2a2d33;
+  --author-bg-2: #1e2126;
+  --author-border: #3a3e46;
+  --author-text: #e8e9eb;
+  --author-muted: #9ca1ab;
+  --author-accent: #94a3b8;
+  --author-link: #b7c1d1;
 }
 
 html.light {
@@ -23,6 +35,14 @@ html.light {
   --positive: #16a34a;
   --negative: #dc2626;
   --card-hover: #f0f4fc;
+
+  --author-bg-1: #f2f3f5;
+  --author-bg-2: #e3e5e8;
+  --author-border: #d3d6da;
+  --author-text: #2b2e33;
+  --author-muted: #6b707a;
+  --author-accent: #64748b;
+  --author-link: #475569;
 }
 
 @theme inline {
