@@ -21,10 +21,9 @@ export default async function HomePage({ params }: Props) {
 
   const [news, articles, videos, calendarEvents, popular, settings] = await Promise.allSettled([
     // News rail runs alongside the articles column, down to the calendar —
-    // but the articles column is not as tall as it looks (rows 4-7 are
-    // bare compact grids, not boxed sections), so 24 items overshot it and
-    // left a big gap between the articles column and the calendar below.
-    fetchOwnNews({ limit: 18, locale }),
+    // trimmed further (18 -> 17) to close the last bit of gap before the
+    // calendar section.
+    fetchOwnNews({ limit: 17, locale }),
     // 2 (hero) + 3 (row 2) + 5×4 (rows 4-7, compact) = 25
     fetchArticles({ limit: 25, locale }),
     fetchVideos({ limit: 5 }),
@@ -62,7 +61,7 @@ export default async function HomePage({ params }: Props) {
       <h1 className="sr-only">{t('hero')}</h1>
 
       {/* News rail + Articles */}
-      <div className={`grid grid-cols-1 gap-6 lg:gap-8 mb-14 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
+      <div className={`grid grid-cols-1 gap-6 lg:gap-8 mb-8 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
         {/* News */}
         {homeSettings.showNews && (
         <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>

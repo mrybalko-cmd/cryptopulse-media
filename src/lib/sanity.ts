@@ -474,23 +474,29 @@ export interface HomeSettings {
   featuredAuthors: AuthorWithLatest[];
 }
 
-// Single round trip: the singleton doc's `featuredAuthors[]->` dereference
-// preserves array order (editor-controlled display order in Studio), and
-// each author's latest article/news is pulled inline via a correlated
-// subquery — avoids N+1 fetchAuthorFeed calls for the homepage widget.
+// Single round trip: the singleton doc's `featuredAuthors[]` array preserves
+// editor-controlled display order from Studio. Each slot manually pairs an
+// author with a specific material per language (materialRu/materialEn) —
+// not necessarily that author's own latest piece — so the editor can, say,
+// put a senior author's face next to whichever article they want to push
+// this week, on both locale homepages correctly.
 export const fetchHomeSettings = unstable_cache(
   async (locale: string): Promise<HomeSettings> => {
     const fallback: HomeSettings = { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return fallback;
     try {
+      const materialField = locale === 'ru' ? 'materialRu' : 'materialEn';
       const doc = await client.fetch(
         `*[_type == "homeSettings"][0] {
           showNews, showArticles, showAuthorColumns,
-          featuredAuthors[]-> {
-            _id, name, "slug": slug.current, roleRu, roleEn, "photo": photo.asset->url,
-            "latest": *[_type in ["article", "news"] && author._ref == ^._id && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0] {
-              _type, title, "slug": slug.current
-            }
+          "featuredAuthors": featuredAuthors[] {
+            "_id": author->_id,
+            "name": author->name,
+            "slug": author->slug.current,
+            "roleRu": author->roleRu,
+            "roleEn": author->roleEn,
+            "photo": author->photo.asset->url,
+            "latest": ${materialField}-> { _type, title, "slug": slug.current }
           }
         }`,
         { locale }
@@ -500,7 +506,7 @@ export const fetchHomeSettings = unstable_cache(
         showNews: doc.showNews ?? true,
         showArticles: doc.showArticles ?? true,
         showAuthorColumns: doc.showAuthorColumns ?? true,
-        featuredAuthors: doc.featuredAuthors || [],
+        featuredAuthors: (doc.featuredAuthors || []).filter((a: AuthorWithLatest) => a._id && a.latest),
       };
     } catch {
       return fallback;
