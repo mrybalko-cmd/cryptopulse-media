@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
+import ArticleRowCard from '@/components/ui/ArticleRowCard';
+import ArticleCarousel from '@/components/ui/ArticleCarousel';
 import AuthorColumns from '@/components/ui/AuthorColumns';
 import VideoCard from '@/components/ui/VideoCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
@@ -60,8 +62,101 @@ export default async function HomePage({ params }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <h1 className="sr-only">{t('hero')}</h1>
 
-      {/* News rail + Articles */}
-      <div className={`grid grid-cols-1 gap-6 lg:gap-8 mb-8 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
+      {/* Mobile-only homepage flow (approved mockup): hero -> two small cards ->
+          news list -> authors (stacked) -> second hero -> swipeable rail.
+          Pure CSS show/hide (hidden below, lg:hidden here) rather than a JS
+          branch, so both variants exist in the same SSR markup — no
+          hydration mismatch, and it's just responsive design, not cloaking. */}
+      <div className="lg:hidden flex flex-col gap-6 mb-8">
+        {homeSettings.showArticles && heroArticles[0] && (
+          <ArticleCard
+            key={heroArticles[0]._id}
+            title={heroArticles[0].title}
+            excerpt={heroArticles[0].excerpt}
+            slug={heroArticles[0].slug.current}
+            coverImage={heroArticles[0].coverImage}
+            publishedAt={heroArticles[0].publishedAt}
+            readingTime={heroArticles[0].readingTime}
+            badge={heroArticles[0].badge}
+            views={heroArticles[0].views}
+            likes={heroArticles[0].likes}
+            locale={locale}
+            priority
+          />
+        )}
+
+        {homeSettings.showArticles && row2Articles.length > 0 && (
+          <div className="flex flex-col gap-2.5">
+            {row2Articles.slice(0, 2).map((article: any) => (
+              <ArticleRowCard
+                key={article._id}
+                title={article.title}
+                slug={article.slug.current}
+                coverImage={article.coverImage}
+                publishedAt={article.publishedAt}
+                locale={locale}
+              />
+            ))}
+          </div>
+        )}
+
+        {homeSettings.showNews && newsItems.length > 0 && (
+          <div>
+            {newsItems.slice(0, 6).map((item) => (
+              <NewsListItem
+                key={item.id}
+                title={item.title}
+                href={item.href}
+                external={item.external}
+                publishedAt={item.publishedAt}
+                category={item.categories?.split('|').filter(Boolean)[0]}
+                locale={locale}
+                pinned={item.pinned}
+                breaking={item.breaking}
+                ownBadge={item.ownBadge}
+                views={item.views}
+                likes={item.likes}
+                aiTopic={item.topic === 'ai'}
+              />
+            ))}
+          </div>
+        )}
+
+        {homeSettings.showAuthorColumns && authorItems.length > 0 && (
+          <AuthorColumns authors={authorItems} locale={locale} variant="stack" />
+        )}
+
+        {homeSettings.showArticles && heroArticles[1] && (
+          <ArticleCard
+            key={heroArticles[1]._id}
+            title={heroArticles[1].title}
+            excerpt={heroArticles[1].excerpt}
+            slug={heroArticles[1].slug.current}
+            coverImage={heroArticles[1].coverImage}
+            publishedAt={heroArticles[1].publishedAt}
+            readingTime={heroArticles[1].readingTime}
+            badge={heroArticles[1].badge}
+            views={heroArticles[1].views}
+            likes={heroArticles[1].likes}
+            locale={locale}
+          />
+        )}
+
+        {homeSettings.showArticles && row4Articles.length > 0 && (
+          <ArticleCarousel
+            articles={row4Articles.slice(0, 4).map((a: any) => ({
+              _id: a._id,
+              title: a.title,
+              slug: a.slug,
+              coverImage: a.coverImage,
+            }))}
+            locale={locale}
+          />
+        )}
+      </div>
+
+      {/* News rail + Articles (desktop) */}
+      <div className={`hidden lg:grid grid-cols-1 gap-6 lg:gap-8 mb-8 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
         {/* News */}
         {homeSettings.showNews && (
         <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>

@@ -23,19 +23,33 @@ const accentMix = (pct: number) => `color-mix(in srgb, ${accent} ${pct}%, transp
 // article rows around it (bigger avatars, icon-badge heading) — this is
 // the one section on the homepage that's about people, not just more
 // headlines, and should read that way.
-export default function AuthorColumns({ authors, locale }: { authors: AuthorWithLatest[]; locale: string }) {
+//
+// `variant="stack"` renders a single vertical list (avatar+text as one row
+// per author) instead of the 4-column grid — used on the mobile homepage
+// layout, where this section sits between the news rail and the second
+// hero article rather than as its own wide row.
+export default function AuthorColumns({
+  authors,
+  locale,
+  variant = 'grid',
+}: {
+  authors: AuthorWithLatest[];
+  locale: string;
+  variant?: 'grid' | 'stack';
+}) {
   const withLatest = authors.filter((a) => a.latest);
   if (withLatest.length === 0) return null;
   const isRu = locale === 'ru';
+  const isStack = variant === 'stack';
 
   return (
     <section
-      aria-labelledby="author-columns-heading"
+      aria-labelledby={`author-columns-heading-${variant}`}
       className="rounded-xl p-5 sm:p-6 shadow-sm"
       style={{ background: bg, border: `1px solid ${border}` }}
     >
       <div className="flex items-center justify-between mb-5">
-        <h2 id="author-columns-heading" className="flex items-center gap-2.5 text-base font-bold" style={{ color: text }}>
+        <h2 id={`author-columns-heading-${variant}`} className="flex items-center gap-2.5 text-base font-bold" style={{ color: text }}>
           <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: accentMix(20) }}>
             <PenLine size={14} style={{ color: accent }} />
           </span>
@@ -46,50 +60,93 @@ export default function AuthorColumns({ authors, locale }: { authors: AuthorWith
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-6">
+      <div className={isStack ? 'flex flex-col' : 'grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-6'}>
         {withLatest.map((author, i) => {
           const role = (isRu ? author.roleRu : author.roleEn) || '';
           const latestHref = `/${locale}/${author.latest!._type === 'article' ? 'articles' : 'news'}/${author.latest!.slug}`;
           return (
             <div
               key={author._id}
-              className={i > 0 ? 'border-t lg:border-t-0 lg:border-l pt-5 lg:pt-0 lg:pl-5' : ''}
+              className={
+                isStack
+                  ? `flex items-start gap-3 ${i > 0 ? 'border-t pt-3.5 mt-3.5' : ''}`
+                  : i > 0 ? 'border-t lg:border-t-0 lg:border-l pt-5 lg:pt-0 lg:pl-5' : ''
+              }
               style={i > 0 ? { borderColor: border } : undefined}
             >
-              <Link href={`/${locale}/authors/${author.slug}`} className="group flex items-center gap-3 mb-3">
-                {author.photo ? (
-                  <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: accentMix(33) }}>
-                    <Image
-                      src={sanityImageTransform(author.photo, { width: 112 })!}
-                      alt={author.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                      unoptimized
-                    />
+              {isStack ? (
+                <>
+                  <Link href={`/${locale}/authors/${author.slug}`} className="shrink-0">
+                    {author.photo ? (
+                      <div className="relative w-11 h-11 rounded-full overflow-hidden border-2" style={{ borderColor: accentMix(33) }}>
+                        <Image
+                          src={sanityImageTransform(author.photo, { width: 88 })!}
+                          alt={author.name}
+                          fill
+                          className="object-cover"
+                          sizes="44px"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-11 h-11 rounded-full border-2 flex items-center justify-center"
+                        style={{ background: accentMix(10), borderColor: accentMix(33) }}
+                      >
+                        <span className="text-sm font-bold" style={{ color: accent }}>{author.name.charAt(0)}</span>
+                      </div>
+                    )}
+                  </Link>
+                  <div className="min-w-0">
+                    <Link href={`/${locale}/authors/${author.slug}`}>
+                      <p className="text-[11px] font-bold uppercase tracking-wide truncate" style={{ color: text }}>
+                        {author.name}
+                      </p>
+                      {role && <p className="text-[10px] truncate mb-1" style={{ color: muted }}>{role}</p>}
+                    </Link>
+                    <Link href={latestHref} className="block text-xs font-semibold hover:opacity-75 transition-opacity leading-snug line-clamp-2" style={{ color: link }}>
+                      {author.latest!.title}
+                    </Link>
                   </div>
-                ) : (
-                  <div
-                    className="w-14 h-14 rounded-full border-2 flex items-center justify-center shrink-0"
-                    style={{ background: accentMix(10), borderColor: accentMix(33) }}
+                </>
+              ) : (
+                <>
+                  <Link href={`/${locale}/authors/${author.slug}`} className="group flex items-center gap-3 mb-3">
+                    {author.photo ? (
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: accentMix(33) }}>
+                        <Image
+                          src={sanityImageTransform(author.photo, { width: 112 })!}
+                          alt={author.name}
+                          fill
+                          className="object-cover"
+                          sizes="56px"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-full border-2 flex items-center justify-center shrink-0"
+                        style={{ background: accentMix(10), borderColor: accentMix(33) }}
+                      >
+                        <span className="text-base font-bold" style={{ color: accent }}>{author.name.charAt(0)}</span>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-wide truncate transition-colors" style={{ color: text }}>
+                        {author.name}
+                      </p>
+                      {role && <p className="text-[11px] truncate" style={{ color: muted }}>{role}</p>}
+                    </div>
+                  </Link>
+                  <Link
+                    href={latestHref}
+                    className="block text-xs font-semibold hover:opacity-75 transition-opacity leading-snug line-clamp-2"
+                    style={{ color: link }}
                   >
-                    <span className="text-base font-bold" style={{ color: accent }}>{author.name.charAt(0)}</span>
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-wide truncate transition-colors" style={{ color: text }}>
-                    {author.name}
-                  </p>
-                  {role && <p className="text-[11px] truncate" style={{ color: muted }}>{role}</p>}
-                </div>
-              </Link>
-              <Link
-                href={latestHref}
-                className="block text-xs font-semibold hover:opacity-75 transition-opacity leading-snug line-clamp-2"
-                style={{ color: link }}
-              >
-                {author.latest!.title}
-              </Link>
+                    {author.latest!.title}
+                  </Link>
+                </>
+              )}
             </div>
           );
         })}
