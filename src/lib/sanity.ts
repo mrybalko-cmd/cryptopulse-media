@@ -467,28 +467,46 @@ export interface AuthorWithLatest {
   latest: { _type: 'article' | 'news'; title: string; slug: string } | null;
 }
 
-// Single correlated-subquery round trip (one author's latest item pulled
-// inline per author) instead of N+1 separate fetchAuthorFeed calls — the
-// homepage "author columns" widget renders this for every author on every
-// render, so it's worth keeping to one query.
-export const fetchAuthorsWithLatest = unstable_cache(
-  async (locale: string, limit = 4): Promise<AuthorWithLatest[]> => {
-    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+export interface HomeSettings {
+  showNews: boolean;
+  showArticles: boolean;
+  showAuthorColumns: boolean;
+  featuredAuthors: AuthorWithLatest[];
+}
+
+// Single round trip: the singleton doc's `featuredAuthors[]->` dereference
+// preserves array order (editor-controlled display order in Studio), and
+// each author's latest article/news is pulled inline via a correlated
+// subquery — avoids N+1 fetchAuthorFeed calls for the homepage widget.
+export const fetchHomeSettings = unstable_cache(
+  async (locale: string): Promise<HomeSettings> => {
+    const fallback: HomeSettings = { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return fallback;
     try {
-      return await client.fetch(
-        `*[_type == "author"] | order(name asc) [0...$limit] {
-          _id, name, "slug": slug.current, roleRu, roleEn, "photo": photo.asset->url,
-          "latest": *[_type in ["article", "news"] && author._ref == ^._id && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0] {
-            _type, title, "slug": slug.current
+      const doc = await client.fetch(
+        `*[_type == "homeSettings"][0] {
+          showNews, showArticles, showAuthorColumns,
+          featuredAuthors[]-> {
+            _id, name, "slug": slug.current, roleRu, roleEn, "photo": photo.asset->url,
+            "latest": *[_type in ["article", "news"] && author._ref == ^._id && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0] {
+              _type, title, "slug": slug.current
+            }
           }
         }`,
-        { locale, limit }
+        { locale }
       );
+      if (!doc) return fallback;
+      return {
+        showNews: doc.showNews ?? true,
+        showArticles: doc.showArticles ?? true,
+        showAuthorColumns: doc.showAuthorColumns ?? true,
+        featuredAuthors: doc.featuredAuthors || [],
+      };
     } catch {
-      return [];
+      return fallback;
     }
   },
-  ['fetchAuthorsWithLatest'],
+  ['fetchHomeSettings'],
   { revalidate: READ_CACHE_SECONDS }
 );
 

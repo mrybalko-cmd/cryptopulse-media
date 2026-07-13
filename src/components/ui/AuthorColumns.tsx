@@ -1,21 +1,31 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { PenLine } from 'lucide-react';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import type { AuthorWithLatest } from '@/lib/sanity';
 
+// Deliberately more prominent than the plain bordered boxes used for the
+// article rows around it (accent-tinted background/border, bigger avatars,
+// icon-badge heading) — this is the one section on the homepage that's
+// about people, not just more headlines, and should read that way.
 export default function AuthorColumns({ authors, locale }: { authors: AuthorWithLatest[]; locale: string }) {
   const withLatest = authors.filter((a) => a.latest);
   if (withLatest.length === 0) return null;
   const isRu = locale === 'ru';
 
   return (
-    <section aria-labelledby="author-columns-heading" className="bg-card border border-border rounded-xl p-5 sm:p-6">
+    <section
+      aria-labelledby="author-columns-heading"
+      className="bg-gradient-to-br from-accent/[0.07] via-card to-card border border-accent/25 rounded-xl p-5 sm:p-6 shadow-sm"
+    >
       <div className="flex items-center justify-between mb-5">
-        <h2 id="author-columns-heading" className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+        <h2 id="author-columns-heading" className="flex items-center gap-2.5 text-base font-bold text-foreground">
+          <span className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
+            <PenLine size={14} className="text-accent" />
+          </span>
           {isRu ? 'Авторские колонки' : 'From our authors'}
         </h2>
-        <Link href={`/${locale}/authors`} className="text-xs text-muted hover:text-accent transition-colors">
+        <Link href={`/${locale}/authors`} className="text-xs font-medium text-accent hover:opacity-75 transition-opacity">
           {isRu ? 'Все авторы →' : 'All authors →'}
         </Link>
       </div>
@@ -27,23 +37,23 @@ export default function AuthorColumns({ authors, locale }: { authors: AuthorWith
           return (
             <div
               key={author._id}
-              className={`${i > 0 ? 'border-t lg:border-t-0 lg:border-l border-border pt-5 lg:pt-0 lg:pl-5' : ''}`}
+              className={`${i > 0 ? 'border-t lg:border-t-0 lg:border-l border-accent/15 pt-5 lg:pt-0 lg:pl-5' : ''}`}
             >
-              <Link href={`/${locale}/authors/${author.slug}`} className="group flex items-center gap-2.5 mb-3">
+              <Link href={`/${locale}/authors/${author.slug}`} className="group flex items-center gap-3 mb-3">
                 {author.photo ? (
-                  <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border-2 border-border">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 border-2 border-accent/30">
                     <Image
-                      src={sanityImageTransform(author.photo, { width: 88 })!}
+                      src={sanityImageTransform(author.photo, { width: 112 })!}
                       alt={author.name}
                       fill
                       className="object-cover"
-                      sizes="44px"
+                      sizes="56px"
                       unoptimized
                     />
                   </div>
                 ) : (
-                  <div className="w-11 h-11 rounded-full bg-accent/10 border-2 border-border flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-accent">{author.name.charAt(0)}</span>
+                  <div className="w-14 h-14 rounded-full bg-accent/10 border-2 border-accent/30 flex items-center justify-center shrink-0">
+                    <span className="text-base font-bold text-accent">{author.name.charAt(0)}</span>
                   </div>
                 )}
                 <div className="min-w-0">

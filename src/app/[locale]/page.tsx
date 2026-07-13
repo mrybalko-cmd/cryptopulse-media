@@ -10,7 +10,7 @@ import VideoCard from '@/components/ui/VideoCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import { fetchOwnNews } from '@/lib/news';
-import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchAuthorsWithLatest } from '@/lib/sanity';
+import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings } from '@/lib/sanity';
 import { fetchVideos } from '@/lib/youtube';
 type Props = { params: Promise<{ locale: string }> };
 
@@ -19,30 +19,39 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, videos, calendarEvents, popular, authors] = await Promise.allSettled([
+  const [news, articles, videos, calendarEvents, popular, settings] = await Promise.allSettled([
     // News rail runs the full height of the articles column beside it
-    // (through the hero block, author columns, and both compact rows down
+    // (through the hero block, author columns, and every compact row down
     // to the calendar) — needs enough real items to naturally reach that
     // far, not just the ~4 rows it used to sit next to.
-    fetchOwnNews({ limit: 20, locale }),
-    // 2 (hero) + 3 (row 2, compact) + 5 (row 4) + 5 (row 5) = 15
-    fetchArticles({ limit: 16, locale }),
+    fetchOwnNews({ limit: 24, locale }),
+    // 2 (hero) + 3 (row 2) + 5×4 (rows 4-7, compact) = 25
+    fetchArticles({ limit: 25, locale }),
     fetchVideos({ limit: 5 }),
     fetchCalendarEvents(),
-    fetchPopularContent(locale, 7),
-    fetchAuthorsWithLatest(locale, 4),
+    // Trimmed from 7: with row 2 now compact (not two more full cards),
+    // 7 items made the sidebar taller than the hero row + row 2 combined,
+    // leaving dead space below row 2 before the next section. 5 items
+    // matches that combined height instead.
+    fetchPopularContent(locale, 5),
+    fetchHomeSettings(locale),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const videoItems = videos.status === 'fulfilled' ? videos.value : [];
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
-  const authorItems = authors.status === 'fulfilled' ? authors.value : [];
+  const homeSettings = settings.status === 'fulfilled'
+    ? settings.value
+    : { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
+  const authorItems = homeSettings.featuredAuthors;
   const hasPopular = popularItems.length > 0;
   const heroArticles = articleItems.slice(0, 2);
   const row2Articles = articleItems.slice(2, 5);
   const row4Articles = articleItems.slice(5, 10);
   const row5Articles = articleItems.slice(10, 15);
+  const row6Articles = articleItems.slice(15, 20);
+  const row7Articles = articleItems.slice(20, 25);
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcomingEvents = (calendarEvents.status === 'fulfilled' ? calendarEvents.value : [])
     .filter((e) => e.date >= todayISO)
@@ -53,9 +62,10 @@ export default async function HomePage({ params }: Props) {
       <h1 className="sr-only">{t('hero')}</h1>
 
       {/* News rail + Articles */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mb-14">
+      <div className={`grid grid-cols-1 gap-6 lg:gap-8 mb-14 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
         {/* News */}
-        <section className="lg:col-span-1">
+        {homeSettings.showNews && (
+        <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
@@ -91,9 +101,11 @@ export default async function HomePage({ params }: Props) {
             <EmptyState text={locale === 'ru' ? 'Новости загружаются...' : 'Loading news...'} />
           )}
         </section>
+        )}
 
         {/* Articles */}
-        <section className="lg:col-span-3">
+        {homeSettings.showArticles && (
+        <section className={homeSettings.showNews ? 'lg:col-span-3' : ''}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
@@ -106,12 +118,15 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </div>
           {articleItems.length > 0 ? (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6">
               {/* Row 1 (unchanged) + Row 2 (new, compact) — Popular spans
                   both rows in the third column, same mechanic as before,
                   just with row 2 broken out into its own dense sub-grid
-                  instead of two more full-size cards auto-flowing in. */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3">
+                  instead of two more full-size cards auto-flowing in.
+                  Rows sized by content (no forced grid-rows-2) so Popular's
+                  5 items line up with row 1 + row 2's real combined height
+                  instead of stretching both rows to match a taller widget. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {heroArticles.map((article: any, i: number) => (
                   <ArticleCard
                     key={article._id}
@@ -153,49 +168,41 @@ export default async function HomePage({ params }: Props) {
                 )}
               </div>
 
-              {/* Row 3 — author columns */}
-              {authorItems.length > 0 && <AuthorColumns authors={authorItems} locale={locale} />}
-
-              {/* Row 4 — compact, 5 across */}
-              {row4Articles.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-                  {row4Articles.map((article: any) => (
-                    <ArticleCard
-                      key={article._id}
-                      title={article.title}
-                      excerpt={article.excerpt}
-                      slug={article.slug.current}
-                      coverImage={article.coverImage}
-                      publishedAt={article.publishedAt}
-                      locale={locale}
-                      compact
-                    />
-                  ))}
-                </div>
+              {/* Row 3 — author columns (curated in Studio: Настройки главной) */}
+              {homeSettings.showAuthorColumns && authorItems.length > 0 && (
+                <AuthorColumns authors={authorItems} locale={locale} />
               )}
 
-              {/* Row 5 — compact, 5 across, more breathing room */}
-              {row5Articles.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
-                  {row5Articles.map((article: any) => (
-                    <ArticleCard
-                      key={article._id}
-                      title={article.title}
-                      excerpt={article.excerpt}
-                      slug={article.slug.current}
-                      coverImage={article.coverImage}
-                      publishedAt={article.publishedAt}
-                      locale={locale}
-                      compact
-                    />
-                  ))}
-                </div>
+              {/* Rows 4-7 — compact cards, 5 across, all in the same boxed
+                  treatment (card background + border, like the author
+                  columns block) so they read as one consistent family of
+                  sections instead of bare grids floating on the page. */}
+              {[row4Articles, row5Articles, row6Articles, row7Articles].map((rowArticles, rowIndex) =>
+                rowArticles.length > 0 ? (
+                  <div key={rowIndex} className="bg-card border border-border rounded-xl p-4 sm:p-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                      {rowArticles.map((article: any) => (
+                        <ArticleCard
+                          key={article._id}
+                          title={article.title}
+                          excerpt={article.excerpt}
+                          slug={article.slug.current}
+                          coverImage={article.coverImage}
+                          publishedAt={article.publishedAt}
+                          locale={locale}
+                          compact
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : null
               )}
             </div>
           ) : (
             <EmptyState text={locale === 'ru' ? 'Статьи появятся скоро' : 'Articles coming soon'} />
           )}
         </section>
+        )}
       </div>
 
       {/* Calendar */}

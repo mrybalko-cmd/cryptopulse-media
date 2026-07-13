@@ -5,5 +5,6 @@ import { calendarEventType } from './calendarEvent';
 import { eventVoteType } from './eventVote';
 import { emailSubscriberType } from './emailSubscriber';
 import { authorType } from './author';
+import { homeSettingsType } from './homeSettings';
 
-export const schemaTypes = [authorType, articleType, newsType, commentType, calendarEventType, eventVoteType, emailSubscriberType];
+export const schemaTypes = [authorType, articleType, newsType, commentType, calendarEventType, eventVoteType, emailSubscriberType, homeSettingsType];
