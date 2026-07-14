@@ -232,8 +232,13 @@ export default async function HomePage({ params }: Props) {
                 ))}
                 {hasPopular && <PopularList items={popularItems} locale={locale} />}
                 {row2Articles.length > 0 && (
-                  <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2 h-full">
+                    {/* h-full here too: a plain block doesn't inherit its
+                        stretched parent's height on its own, so without this
+                        the grid below still just sizes to its own content
+                        and the cards never see the extra height to stretch
+                        into. */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 h-full">
                       {row2Articles.map((article: any) => (
                         <ArticleCard
                           key={article._id}
