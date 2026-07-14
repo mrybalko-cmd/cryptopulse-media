@@ -82,7 +82,7 @@ export default async function DisclaimerPage({ params }: Props) {
 
             <h2>Внешние ссылки и контент</h2>
             <p>
-              Сайт может содержать ссылки на внешние ресурсы (новостные источники, видео на YouTube и т.д.),
+              Сайт может содержать ссылки на внешние ресурсы (новостные источники и т.д.),
               которые находятся вне нашего контроля. Мы не отвечаем за содержание, точность или политику
               конфиденциальности таких сторонних ресурсов.
             </p>
@@ -109,7 +109,7 @@ export default async function DisclaimerPage({ params }: Props) {
           <>
             <h2>General Information Only</h2>
             <p>
-              All content on {SITE_NAME} (cryptopulse.media) — news, articles, interviews, and other
+              All content on {SITE_NAME} (cryptopulse.media) — news, articles, and other
               materials — is provided strictly for informational and educational purposes.
             </p>
 
@@ -135,7 +135,7 @@ export default async function DisclaimerPage({ params }: Props) {
 
             <h2>Third-Party Links &amp; Content</h2>
             <p>
-              The site may contain links to external resources (news sources, YouTube videos, etc.) that are
+              The site may contain links to external resources (news sources, etc.) that are
               outside our control. We are not responsible for the content, accuracy, or privacy practices of
               such third-party resources.
             </p>

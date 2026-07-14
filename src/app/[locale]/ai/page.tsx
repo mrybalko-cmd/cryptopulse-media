@@ -97,6 +97,12 @@ export default async function AIPage({ params }: Props) {
             ? 'Новости и аналитика об искусственном интеллекте в мире криптовалют и блокчейна — ChatGPT, AI-трейдинг, нейросети, генеративные модели.'
             : 'News and analysis on artificial intelligence in crypto and blockchain — ChatGPT, AI trading, neural networks, generative models.'}
         </p>
+        <Link
+          href={`/${locale}/ai/glossary`}
+          className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline mt-3"
+        >
+          {isRu ? 'Глоссарий терминов ИИ →' : 'AI terms glossary →'}
+        </Link>
       </div>
 
       {/* AI Articles */}

@@ -42,7 +42,6 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}/news`, label: t('news') },
     { href: `/${locale}/articles`, label: t('articles') },
-    { href: `/${locale}/interviews`, label: t('interviews') },
     { href: `/${locale}/calculators`, label: t('calculators') },
     { href: `/${locale}/calendar`, label: t('calendar') },
     { href: `/${locale}/assets`, label: t('assets') },

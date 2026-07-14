@@ -2,7 +2,6 @@
   "nav": {
     "news": "News",
     "articles": "Articles",
-    "interviews": "YouTube",
     "calculators": "Calculators & Metrics",
     "calendar": "Crypto Calendar",
     "assets": "Crypto Assets",
@@ -12,7 +11,6 @@
     "hero": "Crypto intelligence for European investors",
     "latestNews": "Latest News",
     "featuredArticles": "Featured Articles",
-    "latestInterviews": "YouTube",
     "readMore": "Read more",
     "viewAll": "View all",
     "minRead": "min read"
@@ -32,15 +30,10 @@
     "title": "Articles & Analysis",
     "subtitle": "Deep dives for the thoughtful investor"
   },
-  "interviews": {
-    "title": "YouTube",
-    "subtitle": "Conversations with industry leaders",
-    "watchOn": "Watch on YouTube"
-  },
   "footer": {
     "tagline": "A crypto site for everyday people, in plain words",
     "aboutTitle": "About the project",
-    "about": "CryptoPulse.media is an independent crypto media project for everyday investors and anyone who wants to understand the crypto market in plain language. The site brings together up-to-date cryptocurrency news, original analysis, and interviews with industry voices — in both Russian and English.",
+    "about": "CryptoPulse.media is an independent crypto media project for everyday investors and anyone who wants to understand the crypto market in plain language. The site brings together up-to-date cryptocurrency news and original analysis — in both Russian and English.",
     "links": "Quick Links",
     "legal": "Legal",
     "disclaimer": "Disclaimer",
@@ -49,6 +42,7 @@
     "advertising": "Advertising",
     "calculators": "Calculators",
     "glossary": "Glossary",
+    "aiGlossary": "AI Glossary",
     "calendar": "Crypto Calendar",
     "assets": "Crypto Assets",
     "regulation": "Regulation Map",
@@ -61,7 +55,6 @@
     "tools": "Tools",
     "news": "News",
     "articles": "Articles",
-    "interviews": "Interviews",
     "authors": "Our Authors",
     "aboutUs": "About",
     "followX": "Follow us on X",

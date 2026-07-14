@@ -44,7 +44,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
           {isRu ? 'Крипто-аналитика для частных инвесторов Европы' : 'Crypto intelligence for European investors'}
         </div>
         <div style={{ display: 'flex', fontSize: 26, color: '#6b7280', marginTop: 24 }}>
-          {isRu ? 'Новости · Статьи · Интервью' : 'News · Articles · Interviews'}
+          {isRu ? 'Новости · Статьи · Крипто-активы' : 'News · Articles · Crypto Assets'}
         </div>
       </div>
     ),

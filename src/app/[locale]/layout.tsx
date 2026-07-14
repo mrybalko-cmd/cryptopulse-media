@@ -26,13 +26,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: {
       default: isRu
-        ? 'CryptoPulse.media — Новости криптовалют, аналитика и интервью'
-        : 'CryptoPulse.media — Crypto News, Analysis & Interviews',
+        ? 'CryptoPulse.media — Новости криптовалют, аналитика и гиды по активам'
+        : 'CryptoPulse.media — Crypto News, Analysis & Asset Guides',
       template: '%s | CryptoPulse.media',
     },
     description: isRu
-      ? 'Крипто-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, интервью с экспертами и глоссарий терминов криптовалют.'
-      : 'Crypto intelligence for European investors. Breaking news, deep analysis, expert interviews, and a glossary of crypto terms — all in plain language.',
+      ? 'Крипто-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, гиды по крипто-активам и глоссарий терминов криптовалют.'
+      : 'Crypto intelligence for European investors. Breaking news, deep analysis, crypto asset guides, and a glossary of crypto terms — all in plain language.',
     metadataBase: new URL(BASE),
     alternates: {
       canonical: `${BASE}/${locale}`,

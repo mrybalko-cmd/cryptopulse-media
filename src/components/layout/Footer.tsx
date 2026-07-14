@@ -68,11 +68,6 @@ export default async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}/interviews`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('interviews')}
-                </Link>
-              </li>
-              <li>
                 <Link href={`/${locale}/authors`} className="text-sm text-muted hover:text-foreground transition-colors">
                   {t('authors')}
                 </Link>
@@ -99,6 +94,11 @@ export default async function Footer() {
               <li>
                 <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
                   {t('glossary')}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/ai/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
+                  {t('aiGlossary')}
                 </Link>
               </li>
               <li>

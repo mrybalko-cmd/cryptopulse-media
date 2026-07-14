@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { buildOg, BASE } from '@/lib/metadata';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import { COINS, COIN_IDS, fetchTopAssetPrices } from '@/lib/coins';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -29,137 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const ASSETS = [
-  {
-    slug: 'bitcoin',
-    symbol: 'BTC',
-    icon: '₿',
-    name: 'Bitcoin',
-    tagline: { ru: 'Первая криптовалюта, «цифровое золото»', en: 'The first cryptocurrency, "digital gold"' },
-    year: 2009,
-    available: true,
-  },
-  {
-    slug: 'ethereum',
-    symbol: 'ETH',
-    icon: 'Ξ',
-    name: 'Ethereum',
-    tagline: { ru: 'Платформа смарт-контрактов №1', en: 'The #1 smart contract platform' },
-    year: 2015,
-    available: true,
-  },
-  {
-    slug: 'solana',
-    symbol: 'SOL',
-    icon: '◎',
-    name: 'Solana',
-    tagline: { ru: 'Высокоскоростной блокчейн нового поколения', en: 'High-speed next-generation blockchain' },
-    year: 2020,
-    available: true,
-  },
-  {
-    slug: 'xrp',
-    symbol: 'XRP',
-    icon: '✕',
-    name: 'XRP (Ripple)',
-    tagline: { ru: 'Токен для международных платежей', en: 'Token for cross-border payments' },
-    year: 2012,
-    available: true,
-  },
-  {
-    slug: 'bnb',
-    symbol: 'BNB',
-    icon: '◈',
-    name: 'BNB',
-    tagline: { ru: 'Нативный токен биржи Binance и экосистемы BNB Chain', en: 'Native token of Binance exchange and BNB Chain ecosystem' },
-    year: 2017,
-    available: true,
-  },
-  {
-    slug: 'doge',
-    symbol: 'DOGE',
-    icon: 'Ð',
-    name: 'Dogecoin',
-    tagline: { ru: 'Мем-монета №1 — народная криптовалюта Илона Маска', en: 'The #1 meme coin — Elon Musk\'s people\'s cryptocurrency' },
-    year: 2013,
-    available: true,
-  },
-  {
-    slug: 'ada',
-    symbol: 'ADA',
-    icon: '₳',
-    name: 'Cardano',
-    tagline: { ru: 'Блокчейн третьего поколения с научным подходом к безопасности', en: 'Third-generation blockchain with a scientific approach to security' },
-    year: 2017,
-    available: true,
-  },
-  {
-    slug: 'ton',
-    symbol: 'TON',
-    icon: '💎',
-    name: 'Toncoin',
-    tagline: { ru: 'Блокчейн Telegram от братьев Дуров — 900M пользователей', en: 'Telegram blockchain from the Durov brothers — 900M users' },
-    year: 2021,
-    available: true,
-  },
-  {
-    slug: 'avax',
-    symbol: 'AVAX',
-    icon: '🔺',
-    name: 'Avalanche',
-    tagline: { ru: 'Высокоскоростной L1 с уникальным снежным консенсусом', en: 'High-speed L1 with unique snowball consensus' },
-    year: 2020,
-    available: true,
-  },
-  {
-    slug: 'trx',
-    symbol: 'TRX',
-    icon: '⬡',
-    name: 'Tron',
-    tagline: { ru: 'Главная сеть для USDT-переводов в мире', en: 'The world\'s main network for USDT transfers' },
-    year: 2018,
-    available: true,
-  },
-  {
-    slug: 'dot',
-    symbol: 'DOT',
-    icon: '●',
-    name: 'Polkadot',
-    tagline: { ru: 'Интероперабельный мультичейн от создателя Solidity', en: 'Interoperable multi-chain from the creator of Solidity' },
-    year: 2020,
-    available: true,
-  },
-  {
-    slug: 'link',
-    symbol: 'LINK',
-    icon: '⬡',
-    name: 'Chainlink',
-    tagline: { ru: 'Децентрализованные оракулы — инфраструктура 80% DeFi', en: 'Decentralized oracles — infrastructure for 80% of DeFi' },
-    year: 2017,
-    available: true,
-  },
-  {
-    slug: 'ltc',
-    symbol: 'LTC',
-    icon: 'Ł',
-    name: 'Litecoin',
-    tagline: { ru: '«Серебро к биткоиновому золоту» — 12 лет надёжности', en: '"Silver to Bitcoin\'s gold" — 12 years of reliability' },
-    year: 2011,
-    available: true,
-  },
-  {
-    slug: 'shib',
-    symbol: 'SHIB',
-    icon: '🐕',
-    name: 'Shiba Inu',
-    tagline: { ru: '«Убийца Dogecoin» с собственным L2 и 410T сожжёнными токенами', en: '"DOGE killer" with its own L2 and 410T burned tokens' },
-    year: 2020,
-    available: true,
-  },
-];
-
 export default async function AssetsPage({ params }: Props) {
   const { locale } = await params;
+  const prices = await fetchTopAssetPrices(COIN_IDS);
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
 
@@ -205,19 +79,36 @@ export default async function AssetsPage({ params }: Props) {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {ASSETS.map(asset => (
-              asset.available ? (
+            {COINS.map(asset => {
+              const snapshot = prices[asset.coingeckoId];
+              const isPositive = (snapshot?.price_change_percentage_24h ?? 0) >= 0;
+              const priceTag = snapshot && (
+                <span className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-sm font-mono text-foreground">
+                    ${snapshot.current_price.toLocaleString('en-US', { maximumFractionDigits: snapshot.current_price < 1 ? 4 : 2 })}
+                  </span>
+                  <span className={`flex items-center gap-0.5 text-xs font-mono ${isPositive ? 'text-positive' : 'text-negative'}`}>
+                    {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                    {isPositive ? '+' : ''}{snapshot.price_change_percentage_24h.toFixed(1)}%
+                  </span>
+                </span>
+              );
+
+              return asset.available ? (
                 <Link
                   key={asset.slug}
                   href={`/${locale}/assets/${asset.slug}`}
                   className="group bg-card border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-3xl font-bold text-accent">{asset.icon}</span>
-                    <div>
-                      <p className="font-bold text-foreground">{asset.name}</p>
-                      <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-3xl font-bold text-accent shrink-0">{asset.icon}</span>
+                      <div className="min-w-0">
+                        <p className="font-bold text-foreground truncate">{asset.name}</p>
+                        <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                      </div>
                     </div>
+                    {priceTag}
                   </div>
                   <p className="text-sm text-muted">{asset.tagline[loc]}</p>
                   <p className="text-xs text-accent mt-3 group-hover:underline">
@@ -229,18 +120,21 @@ export default async function AssetsPage({ params }: Props) {
                   key={asset.slug}
                   className="bg-card border border-dashed border-border rounded-2xl p-5 opacity-50"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-3xl font-bold text-muted">{asset.icon}</span>
-                    <div>
-                      <p className="font-bold text-foreground">{asset.name}</p>
-                      <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-3xl font-bold text-muted shrink-0">{asset.icon}</span>
+                      <div className="min-w-0">
+                        <p className="font-bold text-foreground truncate">{asset.name}</p>
+                        <p className="text-xs text-muted">{asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}</p>
+                      </div>
                     </div>
+                    {priceTag}
                   </div>
                   <p className="text-sm text-muted">{asset.tagline[loc]}</p>
                   <p className="text-xs text-muted mt-3">{isRu ? 'Скоро...' : 'Coming soon...'}</p>
                 </div>
-              )
-            ))}
+              );
+            })}
           </div>
         </div>
 

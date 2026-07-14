@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
+import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { COINS } from '@/lib/coins';
 import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 
 const BASE = 'https://cryptopulse.media';
@@ -17,9 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const STATIC_DATE = new Date('2026-06-01');
 
   // Listing pages: new content daily
-  const listingPaths = ['', '/news', '/articles', '/ai', '/interviews', '/authors'];
+  const listingPaths = ['', '/news', '/articles', '/ai', '/ai/glossary', '/authors'];
   // Tool/asset pages: content changes but template doesn't
-  const toolPaths = ['/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/assets/bitcoin', '/assets/ethereum', '/assets/solana', '/assets/xrp', '/assets/bnb', '/assets/doge', '/assets/ada', '/assets/ton', '/assets/avax', '/assets/trx', '/assets/dot', '/assets/link', '/assets/ltc', '/assets/shib'];
+  const toolPaths = [
+    '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets',
+    ...COINS.filter(c => c.available).map(c => `/assets/${c.slug}`),
+  ];
   // Info pages: rarely change
   const infoPaths = ['/privacy', '/disclaimer', '/advertising', '/glossary', '/faq', '/security', '/editorial-policy', '/about', '/fear-greed', '/regulation'];
 
@@ -73,6 +78,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
   ]);
 
+  const aiGlossaryTermPages = AI_GLOSSARY.flatMap(term => [
+    { url: `${BASE}/ru/ai/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/en/ai/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+  ]);
+
   const authorPages = (authors as any[]).flatMap((a: any) => [
     { url: `${BASE}/ru/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${BASE}/en/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
@@ -88,5 +98,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];
 }

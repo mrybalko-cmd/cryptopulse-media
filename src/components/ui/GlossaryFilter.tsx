@@ -8,9 +8,12 @@ import type { GlossaryTerm } from '@/lib/glossary';
 interface Props {
   terms: GlossaryTerm[];
   locale: string;
+  // Lets this component be reused for other term sets (e.g. the AI
+  // glossary) that live at a different route than /glossary.
+  basePath?: string;
 }
 
-export default function GlossaryFilter({ terms, locale }: Props) {
+export default function GlossaryFilter({ terms, locale, basePath = 'glossary' }: Props) {
   const [query, setQuery] = useState('');
   const isRu = locale === 'ru';
 
@@ -74,7 +77,7 @@ export default function GlossaryFilter({ terms, locale }: Props) {
                       <span>{t.term[locale as 'ru' | 'en']}</span>
                       <span className="flex items-center gap-2 shrink-0">
                         <Link
-                          href={`/${locale}/glossary/${t.slug}`}
+                          href={`/${locale}/${basePath}/${t.slug}`}
                           onClick={(e) => e.stopPropagation()}
                           className="text-xs text-accent hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
                           aria-label={isRu ? `Открыть страницу термина ${t.term.ru}` : `Open page for ${t.term.en}`}

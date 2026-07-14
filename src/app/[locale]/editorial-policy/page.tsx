@@ -59,8 +59,8 @@ export default async function EditorialPolicyPage({ params }: Props) {
             <h2>Кто мы</h2>
             <p>
               {SITE_NAME} (cryptopulse.media) — независимый медиапроект о криптовалютах и блокчейне.
-              Мы публикуем собственные материалы: авторские новости, статьи, обзоры и интервью с участниками
-              индустрии — на русском и английском языках.
+              Мы публикуем собственные материалы: авторские новости, статьи и обзоры
+              — на русском и английском языках.
             </p>
 
             <h2>Редакционная независимость</h2>
@@ -104,8 +104,8 @@ export default async function EditorialPolicyPage({ params }: Props) {
             <h2>Who We Are</h2>
             <p>
               {SITE_NAME} (cryptopulse.media) is an independent media project covering cryptocurrency and
-              blockchain. We publish original content — authored news, articles, reviews, and interviews with
-              industry participants — in Russian and English.
+              blockchain. We publish original content — authored news, articles, and reviews
+              — in Russian and English.
             </p>
 
             <h2>Editorial Independence</h2>

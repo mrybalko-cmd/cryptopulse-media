@@ -3,6 +3,8 @@
     { "source": "/", "destination": "/en", "permanent": true },
     { "source": "/en/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/en/news/ripple-secures-full-casp-license-in-luxembourg-under-mica", "permanent": true },
     { "source": "/ru/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/ru/news/ripple-poluchila-polnuyu-litsenziyu-casp-v-lyuksemburge-po-mica", "permanent": true },
-    { "source": "/en/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery", "destination": "/en/articles/crypto-market-drops-4-5-in-a-day-what-volume-and-traders-are-saying", "permanent": true }
+    { "source": "/en/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery", "destination": "/en/articles/crypto-market-drops-4-5-in-a-day-what-volume-and-traders-are-saying", "permanent": true },
+    { "source": "/en/interviews", "destination": "/en/articles", "permanent": true },
+    { "source": "/ru/interviews", "destination": "/ru/articles", "permanent": true }
   ]
 }
