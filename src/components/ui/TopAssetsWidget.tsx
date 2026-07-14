@@ -2,15 +2,13 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown, Coins } from 'lucide-react';
 import { COINS, fetchTopAssetPrices } from '@/lib/coins';
 
-// Compact live-price panel. Built to solve two problems at once: it gives
-// the homepage's News and "Most read" columns real, useful content to grow
-// into instead of empty space when they're shorter than the tall Articles
-// column next to them (a fixed item count can never match that height
-// exactly — actual content), and it puts today's prices in front of
-// readers who'd otherwise only see prices on /assets. `slugs` picks which
-// coins to show and in what order; `className` lets each placement (news
-// column vs sidebar) size itself, but the component never tries to stretch
-// its own item count to fill a specific pixel height.
+// Compact live-price panel, also used on the homepage as a grid cell that's
+// meant to match a sibling row's height exactly (see page.tsx: it sits next
+// to row 2's compact cards with `h-full`, so the grid's own stretch makes
+// this card exactly as tall as that row, no taller/shorter) — `flex flex-col`
+// plus `mt-auto` on the closing link keeps it pinned to the bottom instead
+// of floating right under the last price row when there's extra height.
+// `slugs` picks which coins to show and in what order.
 export default async function TopAssetsWidget({
   slugs,
   locale,
@@ -25,7 +23,7 @@ export default async function TopAssetsWidget({
   const isRu = locale === 'ru';
 
   return (
-    <div className={`bg-card border border-border rounded-lg p-4 ${className}`}>
+    <div className={`bg-card border border-border rounded-lg p-4 flex flex-col ${className}`}>
       <h2 className="flex items-center gap-2 text-sm font-bold text-foreground mb-4">
         <Coins size={18} className="text-accent" />
         {isRu ? 'Курсы криптовалют' : 'Crypto Prices'}
@@ -65,7 +63,7 @@ export default async function TopAssetsWidget({
       </div>
       <Link
         href={`/${locale}/assets`}
-        className="block text-xs text-accent hover:underline mt-4 pt-3 border-t border-border"
+        className="block text-xs text-accent hover:underline mt-auto pt-3 border-t border-border"
       >
         {isRu ? 'Все крипто-активы →' : 'All crypto assets →'}
       </Link>

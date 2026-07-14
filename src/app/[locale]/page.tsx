@@ -205,13 +205,14 @@ export default async function HomePage({ params }: Props) {
           </div>
           {articleItems.length > 0 ? (
             <div className="flex flex-col gap-6">
-              {/* Row 1 (unchanged) + Row 2 (new, compact) — Popular spans
-                  both rows in the third column, same mechanic as before,
-                  just with row 2 broken out into its own dense sub-grid
-                  instead of two more full-size cards auto-flowing in.
-                  Rows sized by content (no forced grid-rows-2) so Popular's
-                  5 items line up with row 1 + row 2's real combined height
-                  instead of stretching both rows to match a taller widget. */}
+              {/* Row 1 (hero x2 + Popular) + Row 2 (compact x3 + price widget) —
+                  Popular and the widget each sit in their own row's third
+                  column now (no more stacking + self-start), so the grid's
+                  default stretch does the matching for us: Popular's cell is
+                  always exactly as tall as row 1's hero cards, and the
+                  widget's cell is always exactly as tall as row 2's compact
+                  cards, since PopularList/TopAssetsWidget fill their cell
+                  height (h-full) rather than sizing to their own content. */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {heroArticles.map((article: any, i: number) => (
                   <ArticleCard
@@ -229,16 +230,7 @@ export default async function HomePage({ params }: Props) {
                     priority={i < 2}
                           />
                 ))}
-                {hasPopular && (
-                  // self-start (not the grid default stretch) so this cell
-                  // sizes to its own real content — Popular card + assets
-                  // widget stacked — instead of being force-stretched to
-                  // match row 1+2's height and leaving blank card padding.
-                  <div className="lg:row-span-2 lg:self-start flex flex-col gap-4">
-                    <PopularList items={popularItems} locale={locale} />
-                    <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana', 'xrp']} locale={locale} />
-                  </div>
-                )}
+                {hasPopular && <PopularList items={popularItems} locale={locale} />}
                 {row2Articles.length > 0 && (
                   <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -257,6 +249,11 @@ export default async function HomePage({ params }: Props) {
                     </div>
                   </div>
                 )}
+                <TopAssetsWidget
+                  slugs={['bitcoin', 'ethereum', 'solana']}
+                  locale={locale}
+                  className="h-full lg:col-start-3 lg:row-start-2"
+                />
               </div>
 
               {/* Row 3 — author columns (curated in Studio: Настройки главной) */}
