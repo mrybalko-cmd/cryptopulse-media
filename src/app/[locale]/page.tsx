@@ -21,10 +21,9 @@ export default async function HomePage({ params }: Props) {
   const t = await getTranslations('home');
 
   const [news, articles, calendarEvents, popular, settings] = await Promise.allSettled([
-    // News rail runs alongside the (much taller) articles column. Height
-    // mismatch is no longer solved by tuning this number — see the
-    // TopAssetsWidget appended below the list, which fills whatever's left.
-    fetchOwnNews({ limit: 17, locale }),
+    // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
+    // up closer to the news/articles columns above it.
+    fetchOwnNews({ limit: 16, locale }),
     // 2 (hero) + 3 (row 2) + 5×4 (rows 4-7, compact) = 25
     fetchArticles({ limit: 25, locale }),
     fetchCalendarEvents(),
@@ -187,14 +186,6 @@ export default async function HomePage({ params }: Props) {
           ) : (
             <EmptyState text={locale === 'ru' ? 'Новости загружаются...' : 'Loading news...'} />
           )}
-          {/* Fills whatever height is left below the news list once the much
-              taller Articles column (right) sets the row height — real
-              content instead of a fixed item count trying to guess the
-              right height, which breaks every time either column's content
-              changes. */}
-          <div className="mt-6">
-            <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana', 'xrp', 'bnb', 'doge']} locale={locale} />
-          </div>
         </section>
         )}
 
@@ -245,7 +236,7 @@ export default async function HomePage({ params }: Props) {
                   // match row 1+2's height and leaving blank card padding.
                   <div className="lg:row-span-2 lg:self-start flex flex-col gap-4">
                     <PopularList items={popularItems} locale={locale} />
-                    <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana', 'xrp', 'ton', 'ada']} locale={locale} />
+                    <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana', 'xrp']} locale={locale} />
                   </div>
                 )}
                 {row2Articles.length > 0 && (
