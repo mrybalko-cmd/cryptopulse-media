@@ -41,7 +41,7 @@ export default function ArticleCard({
   return (
     <Link
       href={`/${locale}/articles/${slug}`}
-      className={`group block bg-card border border-border/70 ${compact ? 'rounded-lg' : 'rounded-xl'} overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
+      className={`group flex flex-col h-full bg-card border border-border/70 ${compact ? 'rounded-lg' : 'rounded-xl'} overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${featured ? 'md:col-span-2' : ''}`}
     >
       {coverImage && (
         <div className={`relative overflow-hidden ${featured ? 'h-52' : compact ? 'h-20 sm:h-24' : 'h-36 sm:h-40 md:h-44'}`}>
@@ -66,7 +66,7 @@ export default function ArticleCard({
           )}
         </div>
       )}
-      <div className={compact ? 'p-2.5' : 'p-4'}>
+      <div className={`flex flex-col flex-1 ${compact ? 'p-2.5' : 'p-4'}`}>
         {(!coverImage && badge && badge !== 'none' && !compact) && (
           <div className="mb-2">
             <ArticleBadge badge={badge} locale={locale} />
@@ -76,7 +76,11 @@ export default function ArticleCard({
           {title}
         </h3>
         {!compact && <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>}
-        <div className={`flex items-center justify-between ${compact ? 'mt-1.5' : 'mt-3'}`}>
+        {/* mt-auto pins this row to the card's bottom edge when the card is
+            stretched taller than its own content (e.g. row 2 next to the
+            taller Crypto Prices widget) — falls back to the usual small gap
+            below the title when there's no extra height to fill. */}
+        <div className={`flex items-center justify-between mt-auto ${compact ? 'pt-1.5' : 'pt-3'}`}>
           <div className={`flex items-center gap-2 text-muted ${compact ? 'text-[10px]' : 'text-xs'}`}>
             <span>{date}</span>
             {readingTime && !compact && (
