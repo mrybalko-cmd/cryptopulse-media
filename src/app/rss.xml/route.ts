@@ -78,7 +78,7 @@ export async function GET() {
   <channel>
     <title>${SITE_NAME}</title>
     <link>${BASE}</link>
-    <description>Крипто-аналитика для простых людей | Crypto intelligence for European investors</description>
+    <description>Крипто- и AI-аналитика для простых людей | Crypto &amp; AI intelligence for European investors</description>
     <language>ru, en</language>
     <managingEditor>${CONTACT_EMAIL}</managingEditor>
     <webMaster>${CONTACT_EMAIL}</webMaster>

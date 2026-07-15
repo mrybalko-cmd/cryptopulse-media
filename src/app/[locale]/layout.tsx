@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       template: '%s | CryptoPulse.media',
     },
     description: isRu
-      ? 'Крипто-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, гиды по крипто-активам и глоссарий терминов криптовалют.'
-      : 'Crypto intelligence for European investors. Breaking news, deep analysis, crypto asset guides, and a glossary of crypto terms — all in plain language.',
+      ? 'Крипто- и AI-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, гиды по крипто-активам, материалы об искусственном интеллекте и глоссарий терминов.'
+      : 'Crypto & AI intelligence for European investors. Breaking news, deep analysis, crypto asset guides, AI industry coverage, and a glossary of terms — all in plain language.',
     metadataBase: new URL(BASE),
     alternates: {
       canonical: `${BASE}/${locale}`,

@@ -3,6 +3,25 @@ import { ImageResponse } from 'next/og';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
+function Pill({ color, bg, children }: { color: string; bg: string; children: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '10px 22px',
+        borderRadius: 999,
+        background: bg,
+        color,
+        fontSize: 24,
+        fontWeight: 600,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default async function OpengraphImage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isRu = locale === 'ru';
@@ -18,8 +37,38 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
           justifyContent: 'center',
           padding: '80px',
           background: '#0a0a0a',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        {/* Soft brand-colored glows so the card reads as more than a flat
+            black rectangle, without pulling in any external image asset
+            (satori/next-og can't fetch our own site screenshots reliably). */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -220,
+            right: -180,
+            width: 620,
+            height: 620,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(220,38,38,0.22) 0%, rgba(220,38,38,0) 70%)',
+            display: 'flex',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: -240,
+            left: -160,
+            width: 560,
+            height: 560,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37,99,235,0.20) 0%, rgba(37,99,235,0) 70%)',
+            display: 'flex',
+          }}
+        />
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
           <div
             style={{
@@ -41,10 +90,16 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
           </div>
         </div>
         <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#ffffff', maxWidth: 900, lineHeight: 1.2 }}>
-          {isRu ? 'Крипто-аналитика для частных инвесторов Европы' : 'Crypto intelligence for European investors'}
+          {isRu ? 'Крипто- и AI-аналитика для инвесторов Европы' : 'Crypto & AI intelligence for European investors'}
         </div>
-        <div style={{ display: 'flex', fontSize: 26, color: '#6b7280', marginTop: 24 }}>
-          {isRu ? 'Новости · Статьи · Крипто-активы' : 'News · Articles · Crypto Assets'}
+        <div style={{ display: 'flex', fontSize: 26, color: '#9ca3af', marginTop: 20, maxWidth: 900 }}>
+          {isRu
+            ? 'Новости, аналитика, гиды по активам и глоссарий — простыми словами'
+            : 'News, analysis, asset guides, and a glossary — all in plain language'}
+        </div>
+        <div style={{ display: 'flex', gap: 14, marginTop: 36 }}>
+          <Pill color="#facc15" bg="rgba(220,38,38,0.18)">{isRu ? 'Крипто' : 'Crypto'}</Pill>
+          <Pill color="#93c5fd" bg="rgba(37,99,235,0.18)">{isRu ? 'ИИ' : 'AI'}</Pill>
         </div>
       </div>
     ),
