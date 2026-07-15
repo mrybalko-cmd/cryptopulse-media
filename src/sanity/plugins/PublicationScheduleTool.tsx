@@ -76,6 +76,13 @@ const QUERY = `{
   }
 }`;
 
+// Separate on-demand query for the "Недавно опубликовано" day picker —
+// $dayStart/$dayEnd can be any date the user picks, not just within the
+// 7-day RECENT_WINDOW_DAYS the main QUERY covers.
+const DAY_QUERY = `*[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt >= $dayStart && publishedAt < $dayEnd] | order(publishedAt desc) {
+  _id, _type, title, language, publishedAt
+}`;
+
 const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 const RU_MONTHS_FULL = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const RU_WEEKDAYS = ['вс','пн','вт','ср','чт','пт','сб'];
@@ -757,6 +764,12 @@ export function PublicationScheduleTool() {
   const [langFilter, setLangFilter] = useState<LangFilter>('all');
   const [stripOffsetDays, setStripOffsetDays] = useState(0);
   const [recentExpanded, setRecentExpanded] = useState(false);
+  // "YYYY-MM-DD" from the <input type="date"> in "Недавно опубликовано" —
+  // null means the default "last N items" view; set means that block shows
+  // everything published on that specific day instead.
+  const [recentSelectedDay, setRecentSelectedDay] = useState<string | null>(null);
+  const [dayItems, setDayItems] = useState<Item[] | null>(null);
+  const [dayItemsLoading, setDayItemsLoading] = useState(false);
 
   const types = typeFilter === 'all' ? ['article', 'news'] : [typeFilter];
   const langs = langFilter === 'all' ? ['ru', 'en'] : [langFilter];
@@ -809,6 +822,54 @@ export function PublicationScheduleTool() {
     setStripOffsetDays(0);
     handleDayClose();
   }, [handleDayClose]);
+
+  const fetchDayItems = useCallback(async (dayKey: string) => {
+    setDayItemsLoading(true);
+    try {
+      const t = typeFilter === 'all' ? ['article', 'news'] : [typeFilter];
+      const l = langFilter === 'all' ? ['ru', 'en'] : [langFilter];
+      const dayStart = new Date(`${dayKey}T00:00:00`);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+      const result = await client.fetch<Item[]>(DAY_QUERY, {
+        types: t,
+        langs: l,
+        dayStart: dayStart.toISOString(),
+        dayEnd: dayEnd.toISOString(),
+      });
+      setDayItems(result);
+    } catch (e) {
+      console.error('[PublicationScheduleTool] day fetch error:', e);
+      setDayItems([]);
+    } finally {
+      setDayItemsLoading(false);
+    }
+  }, [client, typeFilter, langFilter]);
+
+  const handleRecentDayChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!value) {
+      setRecentSelectedDay(null);
+      setDayItems(null);
+      return;
+    }
+    setRecentSelectedDay(value);
+    setRecentExpanded(true);
+    fetchDayItems(value);
+  }, [fetchDayItems]);
+
+  const clearRecentDay = useCallback(() => {
+    setRecentSelectedDay(null);
+    setDayItems(null);
+  }, []);
+
+  // Re-run the day fetch if the type/language filter changes while a
+  // specific day is selected, so that view stays consistent with the rest
+  // of the dashboard instead of silently going stale.
+  useEffect(() => {
+    if (recentSelectedDay) fetchDayItems(recentSelectedDay);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typeFilter, langFilter]);
 
   const scheduledCount = data?.scheduled.length ?? 0;
   const recentTotal = data?.recentTotal ?? 0;
@@ -981,32 +1042,73 @@ export function PublicationScheduleTool() {
               lifetime total but the list below only covered a few days.
               Collapsed by default and capped to RECENT_LIST_LIMIT items —
               it's the longest section and sits last, so it shouldn't force
-              a scroll through everything just to reach the bottom of the page. */}
+              a scroll through everything just to reach the bottom of the page.
+              The date picker swaps the default "last N" view for everything
+              published on one specific day, fetched on demand (DAY_QUERY)
+              since that day can be well outside the 7-day RECENT_WINDOW_DAYS
+              the rest of this card is bounded to. */}
           <Card padding={4} radius={3} shadow={1}>
-            <Flex
-              align="center"
-              justify="space-between"
-              onClick={() => setRecentExpanded(v => !v)}
-              style={{ cursor: 'pointer' }}
-            >
-              <Flex align="center" gap={2}>
+            <Flex align="center" justify="space-between" style={{ flexWrap: 'wrap', gap: 8 }}>
+              <Flex
+                align="center"
+                gap={2}
+                onClick={() => setRecentExpanded(v => !v)}
+                style={{ cursor: 'pointer' }}
+              >
                 <Text size={1} weight="bold">Недавно опубликовано</Text>
-                <Text size={0} muted>· за последние {RECENT_WINDOW_DAYS} дн.</Text>
-                <Badge tone="positive" fontSize={0} padding={2}>{recentWindowCount}</Badge>
+                <Text size={0} muted>
+                  {recentSelectedDay
+                    ? `· ${fmtDayFull(new Date(`${recentSelectedDay}T00:00:00`))}`
+                    : `· за последние ${RECENT_WINDOW_DAYS} дн.`}
+                </Text>
+                <Badge tone="positive" fontSize={0} padding={2}>
+                  {recentSelectedDay ? (dayItems?.length ?? 0) : recentWindowCount}
+                </Badge>
               </Flex>
-              <Button
-                icon={recentExpanded ? ChevronUpIcon : ChevronDownIcon}
-                mode="ghost"
-                tone="default"
-                padding={2}
-                onClick={(e) => { e.stopPropagation(); setRecentExpanded(v => !v); }}
-                title={recentExpanded ? 'Свернуть' : 'Развернуть'}
-              />
+              <Flex align="center" gap={2}>
+                <input
+                  type="date"
+                  value={recentSelectedDay ?? ''}
+                  max={new Date().toISOString().slice(0, 10)}
+                  onChange={handleRecentDayChange}
+                  style={{
+                    fontSize: 13,
+                    padding: '5px 8px',
+                    borderRadius: 6,
+                    border: '1px solid var(--card-border-color)',
+                    background: 'var(--card-bg-color)',
+                    color: 'inherit',
+                  }}
+                />
+                {recentSelectedDay && (
+                  <Button text="Сбросить" mode="ghost" tone="default" fontSize={1} padding={2} onClick={clearRecentDay} />
+                )}
+                <Button
+                  icon={recentExpanded ? ChevronUpIcon : ChevronDownIcon}
+                  mode="ghost"
+                  tone="default"
+                  padding={2}
+                  onClick={() => setRecentExpanded(v => !v)}
+                  title={recentExpanded ? 'Свернуть' : 'Развернуть'}
+                />
+              </Flex>
             </Flex>
 
             {recentExpanded && (
             <Box marginTop={3}>
-            {recentWindowCount === 0 ? (
+            {recentSelectedDay ? (
+              dayItemsLoading ? (
+                <Flex align="center" justify="center" style={{ padding: '20px 0' }}>
+                  <Spinner muted />
+                </Flex>
+              ) : !dayItems || dayItems.length === 0 ? (
+                <Text size={1} muted style={{ fontStyle: 'italic' }}>Нет опубликованных материалов за этот день</Text>
+              ) : (
+                <Box>
+                  {dayItems.map(item => <ItemRow key={item._id} item={item} />)}
+                </Box>
+              )
+            ) : recentWindowCount === 0 ? (
               <Text size={1} muted style={{ fontStyle: 'italic' }}>Нет опубликованных материалов за этот период</Text>
             ) : (
               <Box>
@@ -1023,47 +1125,7 @@ export function PublicationScheduleTool() {
                       </Text>
                       <Box style={{ height: 1, flex: 1, background: 'var(--card-border-color)' }} />
                     </Flex>
-                    <Flex gap={2} style={{ flexWrap: 'wrap' }}>
-                      {group.items.map(item => (
-                        <a
-                          key={item._id}
-                          href={docHref(item)}
-                          style={{ textDecoration: 'none', flex: '1 1 260px', minWidth: 220 }}
-                        >
-                          <Flex
-                            gap={2}
-                            align="flex-start"
-                            style={{
-                              padding: '10px 12px',
-                              borderRadius: 8,
-                              borderLeft: `3px solid ${item._type === 'article' ? '#1469F7' : '#E85D04'}`,
-                              background: 'var(--card-bg-color)',
-                              cursor: 'pointer',
-                              height: '100%',
-                            }}
-                          >
-                            <Flex gap={1} style={{ flexShrink: 0, paddingTop: 2 }}>
-                              <Badge tone={item._type === 'article' ? 'primary' : 'caution'} fontSize={0} padding={1}>
-                                {item._type === 'article' ? 'Ст' : 'Нв'}
-                              </Badge>
-                              <Badge tone={item.language === 'ru' ? 'positive' : 'default'} fontSize={0} padding={1}>
-                                {item.language.toUpperCase()}
-                              </Badge>
-                            </Flex>
-                            <Box style={{ minWidth: 0 }}>
-                              <Text size={1} style={{ lineHeight: 1.4 }}>
-                                {truncate(item.title || '(без названия)', 70)}
-                              </Text>
-                              {item.publishedAt && (
-                                <Text size={1} style={{ marginTop: 4, opacity: 0.7 }}>
-                                  {fmtDateTime(item.publishedAt)}
-                                </Text>
-                              )}
-                            </Box>
-                          </Flex>
-                        </a>
-                      ))}
-                    </Flex>
+                    {group.items.map(item => <ItemRow key={item._id} item={item} />)}
                   </Box>
                 ))}
               </Box>
