@@ -296,6 +296,13 @@ export default async function HomePage({ params }: Props) {
 
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />
+
+      {/* Mobile-only: Crypto Prices widget at the very bottom of the page.
+          Desktop already surfaces the same widget twice within the homepage
+          grid above, so this is lg:hidden to avoid a third repeat there. */}
+      <div className="lg:hidden">
+        <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana']} locale={locale} />
+      </div>
     </div>
   );
 }
