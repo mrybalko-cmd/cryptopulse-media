@@ -3,7 +3,10 @@ import { useClient } from 'sanity';
 import {
   Box, Card, Flex, Stack, Text, Badge, Spinner, Button, Heading,
 } from '@sanity/ui';
-import { CalendarIcon, SyncIcon, EditIcon, ClockIcon, CheckmarkIcon, CloseIcon } from '@sanity/icons';
+import {
+  CalendarIcon, SyncIcon, EditIcon, ClockIcon, CheckmarkIcon, CloseIcon,
+  ChevronLeftIcon, ChevronRightIcon, UsersIcon,
+} from '@sanity/icons';
 
 type Item = {
   _id: string;
@@ -16,42 +19,55 @@ type Item = {
 
 type LikedItem = Item & { likes: number; views: number };
 
+type AuthorCount = { name?: string };
+
 type DashboardData = {
   scheduled: Item[];
   recent: Item[];
+  recentWindowTotal: number;
   drafts: Item[];
   recentTotal: number;
   draftsTotal: number;
   dailyPublishedDates: string[];
   topLiked: LikedItem[];
+  byAuthor: AuthorCount[];
 };
 
 const TREND_DAYS = 30;
+// "Recently published" used to just show the last 60 items regardless of
+// date, while the header badge showed the true lifetime total — at this
+// site's publishing volume those two numbers could differ by hundreds,
+// making the badge look wrong. Bounding "recent" to an actual date window
+// means its own count always equals exactly what's listed below it.
+const RECENT_WINDOW_DAYS = 7;
+// How many days the calendar strip's forward/back buttons jump per click.
+const STRIP_STEP_DAYS = 15;
 
-// "recent" and "drafts" are sliced for the on-screen list only — the counts
-// shown in the header badges come from the separate count(...) totals below,
-// since data.recent.length/data.drafts.length would otherwise be capped at
-// the slice size regardless of how many items actually exist.
-//
-// "dailyPublishedDates" powers the per-day trend chart — fetched separately
-// (bounded by $windowStart) rather than derived from "recent" because
-// "recent" is capped at 60 items and would silently under-count days once
-// publishing volume exceeds that within the trend window.
+type TypeFilter = 'all' | 'article' | 'news';
+type LangFilter = 'all' | 'ru' | 'en';
+
+// "$types"/"$langs" are always passed as arrays (["article","news"] for
+// "all") so every sub-query below can use a plain "in" check instead of
+// branching GROQ on whether a filter is active — one shape, always filtered.
 const QUERY = `{
-  "scheduled": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now()] | order(publishedAt asc) {
+  "scheduled": *[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now()] | order(publishedAt asc) {
     _id, _type, title, language, publishedAt
   },
-  "recent": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) [0...60] {
+  "recent": *[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $recentWindowStart] | order(publishedAt desc) {
     _id, _type, title, language, publishedAt
   },
-  "recentTotal": count(*[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()]),
-  "drafts": *[_type in ["news", "article"] && _id in path("drafts.**")] | order(_updatedAt desc) [0...15] {
+  "recentWindowTotal": count(*[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $recentWindowStart]),
+  "recentTotal": count(*[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()]),
+  "drafts": *[_type in $types && language in $langs && _id in path("drafts.**")] | order(_updatedAt desc) [0...15] {
     _id, _type, title, language, _updatedAt
   },
-  "draftsTotal": count(*[_type in ["news", "article"] && _id in path("drafts.**")]),
-  "dailyPublishedDates": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $windowStart].publishedAt,
-  "topLiked": *[_type in ["news", "article"] && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc) [0...10] {
+  "draftsTotal": count(*[_type in $types && language in $langs && _id in path("drafts.**")]),
+  "dailyPublishedDates": *[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && publishedAt >= $trendWindowStart].publishedAt,
+  "topLiked": *[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc) [0...10] {
     _id, _type, title, language, publishedAt, "likes": coalesce(likes, 0), "views": coalesce(views, 0)
+  },
+  "byAuthor": *[_type in $types && language in $langs && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now() && defined(author)] {
+    "name": author->name
   }
 }`;
 
@@ -96,6 +112,10 @@ function fmtDateLabel(iso: string) {
   return `${d.getDate()} ${RU_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+function fmtShortDate(d: Date) {
+  return `${d.getDate()} ${RU_MONTHS[d.getMonth()]}`;
+}
+
 function fmtRelative(iso: string) {
   const diff = new Date(iso).getTime() - Date.now();
   const abs = Math.abs(diff);
@@ -128,6 +148,17 @@ function groupByDate(items: Item[], field: 'publishedAt' | '_updatedAt' = 'publi
   return result;
 }
 
+function buildAuthorCounts(byAuthor: AuthorCount[]): { name: string; count: number }[] {
+  const counts = new Map<string, number>();
+  byAuthor.forEach(({ name }) => {
+    const key = name || 'Без автора';
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
 function docHref(item: Item) {
   return `/studio/intent/edit/id=${item._id};type=${item._type}/`;
 }
@@ -150,19 +181,92 @@ function buildDailyCounts(dates: string[], days: number): DayCount[] {
   });
 }
 
-// ── Activity panel: daily trend + top liked, side by side ─────────────────────
+// ── Filter bar ──────────────────────────────────────────────────────────────
 
-function ActivityPanel({ trend, liked }: { trend: DayCount[]; liked: LikedItem[] }) {
+function ToggleGroup<T extends string>({
+  value, onChange, options,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; label: string }[];
+}) {
+  return (
+    <Flex gap={1}>
+      {options.map(opt => (
+        <Button
+          key={opt.value}
+          text={opt.label}
+          fontSize={1}
+          padding={2}
+          mode={value === opt.value ? 'default' : 'ghost'}
+          tone={value === opt.value ? 'primary' : 'default'}
+          onClick={() => onChange(opt.value)}
+        />
+      ))}
+    </Flex>
+  );
+}
+
+function FilterBar({
+  typeFilter, onTypeChange, langFilter, onLangChange,
+}: {
+  typeFilter: TypeFilter;
+  onTypeChange: (v: TypeFilter) => void;
+  langFilter: LangFilter;
+  onLangChange: (v: LangFilter) => void;
+}) {
+  return (
+    <Card padding={3} radius={3} shadow={1}>
+      <Flex gap={4} align="center" style={{ flexWrap: 'wrap' }}>
+        <Flex gap={2} align="center">
+          <Text size={1} muted style={{ whiteSpace: 'nowrap' }}>Тип:</Text>
+          <ToggleGroup
+            value={typeFilter}
+            onChange={onTypeChange}
+            options={[
+              { value: 'all', label: 'Все' },
+              { value: 'article', label: 'Статьи' },
+              { value: 'news', label: 'Новости' },
+            ]}
+          />
+        </Flex>
+        <Flex gap={2} align="center">
+          <Text size={1} muted style={{ whiteSpace: 'nowrap' }}>Язык:</Text>
+          <ToggleGroup
+            value={langFilter}
+            onChange={onLangChange}
+            options={[
+              { value: 'all', label: 'Все' },
+              { value: 'ru', label: 'RU' },
+              { value: 'en', label: 'EN' },
+            ]}
+          />
+        </Flex>
+      </Flex>
+    </Card>
+  );
+}
+
+// ── Activity panel: daily trend + top liked + by author, side by side ───────
+
+function ActivityPanel({
+  trend, liked, authors,
+}: {
+  trend: DayCount[];
+  liked: LikedItem[];
+  authors: { name: string; count: number }[];
+}) {
   const max = Math.max(1, ...trend.map(d => d.count));
   const total = trend.reduce((s, d) => s + d.count, 0);
   const avg = trend.length ? (total / trend.length).toFixed(1) : '0';
   const todayKey = toDateKey(new Date().toISOString());
+  const maxAuthorCount = Math.max(1, ...authors.map(a => a.count));
 
   return (
     <Card padding={4} radius={3} shadow={1}>
       <Flex gap={4} style={{ flexWrap: 'wrap' }}>
         {/* Daily trend chart */}
-        <Box style={{ flex: '2 1 380px', minWidth: 0 }}>
+        <Box style={{ flex: '2 1 340px', minWidth: 0 }}>
           <Flex align="center" justify="space-between" marginBottom={3} style={{ flexWrap: 'wrap', gap: 12 }}>
             <Flex align="center" gap={2}>
               <Box style={{ color: '#15803D' }}><CheckmarkIcon /></Box>
@@ -212,14 +316,15 @@ function ActivityPanel({ trend, liked }: { trend: DayCount[]; liked: LikedItem[]
           </Box>
         </Box>
 
-        {/* Divider */}
         <Box style={{ width: 1, background: 'var(--card-border-color)', alignSelf: 'stretch' }} />
 
-        {/* Top liked — scrollable so the panel height stays fixed regardless of list length */}
-        <Box style={{ flex: '1 1 280px', minWidth: 240 }}>
+        {/* Top liked — all-time, not bounded by the trend window above, so
+            labeled explicitly to avoid reading it as "top of the last 30 days" */}
+        <Box style={{ flex: '1 1 240px', minWidth: 220 }}>
           <Flex align="center" gap={2} marginBottom={3}>
             <Box style={{ color: '#DC2626' }}>❤</Box>
             <Text size={1} weight="bold">Топ по лайкам</Text>
+            <Text size={0} muted>· за всё время</Text>
           </Flex>
           {liked.length > 0 ? (
             <Stack space={1} style={{ maxHeight: 172, overflowY: 'auto' }}>
@@ -250,6 +355,33 @@ function ActivityPanel({ trend, liked }: { trend: DayCount[]; liked: LikedItem[]
             <Text size={1} muted>Пока нет лайков</Text>
           )}
         </Box>
+
+        <Box style={{ width: 1, background: 'var(--card-border-color)', alignSelf: 'stretch' }} />
+
+        {/* By author — lifetime published count per author, for the current filter */}
+        <Box style={{ flex: '1 1 240px', minWidth: 220 }}>
+          <Flex align="center" gap={2} marginBottom={3}>
+            <Box style={{ color: '#7C3AED' }}><UsersIcon /></Box>
+            <Text size={1} weight="bold">По авторам</Text>
+          </Flex>
+          {authors.length > 0 ? (
+            <Stack space={2} style={{ maxHeight: 172, overflowY: 'auto' }}>
+              {authors.slice(0, 8).map(({ name, count }) => (
+                <Box key={name}>
+                  <Flex align="center" justify="space-between" marginBottom={1}>
+                    <Text size={1} style={{ lineHeight: 1.3 }}>{truncate(name, 26)}</Text>
+                    <Text size={1} weight="semibold" muted>{count}</Text>
+                  </Flex>
+                  <Box style={{ height: 4, borderRadius: 2, background: 'var(--card-border-color)', overflow: 'hidden' }}>
+                    <Box style={{ height: '100%', width: `${(count / maxAuthorCount) * 100}%`, background: '#7C3AED', borderRadius: 2 }} />
+                  </Box>
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            <Text size={1} muted>Нет данных по авторам</Text>
+          )}
+        </Box>
       </Flex>
     </Card>
   );
@@ -262,11 +394,21 @@ function DayStrip({
   recent,
   selectedKey,
   onSelect,
+  anchor,
+  onPrev,
+  onNext,
+  onToday,
+  isShifted,
 }: {
   scheduled: Item[];
   recent: Item[];
   selectedKey: string | null;
   onSelect: (key: string, date: Date) => void;
+  anchor: Date;
+  onPrev: () => void;
+  onNext: () => void;
+  onToday: () => void;
+  isShifted: boolean;
 }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -286,110 +428,125 @@ function DayStrip({
   });
 
   const days = Array.from({ length: DAYS }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    const d = new Date(anchor);
+    d.setDate(anchor.getDate() + i);
     return d;
   });
 
-  // Past days: show last 7 days before today too
+  // Past days: show the 7 days before the anchor too, same as before —
+  // just relative to the (possibly paged) anchor instead of always "today".
   const pastDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (7 - i));
+    const d = new Date(anchor);
+    d.setDate(anchor.getDate() - (7 - i));
     return d;
   });
 
   const allDays = [...pastDays, ...days];
 
   return (
-    <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
-      <Flex gap={1} style={{ minWidth: 'max-content' }}>
-        {allDays.map((date) => {
-          const k = toDateKey(date.toISOString());
-          const schCount = scheduledByKey.get(k) || 0;
-          const pubCount = recentByKey.get(k) || 0;
-          const isToday = k === toDateKey(today.toISOString());
-          const isSelected = k === selectedKey;
-          const isPast = date < today;
-
-          return (
-            <button
-              key={k}
-              onClick={() => onSelect(k, date)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 3,
-                padding: '8px 6px 6px',
-                borderRadius: 8,
-                border: isSelected
-                  ? '2px solid #2276FC'
-                  : isToday
-                  ? '1px solid rgba(34,118,252,0.35)'
-                  : '1px solid transparent',
-                background: isSelected
-                  ? 'rgba(34,118,252,0.12)'
-                  : isToday
-                  ? 'rgba(34,118,252,0.05)'
-                  : (schCount > 0 || pubCount > 0)
-                  ? 'rgba(255,255,255,0.03)'
-                  : 'transparent',
-                cursor: 'pointer',
-                minWidth: 44,
-                outline: 'none',
-                opacity: isPast && !isToday ? 0.65 : 1,
-                transition: 'background 0.12s, border-color 0.12s',
-              }}
-            >
-              <span style={{
-                fontSize: 10,
-                lineHeight: 1.2,
-                textTransform: 'uppercase',
-                color: isSelected ? '#2276FC' : 'var(--card-muted-fg-color)',
-                fontWeight: isToday ? 700 : 400,
-              }}>
-                {RU_WEEKDAYS[date.getDay()]}
-              </span>
-              <span style={{
-                fontSize: 14,
-                lineHeight: 1.4,
-                fontWeight: isToday || isSelected ? 700 : 400,
-                color: isSelected ? '#2276FC' : isToday ? '#2276FC' : 'inherit',
-              }}>
-                {date.getDate()}
-              </span>
-              <span style={{
-                fontSize: 9,
-                color: 'var(--card-muted-fg-color)',
-                lineHeight: 1,
-              }}>
-                {RU_MONTHS[date.getMonth()]}
-              </span>
-              {/* Dots: blue = scheduled, green = published */}
-              <Flex gap={1} justify="center" style={{ height: 8, marginTop: 2 }}>
-                {schCount > 0 && (
-                  <Box style={{
-                    width: Math.min(schCount, 3) * 4 + 4,
-                    height: 5,
-                    borderRadius: 3,
-                    background: '#2276FC',
-                    minWidth: 5,
-                  }} />
-                )}
-                {pubCount > 0 && (
-                  <Box style={{
-                    width: Math.min(pubCount, 3) * 4 + 4,
-                    height: 5,
-                    borderRadius: 3,
-                    background: '#15803D',
-                    minWidth: 5,
-                  }} />
-                )}
-              </Flex>
-            </button>
-          );
-        })}
+    <Box>
+      <Flex align="center" justify="space-between" marginBottom={2} style={{ flexWrap: 'wrap', gap: 8 }}>
+        <Text size={0} muted>
+          {fmtShortDate(allDays[0])} – {fmtShortDate(allDays[allDays.length - 1])}
+        </Text>
+        <Flex gap={1} align="center">
+          {isShifted && (
+            <Button text="Сегодня" mode="ghost" tone="primary" fontSize={1} padding={2} onClick={onToday} />
+          )}
+          <Button icon={ChevronLeftIcon} mode="ghost" tone="default" padding={2} onClick={onPrev} title="Раньше" />
+          <Button icon={ChevronRightIcon} mode="ghost" tone="default" padding={2} onClick={onNext} title="Позже" />
+        </Flex>
       </Flex>
+      <Box style={{ overflowX: 'auto', paddingBottom: 4 }}>
+        <Flex gap={1} style={{ minWidth: 'max-content' }}>
+          {allDays.map((date) => {
+            const k = toDateKey(date.toISOString());
+            const schCount = scheduledByKey.get(k) || 0;
+            const pubCount = recentByKey.get(k) || 0;
+            const isToday = k === toDateKey(today.toISOString());
+            const isSelected = k === selectedKey;
+            const isPast = date < today;
+
+            return (
+              <button
+                key={k}
+                onClick={() => onSelect(k, date)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 3,
+                  padding: '8px 6px 6px',
+                  borderRadius: 8,
+                  border: isSelected
+                    ? '2px solid #2276FC'
+                    : isToday
+                    ? '1px solid rgba(34,118,252,0.35)'
+                    : '1px solid transparent',
+                  background: isSelected
+                    ? 'rgba(34,118,252,0.12)'
+                    : isToday
+                    ? 'rgba(34,118,252,0.05)'
+                    : (schCount > 0 || pubCount > 0)
+                    ? 'rgba(255,255,255,0.03)'
+                    : 'transparent',
+                  cursor: 'pointer',
+                  minWidth: 44,
+                  outline: 'none',
+                  opacity: isPast && !isToday ? 0.65 : 1,
+                  transition: 'background 0.12s, border-color 0.12s',
+                }}
+              >
+                <span style={{
+                  fontSize: 10,
+                  lineHeight: 1.2,
+                  textTransform: 'uppercase',
+                  color: isSelected ? '#2276FC' : 'var(--card-muted-fg-color)',
+                  fontWeight: isToday ? 700 : 400,
+                }}>
+                  {RU_WEEKDAYS[date.getDay()]}
+                </span>
+                <span style={{
+                  fontSize: 14,
+                  lineHeight: 1.4,
+                  fontWeight: isToday || isSelected ? 700 : 400,
+                  color: isSelected ? '#2276FC' : isToday ? '#2276FC' : 'inherit',
+                }}>
+                  {date.getDate()}
+                </span>
+                <span style={{
+                  fontSize: 9,
+                  color: 'var(--card-muted-fg-color)',
+                  lineHeight: 1,
+                }}>
+                  {RU_MONTHS[date.getMonth()]}
+                </span>
+                {/* Dots: blue = scheduled, green = published */}
+                <Flex gap={1} justify="center" style={{ height: 8, marginTop: 2 }}>
+                  {schCount > 0 && (
+                    <Box style={{
+                      width: Math.min(schCount, 3) * 4 + 4,
+                      height: 5,
+                      borderRadius: 3,
+                      background: '#2276FC',
+                      minWidth: 5,
+                    }} />
+                  )}
+                  {pubCount > 0 && (
+                    <Box style={{
+                      width: Math.min(pubCount, 3) * 4 + 4,
+                      height: 5,
+                      borderRadius: 3,
+                      background: '#15803D',
+                      minWidth: 5,
+                    }} />
+                  )}
+                </Flex>
+              </button>
+            );
+          })}
+        </Flex>
+      </Box>
       {/* Legend */}
       <Flex gap={4} style={{ marginTop: 8, paddingLeft: 2 }}>
         <Flex align="center" gap={1}>
@@ -548,7 +705,7 @@ function ItemRow({ item }: { item: Item }) {
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
 function Section({
-  title, icon, count, color, children, emptyMessage,
+  title, icon, count, color, children, emptyMessage, maxHeight,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -556,6 +713,9 @@ function Section({
   color?: string;
   children?: React.ReactNode;
   emptyMessage: string;
+  // Scrollable cap so a large backlog (e.g. many scheduled items) doesn't
+  // stretch the whole page — matches the treatment "Топ по лайкам" already had.
+  maxHeight?: number;
 }) {
   return (
     <Card padding={4} radius={3} shadow={1} style={{ height: '100%' }}>
@@ -570,6 +730,8 @@ function Section({
         <Flex align="center" justify="center" style={{ padding: '24px 0' }}>
           <Text size={1} muted style={{ fontStyle: 'italic' }}>{emptyMessage}</Text>
         </Flex>
+      ) : maxHeight ? (
+        <Box style={{ maxHeight, overflowY: 'auto' }}>{children}</Box>
       ) : (
         children
       )}
@@ -586,13 +748,26 @@ export function PublicationScheduleTool() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [langFilter, setLangFilter] = useState<LangFilter>('all');
+  const [stripOffsetDays, setStripOffsetDays] = useState(0);
+
+  const types = typeFilter === 'all' ? ['article', 'news'] : [typeFilter];
+  const langs = langFilter === 'all' ? ['ru', 'en'] : [langFilter];
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const windowStart = new Date();
-      windowStart.setDate(windowStart.getDate() - TREND_DAYS);
-      const result = await client.fetch<DashboardData>(QUERY, { windowStart: windowStart.toISOString() });
+      const trendWindowStart = new Date();
+      trendWindowStart.setDate(trendWindowStart.getDate() - TREND_DAYS);
+      const recentWindowStart = new Date();
+      recentWindowStart.setDate(recentWindowStart.getDate() - RECENT_WINDOW_DAYS);
+      const result = await client.fetch<DashboardData>(QUERY, {
+        types,
+        langs,
+        trendWindowStart: trendWindowStart.toISOString(),
+        recentWindowStart: recentWindowStart.toISOString(),
+      });
       setData(result);
       setLastUpdated(new Date());
     } catch (e) {
@@ -600,7 +775,8 @@ export function PublicationScheduleTool() {
     } finally {
       setLoading(false);
     }
-  }, [client]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, typeFilter, langFilter]);
 
   useEffect(() => {
     refresh();
@@ -618,18 +794,37 @@ export function PublicationScheduleTool() {
     setSelectedDate(null);
   }, []);
 
+  const shiftStrip = useCallback((deltaDays: number) => {
+    setStripOffsetDays(v => v + deltaDays);
+    handleDayClose();
+  }, [handleDayClose]);
+
+  const resetStrip = useCallback(() => {
+    setStripOffsetDays(0);
+    handleDayClose();
+  }, [handleDayClose]);
+
   const scheduledCount = data?.scheduled.length ?? 0;
-  const recentCount = data?.recentTotal ?? 0;
+  const recentTotal = data?.recentTotal ?? 0;
+  const recentWindowCount = data?.recent.length ?? 0;
   const draftsCount = data?.draftsTotal ?? 0;
 
   const scheduledGroups = data ? groupByDate(data.scheduled, 'publishedAt') : [];
   const recentGroups = data ? groupByDate(data.recent, 'publishedAt') : [];
   const dailyCounts = data ? buildDailyCounts(data.dailyPublishedDates, TREND_DAYS) : [];
+  const authorCounts = data ? buildAuthorCounts(data.byAuthor) : [];
+
+  const stripAnchor = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + stripOffsetDays);
+    return d;
+  })();
 
   return (
     <Box padding={4} style={{ maxWidth: 1200, margin: '0 auto' }}>
       {/* Header */}
-      <Flex align="center" justify="space-between" marginBottom={4}>
+      <Flex align="center" justify="space-between" marginBottom={4} style={{ flexWrap: 'wrap', gap: 12 }}>
         <Flex align="center" gap={3}>
           <CalendarIcon style={{ fontSize: 28, color: '#2276FC' }} />
           <Stack space={1}>
@@ -648,8 +843,8 @@ export function PublicationScheduleTool() {
               <Text size={0} muted>запланировано</Text>
             </Card>
             <Card padding={3} radius={2} tone="positive" style={{ textAlign: 'center', minWidth: 72 }}>
-              <Text size={3} weight="bold" style={{ color: '#15803D' }}>{recentCount}</Text>
-              <Text size={0} muted>опубликовано</Text>
+              <Text size={3} weight="bold" style={{ color: '#15803D' }}>{recentTotal}</Text>
+              <Text size={0} muted>опубликовано всего</Text>
             </Card>
             <Card padding={3} radius={2} tone="caution" style={{ textAlign: 'center', minWidth: 72 }}>
               <Text size={3} weight="bold" style={{ color: '#B45309' }}>{draftsCount}</Text>
@@ -666,6 +861,15 @@ export function PublicationScheduleTool() {
           />
         </Flex>
       </Flex>
+
+      <Box marginBottom={4}>
+        <FilterBar
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          langFilter={langFilter}
+          onLangChange={setLangFilter}
+        />
+      </Box>
 
       {loading && !data && (
         <Flex align="center" justify="center" style={{ height: 200 }}>
@@ -697,6 +901,11 @@ export function PublicationScheduleTool() {
               recent={data.recent}
               selectedKey={selectedKey}
               onSelect={handleDaySelect}
+              anchor={stripAnchor}
+              onPrev={() => shiftStrip(-STRIP_STEP_DAYS)}
+              onNext={() => shiftStrip(STRIP_STEP_DAYS)}
+              onToday={resetStrip}
+              isShifted={stripOffsetDays !== 0}
             />
           </Card>
 
@@ -710,8 +919,8 @@ export function PublicationScheduleTool() {
             />
           )}
 
-          {/* Daily publication trend + top liked, side by side in one compact panel */}
-          <ActivityPanel trend={dailyCounts} liked={data.topLiked} />
+          {/* Daily publication trend + top liked + by author, side by side */}
+          <ActivityPanel trend={dailyCounts} liked={data.topLiked} authors={authorCounts} />
 
           {/* Main columns (always visible) */}
           <Flex gap={4} align="flex-start" style={{ flexWrap: 'wrap' }}>
@@ -723,6 +932,7 @@ export function PublicationScheduleTool() {
                 count={scheduledCount}
                 color="#2276FC"
                 emptyMessage="Нет запланированных публикаций"
+                maxHeight={480}
               >
                 {scheduledGroups.map(group => (
                   <Box key={group.label} marginBottom={3}>
@@ -747,26 +957,36 @@ export function PublicationScheduleTool() {
                 count={draftsCount}
                 color="#B45309"
                 emptyMessage="Нет черновиков"
+                maxHeight={480}
               >
                 {data.drafts.map(item => <ItemRow key={item._id} item={item} />)}
+                {draftsCount > data.drafts.length && (
+                  <Text size={0} muted>
+                    + ещё {draftsCount - data.drafts.length} черновиков...
+                  </Text>
+                )}
               </Section>
             </Box>
           </Flex>
 
-          {/* Recently published */}
+          {/* Recently published — bounded to an actual window (see
+              RECENT_WINDOW_DAYS), so this count always equals exactly what's
+              listed below it, unlike before when the badge showed the
+              lifetime total but the list below only covered a few days. */}
           <Card padding={4} radius={3} shadow={1}>
             <Flex align="center" justify="space-between" marginBottom={3}>
               <Flex align="center" gap={2}>
                 <Text size={1} weight="bold">Недавно опубликовано</Text>
-                <Badge tone="positive" fontSize={0} padding={2}>{recentCount}</Badge>
+                <Text size={0} muted>· за последние {RECENT_WINDOW_DAYS} дн.</Text>
+                <Badge tone="positive" fontSize={0} padding={2}>{recentWindowCount}</Badge>
               </Flex>
             </Flex>
 
-            {recentCount === 0 ? (
-              <Text size={1} muted style={{ fontStyle: 'italic' }}>Нет опубликованных материалов</Text>
+            {recentWindowCount === 0 ? (
+              <Text size={1} muted style={{ fontStyle: 'italic' }}>Нет опубликованных материалов за этот период</Text>
             ) : (
               <Box>
-                {recentGroups.slice(0, 10).map(group => (
+                {recentGroups.map(group => (
                   <Box key={group.label} marginBottom={3}>
                     <Flex align="center" gap={2} marginBottom={2}>
                       <Text size={0} weight="semibold" muted style={{ whiteSpace: 'nowrap' }}>
@@ -817,11 +1037,6 @@ export function PublicationScheduleTool() {
                     </Flex>
                   </Box>
                 ))}
-                {recentGroups.length > 10 && (
-                  <Text size={0} muted>
-                    + ещё {recentGroups.slice(10).reduce((s, g) => s + g.items.length, 0)} публикаций...
-                  </Text>
-                )}
               </Box>
             )}
           </Card>
