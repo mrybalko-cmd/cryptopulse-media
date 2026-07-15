@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { LockedSlugInput } from '../components/LockedSlugInput';
+import { publishStatusDot } from '../lib/publishStatus';
 
 export const articleType = defineType({
   name: 'article',
@@ -185,6 +186,15 @@ export const articleType = defineType({
         {
           type: 'block',
           marks: {
+            decorators: [
+              { title: 'Strong', value: 'strong' },
+              { title: 'Emphasis', value: 'em' },
+              { title: 'Code', value: 'code' },
+              { title: 'Underline', value: 'underline' },
+              { title: 'Strike', value: 'strike-through' },
+              { title: 'Крупный текст / Large', value: 'large' },
+              { title: 'Мелкий текст / Small', value: 'small' },
+            ],
             annotations: [
               {
                 name: 'link',
@@ -216,6 +226,9 @@ export const articleType = defineType({
           options: { hotspot: true },
           fields: [{ name: 'alt', type: 'string', title: 'Alt text' }],
         },
+        { type: 'quoteBlock' },
+        { type: 'youtubeEmbed' },
+        { type: 'tweetEmbed' },
       ],
     }),
     defineField({
@@ -290,9 +303,9 @@ export const articleType = defineType({
     }),
   ],
   preview: {
-    select: { title: 'title', language: 'language', media: 'coverImage' },
-    prepare({ title, language, media }) {
-      return { title, subtitle: language?.toUpperCase(), media };
+    select: { title: 'title', language: 'language', media: 'coverImage', publishedAt: 'publishedAt', id: '_id' },
+    prepare({ title, language, media, publishedAt, id }) {
+      return { title: `${publishStatusDot(id, publishedAt)} ${title}`, subtitle: language?.toUpperCase(), media };
     },
   },
 });

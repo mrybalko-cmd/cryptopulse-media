@@ -6,5 +6,11 @@ import { eventVoteType } from './eventVote';
 import { emailSubscriberType } from './emailSubscriber';
 import { authorType } from './author';
 import { homeSettingsType } from './homeSettings';
+import { quoteBlockType } from './quoteBlock';
+import { youtubeEmbedType } from './youtubeEmbed';
+import { tweetEmbedType } from './tweetEmbed';
 
-export const schemaTypes = [authorType, articleType, newsType, commentType, calendarEventType, eventVoteType, emailSubscriberType, homeSettingsType];
+export const schemaTypes = [
+  authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
+  emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType,
+];

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
 import { fetchArticleBySlug, fetchRelatedArticles } from '@/lib/sanity';
-import { PortableText } from '@portabletext/react';
+import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import ArticleBadge from '@/components/ui/ArticleBadge';
@@ -16,8 +16,8 @@ import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { urlFor, sanityImageTransform } from '@/lib/sanityImage';
-import { truncateDesc, truncateTitle, BASE } from '@/lib/metadata';
+import { sanityImageTransform } from '@/lib/sanityImage';
+import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -211,71 +211,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Body */}
       {article.body ? (
-        <div className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-foreground prose-headings:font-semibold
-          prose-p:text-muted prose-p:leading-relaxed
-          prose-a:text-blue-500 prose-a:underline prose-a:decoration-blue-500 hover:prose-a:text-blue-600 hover:prose-a:decoration-blue-600
-          prose-strong:text-foreground
-          prose-li:text-muted prose-li:marker:text-muted
-          prose-blockquote:border-accent prose-blockquote:text-muted
-          prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
-        ">
-          <PortableText
-            value={article.body}
-            components={{
-              types: {
-                image: ({ value }: { value: any }) => {
-                  if (!value?.asset) return null;
-                  const src = urlFor(value).width(900).url();
-                  return (
-                    <figure className="my-6">
-                      <img
-                        src={src}
-                        alt={value.alt || article.title}
-                        loading="lazy"
-                        className="w-full h-auto rounded-lg"
-                      />
-                      {value.alt && (
-                        <figcaption className="text-xs text-muted text-center mt-2">{value.alt}</figcaption>
-                      )}
-                    </figure>
-                  );
-                },
-              },
-              marks: {
-                link: ({ value, children }) => {
-                  const href = value?.href ?? '';
-                  const isInternal = href.startsWith('/') || href.startsWith(BASE);
-                  if (isInternal) {
-                    const path = href.startsWith(BASE) ? href.slice(BASE.length) || '/' : href;
-                    return (
-                      <Link
-                        href={path}
-                        className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
-                      >
-                        {children}
-                      </Link>
-                    );
-                  }
-                  const relParts = [
-                    'noopener', 'noreferrer',
-                    ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
-                  ];
-                  return (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel={relParts.join(' ')}
-                      className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
-                    >
-                      {children}
-                    </a>
-                  );
-                },
-              },
-            }}
-          />
-        </div>
+        <RichText value={article.body} fallbackAlt={article.title} locale={locale} />
       ) : (
         <p className="text-muted">{article.excerpt}</p>
       )}

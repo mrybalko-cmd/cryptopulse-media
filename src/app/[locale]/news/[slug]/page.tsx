@@ -10,14 +10,14 @@ import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react'
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import { fetchNewsBySlug, fetchRelatedNews } from '@/lib/sanity';
-import { PortableText } from '@portabletext/react';
+import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
-import { urlFor, sanityImageTransform } from '@/lib/sanityImage';
-import { truncateDesc, truncateTitle, BASE } from '@/lib/metadata';
+import { sanityImageTransform } from '@/lib/sanityImage';
+import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -217,71 +217,7 @@ export default async function NewsDetailPage({ params }: Props) {
 
       {/* Body */}
       {news.body ? (
-        <div className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-foreground prose-headings:font-semibold
-          prose-p:text-muted prose-p:leading-relaxed
-          prose-a:text-blue-500 prose-a:underline prose-a:decoration-blue-500 hover:prose-a:text-blue-600 hover:prose-a:decoration-blue-600
-          prose-strong:text-foreground
-          prose-li:text-muted prose-li:marker:text-muted
-          prose-blockquote:border-accent prose-blockquote:text-muted
-          prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
-        ">
-          <PortableText
-            value={news.body}
-            components={{
-              types: {
-                image: ({ value }: { value: any }) => {
-                  if (!value?.asset) return null;
-                  const src = urlFor(value).width(900).url();
-                  return (
-                    <figure className="my-6">
-                      <img
-                        src={src}
-                        alt={value.alt || news.title}
-                        loading="lazy"
-                        className="w-full h-auto rounded-lg"
-                      />
-                      {value.alt && (
-                        <figcaption className="text-xs text-muted text-center mt-2">{value.alt}</figcaption>
-                      )}
-                    </figure>
-                  );
-                },
-              },
-              marks: {
-                link: ({ value, children }) => {
-                  const href = value?.href ?? '';
-                  const isInternal = href.startsWith('/') || href.startsWith(BASE);
-                  if (isInternal) {
-                    const path = href.startsWith(BASE) ? href.slice(BASE.length) || '/' : href;
-                    return (
-                      <Link
-                        href={path}
-                        className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
-                      >
-                        {children}
-                      </Link>
-                    );
-                  }
-                  const relParts = [
-                    'noopener', 'noreferrer',
-                    ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
-                  ];
-                  return (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel={relParts.join(' ')}
-                      className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
-                    >
-                      {children}
-                    </a>
-                  );
-                },
-              },
-            }}
-          />
-        </div>
+        <RichText value={news.body} fallbackAlt={news.title} locale={locale} />
       ) : (
         <p className="text-muted">{news.excerpt}</p>
       )}
