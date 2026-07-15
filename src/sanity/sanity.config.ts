@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity';
-import { structureTool } from 'sanity/structure';
+import { structureTool, type StructureBuilder } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { CalendarIcon, HomeIcon } from '@sanity/icons';
 import { schemaTypes } from './schemaTypes';
@@ -10,6 +10,58 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 
 const HOME_SETTINGS_ID = 'homeSettings';
+
+// Same live/soon/pending thresholds as publishStatusDot() — 1 hour window
+// for "🟡 soon". Kept as GROQ date arithmetic (dateTime(now()) + 60*60)
+// rather than a JS-computed param so the window is always relative to
+// whenever the pane is actually opened, not when the config loaded.
+function statusFilterItems(S: StructureBuilder, type: 'article' | 'news', title: string) {
+  return S.listItem()
+    .title(title)
+    .child(
+      S.list()
+        .title(title)
+        .items([
+          S.listItem()
+            .id(`${type}-all`)
+            .title('Все')
+            .child(S.documentTypeList(type).title(title)),
+          S.listItem()
+            .id(`${type}-live`)
+            .title('🟢 На сайте')
+            .child(
+              S.documentList()
+                .id(`${type}-live-list`)
+                .title('🟢 На сайте')
+                .schemaType(type)
+                .filter('_type == $type && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt <= now()')
+                .params({ type })
+            ),
+          S.listItem()
+            .id(`${type}-soon`)
+            .title('🟡 Скоро (в течение часа)')
+            .child(
+              S.documentList()
+                .id(`${type}-soon-list`)
+                .title('🟡 Скоро (в течение часа)')
+                .schemaType(type)
+                .filter('_type == $type && !(_id in path("drafts.**")) && defined(publishedAt) && publishedAt > now() && publishedAt <= dateTime(now()) + 60*60')
+                .params({ type })
+            ),
+          S.listItem()
+            .id(`${type}-pending`)
+            .title('🔴 Черновик / запланировано')
+            .child(
+              S.documentList()
+                .id(`${type}-pending-list`)
+                .title('🔴 Черновик / запланировано')
+                .schemaType(type)
+                .filter('_type == $type && (_id in path("drafts.**") || !defined(publishedAt) || publishedAt > dateTime(now()) + 60*60)')
+                .params({ type })
+            ),
+        ])
+    );
+}
 
 export default defineConfig({
   name: 'cryptopulse',
@@ -27,7 +79,12 @@ export default defineConfig({
               .icon(HomeIcon)
               .child(S.document().schemaType('homeSettings').documentId(HOME_SETTINGS_ID)),
             S.divider(),
-            ...S.documentTypeListItems().filter((item) => item.getId() !== 'homeSettings'),
+            statusFilterItems(S, 'article', 'Article'),
+            statusFilterItems(S, 'news', 'News'),
+            S.divider(),
+            ...S.documentTypeListItems().filter(
+              (item) => !['homeSettings', 'article', 'news'].includes(item.getId() as string)
+            ),
           ]),
     }),
     visionTool(),
