@@ -5,7 +5,7 @@ import {
 } from '@sanity/ui';
 import {
   CalendarIcon, SyncIcon, EditIcon, ClockIcon, CheckmarkIcon, CloseIcon,
-  ChevronLeftIcon, ChevronRightIcon, UsersIcon,
+  ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, ChevronUpIcon, UsersIcon,
 } from '@sanity/icons';
 
 type Item = {
@@ -40,6 +40,11 @@ const TREND_DAYS = 30;
 // making the badge look wrong. Bounding "recent" to an actual date window
 // means its own count always equals exactly what's listed below it.
 const RECENT_WINDOW_DAYS = 7;
+// "Recently published" is the longest section and sits last on the page —
+// only render the most recent N here by default instead of the whole
+// 7-day window, and let the card collapse entirely since it's rarely the
+// first thing worth looking at.
+const RECENT_LIST_LIMIT = 10;
 // How many days the calendar strip's forward/back buttons jump per click.
 const STRIP_STEP_DAYS = 15;
 
@@ -751,6 +756,7 @@ export function PublicationScheduleTool() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [langFilter, setLangFilter] = useState<LangFilter>('all');
   const [stripOffsetDays, setStripOffsetDays] = useState(0);
+  const [recentExpanded, setRecentExpanded] = useState(false);
 
   const types = typeFilter === 'all' ? ['article', 'news'] : [typeFilter];
   const langs = langFilter === 'all' ? ['ru', 'en'] : [langFilter];
@@ -810,7 +816,7 @@ export function PublicationScheduleTool() {
   const draftsCount = data?.draftsTotal ?? 0;
 
   const scheduledGroups = data ? groupByDate(data.scheduled, 'publishedAt') : [];
-  const recentGroups = data ? groupByDate(data.recent, 'publishedAt') : [];
+  const recentGroups = data ? groupByDate(data.recent.slice(0, RECENT_LIST_LIMIT), 'publishedAt') : [];
   const dailyCounts = data ? buildDailyCounts(data.dailyPublishedDates, TREND_DAYS) : [];
   const authorCounts = data ? buildAuthorCounts(data.byAuthor) : [];
 
@@ -970,22 +976,45 @@ export function PublicationScheduleTool() {
           </Flex>
 
           {/* Recently published — bounded to an actual window (see
-              RECENT_WINDOW_DAYS), so this count always equals exactly what's
-              listed below it, unlike before when the badge showed the
-              lifetime total but the list below only covered a few days. */}
+              RECENT_WINDOW_DAYS), so the badge always equals exactly what's
+              in that window, unlike before when the badge showed the
+              lifetime total but the list below only covered a few days.
+              Collapsed by default and capped to RECENT_LIST_LIMIT items —
+              it's the longest section and sits last, so it shouldn't force
+              a scroll through everything just to reach the bottom of the page. */}
           <Card padding={4} radius={3} shadow={1}>
-            <Flex align="center" justify="space-between" marginBottom={3}>
+            <Flex
+              align="center"
+              justify="space-between"
+              onClick={() => setRecentExpanded(v => !v)}
+              style={{ cursor: 'pointer' }}
+            >
               <Flex align="center" gap={2}>
                 <Text size={1} weight="bold">Недавно опубликовано</Text>
                 <Text size={0} muted>· за последние {RECENT_WINDOW_DAYS} дн.</Text>
                 <Badge tone="positive" fontSize={0} padding={2}>{recentWindowCount}</Badge>
               </Flex>
+              <Button
+                icon={recentExpanded ? ChevronUpIcon : ChevronDownIcon}
+                mode="ghost"
+                tone="default"
+                padding={2}
+                onClick={(e) => { e.stopPropagation(); setRecentExpanded(v => !v); }}
+                title={recentExpanded ? 'Свернуть' : 'Развернуть'}
+              />
             </Flex>
 
+            {recentExpanded && (
+            <Box marginTop={3}>
             {recentWindowCount === 0 ? (
               <Text size={1} muted style={{ fontStyle: 'italic' }}>Нет опубликованных материалов за этот период</Text>
             ) : (
               <Box>
+                {recentWindowCount > RECENT_LIST_LIMIT && (
+                  <Text size={0} muted style={{ display: 'block', marginBottom: 12 }}>
+                    Показаны последние {RECENT_LIST_LIMIT} из {recentWindowCount}
+                  </Text>
+                )}
                 {recentGroups.map(group => (
                   <Box key={group.label} marginBottom={3}>
                     <Flex align="center" gap={2} marginBottom={2}>
@@ -1038,6 +1067,8 @@ export function PublicationScheduleTool() {
                   </Box>
                 ))}
               </Box>
+            )}
+            </Box>
             )}
           </Card>
         </Stack>
