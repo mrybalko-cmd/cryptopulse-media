@@ -5,24 +5,23 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   value: number;
-  classification: string;
+  classification: 'bitcoin' | 'neutral' | 'altcoin';
   locale: string;
 }
 
-const LABELS: Record<string, { ru: string; en: string }> = {
-  'Extreme Fear': { ru: 'Крайний страх', en: 'Extreme Fear' },
-  'Fear':         { ru: 'Страх',         en: 'Fear' },
-  'Neutral':      { ru: 'Нейтрально',    en: 'Neutral' },
-  'Greed':        { ru: 'Жадность',      en: 'Greed' },
-  'Extreme Greed':{ ru: 'Крайняя жадность', en: 'Extreme Greed' },
+const LABELS: Record<Props['classification'], { ru: string; en: string }> = {
+  bitcoin: { ru: 'Сезон биткоина', en: 'Bitcoin Season' },
+  neutral: { ru: 'Нейтрально', en: 'Neutral' },
+  altcoin: { ru: 'Сезон альткоинов', en: 'Altcoin Season' },
 };
 
+// Distinct palette from the Fear & Greed widget (red-to-green) so the two
+// gauges are never visually confused: orange (Bitcoin's own brand color) at
+// low values, gray-gold neutral, violet at high values.
 function sentimentColor(v: number) {
-  if (v <= 24) return '#E5534B';
-  if (v <= 44) return '#F0883E';
-  if (v <= 55) return '#D29922';
-  if (v <= 74) return '#3FB950';
-  return '#2EA043';
+  if (v <= 25) return '#F0883E';
+  if (v <= 74) return '#D29922';
+  return '#8B5CF6';
 }
 
 function drawArc(canvas: HTMLCanvasElement, value: number) {
@@ -37,7 +36,6 @@ function drawArc(canvas: HTMLCanvasElement, value: number) {
 
   ctx.clearRect(0, 0, W, H);
 
-  // track (background arc)
   const isDark = !document.documentElement.classList.contains('light') &&
     (document.documentElement.classList.contains('dark') ||
      window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -48,15 +46,13 @@ function drawArc(canvas: HTMLCanvasElement, value: number) {
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // colored segments from left (fear) to right (greed)
   const segs = 40;
+  const segColors = ['#F0883E', '#D29922', '#8B5CF6'];
   for (let i = 0; i < segs; i++) {
     if (i / segs >= pct) break;
     const a0 = Math.PI + (i / segs) * Math.PI;
     const a1 = Math.PI + ((i + 1) / segs) * Math.PI;
     const t = i / (segs - 1);
-    // interpolate: red→orange→yellow→green
-    const segColors = ['#E5534B','#F0883E','#D29922','#3FB950','#2EA043'];
     const idx = Math.min(Math.floor(t * (segColors.length - 1)), segColors.length - 2);
     const frac = t * (segColors.length - 1) - idx;
     const c0 = hexToRgb(segColors[idx]);
@@ -72,7 +68,6 @@ function drawArc(canvas: HTMLCanvasElement, value: number) {
     ctx.stroke();
   }
 
-  // glow + needle dot
   const needleAngle = Math.PI + pct * Math.PI;
   const nx = cx + r * Math.cos(needleAngle);
   const ny = cy + r * Math.sin(needleAngle);
@@ -95,12 +90,12 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-export default function FearGreedWidget({ value, classification, locale }: Props) {
+export default function AltcoinSeasonWidget({ value, classification, locale }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const color = sentimentColor(value);
-  const label = LABELS[classification]?.[locale === 'ru' ? 'ru' : 'en'] ?? classification;
-  const href = `/${locale}/fear-greed`;
-  const indexLabel = locale === 'ru' ? 'Индекс страха' : 'Fear & Greed';
+  const label = LABELS[classification][locale === 'ru' ? 'ru' : 'en'];
+  const href = `/${locale}/altcoin-season`;
+  const indexLabel = locale === 'ru' ? 'Альткоин-сезон' : 'Altcoin Season';
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -109,68 +104,35 @@ export default function FearGreedWidget({ value, classification, locale }: Props
 
   return (
     <Link href={href} className="group outline-none focus-visible:ring-2 focus-visible:ring-accent/50 rounded-sm">
-      {/* Desktop: full arc widget */}
       <div className="hidden sm:flex flex-col items-center gap-0">
-        <canvas
-          ref={canvasRef}
-          width={96}
-          height={56}
-          className="block"
-          aria-hidden="true"
-        />
+        <canvas ref={canvasRef} width={96} height={56} className="block" aria-hidden="true" />
         <div className="flex items-baseline gap-1.5 -mt-1">
-          <span
-            className="font-mono text-xl font-bold tabular-nums leading-none"
-            style={{ color }}
-          >
+          <span className="font-mono text-xl font-bold tabular-nums leading-none" style={{ color }}>
             {value}
           </span>
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wide leading-none"
-            style={{ color }}
-          >
+          <span className="text-[10px] font-semibold uppercase tracking-wide leading-none" style={{ color }}>
             {label}
           </span>
         </div>
         <span className="text-[9px] uppercase tracking-widest text-muted/60 mt-1 group-hover:text-accent transition-colors">
           {indexLabel} ↗
         </span>
-        {/* Source attribution right on the widget, not just buried in the
-            full page's footnote — this number is our own source's reading
-            (alternative.me) and can legitimately differ from other trackers
-            (e.g. CoinMarketCap's own Fear & Greed Index uses a different
-            methodology), so anywhere this widget is shown standalone
-            (e.g. the /calculators hub card) it's clear which one it is. */}
         <span className="text-[8px] text-muted/50 mt-0.5">
-          {locale === 'ru' ? 'по данным alternative.me' : 'via alternative.me'}
+          {locale === 'ru' ? 'расчёт CryptoPulse по CoinGecko' : 'CryptoPulse calc via CoinGecko'}
         </span>
       </div>
 
-      {/* Mobile: compact pill — just number + label + colored dot */}
       <div className="sm:hidden flex flex-col items-center gap-1">
         <div
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-colors"
-          style={{
-            borderColor: `${color}33`,
-            backgroundColor: `${color}0F`,
-          }}
+          style={{ borderColor: `${color}33`, backgroundColor: `${color}0F` }}
         >
-          <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
-            style={{ backgroundColor: color }}
-          />
-          <span
-            className="font-mono text-xs font-bold tabular-nums"
-            style={{ color }}
-          >
-            {value}
-          </span>
-          <span className="text-[10px] font-medium" style={{ color }}>
-            {label}
-          </span>
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+          <span className="font-mono text-xs font-bold tabular-nums" style={{ color }}>{value}</span>
+          <span className="text-[10px] font-medium" style={{ color }}>{label}</span>
         </div>
         <span className="text-[8px] text-muted/50">
-          {locale === 'ru' ? 'по данным alternative.me' : 'via alternative.me'}
+          {locale === 'ru' ? 'расчёт CryptoPulse по CoinGecko' : 'CryptoPulse calc via CoinGecko'}
         </span>
       </div>
     </Link>

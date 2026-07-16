@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listingPaths = ['', '/news', '/articles', '/ai', '/ai/glossary', '/authors'];
   // Tool/asset pages: content changes but template doesn't
   const toolPaths = [
-    '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets',
+    '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/altcoin-season',
     ...COINS.filter(c => c.available).map(c => `/assets/${c.slug}`),
   ];
   // Info pages: rarely change

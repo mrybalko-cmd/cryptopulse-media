@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { Scale, ArrowRightLeft, ArrowRight } from 'lucide-react';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import FearGreedWidget from '@/components/ui/FearGreedWidget';
+import AltcoinSeasonWidget from '@/components/ui/AltcoinSeasonWidget';
 import { fetchFearGreedIndex } from '@/lib/feargreed';
+import { fetchAltcoinSeasonIndex } from '@/lib/altcoinSeason';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -16,8 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Калькуляторы и показатели — CryptoPulse.media' : 'Calculators & Metrics — CryptoPulse.media';
   const description = isRu
-    ? 'Индекс страха и жадности, конвертер валют и сравнение богатства — всё в одном месте.'
-    : 'Fear & Greed Index, currency converter, wealth comparison — all in one place.';
+    ? 'Индекс страха и жадности, индекс альткоин-сезона, конвертер валют и сравнение богатства — всё в одном месте.'
+    : 'Fear & Greed Index, Altcoin Season Index, currency converter, wealth comparison — all in one place.';
 
   return {
     title,
@@ -34,7 +36,10 @@ export default async function CalculatorsHubPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
 
-  const fearGreedData = await fetchFearGreedIndex().catch(() => null);
+  const [fearGreedData, altcoinSeasonData] = await Promise.all([
+    fetchFearGreedIndex().catch(() => null),
+    fetchAltcoinSeasonIndex().catch(() => null),
+  ]);
 
   const cards = [
     {
@@ -65,22 +70,38 @@ export default async function CalculatorsHubPage({ params }: Props) {
             </h1>
             <p className="text-muted text-sm mt-2">
               {isRu
-                ? 'Индекс страха и жадности, конвертер валют и сравнение богатства.'
-                : 'Fear & Greed Index, currency converter, and wealth comparison.'}
+                ? 'Индекс страха и жадности, индекс альткоин-сезона, конвертер валют и сравнение богатства.'
+                : 'Fear & Greed Index, Altcoin Season Index, currency converter, and wealth comparison.'}
             </p>
           </div>
 
-          {/* Fear & Greed Index */}
-          {fearGreedData && (
-            <div className="mb-6 p-5 rounded-2xl border border-border bg-card">
-              <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
-                {isRu ? 'Индекс страха и жадности' : 'Fear & Greed Index'}
-              </p>
-              <FearGreedWidget
-                value={fearGreedData.value}
-                classification={fearGreedData.classification}
-                locale={locale}
-              />
+          {/* Fear & Greed Index + Altcoin Season Index */}
+          {(fearGreedData || altcoinSeasonData) && (
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              {fearGreedData && (
+                <div className="p-5 rounded-2xl border border-border bg-card">
+                  <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
+                    {isRu ? 'Индекс страха и жадности' : 'Fear & Greed Index'}
+                  </p>
+                  <FearGreedWidget
+                    value={fearGreedData.value}
+                    classification={fearGreedData.classification}
+                    locale={locale}
+                  />
+                </div>
+              )}
+              {altcoinSeasonData && (
+                <div className="p-5 rounded-2xl border border-border bg-card">
+                  <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
+                    {isRu ? 'Индекс альткоин-сезона' : 'Altcoin Season Index'}
+                  </p>
+                  <AltcoinSeasonWidget
+                    value={altcoinSeasonData.index}
+                    classification={altcoinSeasonData.classification}
+                    locale={locale}
+                  />
+                </div>
+              )}
             </div>
           )}
 
