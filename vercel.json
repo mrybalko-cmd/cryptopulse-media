@@ -11,6 +11,13 @@
     { "source": "/ru/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5", "destination": "/en/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5", "permanent": true },
     { "source": "/ru/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them", "destination": "/en/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them", "permanent": true },
     { "source": "/en/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma", "destination": "/ru/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma", "permanent": true },
-    { "source": "/en/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "destination": "/ru/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "permanent": true }
+    { "source": "/en/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "destination": "/ru/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "permanent": true },
+    { "source": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company-2026", "destination": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company", "permanent": true },
+    { "source": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-2026", "destination": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-izmenivshey-ii", "permanent": true },
+    { "source": "/en/articles/grok-and-xai-the-full-story-of-elon-musks-ai-2026", "destination": "/en/articles/grok-and-xai-the-full-story-of-elon-musk-s-ai", "permanent": true },
+    { "source": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska-2026", "destination": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska", "permanent": true },
+    { "source": "/ru/news/ssha-bitcoin-rezerv-minfin-mintorgovlya-2026", "destination": "/ru/news/spustya-god-posle-ukaza-trampa-bitkoin-rezerv-ssha-tak-i-ne-zarabotal-minfin-i-mintorgovlya-ne-m", "permanent": true },
+    { "source": "/en/news/ai-agents-stablecoin-payments-visa-2026", "destination": "/en/news/ai-agents-have-already-spent-73m-in-crypto-and-visa-just-joined-in", "permanent": true },
+    { "source": "/ru/news/bitkoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "destination": "/ru/news/bitcoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "permanent": true }
   ]
 }
