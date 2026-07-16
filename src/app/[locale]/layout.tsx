@@ -30,9 +30,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         : 'CryptoPulse.media — Crypto News, Analysis & Asset Guides',
       template: '%s | CryptoPulse.media',
     },
+    // Kept under ~150 chars (both languages) — the previous AI-aware rewrite
+    // ran to 170-179 chars, which Ahrefs flagged as "meta description too
+    // long" on every page that falls back to this default (any route
+    // without its own generateMetadata description).
     description: isRu
-      ? 'Крипто- и AI-аналитика для простых людей простыми словами. Актуальные новости, глубокие статьи, гиды по крипто-активам, материалы об искусственном интеллекте и глоссарий терминов.'
-      : 'Crypto & AI intelligence for European investors. Breaking news, deep analysis, crypto asset guides, AI industry coverage, and a glossary of terms — all in plain language.',
+      ? 'Крипто- и AI-аналитика для простых людей простыми словами. Новости, статьи, гиды по активам, темы об ИИ и глоссарий терминов.'
+      : 'Crypto & AI intelligence for European investors. Breaking news, deep analysis, asset guides, AI coverage, and a glossary — all in plain language.',
     metadataBase: new URL(BASE),
     alternates: {
       canonical: `${BASE}/${locale}`,
