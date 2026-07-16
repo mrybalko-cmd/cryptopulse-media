@@ -16,7 +16,7 @@ import ArticleCard from '@/components/ui/ArticleCard';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { sanityImageTransform } from '@/lib/sanityImage';
+import { sanityImageTransform, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -143,19 +143,28 @@ export default async function ArticlePage({ params }: Props) {
         {locale === 'ru' ? 'Все статьи' : 'All articles'}
       </Link>
 
-      {/* Cover */}
-      {article.coverImage && (
-        <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden mb-8">
-          <Image
-            src={sanityImageTransform(article.coverImage, { width: 1536 })!}
-            alt={article.coverImageAlt || article.title}
-            fill
-            className="object-cover"
-            priority
-            unoptimized
-          />
-        </div>
-      )}
+      {/* Cover — rendered at its real aspect ratio (read straight off the
+          Sanity CDN filename) instead of cropped into a fixed-height box,
+          so the full image always shows, same as in Studio. Height follows
+          automatically and varies a bit between articles depending on each
+          cover's own proportions — that's the direct trade-off of "never
+          crop, just scale". */}
+      {article.coverImage && (() => {
+        const dims = sanityImageDimensions(article.coverImage) ?? { width: 1200, height: 630 };
+        return (
+          <div className="rounded-lg overflow-hidden mb-8">
+            <Image
+              src={sanityImageTransform(article.coverImage, { width: 1536 })!}
+              alt={article.coverImageAlt || article.title}
+              width={dims.width}
+              height={dims.height}
+              className="w-full h-auto"
+              priority
+              unoptimized
+            />
+          </div>
+        );
+      })()}
 
       {/* Header */}
       {article.badge && article.badge !== 'none' && (

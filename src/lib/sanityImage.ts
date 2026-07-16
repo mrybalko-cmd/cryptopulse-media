@@ -39,3 +39,17 @@ export function sanityImageTransform(
     return url;
   }
 }
+
+/**
+ * Sanity CDN filenames encode the asset's real pixel dimensions
+ * (`<assetId>-1200x630.png`), so the true aspect ratio can be read straight
+ * off a resolved `coverImage.asset->url` without a separate metadata query.
+ * Used to size hero images at their natural ratio instead of cropping them
+ * into a fixed-height box.
+ */
+export function sanityImageDimensions(url: string | undefined | null): { width: number; height: number } | null {
+  if (!url) return null;
+  const match = url.match(/-(\d+)x(\d+)\.\w+(?:\?.*)?$/);
+  if (!match) return null;
+  return { width: Number(match[1]), height: Number(match[2]) };
+}
