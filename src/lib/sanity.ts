@@ -122,30 +122,30 @@ export const fetchNewsByTopic = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
-export async function fetchAIContent({ limit = 20, locale = 'ru' }: FetchArticlesOptions = {}) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+// Single combined query (not two separate per-type fetches merged in JS) so
+// offset/limit pagination slices one real chronological feed — matches
+// fetchAuthorFeed's approach, needed for /ai/page/[n] to paginate cleanly.
+export async function fetchAIContent(
+  locale: string,
+  limit = 20,
+  offset = 0
+): Promise<{ items: AuthorFeedItem[]; total: number }> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { items: [], total: 0 };
   try {
-    const [articles, news] = await Promise.all([
-      client.fetch(
-        `*[_type == "article" && language == $locale && topic == "ai" && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _type, _id, title, excerpt, slug, publishedAt, readingTime, badge, views, topic,
-          "coverImage": coverImage.asset->url
-        }`,
-        { locale, limit }
-      ),
-      client.fetch(
-        `*[_type == "news" && language == $locale && topic == "ai" && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _type, _id, title, excerpt, slug, publishedAt, views, breaking, topic,
-          "coverImage": coverImage.asset->url
-        }`,
-        { locale, limit }
-      ),
-    ]);
-    return [...articles, ...news]
-      .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-      .slice(0, limit);
+    const result = await client.fetch(
+      `{
+        "items": *[_type in ["article", "news"] && language == $locale && topic == "ai" && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
+          _type, _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
+          "coverImage": coverImage.asset->url,
+          "coverImageAlt": coverImage.alt
+        },
+        "total": count(*[_type in ["article", "news"] && language == $locale && topic == "ai" && publishedAt <= now()])
+      }`,
+      { locale, offset, end: offset + limit }
+    );
+    return result;
   } catch {
-    return [];
+    return { items: [], total: 0 };
   }
 }
 
