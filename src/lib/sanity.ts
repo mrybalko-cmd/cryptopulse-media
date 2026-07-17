@@ -186,6 +186,28 @@ export const fetchNewsBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
+// Single chronologically-previous article/news, full body included — powers
+// the mobile infinite feed (client-fetched per scroll, never part of the
+// initial SSR HTML, so it can't create duplicate-content risk on the
+// current article's own indexed URL).
+export async function fetchPreviousItem(type: 'article' | 'news', locale: string, beforePublishedAt: string) {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+  try {
+    return await client.fetch(
+      `*[_type == $type && language == $locale && publishedAt <= now() && publishedAt < $before] | order(publishedAt desc) [0] {
+        _id, _type, title, excerpt, slug, publishedAt, body, readingTime, badge, commentsEnabled,
+        sourceName, sourceUrl, breaking,
+        "coverImage": coverImage.asset->url,
+        "coverImageAlt": coverImage.alt,
+        "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+      }`,
+      { type, locale, before: beforePublishedAt }
+    );
+  } catch {
+    return null;
+  }
+}
+
 export interface SanityComment {
   _id: string;
   authorName: string;

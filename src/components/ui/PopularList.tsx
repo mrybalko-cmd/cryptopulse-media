@@ -2,12 +2,23 @@ import Link from 'next/link';
 import { Flame, Eye } from 'lucide-react';
 import type { PopularItem } from '@/lib/sanity';
 
-export default function PopularList({ items, locale }: { items: PopularItem[]; locale: string }) {
+// `bare` skips the card's own border/background/padding — used when a
+// parent (e.g. ArticleSidebar) already supplies the surrounding card, so the
+// list can sit inside it below another section without a nested box.
+export default function PopularList({
+  items,
+  locale,
+  bare = false,
+}: {
+  items: PopularItem[];
+  locale: string;
+  bare?: boolean;
+}) {
   if (items.length === 0) return null;
   const isRu = locale === 'ru';
 
-  return (
-    <div className="bg-card border border-border rounded-lg p-4 h-full flex flex-col">
+  const content = (
+    <>
       <h2 className="flex items-center gap-2 text-sm font-bold text-foreground mb-4">
         <Flame size={21} className="text-red-600" fill="currentColor" />
         {isRu ? 'Популярное' : 'Most read'}
@@ -32,6 +43,10 @@ export default function PopularList({ items, locale }: { items: PopularItem[]; l
           </Link>
         ))}
       </div>
-    </div>
+    </>
   );
+
+  if (bare) return content;
+
+  return <div className="bg-card border border-border rounded-lg p-4 h-full flex flex-col">{content}</div>;
 }

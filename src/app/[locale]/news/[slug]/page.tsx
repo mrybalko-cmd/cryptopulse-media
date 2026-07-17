@@ -9,11 +9,14 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { fetchNewsBySlug, fetchRelatedNews } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
+import PopularList from '@/components/ui/PopularList';
+import ArticleSidebar from '@/components/ui/ArticleSidebar';
+import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
 import { sanityImageTransform, sanityImageDimensions } from '@/lib/sanityImage';
@@ -89,6 +92,9 @@ export default async function NewsDetailPage({ params }: Props) {
 
   const commentsEnabled = news.commentsEnabled !== false;
   const relatedNews = await fetchRelatedNews(news._id, locale, 3);
+  const popularItems = (await fetchPopularContent(locale, 8))
+    .filter((item) => item._id !== news._id)
+    .slice(0, 7);
 
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -240,7 +246,7 @@ export default async function NewsDetailPage({ params }: Props) {
       <EmailSubscribeForm locale={locale} source="news-detail" />
 
       {relatedNews.length > 0 && (
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="hidden lg:block mt-12 pt-8 border-t border-border">
           <h2 className="text-sm font-bold text-foreground mb-5">
             {locale === 'ru' ? 'Похожие материалы' : 'Related news'}
           </h2>
@@ -260,12 +266,22 @@ export default async function NewsDetailPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      {/* Popular — mobile, replaces Related news in that slot */}
+      {popularItems.length > 0 && (
+        <div className="lg:hidden mt-12 pt-8 border-t border-border">
+          <PopularList items={popularItems} locale={locale} />
+        </div>
+      )}
+
+      {/* Mobile infinite feed — previous news, its own comments + Popular, repeating */}
+      <InfiniteMobileFeed type="news" locale={locale} cursor={news.publishedAt} />
       </div>
 
-      {/* Share (desktop, sticky) */}
-      <aside className="hidden lg:block shrink-0">
+      {/* Share + Popular (desktop, sticky) */}
+      <aside className="hidden lg:block shrink-0 w-64">
         <div className="sticky top-20 md:top-[8rem]">
-          <ShareButtons url={pageUrl} title={news.title} locale={locale} />
+          <ArticleSidebar url={pageUrl} title={news.title} locale={locale} popularItems={popularItems} />
         </div>
       </aside>
       </div>

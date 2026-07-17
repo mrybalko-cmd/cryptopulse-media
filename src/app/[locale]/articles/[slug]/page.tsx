@@ -7,12 +7,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
-import { fetchArticleBySlug, fetchRelatedArticles } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
+import PopularList from '@/components/ui/PopularList';
+import ArticleSidebar from '@/components/ui/ArticleSidebar';
+import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
@@ -89,6 +92,9 @@ export default async function ArticlePage({ params }: Props) {
 
   const commentsEnabled = article.commentsEnabled !== false;
   const relatedArticles = await fetchRelatedArticles(article._id, locale, 3);
+  const popularItems = (await fetchPopularContent(locale, 8))
+    .filter((item) => item._id !== article._id)
+    .slice(0, 7);
 
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
@@ -234,7 +240,7 @@ export default async function ArticlePage({ params }: Props) {
       <EmailSubscribeForm locale={locale} source="article-detail" />
 
       {relatedArticles.length > 0 && (
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="hidden lg:block mt-12 pt-8 border-t border-border">
           <h2 className="text-sm font-bold text-foreground mb-5">
             {locale === 'ru' ? 'Похожие материалы' : 'Related articles'}
           </h2>
@@ -257,12 +263,22 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </div>
       )}
+
+      {/* Popular — mobile, replaces Related articles in that slot */}
+      {popularItems.length > 0 && (
+        <div className="lg:hidden mt-12 pt-8 border-t border-border">
+          <PopularList items={popularItems} locale={locale} />
+        </div>
+      )}
+
+      {/* Mobile infinite feed — previous article, its own comments + Popular, repeating */}
+      <InfiniteMobileFeed type="article" locale={locale} cursor={article.publishedAt} />
       </div>
 
-      {/* Share (desktop, sticky) */}
-      <aside className="hidden lg:block shrink-0">
+      {/* Share + Popular (desktop, sticky) */}
+      <aside className="hidden lg:block shrink-0 w-64">
         <div className="sticky top-20 md:top-[8rem]">
-          <ShareButtons url={pageUrl} title={article.title} locale={locale} />
+          <ArticleSidebar url={pageUrl} title={article.title} locale={locale} popularItems={popularItems} />
         </div>
       </aside>
       </div>
