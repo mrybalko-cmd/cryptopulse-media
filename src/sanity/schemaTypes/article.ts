@@ -131,6 +131,8 @@ export const articleType = defineType({
           { title: 'None', value: 'none' },
           { title: 'Выбор редакции / Editor\'s choice', value: 'editorsChoice' },
           { title: 'Актуально / Trending', value: 'trending' },
+          { title: 'Промо / Promo (коммерческая публикация)', value: 'promo' },
+          { title: 'Новости компании / Company news', value: 'companyNews' },
         ],
       },
       initialValue: 'none',

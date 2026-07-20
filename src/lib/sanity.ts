@@ -150,7 +150,7 @@ export async function fetchSanityNews({ limit = 10, locale = 'ru', offset = 0 }:
   try {
     return await client.fetch(
       `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, topic, views, likes,
+        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, badge, topic, views, likes,
         "coverImage": coverImage.asset->url
       }`,
       { locale, offset, end: offset + limit }
@@ -166,7 +166,7 @@ export const fetchNewsByTopic = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && topic == $topic && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, breaking, ownBadge, views,
+          _id, title, excerpt, slug, publishedAt, breaking, ownBadge, badge, views,
           "coverImage": coverImage.asset->url
         }`,
         { locale, topic, limit }
@@ -226,7 +226,7 @@ export const fetchNewsBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, topic, views, likes, seo, commentsEnabled, updatedAt,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, badge, topic, views, likes, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
@@ -678,7 +678,7 @@ export const fetchTopLikedNews = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc, views desc, publishedAt desc) [0...$limit] {
-          _id, title, slug, publishedAt, views, likes, breaking, ownBadge,
+          _id, title, slug, publishedAt, views, likes, breaking, ownBadge, badge,
           "coverImage": coverImage.asset->url
         }`,
         { locale, limit }

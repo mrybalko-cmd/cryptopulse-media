@@ -153,6 +153,7 @@ export default function NewsListingBody({ locale, title, subtitle, items, page, 
                     pinned={item.pinned}
                     breaking={item.breaking}
                     ownBadge={item.ownBadge}
+                    badge={item.badge}
                     views={item.views}
                   />
                 ))}

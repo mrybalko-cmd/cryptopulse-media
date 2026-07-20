@@ -267,6 +267,20 @@ export const newsType = defineType({
       description: 'Показывать молнию «Наш материал» в ленте новостей. По умолчанию включено для всех наших публикаций.',
     }),
     defineField({
+      name: 'badge',
+      title: 'Плашка / Badge',
+      type: 'string',
+      description: 'Отметка коммерческих или несобственных материалов на карточке и в самой новости.',
+      options: {
+        list: [
+          { title: 'Нет / None', value: 'none' },
+          { title: 'Промо / Promo (коммерческая публикация)', value: 'promo' },
+          { title: 'Новости компании / Company news', value: 'companyNews' },
+        ],
+      },
+      initialValue: 'none',
+    }),
+    defineField({
       name: 'breaking',
       title: '⚡ Молния / Breaking news',
       type: 'boolean',

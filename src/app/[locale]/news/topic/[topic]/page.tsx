@@ -127,6 +127,7 @@ export default async function NewsTopicPage({ params }: Props) {
               locale={locale}
               breaking={item.breaking}
               ownBadge={item.ownBadge !== false}
+              badge={item.badge}
             />
           ))}
         </div>

@@ -14,6 +14,7 @@ import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
+import ArticleBadge from '@/components/ui/ArticleBadge';
 import PopularList from '@/components/ui/PopularList';
 import ArticleSidebar from '@/components/ui/ArticleSidebar';
 import SidebarBanner from '@/components/ui/SidebarBanner';
@@ -179,6 +180,11 @@ export default async function NewsDetailPage({ params }: Props) {
       })()}
 
       {/* Header */}
+      {news.badge && news.badge !== 'none' && (
+        <div className="mb-3">
+          <ArticleBadge badge={news.badge} locale={locale} />
+        </div>
+      )}
       {news.breaking && (
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4 animate-pulse">
           <Zap size={12} fill="currentColor" />

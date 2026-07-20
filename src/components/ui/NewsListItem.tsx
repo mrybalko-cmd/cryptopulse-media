@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Zap, Pin, Eye, Heart } from 'lucide-react';
+import ArticleBadge from './ArticleBadge';
 
 interface NewsListItemProps {
   title: string;
@@ -11,12 +12,13 @@ interface NewsListItemProps {
   pinned?: boolean;
   breaking?: boolean;
   ownBadge?: boolean;
+  badge?: string;
   views?: number;
   likes?: number;
   aiTopic?: boolean;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, views, likes, aiTopic }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, badge, views, likes, aiTopic }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
@@ -34,6 +36,11 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
           <Zap size={10} fill="currentColor" />
           {locale === 'ru' ? 'Важное' : 'Breaking'}
         </span>
+      )}
+      {badge && badge !== 'none' && (
+        <div className="mb-1.5">
+          <ArticleBadge badge={badge} locale={locale} />
+        </div>
       )}
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
         {aiTopic && (

@@ -106,6 +106,7 @@ export default async function HomePage({ params }: Props) {
                 pinned={item.pinned}
                 breaking={item.breaking}
                 ownBadge={item.ownBadge}
+                badge={item.badge}
                 views={item.views}
                 likes={item.likes}
                 aiTopic={item.topic === 'ai'}
@@ -177,6 +178,7 @@ export default async function HomePage({ params }: Props) {
                   pinned={item.pinned}
                   breaking={item.breaking}
                   ownBadge={item.ownBadge}
+                  badge={item.badge}
                   views={item.views}
                   likes={item.likes}
                   aiTopic={item.topic === 'ai'}

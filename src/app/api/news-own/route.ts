@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const news = await client.fetch(
       `*[_type == "news" && language == $locale && publishedAt <= now()]
       | order(publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, breaking, ownBadge, topic, views, likes,
+        _id, title, excerpt, slug, publishedAt, breaking, ownBadge, badge, topic, views, likes,
         "coverImage": coverImage.asset->url
       }`,
       { locale, offset, end: offset + limit }

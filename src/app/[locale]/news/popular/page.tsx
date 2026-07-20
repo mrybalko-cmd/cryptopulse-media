@@ -104,6 +104,7 @@ export default async function PopularNewsPage({ params }: Props) {
               locale={locale}
               breaking={item.breaking}
               ownBadge={item.ownBadge !== false}
+              badge={item.badge}
               views={item.views}
               likes={item.likes}
             />

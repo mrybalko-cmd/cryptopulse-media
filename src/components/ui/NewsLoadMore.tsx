@@ -15,6 +15,7 @@ interface NewsItem {
   publishedAt: string;
   breaking?: boolean;
   ownBadge?: boolean;
+  badge?: string;
   topic?: string;
   views?: number;
 }
@@ -109,6 +110,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
                       locale={locale}
                       breaking={item.breaking}
                       ownBadge={item.ownBadge !== false}
+                      badge={item.badge}
                       views={item.views}
                     />
                   ))}

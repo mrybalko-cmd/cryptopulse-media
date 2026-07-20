@@ -7,6 +7,7 @@ import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import { sanityImageTransform } from '@/lib/sanityImage';
+import ArticleBadge from './ArticleBadge';
 
 
 interface NewsCardProps {
@@ -21,9 +22,10 @@ interface NewsCardProps {
   pinned?: boolean;
   breaking?: boolean;
   ownBadge?: boolean;
+  badge?: string;
 }
 
-export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking, ownBadge = true }: NewsCardProps) {
+export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking, ownBadge = true, badge }: NewsCardProps) {
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);
@@ -67,6 +69,11 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
         </div>
       )}
       <div className="p-4">
+        {badge && badge !== 'none' && (
+          <div className="mb-2">
+            <ArticleBadge badge={badge} locale={locale} />
+          </div>
+        )}
         {tags.length > 0 && (
           <div className="flex gap-1.5 mb-2 flex-wrap">
             {tags.map(tag => (

@@ -15,6 +15,7 @@ export interface UnifiedNewsItem {
   pinned?: boolean;
   breaking?: boolean;
   ownBadge?: boolean;
+  badge?: string;
   views?: number;
   likes?: number;
 }
@@ -38,6 +39,7 @@ export async function fetchOwnNews({
     pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
     breaking: !!n.breaking,
     ownBadge: n.ownBadge !== false,
+    badge: n.badge,
     views: typeof n.views === 'number' ? n.views : undefined,
     likes: typeof n.likes === 'number' ? n.likes : undefined,
   }));

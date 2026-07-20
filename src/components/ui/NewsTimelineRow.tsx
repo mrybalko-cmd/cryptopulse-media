@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { ArrowRight, ExternalLink, Zap, Pin, Eye } from 'lucide-react';
 import { TOPIC_META } from '@/lib/topicMeta';
+import ArticleBadge from './ArticleBadge';
 
 export { TOPIC_META };
 
@@ -21,11 +22,12 @@ interface Props {
   pinned?: boolean;
   breaking?: boolean;
   ownBadge?: boolean;
+  badge?: string;
   views?: number;
 }
 
 export default function NewsTimelineRow({
-  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true, views,
+  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true, badge, views,
 }: Props) {
   const [imgErr, setImgErr] = useState(false);
 
@@ -76,7 +78,7 @@ export default function NewsTimelineRow({
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Badges row */}
-        {(breaking || pinned) && (
+        {(breaking || pinned || (badge && badge !== 'none')) && (
           <div className="flex items-center gap-1.5 mb-1">
             {breaking && (
               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white animate-pulse">
@@ -89,6 +91,9 @@ export default function NewsTimelineRow({
                 <Pin size={8} fill="currentColor" />
                 {locale === 'ru' ? 'Закреплено' : 'Pinned'}
               </span>
+            )}
+            {badge && badge !== 'none' && (
+              <ArticleBadge badge={badge} locale={locale} className="!px-1.5 !py-0.5 !text-[10px] !gap-0.5" />
             )}
           </div>
         )}
