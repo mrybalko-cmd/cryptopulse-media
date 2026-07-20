@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'Курс USDT и USDC к евро — сравнение P2P и бирж — CryptoPulse.media'
     : 'USDT & USDC to EUR rate — P2P and exchange comparison — CryptoPulse.media';
   const description = isRu
-    ? 'Сравниваем курс обмена USDT и USDC на евро в реальном времени — Binance P2P, Kraken, Coinbase. Находите выгодный курс до сделки.'
-    : 'Compare live USDT and USDC to EUR rates — Binance P2P, Kraken, Coinbase. Find the best rate before you trade.';
+    ? 'Сравниваем курс обмена USDT и USDC на евро в реальном времени — Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase. Находите выгодный курс до сделки.'
+    : 'Compare live USDT and USDC to EUR rates — Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase. Find the best rate before you trade.';
 
   return {
     title,
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const FAQ_RU = [
-  { q: 'Как часто обновляются курсы?', a: 'Автоматически, каждые пару минут в течение торгового дня — данные берутся напрямую из публичных API Binance P2P, Kraken и Coinbase Exchange.' },
+  { q: 'Как часто обновляются курсы?', a: 'Автоматически, каждые пару минут в течение торгового дня — данные берутся напрямую из публичных API Binance P2P, OKX P2P, Bitstamp, Kraken и Coinbase Exchange.' },
   { q: 'Это официальный курс евро?', a: 'Нет — это агрегированные рыночные котировки в конкретный момент, а не индикативный курс Европейского центробанка. Для официального курса ЕЦБ используйте сайт ecb.europa.eu.' },
   { q: 'USDT или USDC — есть ли разница?', a: 'Оба стейблкоина привязаны к доллару 1:1. Разница — в эмитенте (Tether и Circle соответственно) и подходе к резервам и аудиту. В ЕС по регламенту MiCA у USDC исторически меньше ограничений на биржах, чем у USDT — на некоторых площадках USDT для розничных клиентов из ЕС временно ограничивали.' },
   { q: 'Безопасно ли обменивать через P2P?', a: 'Да, если использовать площадку со встроенным эскроу (крипта продавца блокируется до подтверждения оплаты) и проверять рейтинг/количество сделок контрагента. Никогда не переводите деньги и не подтверждайте оплату вне чата платформы.' },
@@ -46,7 +46,7 @@ const FAQ_RU = [
 ];
 
 const FAQ_EN = [
-  { q: 'How often are rates updated?', a: 'Automatically, every couple of minutes during trading hours — data comes straight from the public APIs of Binance P2P, Kraken, and Coinbase Exchange.' },
+  { q: 'How often are rates updated?', a: 'Automatically, every couple of minutes during trading hours — data comes straight from the public APIs of Binance P2P, OKX P2P, Bitstamp, Kraken, and Coinbase Exchange.' },
   { q: 'Is this the official EUR exchange rate?', a: 'No — these are aggregated market quotes at a given moment, not the European Central Bank’s indicative rate. For the official ECB rate, see ecb.europa.eu.' },
   { q: 'USDT vs USDC — is there a difference?', a: 'Both are pegged 1:1 to the dollar. The difference is the issuer (Tether vs. Circle) and their approach to reserves and audits. Under the EU’s MiCA rules, USDC has historically faced fewer restrictions on exchanges than USDT, which some platforms temporarily limited for EU retail users.' },
   { q: 'Is P2P trading safe?', a: 'Yes, if you use a platform with built-in escrow (the seller’s crypto is locked until you confirm payment) and check the counterparty’s rating and trade count. Never send money or confirm payment outside the platform’s own chat.' },
@@ -101,10 +101,13 @@ export default async function RatesPage({ params }: Props) {
           : 'Comparing live P2P and exchange rates so you find the best deal before you trade, not after.'}
       </p>
 
-      {/* Calculator — its own centered block, not fighting for space with text */}
-      <div className="max-w-md mx-auto mb-10">
+      {/* Calculator — full width, matching the table below it */}
+      <div className="mb-3">
         <EurCalculator rates={rates} locale={locale} />
       </div>
+      <p className="text-xs text-muted mb-10">
+        {isRu ? 'Курс подтягивается из таблицы ниже — при смене актива результат обновится сразу.' : 'The rate is pulled straight from the table below — it updates as soon as you change the asset.'}
+      </p>
 
       {/* Table */}
       <section className="mb-10">
@@ -118,8 +121,8 @@ export default async function RatesPage({ params }: Props) {
         )}
         <p className="text-xs text-muted mt-3">
           {isRu
-            ? 'Курсы указаны для условной суммы 1000 USDT/USDC, при других объёмах могут отличаться. Источники: Binance P2P, Kraken, Coinbase Exchange.'
-            : 'Rates shown for a reference amount of 1000 USDT/USDC — may differ at other volumes. Sources: Binance P2P, Kraken, Coinbase Exchange.'}
+            ? 'Курсы указаны для условной суммы 1000 USDT/USDC, при других объёмах могут отличаться. Источники: Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase Exchange.'
+            : 'Rates shown for a reference amount of 1000 USDT/USDC — may differ at other volumes. Sources: Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase Exchange.'}
         </p>
       </section>
 

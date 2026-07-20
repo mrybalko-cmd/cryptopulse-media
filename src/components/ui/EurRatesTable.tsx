@@ -7,6 +7,10 @@ import type { EurRate } from '@/lib/eurRates';
 
 type SortKey = 'rate' | 'feePct' | 'type';
 
+// Same graphite/silver gradient as EurCalculator — see its comment for why.
+const bg = 'linear-gradient(135deg, var(--author-bg-1), var(--author-bg-2))';
+const border = 'var(--author-border)';
+
 export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; locale: string }) {
   const isRu = locale === 'ru';
   const [sortKey, setSortKey] = useState<SortKey>('rate');
@@ -41,8 +45,11 @@ export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; loc
   const typeLabel = (t: EurRate['type']) => (t === 'p2p' ? 'P2P' : isRu ? 'Биржа' : 'Exchange');
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
-      <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] bg-card text-[10.5px] font-bold uppercase tracking-wider text-muted">
+    <div className="rounded-2xl overflow-hidden" style={{ background: bg, border: `1px solid ${border}` }}>
+      <div
+        className="grid grid-cols-[1.6fr_1fr_1fr_1fr] text-[10.5px] font-bold uppercase tracking-wider text-muted"
+        style={{ borderBottom: `1px solid ${border}` }}
+      >
         <span className="px-3.5 py-2.5">{isRu ? 'Источник' : 'Source'}</span>
         <button onClick={() => toggleSort('rate')} className="flex items-center gap-1 px-3.5 py-2.5 hover:text-foreground transition-colors">
           {isRu ? 'Курс' : 'Rate'} <SortIcon active={sortKey === 'rate'} />
@@ -54,14 +61,15 @@ export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; loc
           {isRu ? 'Тип' : 'Type'} <SortIcon active={sortKey === 'type'} />
         </button>
       </div>
-      <div className="divide-y divide-border">
-        {sorted.map((r) => (
+      <div>
+        {sorted.map((r, i) => (
           <a
             key={`${r.source}-${r.asset}`}
             href={r.url}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className={`grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm hover:bg-foreground/[0.03] transition-colors ${r.rate === bestRate ? 'bg-positive/5' : ''}`}
+            className={`grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm hover:bg-foreground/[0.04] transition-colors ${r.rate === bestRate ? 'bg-accent/10' : ''}`}
+            style={i < sorted.length - 1 ? { borderBottom: `1px solid ${border}` } : undefined}
           >
             <span className="flex items-center gap-2 px-3.5 py-3 min-w-0">
               <Image src={r.logo} alt="" width={20} height={20} className="rounded-md shrink-0" unoptimized />
@@ -74,7 +82,7 @@ export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; loc
             <span className="hidden sm:block px-3.5 py-3 text-muted">{r.feePct === 0 ? (isRu ? 'нет' : 'none') : `${r.feePct}%`}</span>
             <span className="px-3.5 py-3">
               {r.rate === bestRate ? (
-                <span className="text-[10px] font-bold text-positive bg-positive/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+                <span className="text-[10px] font-bold text-accent bg-accent/15 px-2 py-0.5 rounded-full whitespace-nowrap">
                   {isRu ? 'Лучший' : 'Best'}
                 </span>
               ) : (

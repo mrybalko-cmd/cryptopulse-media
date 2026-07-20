@@ -41,6 +41,64 @@ async function fetchBinanceP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> 
   }
 }
 
+// Same unofficial-but-public pattern as Binance P2P — this is the endpoint
+// OKX's own web client calls, no API key, verified live before shipping.
+async function fetchOkxP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
+  try {
+    const params = new URLSearchParams({
+      t: String(Date.now()),
+      side: 'sell',
+      paymentMethod: 'all',
+      userType: 'all',
+      hideOtcModityIdList: '',
+      sortType: '',
+      isAbleFilter: 'false',
+      urgentOrder: 'false',
+      isRegionQuick: 'false',
+      quoteCurrency: 'EUR',
+      baseCurrency: asset.toLowerCase(),
+    });
+    const res = await fetch(`https://www.okx.com/v3/c2c/tradingOrders/books?${params}`, { next: { revalidate: 120 } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const price = data?.data?.sell?.[0]?.price;
+    if (!price) return null;
+    return {
+      source: 'OKX P2P',
+      logo: '/logos/okx.svg',
+      asset,
+      rate: Number(price),
+      feePct: 0,
+      type: 'p2p',
+      url: `https://www.okx.com/p2p-markets/eur/sell-${asset.toLowerCase()}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchBitstamp(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
+  try {
+    const pair = `${asset.toLowerCase()}eur`;
+    const res = await fetch(`https://www.bitstamp.net/api/v2/ticker/${pair}/`, { next: { revalidate: 120 } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const price = data?.last;
+    if (!price) return null;
+    return {
+      source: 'Bitstamp',
+      logo: '/logos/bitstamp.svg',
+      asset,
+      rate: Number(price),
+      feePct: 0.3,
+      type: 'cex',
+      url: `https://www.bitstamp.net/markets/${asset.toLowerCase()}/eur/`,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
     const pair = `${asset}EUR`;
@@ -91,6 +149,9 @@ async function fetchCoinbase(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
 export async function fetchEurRates(): Promise<EurRate[]> {
   const results = await Promise.all([
     fetchBinanceP2P('USDT'),
+    fetchOkxP2P('USDT'),
+    fetchBitstamp('USDT'),
+    fetchBitstamp('USDC'),
     fetchKraken('USDT'),
     fetchKraken('USDC'),
     fetchCoinbase('USDT'),
