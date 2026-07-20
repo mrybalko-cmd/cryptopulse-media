@@ -9,13 +9,14 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
-import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
 import PopularList from '@/components/ui/PopularList';
 import ArticleSidebar from '@/components/ui/ArticleSidebar';
+import SidebarBanner from '@/components/ui/SidebarBanner';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
@@ -95,10 +96,15 @@ export default async function NewsDetailPage({ params }: Props) {
   const popularItems = (await fetchPopularContent(locale, 8))
     .filter((item) => item._id !== news._id)
     .slice(0, 7);
+  const banners = await fetchActiveBanners(locale);
 
   const date = new Date(news.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
-    { day: 'numeric', month: 'long', year: 'numeric' }
+    { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Prague' }
+  );
+  const time = new Date(news.publishedAt).toLocaleTimeString(
+    locale === 'ru' ? 'ru-RU' : 'en-US',
+    { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }
   );
 
   const wordCount = countBodyWords(news.body);
@@ -202,7 +208,7 @@ export default async function NewsDetailPage({ params }: Props) {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
-            <span>{date}</span>
+            <span>{date} · {time}</span>
           </div>
           {news.sourceName && (
             <a
@@ -271,17 +277,23 @@ export default async function NewsDetailPage({ params }: Props) {
       {popularItems.length > 0 && (
         <div className="lg:hidden mt-12 pt-8 border-t border-border">
           <PopularList items={popularItems} locale={locale} />
+          {banners.length > 0 && (
+            <div className="max-w-xs mx-auto mt-4">
+              <SidebarBanner banners={banners} locale={locale} />
+            </div>
+          )}
         </div>
       )}
 
       {/* Mobile infinite feed — previous news, its own comments + Popular, repeating */}
-      <InfiniteMobileFeed type="news" locale={locale} cursor={news.publishedAt} />
+      <InfiniteMobileFeed type="news" locale={locale} cursor={news.publishedAt} banners={banners} />
       </div>
 
       {/* Share + Popular (desktop, sticky) */}
       <aside className="hidden lg:block shrink-0 w-64">
-        <div className="sticky top-20 md:top-[8rem]">
+        <div className="sticky top-20 md:top-[8rem] flex flex-col gap-4">
           <ArticleSidebar url={pageUrl} title={news.title} locale={locale} popularItems={popularItems} />
+          {banners.length > 0 && <SidebarBanner banners={banners} locale={locale} />}
         </div>
       </aside>
       </div>

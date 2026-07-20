@@ -27,6 +27,63 @@ export async function incrementViews(id: string) {
   }
 }
 
+export interface SidebarBannerItem {
+  _id: string;
+  image: string;
+  altText: string;
+  weight: number;
+}
+
+export const fetchActiveBanners = unstable_cache(
+  async (locale: string, limit = 5): Promise<SidebarBannerItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "sidebarBanner" && active == true
+          && (language == "all" || !defined(language) || language == $locale)
+          && (!defined(startAt) || startAt <= now())
+          && (!defined(endAt) || endAt >= now())
+        ] | order(_createdAt desc) [0...$limit] {
+          _id, "image": image.asset->url, altText, "weight": coalesce(weight, 1)
+        }`,
+        { locale, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchActiveBanners'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
+export async function incrementBannerImpression(id: string) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return;
+  try {
+    await writeClient.patch(id).setIfMissing({ impressions: 0 }).inc({ impressions: 1 }).commit({ autoGenerateArrayKeys: false });
+  } catch {
+    // impression counting is best-effort, never block rendering on it
+  }
+}
+
+// Increments the click counter and returns the banner's destination link in
+// one round trip — commit() already returns the full patched document, so a
+// separate read query isn't needed. The redirect route resolves the target
+// URL server-side from the banner id rather than trusting a client-supplied
+// URL, which would otherwise be an open-redirect vector.
+export async function incrementBannerClick(id: string): Promise<string | null> {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return null;
+  try {
+    const doc = await writeClient
+      .patch(id)
+      .setIfMissing({ clicks: 0 })
+      .inc({ clicks: 1 })
+      .commit({ autoGenerateArrayKeys: false });
+    return typeof doc.link === 'string' ? doc.link : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function setLike(id: string, liked: boolean): Promise<number | null> {
   if (!process.env.SANITY_API_WRITE_TOKEN) return null;
   try {

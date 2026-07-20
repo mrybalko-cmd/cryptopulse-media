@@ -16,6 +16,7 @@ interface NewsItem {
   breaking?: boolean;
   ownBadge?: boolean;
   topic?: string;
+  views?: number;
 }
 
 interface Props {
@@ -108,6 +109,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
                       locale={locale}
                       breaking={item.breaking}
                       ownBadge={item.ownBadge !== false}
+                      views={item.views}
                     />
                   ))}
                 </div>

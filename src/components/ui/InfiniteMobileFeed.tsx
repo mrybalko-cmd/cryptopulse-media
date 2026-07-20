@@ -5,7 +5,8 @@ import { Calendar, User } from 'lucide-react';
 import RichText from './RichText';
 import CommentSection from './CommentSection';
 import PopularList from './PopularList';
-import type { PopularItem } from '@/lib/sanity';
+import SidebarBanner from './SidebarBanner';
+import type { PopularItem, SidebarBannerItem } from '@/lib/sanity';
 
 interface FeedItem {
   _id: string;
@@ -25,6 +26,7 @@ interface Props {
   type: 'article' | 'news';
   locale: string;
   cursor: string;
+  banners: SidebarBannerItem[];
 }
 
 // Mobile-only, client-fetched "previous article" feed — loads one item at a
@@ -33,7 +35,7 @@ interface Props {
 // the initial HTML would create duplicate/thin-content risk on the current
 // article's own indexed URL under mobile-first indexing. Fetched-on-scroll
 // content is far less likely to be crawled/indexed the same way.
-export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor }: Props) {
+export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor, banners }: Props) {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [popularByItem, setPopularByItem] = useState<Record<string, PopularItem[]>>({});
   const [cursor, setCursor] = useState(initialCursor);
@@ -91,6 +93,12 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          timeZone: 'Europe/Prague',
+        });
+        const time = new Date(item.publishedAt).toLocaleTimeString(isRu ? 'ru-RU' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Europe/Prague',
         });
         return (
           <div key={item._id} className="mt-12 pt-8 border-t border-border">
@@ -121,7 +129,7 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
               )}
               <span className="flex items-center gap-1.5">
                 <Calendar size={12} />
-                {date}
+                {date} · {time}
               </span>
             </div>
             {item.body ? (
@@ -133,6 +141,11 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
             {popularByItem[item._id]?.length > 0 && (
               <div className="mt-12 pt-8 border-t border-border">
                 <PopularList items={popularByItem[item._id]} locale={locale} />
+                {banners.length > 0 && (
+                  <div className="max-w-xs mx-auto mt-4">
+                    <SidebarBanner banners={banners} locale={locale} />
+                  </div>
+                )}
               </div>
             )}
           </div>

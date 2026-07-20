@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { ArrowRight, ExternalLink, Zap, Pin } from 'lucide-react';
+import { ArrowRight, ExternalLink, Zap, Pin, Eye } from 'lucide-react';
 import { TOPIC_META } from '@/lib/topicMeta';
 
 export { TOPIC_META };
@@ -21,10 +21,11 @@ interface Props {
   pinned?: boolean;
   breaking?: boolean;
   ownBadge?: boolean;
+  views?: number;
 }
 
 export default function NewsTimelineRow({
-  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true,
+  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true, views,
 }: Props) {
   const [imgErr, setImgErr] = useState(false);
 
@@ -108,12 +109,22 @@ export default function NewsTimelineRow({
           {title}
         </h3>
 
-        {/* Topic pill */}
-        {meta && (
-          <span className={`inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${meta.rowCls}`}>
-            <span className={`w-1 h-1 rounded-full shrink-0 ${meta.dotCls}`} />
-            {locale === 'ru' ? meta.ru : meta.en}
-          </span>
+        {/* Topic pill + views */}
+        {(meta || typeof views === 'number') && (
+          <div className="flex items-center gap-2 mt-1.5">
+            {meta && (
+              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${meta.rowCls}`}>
+                <span className={`w-1 h-1 rounded-full shrink-0 ${meta.dotCls}`} />
+                {locale === 'ru' ? meta.ru : meta.en}
+              </span>
+            )}
+            {!external && typeof views === 'number' && (
+              <span className="flex items-center gap-1 text-[10px] text-muted">
+                <Eye size={10} />
+                {views}
+              </span>
+            )}
+          </div>
         )}
       </div>
 

@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
-import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
@@ -15,6 +15,7 @@ import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
 import PopularList from '@/components/ui/PopularList';
 import ArticleSidebar from '@/components/ui/ArticleSidebar';
+import SidebarBanner from '@/components/ui/SidebarBanner';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
@@ -95,10 +96,15 @@ export default async function ArticlePage({ params }: Props) {
   const popularItems = (await fetchPopularContent(locale, 8))
     .filter((item) => item._id !== article._id)
     .slice(0, 7);
+  const banners = await fetchActiveBanners(locale);
 
   const date = new Date(article.publishedAt).toLocaleDateString(
     locale === 'ru' ? 'ru-RU' : 'en-US',
-    { day: 'numeric', month: 'long', year: 'numeric' }
+    { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Prague' }
+  );
+  const time = new Date(article.publishedAt).toLocaleTimeString(
+    locale === 'ru' ? 'ru-RU' : 'en-US',
+    { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }
   );
 
   const wordCount = countBodyWords(article.body);
@@ -201,7 +207,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
-            <span>{date}</span>
+            <span>{date} · {time}</span>
           </div>
           {article.readingTime && (
             <div className="flex items-center gap-1.5 text-xs text-muted">
@@ -268,17 +274,23 @@ export default async function ArticlePage({ params }: Props) {
       {popularItems.length > 0 && (
         <div className="lg:hidden mt-12 pt-8 border-t border-border">
           <PopularList items={popularItems} locale={locale} />
+          {banners.length > 0 && (
+            <div className="max-w-xs mx-auto mt-4">
+              <SidebarBanner banners={banners} locale={locale} />
+            </div>
+          )}
         </div>
       )}
 
       {/* Mobile infinite feed — previous article, its own comments + Popular, repeating */}
-      <InfiniteMobileFeed type="article" locale={locale} cursor={article.publishedAt} />
+      <InfiniteMobileFeed type="article" locale={locale} cursor={article.publishedAt} banners={banners} />
       </div>
 
       {/* Share + Popular (desktop, sticky) */}
       <aside className="hidden lg:block shrink-0 w-64">
-        <div className="sticky top-20 md:top-[8rem]">
+        <div className="sticky top-20 md:top-[8rem] flex flex-col gap-4">
           <ArticleSidebar url={pageUrl} title={article.title} locale={locale} popularItems={popularItems} />
+          {banners.length > 0 && <SidebarBanner banners={banners} locale={locale} />}
         </div>
       </aside>
       </div>
