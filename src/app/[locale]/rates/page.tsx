@@ -8,6 +8,7 @@ import { buildOg, BASE } from '@/lib/metadata';
 import { fetchEurRates } from '@/lib/eurRates';
 import EurCalculator from '@/components/ui/EurCalculator';
 import EurRatesTable from '@/components/ui/EurRatesTable';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -40,7 +41,7 @@ const FAQ_RU = [
   { q: 'Безопасно ли обменивать через P2P?', a: 'Да, если использовать площадку со встроенным эскроу (крипта продавца блокируется до подтверждения оплаты) и проверять рейтинг/количество сделок контрагента. Никогда не переводите деньги и не подтверждайте оплату вне чата платформы.' },
   { q: 'Как быстро приходят деньги после P2P-сделки?', a: 'Обычно от нескольких минут до пары часов — зависит от способа оплаты и скорости подтверждения продавца. SEPA-переводы в среднем быстрее карточных.' },
   { q: 'Есть ли минимальная и максимальная сумма обмена?', a: 'Да, у каждого объявления P2P и у каждой биржи — свои лимиты. На бирже лимиты обычно шире, чем в отдельном P2P-объявлении; при крупной сумме может понадобиться несколько сделок.' },
-  { q: 'Нужна ли верификация (KYC) для обмена?', a: 'Да, у всех источников на этой странице — Binance, Kraken и Coinbase Exchange — требуют пройти верификацию личности перед торговлей, это стандартное регуляторное требование.' },
+  { q: 'Нужна ли верификация (KYC) для обмена?', a: 'Да, все источники на этой странице требуют пройти верификацию личности перед торговлей — это стандартное регуляторное требование.' },
   { q: 'Курс учитывает комиссию за вывод на банковскую карту или счёт?', a: 'Нет — в таблице показана только комиссия конкретной сделки. Вывод EUR с P2P обычно происходит напрямую на счёт продавца без отдельной комиссии платформы; вывод с биржи на карту/IBAN может тарифицироваться отдельно — уточняйте у конкретной площадки.' },
   { q: 'Облагается ли обмен крипты на евро налогом?', a: 'В большинстве юрисдикций ЕС — да, но правила сильно различаются по стране. Мы не даём налоговых консультаций — обратитесь к местному налоговому специалисту для точного ответа по вашей стране.' },
 ];
@@ -52,7 +53,7 @@ const FAQ_EN = [
   { q: 'Is P2P trading safe?', a: 'Yes, if you use a platform with built-in escrow (the seller’s crypto is locked until you confirm payment) and check the counterparty’s rating and trade count. Never send money or confirm payment outside the platform’s own chat.' },
   { q: 'How fast does the money arrive after a P2P trade?', a: 'Usually a few minutes to a couple of hours, depending on the payment method and how quickly the seller confirms. SEPA transfers tend to be faster than card payments.' },
   { q: 'Is there a minimum or maximum exchange amount?', a: 'Yes — each P2P ad and each exchange has its own limits. Exchange limits are usually wider than a single P2P ad; large amounts may need to be split across a few trades.' },
-  { q: 'Do I need to verify my identity (KYC)?', a: 'Yes — every source on this page (Binance, Kraken, and Coinbase Exchange) requires identity verification before trading, a standard regulatory requirement.' },
+  { q: 'Do I need to verify my identity (KYC)?', a: 'Yes — every source on this page requires identity verification before trading, a standard regulatory requirement.' },
   { q: 'Does the rate include the fee for withdrawing to a bank card or account?', a: 'No — the table shows only the trade fee itself. P2P EUR payouts usually go straight to the seller’s account with no extra platform fee; withdrawing from an exchange to a card/IBAN may carry its own fee — check with the specific platform.' },
   { q: 'Is exchanging crypto for euros taxed?', a: 'In most EU jurisdictions, yes — but rules vary significantly by country. We don’t provide tax advice — consult a local tax professional for guidance specific to your country.' },
 ];
@@ -79,9 +80,12 @@ export default async function RatesPage({ params }: Props) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+      <div>
 
       <Link href={`/${locale}`} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent transition-colors mb-8">
         <ArrowLeft size={14} />
@@ -199,6 +203,10 @@ export default async function RatesPage({ params }: Props) {
             ? 'Курсы носят справочный характер и могут отличаться в момент сделки. CryptoPulse.media не является стороной обмена, не хранит средства пользователей и не несёт ответственности за операции на сторонних площадках.'
             : 'Rates are for reference only and may differ at the time of your trade. CryptoPulse.media is not a party to any exchange, does not hold user funds, and is not responsible for transactions on third-party platforms.'}
         </p>
+      </div>
+
+      </div>
+      <PopularSidebar locale={locale} />
       </div>
     </div>
   );
