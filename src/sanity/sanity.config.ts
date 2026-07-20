@@ -5,6 +5,7 @@ import { CalendarIcon, HomeIcon } from '@sanity/icons';
 import { schemaTypes } from './schemaTypes';
 import { publishWithTimingAction } from './actions/publishWithTiming';
 import { PublicationScheduleTool } from './plugins/PublicationScheduleTool';
+import { BannerPreview } from './components/BannerPreview';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
@@ -27,7 +28,29 @@ export default defineConfig({
               .icon(HomeIcon)
               .child(S.document().schemaType('homeSettings').documentId(HOME_SETTINGS_ID)),
             S.divider(),
-            ...S.documentTypeListItems().filter((item) => item.getId() !== 'homeSettings'),
+            ...S.documentTypeListItems()
+              .filter((item) => item.getId() !== 'homeSettings')
+              .map((item) => {
+                if (item.getId() !== 'sidebarBanner') return item;
+                // Gives sidebarBanner its own "Превью на сайте" tab next to
+                // the editor form — a live mockup of the banner in its real
+                // slot, so a campaign can be checked visually before Active
+                // is ever switched on. Every other type keeps the default
+                // single-view document editor.
+                return S.listItem()
+                  .title(item.getTitle() ?? 'Sidebar Banner')
+                  .icon(item.getIcon())
+                  .child(
+                    S.documentTypeList('sidebarBanner')
+                      .title('Sidebar Banner')
+                      .child((documentId) =>
+                        S.document()
+                          .documentId(documentId)
+                          .schemaType('sidebarBanner')
+                          .views([S.view.form(), S.view.component(BannerPreview).title('Превью на сайте')])
+                      )
+                  );
+              }),
           ]),
     }),
     visionTool(),
