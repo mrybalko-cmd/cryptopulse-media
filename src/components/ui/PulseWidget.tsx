@@ -95,11 +95,8 @@ export default function PulseWidget({
         </div>
       </Link>
 
-      <div className="flex items-center justify-between gap-2 mt-auto pt-3 border-t border-border relative">
+      <div className="mt-auto pt-3 border-t border-border relative">
         <ShareButtons url={shareUrl} title={shareText} locale={locale} vertical={false} />
-        <Link href={pulseHref} className="text-xs text-accent hover:underline shrink-0">
-          {isRu ? 'Подробнее →' : 'Details →'}
-        </Link>
       </div>
     </div>
   );
