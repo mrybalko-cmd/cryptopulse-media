@@ -47,7 +47,10 @@ export default defineConfig({
                         S.document()
                           .documentId(documentId)
                           .schemaType('sidebarBanner')
-                          .views([S.view.form(), S.view.component(BannerPreview).title('Превью на сайте')])
+                          .views([
+                            S.view.form(),
+                            S.view.component(BannerPreview).id('preview').title('Превью на сайте'),
+                          ])
                       )
                   );
               }),
