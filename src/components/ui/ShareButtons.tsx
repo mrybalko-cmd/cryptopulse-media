@@ -15,6 +15,7 @@ export default function ShareButtons({ url, title, locale, vertical = true }: Sh
 
   const twitterHref = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
   const facebookHref = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  const telegramHref = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
 
   const copyLink = async () => {
     try {
@@ -51,6 +52,18 @@ export default function ShareButtons({ url, title, locale, vertical = true }: Sh
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
           <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54v-2.89h2.54V9.797c0-2.506 1.493-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12z" />
+        </svg>
+      </a>
+      <a
+        href={telegramHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={btnClass}
+        aria-label="Share on Telegram"
+        title="Telegram"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-2 1.92c-.23.23-.42.42-.82.42z" />
         </svg>
       </a>
       <button
