@@ -58,7 +58,11 @@
     "authors": "Our Authors",
     "aboutUs": "About",
     "followX": "Follow us on X",
-    "followXHandle": "Daily crypto news & analysis"
+    "followXHandle": "Daily crypto news & analysis",
+    "subscribeTitle": "The crypto essentials — once a week in your inbox",
+    "subscribeSubtitle": "No spam, unsubscribe anytime",
+    "disclosureTitle": "Advertising disclosure:",
+    "disclosureText": "Some pages and the sidebar may show partner banners — always marked \"Ad\". They don't affect the editorial independence of our news and articles."
   },
   "legal": {
     "privacyTitle": "Privacy Policy",

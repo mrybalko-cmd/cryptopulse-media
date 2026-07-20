@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Zap, Mail } from 'lucide-react';
 import { CONTACT_EMAIL, X_PROFILE_URL } from '@/lib/constants';
+import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 
 // lucide-react's "X" icon is a generic close/times glyph, not the X (Twitter)
 // brand mark — render the real logo shape directly instead.
@@ -13,19 +14,47 @@ function XLogo({ size = 16 }: { size?: number }) {
   );
 }
 
+// Nav groups render as native <details> — collapsed accordions on mobile
+// (real behavior, no JS), forced open on desktop via the lg:!block override
+// on the content list so it reads as a normal static column there. Content
+// stays in the server-rendered HTML either way, so links are always
+// crawlable regardless of the visual open/closed state.
+function FooterNavGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details className="group/acc border-t border-border pt-4 lg:border-0 lg:pt-0">
+      <summary className="cursor-pointer lg:cursor-default lg:pointer-events-none list-none flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-0 lg:mb-4">
+        {title}
+        <span className="text-muted lg:hidden group-open/acc:rotate-180 transition-transform" aria-hidden="true">▾</span>
+      </summary>
+      <ul className="list-none p-0 m-0 mt-3 lg:mt-0 space-y-2 lg:!block">
+        {children}
+      </ul>
+    </details>
+  );
+}
+
 export default async function Footer() {
   const t = await getTranslations('footer');
   const locale = await getLocale();
 
   return (
     <footer className="border-t border-border mt-20" aria-label="Site footer">
+
+      {/* Subscribe bar — full-bleed strip above the column grid */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <EmailSubscribeForm locale={locale} source="footer" variant="footer" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
 
-        {/* 4-column grid: Brand | Content | Tools | Legal */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
+        {/* Single column on mobile (accordion groups), 4-column grid on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-6">
 
-          {/* Col 1 — Brand */}
-          <div className="col-span-2 lg:col-span-1">
+          {/* Brand — extra bottom margin on mobile so the first accordion
+              below doesn't crowd the X follow button */}
+          <div className="mb-6 lg:mb-0">
             <Link href={`/${locale}`} className="inline-flex items-center gap-2 mb-3">
               <div className="w-6 h-6 rounded bg-red-600 flex items-center justify-center shrink-0">
                 <Zap size={12} className="text-yellow-400" fill="currentColor" />
@@ -51,128 +80,120 @@ export default async function Footer() {
             </a>
           </div>
 
-          {/* Col 2 — Content */}
-          <nav aria-label="Content navigation">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
-              {t('content')}
-            </h4>
-            <ul className="flex flex-col gap-2 list-none p-0 m-0">
-              <li>
-                <Link href={`/${locale}/news`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('news')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/articles`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('articles')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/authors`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('authors')}
-                </Link>
-              </li>
-            </ul>
-          </nav>
+          {/* Content */}
+          <FooterNavGroup title={t('content')}>
+            <li>
+              <Link href={`/${locale}/news`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('news')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/articles`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('articles')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/authors`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('authors')}
+              </Link>
+            </li>
+          </FooterNavGroup>
 
-          {/* Col 3 — Tools */}
-          <nav aria-label="Tools navigation">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
-              {t('tools')}
-            </h4>
-            <ul className="flex flex-col gap-2 list-none p-0 m-0">
-              <li>
-                <Link href={`/${locale}/calculators`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('calculators')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/assets`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('assets')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('glossary')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/ai/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('aiGlossary')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/calendar`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('calendar')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/regulation`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('regulation')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/faq`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('faq')}
-                </Link>
-              </li>
-            </ul>
-          </nav>
+          {/* Tools */}
+          <FooterNavGroup title={t('tools')}>
+            <li>
+              <Link href={`/${locale}/calculators`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('calculators')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/assets`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('assets')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('glossary')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/ai/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('aiGlossary')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/calendar`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('calendar')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/regulation`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('regulation')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/faq`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('faq')}
+              </Link>
+            </li>
+          </FooterNavGroup>
 
-          {/* Col 4 — Legal */}
-          <nav aria-label="Legal navigation">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
-              {t('legal')}
-            </h4>
-            <ul className="flex flex-col gap-2 list-none p-0 m-0">
-              <li>
-                <Link href={`/${locale}/about`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('aboutUs')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/advertising`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('advertising')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/editorial-policy`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('editorialPolicy')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/privacy`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('privacy')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/disclaimer`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('disclaimer')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/${locale}/security`} className="text-sm text-muted hover:text-foreground transition-colors">
-                  {t('security')}
-                </Link>
-              </li>
-              <li>
-                <address className="not-italic">
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
-                  >
-                    <Mail size={13} aria-hidden="true" />
-                    {t('contact')}
-                  </a>
-                </address>
-              </li>
-            </ul>
-          </nav>
+          {/* Legal */}
+          <FooterNavGroup title={t('legal')}>
+            <li>
+              <Link href={`/${locale}/about`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('aboutUs')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/advertising`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('advertising')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/editorial-policy`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('editorialPolicy')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/privacy`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('privacy')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/disclaimer`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('disclaimer')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/security`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('security')}
+              </Link>
+            </li>
+            <li>
+              <address className="not-italic">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
+                >
+                  <Mail size={13} aria-hidden="true" />
+                  {t('contact')}
+                </a>
+              </address>
+            </li>
+          </FooterNavGroup>
 
         </div>
 
+        {/* Ad disclosure — relevant now that the sidebar can show partner banners */}
+        <div className="mt-10 border border-dashed border-border rounded-lg px-4 py-3">
+          <p className="text-xs text-muted leading-relaxed">
+            <span className="font-semibold text-foreground">{t('disclosureTitle')}</span> {t('disclosureText')}
+          </p>
+        </div>
+
         {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
+        <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
           <p className="text-xs text-muted">{t('disclaimerText')}</p>
           <p className="text-xs text-muted shrink-0">
             © {new Date().getFullYear()} CryptoPulse.media · {t('rights')}

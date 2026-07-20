@@ -6,7 +6,7 @@ import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
 interface Props {
   locale: string;
   source?: string;
-  variant?: 'inline' | 'banner';
+  variant?: 'inline' | 'banner' | 'footer';
 }
 
 export default function EmailSubscribeForm({ locale, source = 'unknown', variant = 'banner' }: Props) {
@@ -40,10 +40,51 @@ export default function EmailSubscribeForm({ locale, source = 'unknown', variant
   };
 
   if (status === 'success') {
+    if (variant === 'footer') {
+      return (
+        <div className="flex items-center gap-2 text-sm text-accent">
+          <CheckCircle size={15} className="shrink-0" />
+          <span>{isRu ? 'Вы подписаны.' : "You're subscribed."}</span>
+        </div>
+      );
+    }
     return (
       <div className="border-t border-border pt-6 mt-6 mb-8 flex items-center gap-2 text-xs text-accent">
         <CheckCircle size={13} className="shrink-0" />
         <span>{isRu ? 'Вы подписаны.' : 'You\'re subscribed.'}</span>
+      </div>
+    );
+  }
+
+  if (variant === 'footer') {
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            {isRu ? 'Главное с крипторынка — раз в неделю на почту' : 'The crypto essentials — once a week in your inbox'}
+          </p>
+          <p className="text-xs text-muted mt-0.5">
+            {isRu ? 'Без спама, можно отписаться в один клик' : 'No spam, unsubscribe anytime'}
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 shrink-0">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder={isRu ? 'ваш@email.com' : 'your@email.com'}
+            required
+            className="flex-1 sm:w-56 min-w-0 px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+          />
+          <button
+            type="submit"
+            disabled={status === 'loading'}
+            className="px-4 py-2 text-sm font-semibold bg-accent text-background rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 shrink-0 whitespace-nowrap"
+          >
+            {status === 'loading' ? '...' : (isRu ? 'Подписаться' : 'Subscribe')}
+          </button>
+        </form>
+        {status === 'error' && <p className="text-xs text-red-500">{errorMsg}</p>}
       </div>
     );
   }
