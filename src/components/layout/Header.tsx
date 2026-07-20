@@ -46,10 +46,11 @@ export default function Header() {
     { href: `/${locale}/calendar`, label: t('calendar') },
     { href: `/${locale}/assets`, label: t('assets') },
     { href: `/${locale}/ai`, label: 'AI', ai: true },
+    { href: `/${locale}/rates`, label: t('rates') },
   ];
 
   const isActive = (href: string) =>
-    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai')
+    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai') || href.endsWith('/rates')
       ? pathname.startsWith(href)
       : pathname === href;
 

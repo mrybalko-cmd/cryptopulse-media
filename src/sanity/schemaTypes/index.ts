@@ -10,9 +10,10 @@ import { quoteBlockType } from './quoteBlock';
 import { youtubeEmbedType } from './youtubeEmbed';
 import { tweetEmbedType } from './tweetEmbed';
 import { sidebarBannerType } from './sidebarBanner';
+import { marketSnapshotType } from './marketSnapshot';
 
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType,
-  sidebarBannerType,
+  sidebarBannerType, marketSnapshotType,
 ];

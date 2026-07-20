@@ -690,3 +690,49 @@ export const fetchTopLikedNews = unstable_cache(
   ['fetchTopLikedNews'],
   { revalidate: READ_CACHE_SECONDS }
 );
+
+// ── Pulse of the Day ────────────────────────────────────────────────────────
+// One document per day, written once by the cron job in
+// /api/cron/pulse-snapshot. Everything the site reads (widget, /pulse page,
+// share-card image) reads the latest stored snapshot instead of recomputing
+// the three-source blend on every request.
+
+export interface MarketSnapshot {
+  _id: string;
+  date: string;
+  totalVolume24h: number;
+  fearGreedValue: number;
+  altSeasonValue: number;
+  volumeChangePct: number;
+  pulseScore: number;
+  pulseClassification: string;
+  computedAt: string;
+}
+
+export async function saveMarketSnapshot(snapshot: Omit<MarketSnapshot, '_id'>): Promise<void> {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return;
+  try {
+    await writeClient.create({ _type: 'marketSnapshot', ...snapshot });
+  } catch {
+    // best-effort — a missed daily snapshot just means the next cron run
+    // falls back to a wider baseline gap, not a broken page
+  }
+}
+
+export const fetchRecentMarketSnapshots = unstable_cache(
+  async (limit = 7): Promise<MarketSnapshot[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "marketSnapshot"] | order(computedAt desc) [0...$limit] {
+          _id, date, totalVolume24h, fearGreedValue, altSeasonValue, volumeChangePct, pulseScore, pulseClassification, computedAt
+        }`,
+        { limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchRecentMarketSnapshots'],
+  { revalidate: READ_CACHE_SECONDS }
+);

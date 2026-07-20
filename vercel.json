@@ -19,5 +19,8 @@
     { "source": "/ru/news/ssha-bitcoin-rezerv-minfin-mintorgovlya-2026", "destination": "/ru/news/spustya-god-posle-ukaza-trampa-bitkoin-rezerv-ssha-tak-i-ne-zarabotal-minfin-i-mintorgovlya-ne-m", "permanent": true },
     { "source": "/en/news/ai-agents-stablecoin-payments-visa-2026", "destination": "/en/news/ai-agents-have-already-spent-73m-in-crypto-and-visa-just-joined-in", "permanent": true },
     { "source": "/ru/news/bitkoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "destination": "/ru/news/bitcoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "permanent": true }
+  ],
+  "crons": [
+    { "path": "/api/cron/pulse-snapshot", "schedule": "5 0 * * *" }
   ]
 }

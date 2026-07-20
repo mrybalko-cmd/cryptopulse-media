@@ -294,6 +294,13 @@ export default async function AltcoinSeasonPage({ params }: Props) {
         </div>
       </section>
 
+      <p className="text-xs text-muted mb-3">
+        {isRu ? 'Смотрите также: ' : 'See also: '}
+        <Link href={`/${locale}/pulse`} className="text-accent hover:underline">
+          {isRu ? 'Пульс рынка — составной индекс, который включает этот показатель' : 'Market Pulse — our composite index that includes this metric'}
+        </Link>
+      </p>
+
       {/* Warning */}
       <div className="border border-border rounded-lg px-4 py-3 bg-card mb-10">
         <p className="text-xs text-muted leading-relaxed">

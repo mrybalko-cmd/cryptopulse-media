@@ -6,8 +6,10 @@ import { Scale, ArrowRightLeft, ArrowRight } from 'lucide-react';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import FearGreedWidget from '@/components/ui/FearGreedWidget';
 import AltcoinSeasonWidget from '@/components/ui/AltcoinSeasonWidget';
+import PulseWidget from '@/components/ui/PulseWidget';
 import { fetchFearGreedIndex } from '@/lib/feargreed';
 import { fetchAltcoinSeasonIndex } from '@/lib/altcoinSeason';
+import { fetchLatestPulse } from '@/lib/pulse';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -36,9 +38,10 @@ export default async function CalculatorsHubPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
 
-  const [fearGreedData, altcoinSeasonData] = await Promise.all([
+  const [fearGreedData, altcoinSeasonData, pulseData] = await Promise.all([
     fetchFearGreedIndex().catch(() => null),
     fetchAltcoinSeasonIndex().catch(() => null),
+    fetchLatestPulse().catch(() => null),
   ]);
 
   const cards = [
@@ -75,9 +78,9 @@ export default async function CalculatorsHubPage({ params }: Props) {
             </p>
           </div>
 
-          {/* Fear & Greed Index + Altcoin Season Index */}
-          {(fearGreedData || altcoinSeasonData) && (
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          {/* Fear & Greed Index + Altcoin Season Index + Pulse */}
+          {(fearGreedData || altcoinSeasonData || pulseData) && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {fearGreedData && (
                 <div className="p-5 rounded-2xl border border-border bg-card">
                   <p className="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
@@ -102,6 +105,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                   />
                 </div>
               )}
+              {pulseData && <PulseWidget data={pulseData} locale={locale} idSuffix="calculators-hub" />}
             </div>
           )}
 

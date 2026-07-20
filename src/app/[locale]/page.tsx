@@ -10,9 +10,10 @@ import ArticleCarousel from '@/components/ui/ArticleCarousel';
 import AuthorColumns from '@/components/ui/AuthorColumns';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
-import TopAssetsWidget from '@/components/ui/TopAssetsWidget';
+import PulseWidget from '@/components/ui/PulseWidget';
 import { fetchOwnNews } from '@/lib/news';
 import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings } from '@/lib/sanity';
+import { fetchLatestPulse } from '@/lib/pulse';
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function HomePage({ params }: Props) {
@@ -20,7 +21,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, calendarEvents, popular, settings] = await Promise.allSettled([
+  const [news, articles, calendarEvents, popular, settings, pulse] = await Promise.allSettled([
     // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
     // up closer to the news/articles columns above it.
     fetchOwnNews({ limit: 16, locale }),
@@ -29,11 +30,13 @@ export default async function HomePage({ params }: Props) {
     fetchCalendarEvents(),
     fetchPopularContent(locale, 5),
     fetchHomeSettings(locale),
+    fetchLatestPulse(),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
+  const pulseData = pulse.status === 'fulfilled' ? pulse.value : null;
   const homeSettings = settings.status === 'fulfilled'
     ? settings.value
     : { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
@@ -256,11 +259,14 @@ export default async function HomePage({ params }: Props) {
                     </div>
                   </div>
                 )}
-                <TopAssetsWidget
-                  slugs={['bitcoin', 'ethereum', 'solana']}
-                  locale={locale}
-                  className="h-full lg:col-start-3 lg:row-start-2"
-                />
+                {pulseData && (
+                  <PulseWidget
+                    data={pulseData}
+                    locale={locale}
+                    idSuffix="home-desktop"
+                    className="h-full lg:col-start-3 lg:row-start-2"
+                  />
+                )}
               </div>
 
               {/* Row 3 — author columns (curated in Studio: Настройки главной) */}
@@ -299,12 +305,14 @@ export default async function HomePage({ params }: Props) {
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />
 
-      {/* Mobile-only: Crypto Prices widget at the very bottom of the page.
-          Desktop already surfaces the same widget twice within the homepage
-          grid above, so this is lg:hidden to avoid a third repeat there. */}
-      <div className="lg:hidden">
-        <TopAssetsWidget slugs={['bitcoin', 'ethereum', 'solana']} locale={locale} />
-      </div>
+      {/* Mobile-only: Pulse widget at the very bottom of the page. Desktop
+          already surfaces it within the homepage grid above, so this is
+          lg:hidden to avoid a second repeat there. */}
+      {pulseData && (
+        <div className="lg:hidden">
+          <PulseWidget data={pulseData} locale={locale} idSuffix="home-mobile" />
+        </div>
+      )}
     </div>
   );
 }
