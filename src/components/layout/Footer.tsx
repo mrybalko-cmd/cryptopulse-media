@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { Zap, Mail } from 'lucide-react';
 import { CONTACT_EMAIL, X_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
+import FooterNavGroup from '@/components/layout/FooterNavGroup';
 
 // lucide-react's "X" icon is a generic close/times glyph, not the X (Twitter)
 // brand mark — render the real logo shape directly instead.
@@ -11,25 +12,6 @@ function XLogo({ size = 16 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
-  );
-}
-
-// Nav groups render as native <details> — collapsed accordions on mobile
-// (real behavior, no JS), forced open on desktop via the lg:!block override
-// on the content list so it reads as a normal static column there. Content
-// stays in the server-rendered HTML either way, so links are always
-// crawlable regardless of the visual open/closed state.
-function FooterNavGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <details className="group/acc border-t border-border pt-4 lg:border-0 lg:pt-0">
-      <summary className="cursor-pointer lg:cursor-default lg:pointer-events-none list-none flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-0 lg:mb-4">
-        {title}
-        <span className="text-muted lg:hidden group-open/acc:rotate-180 transition-transform" aria-hidden="true">▾</span>
-      </summary>
-      <ul className="list-none p-0 m-0 mt-3 lg:mt-0 space-y-2 lg:!block">
-        {children}
-      </ul>
-    </details>
   );
 }
 
