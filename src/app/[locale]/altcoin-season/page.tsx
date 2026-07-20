@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { buildOg, BASE } from '@/lib/metadata';
 import { fetchAltcoinSeasonIndex, type AltcoinSeasonCoin } from '@/lib/altcoinSeason';
 import AltcoinSeasonWidget from '@/components/ui/AltcoinSeasonWidget';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -133,8 +134,11 @@ export default async function AltcoinSeasonPage({ params }: Props) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+      <div>
 
       <Link
         href={`/${locale}`}
@@ -334,6 +338,10 @@ export default async function AltcoinSeasonPage({ params }: Props) {
             </a>
           </li>
         </ol>
+      </div>
+
+      </div>
+      <PopularSidebar locale={locale} />
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { buildOg, BASE } from '@/lib/metadata';
 import { fetchLatestPulse, PULSE_WEIGHTS } from '@/lib/pulse';
 import { fetchPopularContent } from '@/lib/sanity';
 import PulseWidget from '@/components/ui/PulseWidget';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -101,9 +102,12 @@ export default async function PulsePage({ params }: Props) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+      <div>
 
       <Link href={`/${locale}`} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent transition-colors mb-8">
         <ArrowLeft size={14} />
@@ -301,6 +305,10 @@ export default async function PulsePage({ params }: Props) {
             ? 'Пульс — вспомогательный аналитический инструмент, не торговый сигнал и не инвестиционная рекомендация. Используйте его как один из факторов анализа наряду с техническим и фундаментальным анализом. CryptoPulse.media не даёт инвестиционных рекомендаций.'
             : 'Pulse is a supplementary analytical tool, not a trading signal or investment advice. Use it as one factor in your analysis alongside technical and fundamental research. CryptoPulse.media does not provide investment advice.'}
         </p>
+      </div>
+
+      </div>
+      <PopularSidebar locale={locale} />
       </div>
     </div>
   );

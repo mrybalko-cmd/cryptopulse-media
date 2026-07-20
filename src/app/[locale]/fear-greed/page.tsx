@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { buildOg, BASE } from '@/lib/metadata';
 import { fetchFearGreedIndex } from '@/lib/feargreed';
 import FearGreedWidget from '@/components/ui/FearGreedWidget';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -80,8 +81,11 @@ export default async function FearGreedPage({ params }: Props) {
   const factors = isRu ? FACTORS_RU : FACTORS_EN;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+      <div>
 
       <Link
         href={`/${locale}`}
@@ -211,6 +215,10 @@ export default async function FearGreedPage({ params }: Props) {
             ? 'Индекс страха и жадности — вспомогательный инструмент, не торговый сигнал. Используйте его как один из факторов анализа наряду с техническим и фундаментальным анализом. CryptoPulse.media не даёт инвестиционных рекомендаций.'
             : 'The Fear & Greed Index is a supplementary tool, not a trading signal. Use it as one factor in your analysis alongside technical and fundamental research. CryptoPulse.media does not provide investment advice.'}
         </p>
+      </div>
+
+      </div>
+      <PopularSidebar locale={locale} />
       </div>
     </div>
   );
