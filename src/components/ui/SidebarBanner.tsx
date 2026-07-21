@@ -72,12 +72,33 @@ export default function SidebarBanner({ banners, locale }: Props) {
 
   if (!chosen) return null;
 
+  // The link goes through our own redirect (so Sanity can count the click
+  // and resolve the destination server-side — see /api/banner-click, which
+  // deliberately never exposes the real advertiser URL to the client to
+  // avoid an open-redirect surface). GA can't see that server-side hop as
+  // an "outbound click" the way it does for a plain external href, so this
+  // fires an equivalent client-side event with the same shape GA4's own
+  // Enhanced Measurement outbound-click event uses (event name, param
+  // names) — it lands in the same click/Link URL report instead of a
+  // separate custom one. Opens in a new tab, so the current page never
+  // navigates away and the event always has time to send.
+  const trackGaClick = () => {
+    const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+    gtag?.('event', 'click', {
+      link_url: `/api/banner-click/${chosen._id}`,
+      link_id: chosen._id,
+      link_text: chosen.title,
+      outbound: true,
+    });
+  };
+
   return (
     <a
       ref={linkRef}
       href={`/api/banner-click/${chosen._id}`}
       target="_blank"
       rel="sponsored noopener noreferrer"
+      onClick={trackGaClick}
       className="group relative block aspect-square w-full rounded-lg overflow-hidden border border-border bg-card"
     >
       <span className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded bg-background/80 text-[9px] font-medium text-muted backdrop-blur-sm">

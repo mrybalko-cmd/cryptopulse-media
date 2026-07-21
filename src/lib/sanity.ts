@@ -29,6 +29,7 @@ export async function incrementViews(id: string) {
 
 export interface SidebarBannerItem {
   _id: string;
+  title: string;
   image: string;
   altText: string;
   weight: number;
@@ -44,7 +45,7 @@ export const fetchActiveBanners = unstable_cache(
           && (!defined(startAt) || startAt <= now())
           && (!defined(endAt) || endAt >= now())
         ] | order(_createdAt desc) [0...$limit] {
-          _id, "image": image.asset->url, altText, "weight": coalesce(weight, 1)
+          _id, title, "image": image.asset->url, altText, "weight": coalesce(weight, 1)
         }`,
         { locale, limit }
       );
