@@ -30,9 +30,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = isRu
     ? `Читайте аналитические статьи CryptoPulse.media по теме «${topicName}»: разборы, тренды и экспертные мнения.`
     : `Explore CryptoPulse.media analysis and in-depth articles on ${topicName}: trends, breakdowns, and expert takes.`;
+
+  // Topics with only a handful of articles offer no real aggregation value
+  // over the single article page itself — noindex those so crawl budget
+  // isn't split between a near-empty listing and the real content it lists.
+  const articles = await fetchArticlesByTopic(topic, locale, 50);
+  const isThin = articles.length < 3;
+
   return {
     title,
     description,
+    ...(isThin && { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }),
     openGraph: buildOg({ url: `${BASE}/${locale}/articles/topic/${topic}`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/articles/topic/${topic}`,

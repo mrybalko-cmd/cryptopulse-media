@@ -89,6 +89,16 @@ export default async function Footer() {
               </Link>
             </li>
             <li>
+              <Link href={`/${locale}/calculators/wealth`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('wealthCalc')}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/calculators/converter`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('converter')}
+              </Link>
+            </li>
+            <li>
               <Link href={`/${locale}/assets`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('assets')}
               </Link>

@@ -88,14 +88,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
   ]);
 
+  // Topic listing pages are secondary filter/navigation views over content
+  // that's already listed (and crawled) elsewhere — priority/frequency
+  // deliberately kept below real articles and news so they don't compete
+  // with actual content for a crawl budget that's already constrained.
   const topicPages = TOPIC_SLUGS.flatMap(topic => [
-    { url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
-    { url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
+    { url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
   ]);
 
   const newsTopicPages = NEWS_TOPIC_SLUGS.flatMap(topic => [
-    { url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
-    { url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
+    { url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
   ]);
 
   return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];

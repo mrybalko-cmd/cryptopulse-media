@@ -204,7 +204,7 @@ export default function WealthCalculator({ locale }: { locale: string }) {
                 <Share2 size={14} className="text-accent" />
                 {locale === 'ru' ? 'Поделиться результатом' : 'Share your result'}
               </span>
-              <ShareButtons url="https://cryptopulse.media/calculators/wealth" title={shareTitle} locale={locale} vertical={false} />
+              <ShareButtons url={`https://cryptopulse.media/${locale}/calculators/wealth`} title={shareTitle} locale={locale} vertical={false} />
             </div>
           </div>
         </div>

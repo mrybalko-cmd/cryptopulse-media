@@ -31,9 +31,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = isRu
     ? `Последние новости CryptoPulse.media по теме «${topicName}»: актуальные события, аналитика и комментарии.`
     : `Latest CryptoPulse.media news on ${topicName}: events, analysis and commentary.`;
+
+  // Same rule as the article topic pages — a near-empty topic listing isn't
+  // worth indexing over the real news items it would otherwise list.
+  const news = await fetchNewsByTopic(topic, locale, 50);
+  const isThin = news.length < 3;
+
   return {
     title,
     description,
+    ...(isThin && { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }),
     openGraph: buildOg({ url: `${BASE}/${locale}/news/topic/${topic}`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/news/topic/${topic}`,
