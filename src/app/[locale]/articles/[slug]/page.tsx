@@ -235,7 +235,7 @@ export default async function ArticlePage({ params }: Props) {
       {article.body ? (
         <RichText value={article.body} fallbackAlt={article.title} locale={locale} />
       ) : (
-        <p className="text-muted">{article.excerpt}</p>
+        <p className="text-foreground">{article.excerpt}</p>
       )}
 
       <ArticleFooterMeta date={date} time={time} url={pageUrl} title={article.title} locale={locale} />

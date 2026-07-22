@@ -114,10 +114,10 @@ export default function RichText({
   return (
     <div className="prose prose-invert max-w-none
       prose-headings:text-foreground prose-headings:font-extrabold prose-headings:tracking-tight
-      prose-p:text-muted prose-p:leading-[1.85]
+      prose-p:text-foreground prose-p:leading-[1.85]
       prose-a:text-article-link prose-a:underline prose-a:decoration-article-link hover:prose-a:text-article-accent hover:prose-a:decoration-article-accent
       prose-strong:text-foreground
-      prose-li:text-muted prose-li:leading-[1.7] prose-li:marker:text-muted
+      prose-li:text-foreground prose-li:leading-[1.7] prose-li:marker:text-article-accent
       prose-blockquote:border-article-accent prose-blockquote:text-muted
       prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
     ">
