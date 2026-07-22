@@ -26,7 +26,7 @@ export default function ShareButtons({ url, title, locale, vertical = true }: Sh
   };
 
   const btnClass =
-    'w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center text-muted hover:text-accent hover:border-accent/40 transition-colors';
+    'w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted hover:bg-share-hover hover:border-share-hover hover:text-foreground transition-colors';
 
   return (
     <div className={vertical ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>

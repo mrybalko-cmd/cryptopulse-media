@@ -49,7 +49,7 @@ export default function EmailSubscribeForm({ locale, source = 'unknown', variant
       );
     }
     return (
-      <div className="border-t border-border pt-6 mt-6 mb-8 flex items-center gap-2 text-xs text-accent">
+      <div className="border-t border-border pt-6 mt-6 mb-8 flex items-center gap-2 text-xs text-article-accent">
         <CheckCircle size={13} className="shrink-0" />
         <span>{isRu ? 'Вы подписаны.' : 'You\'re subscribed.'}</span>
       </div>
@@ -124,12 +124,12 @@ export default function EmailSubscribeForm({ locale, source = 'unknown', variant
           onChange={e => setEmail(e.target.value)}
           placeholder={isRu ? 'ваш@email.com' : 'your@email.com'}
           required
-          className="flex-1 min-w-0 px-3 py-1.5 text-xs bg-background border border-border rounded text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+          className="flex-1 min-w-0 px-3 py-1.5 text-xs bg-background border border-border rounded text-foreground placeholder:text-muted focus:outline-none focus:border-article-accent transition-colors"
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="px-3 py-1.5 text-xs font-medium bg-accent/10 text-accent border border-accent/20 rounded hover:bg-accent/20 transition-colors disabled:opacity-50 shrink-0"
+          className="px-3 py-1.5 text-xs font-medium bg-article-accent-tint text-article-accent border border-article-accent rounded hover:opacity-80 transition-opacity disabled:opacity-50 shrink-0"
         >
           {status === 'loading' ? '...' : (isRu ? 'Подписаться' : 'Subscribe')}
         </button>

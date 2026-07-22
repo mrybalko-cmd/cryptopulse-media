@@ -53,7 +53,7 @@ export default function RichText({
         const attribution = [quoteAuthor, source].filter(Boolean).join(', ');
         if (style === 'accent') {
           return (
-            <blockquote className="not-prose not-italic border-l-4 border-accent bg-accent/5 rounded-r-lg px-5 py-4 my-6">
+            <blockquote className="not-prose not-italic border-l-4 border-article-accent bg-article-accent-tint rounded-r-lg px-5 py-4 my-6">
               <p className="text-foreground text-base font-medium leading-relaxed">{text}</p>
               {attribution && <cite className="block not-italic text-xs text-muted mt-2">{attribution}</cite>}
             </blockquote>
@@ -85,7 +85,7 @@ export default function RichText({
           return (
             <Link
               href={path}
-              className="text-blue-500 underline decoration-blue-500 hover:text-blue-600 hover:decoration-blue-600"
+              className="text-article-link underline decoration-article-link hover:text-article-accent hover:decoration-article-accent"
             >
               {children}
             </Link>
@@ -115,10 +115,10 @@ export default function RichText({
     <div className="prose prose-invert prose-sm max-w-none
       prose-headings:text-foreground prose-headings:font-semibold
       prose-p:text-muted prose-p:leading-relaxed
-      prose-a:text-blue-500 prose-a:underline prose-a:decoration-blue-500 hover:prose-a:text-blue-600 hover:prose-a:decoration-blue-600
+      prose-a:text-article-link prose-a:underline prose-a:decoration-article-link hover:prose-a:text-article-accent hover:prose-a:decoration-article-accent
       prose-strong:text-foreground
       prose-li:text-muted prose-li:marker:text-muted
-      prose-blockquote:border-accent prose-blockquote:text-muted
+      prose-blockquote:border-article-accent prose-blockquote:text-muted
       prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
     ">
       <PortableText value={value} components={components} />

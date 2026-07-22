@@ -40,8 +40,8 @@ export default function AuthorCard({ author, locale }: Props) {
           />
         </div>
       ) : (
-        <div className="w-16 h-16 rounded-full shrink-0 bg-accent/10 border-2 border-border flex items-center justify-center">
-          <span className="text-2xl font-bold text-accent">
+        <div className="w-16 h-16 rounded-full shrink-0 bg-article-accent-tint border-2 border-border flex items-center justify-center">
+          <span className="text-2xl font-bold text-article-accent">
             {author.name.charAt(0)}
           </span>
         </div>
@@ -52,14 +52,14 @@ export default function AuthorCard({ author, locale }: Props) {
           {isRu ? 'Автор' : 'Author'}
         </p>
         {authorHref ? (
-          <Link href={authorHref} className="font-bold text-foreground text-sm hover:text-accent transition-colors">
+          <Link href={authorHref} className="font-bold text-foreground text-sm hover:text-article-accent transition-colors">
             {author.name}
           </Link>
         ) : (
           <p className="font-bold text-foreground text-sm">{author.name}</p>
         )}
         {(isRu ? author.roleRu : author.roleEn) && (
-          <p className="text-xs text-accent mb-2">{isRu ? author.roleRu : author.roleEn}</p>
+          <p className="text-xs text-article-accent mb-2">{isRu ? author.roleRu : author.roleEn}</p>
         )}
         {(isRu ? author.bioRu : author.bioEn) && (
           <p className="text-xs text-muted leading-relaxed mt-1">{isRu ? author.bioRu : author.bioEn}</p>
@@ -68,32 +68,32 @@ export default function AuthorCard({ author, locale }: Props) {
           <div className="flex items-center gap-3 mt-3 flex-wrap">
             {author.email && (
               <a href={`mailto:${author.email}`}
-                className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5"
+                className="inline-flex items-center gap-1 text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5"
                 title={author.email}>
                 <Mail size={11} />
               </a>
             )}
             {author.telegram && (
               <a href={author.telegram} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5">
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
                 Telegram
               </a>
             )}
             {author.linkedin && (
               <a href={author.linkedin} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5">
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
                 LinkedIn
               </a>
             )}
             {author.facebook && (
               <a href={author.facebook} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5">
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
                 Facebook
               </a>
             )}
             {author.twitter && (
               <a href={author.twitter} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-accent transition-colors border border-border rounded px-2 py-0.5">
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
                 X / Twitter
               </a>
             )}

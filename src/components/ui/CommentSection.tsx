@@ -87,7 +87,7 @@ function CommentForm({
             onChange={(e) => setName(e.target.value)}
             placeholder={isRu ? 'Твоё имя' : 'Your name'}
             maxLength={60}
-            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-accent/50 sm:w-48"
+            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-article-accent/50 sm:w-48"
           />
         )}
         <textarea
@@ -96,7 +96,7 @@ function CommentForm({
           placeholder={placeholder}
           maxLength={2000}
           rows={compact ? 2 : 3}
-          className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-accent/50 resize-none"
+          className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-article-accent/50 resize-none"
         />
       </div>
       {compact && (
@@ -106,7 +106,7 @@ function CommentForm({
           onChange={(e) => setName(e.target.value)}
           placeholder={isRu ? 'Твоё имя' : 'Your name'}
           maxLength={60}
-          className="mt-2 bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-accent/50 w-48"
+          className="mt-2 bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-article-accent/50 w-48"
         />
       )}
 
@@ -125,7 +125,7 @@ function CommentForm({
         <button
           type="submit"
           disabled={status === 'sending' || !name.trim() || !text.trim()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-background text-xs font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-article-accent text-white text-xs font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
         >
           {status === 'sending' && <Loader2 size={12} className="animate-spin" />}
           {isRu ? 'Отправить' : 'Post'}
@@ -168,7 +168,7 @@ function CommentItem({
   const isRu = locale === 'ru';
   return (
     <div className="flex gap-3">
-      <div className="w-8 h-8 rounded-full bg-accent/15 text-accent flex items-center justify-center text-xs font-bold shrink-0">
+      <div className="w-8 h-8 rounded-full bg-article-accent-tint text-article-accent flex items-center justify-center text-xs font-bold shrink-0">
         {initials(comment.authorName)}
       </div>
       <div className="flex-1 min-w-0">
@@ -176,7 +176,7 @@ function CommentItem({
           <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
           <span className="text-xs text-muted">{formatDate(comment.createdAt, locale)}</span>
           {pending && (
-            <span className="text-xs text-accent border border-accent/30 rounded-full px-2 py-0.5">
+            <span className="text-xs text-article-accent border border-article-accent/30 rounded-full px-2 py-0.5">
               {isRu ? 'на модерации' : 'pending review'}
             </span>
           )}
@@ -186,7 +186,7 @@ function CommentItem({
         {!pending && (
           <button
             onClick={onReply}
-            className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors mt-1.5"
+            className="flex items-center gap-1 text-xs text-muted hover:text-article-accent transition-colors mt-1.5"
           >
             <CornerDownRight size={12} />
             {isRu ? 'Ответить' : 'Reply'}
@@ -207,7 +207,7 @@ function CommentItem({
           <div className="flex flex-col gap-4 mt-4 pl-4 border-l border-border">
             {replies.map((reply) => (
               <div key={reply._id} className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-accent/15 text-accent flex items-center justify-center text-xs font-bold shrink-0">
+                <div className="w-7 h-7 rounded-full bg-article-accent-tint text-article-accent flex items-center justify-center text-xs font-bold shrink-0">
                   {initials(reply.authorName)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -215,7 +215,7 @@ function CommentItem({
                     <span className="text-sm font-semibold text-foreground">{reply.authorName}</span>
                     <span className="text-xs text-muted">{formatDate(reply.createdAt, locale)}</span>
                     {(reply as PendingComment).pending === true && (
-                      <span className="text-xs text-accent border border-accent/30 rounded-full px-2 py-0.5">
+                      <span className="text-xs text-article-accent border border-article-accent/30 rounded-full px-2 py-0.5">
                         {isRu ? 'на модерации' : 'pending review'}
                       </span>
                     )}
@@ -283,7 +283,7 @@ export default function CommentSection({ targetId, locale, initialComments = [] 
   return (
     <section className="mt-12 pt-8 border-t border-border">
       <h2 className="flex items-center gap-2 text-base font-bold text-foreground mb-6">
-        <MessageCircle size={16} className="text-accent" />
+        <MessageCircle size={16} className="text-article-accent" />
         {isRu ? `Комментарии (${allComments.length})` : `Comments (${allComments.length})`}
       </h2>
 

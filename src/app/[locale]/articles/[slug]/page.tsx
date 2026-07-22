@@ -20,6 +20,7 @@ import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
+import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
@@ -236,6 +237,8 @@ export default async function ArticlePage({ params }: Props) {
       ) : (
         <p className="text-muted">{article.excerpt}</p>
       )}
+
+      <ArticleFooterMeta date={date} time={time} url={pageUrl} title={article.title} locale={locale} />
 
       {article.author && <AuthorCard author={article.author} locale={locale} />}
 

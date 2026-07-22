@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
+import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -248,6 +249,8 @@ export default async function NewsDetailPage({ params }: Props) {
       ) : (
         <p className="text-muted">{news.excerpt}</p>
       )}
+
+      <ArticleFooterMeta date={date} time={time} url={pageUrl} title={news.title} locale={locale} />
 
       {news.author && <AuthorCard author={news.author} locale={locale} />}
 

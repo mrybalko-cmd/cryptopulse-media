@@ -23,6 +23,15 @@
   --author-muted: #9ca1ab;
   --author-accent: #94a3b8;
   --author-link: #b7c1d1;
+
+  /* Article-reading accent — deliberately separate from --accent (the
+     site's cyan brand color used by nav/buttons/widgets). Sourced from
+     incrypted.com's real palette for long-form article content only:
+     quote stripes, in-body links, and share-icon hover feedback. */
+  --article-accent: #eb5643;
+  --article-accent-tint: #2b1411;
+  --article-link: #3092ed;
+  --share-hover-bg: #48484a;
 }
 
 html.light {
@@ -43,6 +52,11 @@ html.light {
   --author-muted: #6b707a;
   --author-accent: #64748b;
   --author-link: #475569;
+
+  --article-accent: #eb5643;
+  --article-accent-tint: #fef3f2;
+  --article-link: #3092ed;
+  --share-hover-bg: #cfd2d7;
 }
 
 @theme inline {
@@ -54,6 +68,10 @@ html.light {
   --color-accent: var(--accent);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  --color-article-accent: var(--article-accent);
+  --color-article-accent-tint: var(--article-accent-tint);
+  --color-article-link: var(--article-link);
+  --color-share-hover: var(--share-hover-bg);
   --font-sans: system-ui, -apple-system, sans-serif;
 }
 

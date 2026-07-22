@@ -30,10 +30,10 @@ export default function TweetEmbed({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="not-prose group block my-6 rounded-xl border border-border bg-card p-4 no-underline hover:border-accent/50 transition-colors"
+      className="not-prose group block my-6 rounded-xl border border-border bg-card p-4 no-underline shadow-sm hover:border-article-accent/50 hover:shadow-md transition-all"
     >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-foreground text-card shrink-0">
+      <div className="flex items-center gap-2.5 mb-2">
+        <span className="flex items-center justify-center w-9 h-9 rounded-full bg-foreground text-card shrink-0">
           <XLogo />
         </span>
         <div className="min-w-0">
@@ -42,7 +42,7 @@ export default function TweetEmbed({
         </div>
       </div>
       {text && <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{text}</p>}
-      <span className="flex items-center gap-1 text-xs text-accent mt-3 group-hover:underline">
+      <span className="flex items-center gap-1 text-xs font-medium text-article-accent mt-3 group-hover:underline">
         {locale === 'ru' ? 'Открыть в X' : 'View on X'} <ExternalLink size={11} />
       </span>
     </a>
