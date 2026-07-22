@@ -2,15 +2,15 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #0d0f14;
-  --foreground: #edf0f7;
-  --muted: #8892aa;
-  --border: #252a38;
-  --card: #161b26;
+  --background: #1d1d1f;
+  --foreground: #ffffff;
+  --muted: #bdc0c7;
+  --border: #313135;
+  --card: #28282b;
   --accent: #06b6d4;
   --positive: #22c55e;
   --negative: #ef4444;
-  --card-hover: #1c2233;
+  --card-hover: #313135;
 
   /* Homepage "author columns" block — approved as its own fixed pair
      (graphite in dark mode, silver in light mode), independent of the
@@ -35,15 +35,15 @@
 }
 
 html.light {
-  --background: #f4f6fb;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --border: #dde3ef;
+  --background: #f7f7f8;
+  --foreground: #1d1d1f;
+  --muted: #68696d;
+  --border: #dadce1;
   --card: #ffffff;
   --accent: #0891b2;
   --positive: #16a34a;
   --negative: #dc2626;
-  --card-hover: #f0f4fc;
+  --card-hover: #f0f0f1;
 
   --author-bg-1: #f2f3f5;
   --author-bg-2: #e3e5e8;
