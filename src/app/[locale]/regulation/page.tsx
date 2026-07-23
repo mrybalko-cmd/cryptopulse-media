@@ -62,6 +62,11 @@ export default async function RegulationPage({ params }: Props) {
       name: 'CryptoPulse.media',
       url: BASE,
     },
+    creator: {
+      '@type': 'Organization',
+      name: 'CryptoPulse.media',
+      url: BASE,
+    },
     dateModified: '2025-06-01',
     inLanguage: locale,
     about: { '@type': 'Thing', name: isRu ? 'Регулирование криптовалют' : 'Cryptocurrency regulation' },
