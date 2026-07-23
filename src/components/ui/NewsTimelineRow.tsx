@@ -63,6 +63,7 @@ export default function NewsTimelineRow({
             src={imageUrl}
             alt={title}
             fill
+            itemProp="image"
             className="object-cover"
             sizes="40px"
             unoptimized={!imageUrl.includes('cdn.sanity.io')}
