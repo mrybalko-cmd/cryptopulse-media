@@ -61,7 +61,7 @@ export default function RichText({
         }
         if (style === 'attributed') {
           return (
-            <blockquote className="not-prose border-l-4 border-border pl-5 my-6">
+            <blockquote className="not-prose border-l-4 border-article-accent pl-5 my-6">
               <p className="text-muted italic leading-relaxed">&ldquo;{text}&rdquo;</p>
               {attribution && (
                 <cite className="block not-italic text-sm font-semibold text-foreground mt-2">— {attribution}</cite>
@@ -70,7 +70,7 @@ export default function RichText({
           );
         }
         return (
-          <blockquote className="not-prose border-l-4 border-border pl-5 my-6 text-muted italic leading-relaxed">
+          <blockquote className="not-prose border-l-4 border-article-accent pl-5 my-6 text-muted italic leading-relaxed">
             {text}
           </blockquote>
         );
