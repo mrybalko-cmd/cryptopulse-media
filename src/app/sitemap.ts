@@ -19,10 +19,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const STATIC_DATE = new Date('2026-06-01');
 
   // Listing pages: new content daily
-  const listingPaths = ['', '/news', '/articles', '/ai', '/ai/glossary', '/authors'];
+  const listingPaths = ['', '/news', '/articles', '/articles/popular', '/news/popular', '/ai', '/ai/glossary', '/authors'];
   // Tool/asset pages: content changes but template doesn't
   const toolPaths = [
-    '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/altcoin-season',
+    '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/altcoin-season', '/pulse', '/rates',
     ...COINS.filter(c => c.available).map(c => `/assets/${c.slug}`),
   ];
   // Info pages: rarely change
