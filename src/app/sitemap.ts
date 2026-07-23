@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews, fetchAuthors } from '@/lib/sanity';
+import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicCounts } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
 import { AI_GLOSSARY } from '@/lib/aiGlossary';
 import { COINS } from '@/lib/coins';
@@ -8,12 +8,19 @@ import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 const BASE = 'https://cryptopulse.media';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articlesRu, articlesEn, newsRu, newsEn, authors] = await Promise.all([
+  const [
+    articlesRu, articlesEn, newsRu, newsEn, authors,
+    articleTopicCountsRu, articleTopicCountsEn, newsTopicCountsRu, newsTopicCountsEn,
+  ] = await Promise.all([
     fetchArticles({ limit: 500, locale: 'ru' }),
     fetchArticles({ limit: 500, locale: 'en' }),
     fetchSanityNews({ limit: 1000, locale: 'ru' }),
     fetchSanityNews({ limit: 1000, locale: 'en' }),
     fetchAuthors(),
+    fetchTopicCounts('article', 'ru'),
+    fetchTopicCounts('article', 'en'),
+    fetchTopicCounts('news', 'ru'),
+    fetchTopicCounts('news', 'en'),
   ]);
 
   const STATIC_DATE = new Date('2026-06-01');
@@ -92,14 +99,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // that's already listed (and crawled) elsewhere — priority/frequency
   // deliberately kept below real articles and news so they don't compete
   // with actual content for a crawl budget that's already constrained.
+  // Topics with fewer than 3 published items get noindex'd by the topic
+  // page itself (see isThin in page.tsx) — mirror that threshold here so
+  // a thin topic never ends up noindex'd yet still listed in the sitemap.
   const topicPages = TOPIC_SLUGS.flatMap(topic => [
-    { url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
-    { url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
+    ...((articleTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((articleTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
   ]);
 
   const newsTopicPages = NEWS_TOPIC_SLUGS.flatMap(topic => [
-    { url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
-    { url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 },
+    ...((newsTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((newsTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
   ]);
 
   return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];

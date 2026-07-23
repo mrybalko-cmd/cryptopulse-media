@@ -618,6 +618,30 @@ export const fetchArticlesByTopic = unstable_cache(
   { revalidate: READ_CACHE_SECONDS }
 );
 
+// Per-topic published-doc counts, so callers (sitemap generation) can mirror
+// the "thin topic" noindex threshold used by the topic pages themselves
+// (see isThin in articles/topic/[topic] and news/topic/[topic] page.tsx)
+// instead of unconditionally listing every topic slug.
+export const fetchTopicCounts = unstable_cache(
+  async (type: 'article' | 'news', locale: string): Promise<Record<string, number>> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return {};
+    try {
+      const topics: string[] = await client.fetch(
+        `*[_type == $type && language == $locale && publishedAt <= now() && defined(topic)].topic`,
+        { type, locale }
+      );
+      return topics.reduce((acc: Record<string, number>, t: string) => {
+        acc[t] = (acc[t] ?? 0) + 1;
+        return acc;
+      }, {});
+    } catch {
+      return {};
+    }
+  },
+  ['fetchTopicCounts'],
+  { revalidate: READ_CACHE_SECONDS }
+);
+
 export const fetchPopularContent = unstable_cache(
   async (locale: string, limit = 6): Promise<PopularItem[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
