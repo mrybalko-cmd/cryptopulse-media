@@ -8,6 +8,12 @@ import { fetchLatestPulse } from '@/lib/pulse';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
+// Without an explicit revalidate, Next treats this metadata image route as
+// fully static — generated once and never refreshed — unlike the page
+// itself (which sets revalidate=300), so the two silently drift apart as
+// the daily Pulse score updates. Matches the page's own window.
+export const revalidate = 300;
+
 const VERDICTS: Record<string, { ru: string; en: string }> = {
   flatline: { ru: 'Штиль', en: 'Flatline' },
   warming: { ru: 'Разминка', en: 'Warming up' },
