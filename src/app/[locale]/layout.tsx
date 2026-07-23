@@ -3,6 +3,7 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 import { routing } from '@/i18n/routing';
 import PriceTicker from '@/components/layout/PriceTicker';
 import Header from '@/components/layout/Header';
@@ -118,6 +119,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
         <Script id="ga-init" strategy="lazyOnload">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}</Script>
         <Script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} strategy="lazyOnload" />
+        <Analytics />
       </body>
     </html>
   );
