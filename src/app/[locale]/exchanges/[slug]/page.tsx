@@ -103,11 +103,11 @@ export default async function ExchangeDetailPage({ params }: Props) {
 
       <div className="flex items-start gap-4 mb-10">
         {exchange.logo ? (
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
-            <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={name} fill className="object-contain p-2" unoptimized />
+          <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
+            <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={name} fill className="object-cover" unoptimized />
           </div>
         ) : (
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black shrink-0 border-2 border-[#ec4899]" style={{ background: exchange.logoBg || '#3b82f6' }}>
             {initials}
           </div>
         )}

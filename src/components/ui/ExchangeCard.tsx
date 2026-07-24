@@ -44,12 +44,12 @@ export default function ExchangeCard({
 
           <div className="shrink-0">
             {exchange.logo ? (
-              <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
-                <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-contain p-1.5" unoptimized />
+              <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
+                <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-cover" unoptimized />
               </div>
             ) : (
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0"
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 border-2 border-[#ec4899]"
                 style={{ background: exchange.logoBg || '#3b82f6' }}
               >
                 {initials}
