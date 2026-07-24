@@ -2,25 +2,16 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, BASE } from '@/lib/metadata';
-import { fetchExchanges, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
+import { fetchExchanges, fetchPopularContent, fetchActiveBanners, type ExchangeRaw } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from '@/lib/exchangeFilters';
 import ExchangeCard from '@/components/ui/ExchangeCard';
-import ExchangeFilters, { type ExchangeFilterState } from '@/components/ui/ExchangeFilters';
+import ExchangeToolbar, { type ExchangeSearchParams } from '@/components/ui/ExchangeToolbar';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import PopularList from '@/components/ui/PopularList';
 import SidebarBanner from '@/components/ui/SidebarBanner';
 
-type SearchParams = {
-  type?: string | string[];
-  product?: string | string[];
-  license?: string;
-  minYear?: string;
-  maxYear?: string;
-  minVolume?: string;
-};
-
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<SearchParams> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<ExchangeSearchParams> };
 
 const TYPES = ['CEX', 'DEX', 'P2P'];
 const PRODUCT_VALUES = PRODUCT_CATEGORIES.map(p => p.value);
@@ -56,30 +47,38 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
-  const filterState: ExchangeFilterState = {
-    types: toArray(sp.type).filter(t => TYPES.includes(t)),
-    products: toArray(sp.product).filter(p => PRODUCT_VALUES.includes(p as (typeof PRODUCT_VALUES)[number])),
-    hasLicense: sp.license === '1',
-    minYear: sp.minYear ? Number(sp.minYear) : undefined,
-    maxYear: sp.maxYear ? Number(sp.maxYear) : undefined,
-    minVolumeM: sp.minVolume ? Number(sp.minVolume) : undefined,
-  };
+  const activeType = sp.type && TYPES.includes(sp.type) ? sp.type : undefined;
+  const selectedProducts = toArray(sp.product).filter(p => PRODUCT_VALUES.includes(p as (typeof PRODUCT_VALUES)[number]));
+  const hasLicense = sp.license === '1';
+  const minYear = sp.minYear ? Number(sp.minYear) : undefined;
+  const maxYear = sp.maxYear ? Number(sp.maxYear) : undefined;
+  const minVolumeM = sp.minVolume ? Number(sp.minVolume) : undefined;
+  const sortBy = sp.sort === 'year' || sp.sort === 'alpha' ? sp.sort : 'volume';
 
   const [all, mobilePopular, mobileBanners] = await Promise.all([
     fetchExchanges(),
     fetchPopularContent(locale, 3),
     fetchActiveBanners(locale),
   ]);
+
   const filtered = all.filter(e => {
-    if (filterState.types.length > 0 && !e.type?.some(t => filterState.types.includes(t))) return false;
-    if (filterState.products.length > 0 && !filterState.products.some(p => exchangeHasProductCategory(e, p))) return false;
-    if (filterState.hasLicense && !exchangeHasLicense(e)) return false;
-    if (filterState.minYear != null && (e.foundedYear ?? 0) < filterState.minYear) return false;
-    if (filterState.maxYear != null && (e.foundedYear ?? 9999) > filterState.maxYear) return false;
-    if (filterState.minVolumeM != null && (e.volume24h ?? 0) < filterState.minVolumeM * 1e6) return false;
+    if (activeType && !e.type?.includes(activeType)) return false;
+    if (selectedProducts.length > 0 && !selectedProducts.some(p => exchangeHasProductCategory(e, p))) return false;
+    if (hasLicense && !exchangeHasLicense(e)) return false;
+    if (minYear != null && (e.foundedYear ?? 0) < minYear) return false;
+    if (maxYear != null && (e.foundedYear ?? 9999) > maxYear) return false;
+    if (minVolumeM != null && (e.volume24h ?? 0) < minVolumeM * 1e6) return false;
     return true;
   });
-  const ranked = rankExchanges(filtered);
+
+  let ranked: (ExchangeRaw & { rank: number })[];
+  if (sortBy === 'year') {
+    ranked = [...filtered].sort((a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999)).map((e, i) => ({ ...e, rank: i + 1 }));
+  } else if (sortBy === 'alpha') {
+    ranked = [...filtered].sort((a, b) => a.name.localeCompare(b.name)).map((e, i) => ({ ...e, rank: i + 1 }));
+  } else {
+    ranked = rankExchanges(filtered);
+  }
   const visible = ranked.slice(0, VISIBLE);
   const rest = ranked.slice(VISIBLE);
 
@@ -107,11 +106,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_256px] gap-6 lg:gap-8">
-        <div className="hidden lg:block">
-          <ExchangeFilters state={filterState} locale={locale} variant="rail" />
-        </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div>
           <nav className="flex items-center gap-1.5 text-xs text-muted mb-6">
             <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
@@ -132,9 +127,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             {isRu ? 'Объём торгов обновляется раз в сутки' : 'Trading volume refreshed once a day'}
           </div>
 
-          <div className="lg:hidden">
-            <ExchangeFilters state={filterState} locale={locale} variant="mobile" />
-          </div>
+          <ExchangeToolbar sp={sp} locale={locale} />
 
           {ranked.length === 0 ? (
             <p className="text-sm text-muted">
@@ -144,7 +137,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             </p>
           ) : (
             <>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-3">
                 {visible.map(exchange => (
                   <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
                 ))}
@@ -155,7 +148,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
                   <summary className="cursor-pointer select-none text-center text-sm font-semibold text-accent border border-dashed border-border rounded-lg py-3 list-none">
                     {isRu ? `Показать ещё ${rest.length} →` : `Show ${rest.length} more →`}
                   </summary>
-                  <div className="flex flex-col gap-2.5 mt-2.5">
+                  <div className="flex flex-col gap-3 mt-3">
                     {rest.map(exchange => (
                       <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
                     ))}

@@ -41,22 +41,22 @@ export default function ExchangeCard({
 
   return (
     <div
-      className={`flex flex-col gap-2.5 bg-card border rounded-xl px-4 py-3.5 hover:border-accent/50 hover:shadow-md transition-all ${
+      className={`flex flex-col gap-3 bg-card border rounded-2xl px-5 py-4 sm:px-6 sm:py-5 hover:border-accent/50 hover:shadow-md transition-all ${
         exchange.pinned ? 'border-2 border-red-500' : 'border-border'
       }`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Link href={`/${locale}/exchanges/${slug}`} className="flex items-center gap-3 sm:gap-4 min-w-0 sm:flex-1">
-          <div className={`w-7 sm:w-9 text-center text-lg sm:text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
+          <div className={`w-8 sm:w-10 text-center text-xl sm:text-2xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
 
           <div className="shrink-0">
             {exchange.logo ? (
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
-                <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-cover" unoptimized />
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
+                <Image src={sanityImageTransform(exchange.logo, { width: 112 })!} alt={exchange.name} fill className="object-cover" unoptimized />
               </div>
             ) : (
               <div
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 border-2 border-[#ec4899]"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white font-black text-base shrink-0 border-2 border-[#ec4899]"
                 style={{ background: exchange.logoBg || '#3b82f6' }}
               >
                 {initials}
@@ -65,34 +65,37 @@ export default function ExchangeCard({
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-sm text-foreground truncate">{exchange.name}</p>
-            {tagline && <p className="text-xs text-muted mt-0.5 truncate">{tagline}</p>}
+            <p className="font-bold text-base text-foreground truncate">{exchange.name}</p>
+            <p className="text-xs sm:text-sm text-muted mt-0.5 truncate">
+              {exchange.foundedYear && <>{isRu ? 'С' : 'Since'} {exchange.foundedYear}{tagline ? ' · ' : ''}</>}
+              {tagline}
+            </p>
           </div>
 
           <div className="hidden sm:block text-right shrink-0">
-            <p className="text-[9px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
-            <p className={`text-sm whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+            <p className="text-[10px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
+            <p className={`text-lg whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
           </div>
         </Link>
 
-        <div className="flex sm:hidden items-center justify-between gap-3 pl-[46px]">
+        <div className="flex sm:hidden items-center justify-between gap-3 pl-[52px]">
           <div className="text-left">
             <p className="text-[9px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
-            <p className={`text-sm whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+            <p className={`text-base whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
           </div>
           {exchange.tradeUrl ? (
             <a
               href={exchange.tradeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 text-xs font-extrabold px-3.5 py-1.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+              className="shrink-0 text-xs font-extrabold px-4 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
             >
               {isRu ? 'Торговать' : 'Trade'}
             </a>
           ) : (
             <span
               aria-disabled="true"
-              className="shrink-0 text-xs font-extrabold px-3.5 py-1.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+              className="shrink-0 text-xs font-extrabold px-4 py-2 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
             >
               {isRu ? 'Торговать' : 'Trade'}
             </span>
@@ -104,14 +107,14 @@ export default function ExchangeCard({
             href={exchange.tradeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-block shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            className="hidden sm:inline-block shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
           >
             {isRu ? 'Торговать' : 'Trade'}
           </a>
         ) : (
           <span
             aria-disabled="true"
-            className="hidden sm:inline-block shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+            className="hidden sm:inline-block shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
           >
             {isRu ? 'Торговать' : 'Trade'}
           </span>
@@ -119,7 +122,7 @@ export default function ExchangeCard({
       </div>
 
       {badges.length > 0 && (
-        <Link href={`/${locale}/exchanges/${slug}`} className="flex flex-wrap gap-1.5 pl-[46px] sm:pl-[52px]">
+        <Link href={`/${locale}/exchanges/${slug}`} className="flex flex-wrap gap-1.5 pl-[52px] sm:pl-[64px]">
           {badges.map((b, i) => (
             <ExchangeToneBadge key={i} text={stripJurisdiction(isRu ? b.textRu : b.textEn)} tone={b.tone as ExchangeBadgeTone} />
           ))}
