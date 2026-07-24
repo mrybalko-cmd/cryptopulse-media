@@ -79,7 +79,7 @@ export default function ExchangeFilters({ state, locale, variant }: { state: Exc
 
   if (variant === 'rail') {
     return (
-      <form action={action} className="bg-card border border-border rounded-lg p-4 sticky top-20 flex flex-col gap-4">
+      <form action={action} className="bg-card border border-border rounded-lg p-4 sticky top-[8rem] max-h-[calc(100vh-10rem)] overflow-y-auto flex flex-col gap-4">
         <Fields state={state} locale={locale} />
         <button type="submit" className="w-full bg-accent text-white text-sm font-semibold rounded-lg py-2 hover:opacity-90 transition-opacity">
           {isRu ? 'Применить' : 'Apply'}
