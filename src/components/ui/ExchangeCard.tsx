@@ -68,9 +68,9 @@ export default function ExchangeCard({
           </div>
         </Link>
 
-        {exchange.trackingUrl ? (
+        {exchange.tradeUrl ? (
           <a
-            href={exchange.trackingUrl}
+            href={exchange.tradeUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"

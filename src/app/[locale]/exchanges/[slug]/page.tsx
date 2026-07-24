@@ -124,9 +124,9 @@ export default async function ExchangeDetailPage({ params }: Props) {
             {exchange.badges?.map((b, i) => (
               <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
             ))}
-            {exchange.trackingUrl ? (
+            {exchange.tradeUrl ? (
               <a
-                href={exchange.trackingUrl}
+                href={exchange.tradeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 ml-3 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"

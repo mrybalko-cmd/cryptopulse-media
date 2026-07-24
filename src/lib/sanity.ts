@@ -800,6 +800,7 @@ export interface ExchangeRaw {
   website: string;
   linkLabel?: string;
   trackingUrl?: string;
+  tradeUrl?: string;
   type: string[];
   taglineRu?: string;
   taglineEn?: string;
@@ -832,7 +833,7 @@ export interface ExchangeDetailRaw extends ExchangeRaw {
 const EXCHANGE_LIST_PROJECTION = `
   _id, name, "logo": logo.asset->url, logoBg,
   "slugRu": slugRu.current, "slugEn": slugEn.current,
-  foundedYear, website, linkLabel, trackingUrl, type, taglineRu, taglineEn,
+  foundedYear, website, linkLabel, trackingUrl, tradeUrl, type, taglineRu, taglineEn,
   volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
   badges[]{ textRu, textEn, tone, link },
   regions[]{ regionRu, regionEn, tone },
