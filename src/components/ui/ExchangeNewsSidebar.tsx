@@ -23,7 +23,7 @@ export default async function ExchangeNewsSidebar({
   const banners = await fetchActiveBanners(locale);
 
   return (
-    <aside className="lg:sticky lg:top-20 lg:self-start flex flex-col gap-4">
+    <aside className="lg:sticky lg:top-[8rem] lg:self-start flex flex-col gap-4">
       <div className="bg-card border border-border rounded-lg p-4">
         <h2 className="flex items-center gap-2 text-sm font-bold text-foreground mb-4">
           <Newspaper size={18} className="text-accent" />
