@@ -30,46 +30,51 @@ export default function ExchangeCard({
   const tagline = isRu ? exchange.taglineRu : exchange.taglineEn;
   const displayRank = rank ?? exchange.rank;
   const initials = exchange.name.slice(0, 2).toUpperCase();
+  const badges = exchange.badges?.slice(0, 2) ?? [];
 
   return (
     <Link
       href={`/${locale}/exchanges/${slug}`}
-      className={`flex items-center gap-4 bg-card border rounded-xl px-4 py-3.5 hover:border-accent/50 hover:shadow-md transition-all ${
+      className={`flex flex-col gap-2.5 bg-card border rounded-xl px-4 py-3.5 hover:border-accent/50 hover:shadow-md transition-all ${
         exchange.pinned ? 'border-2 border-red-500' : 'border-border'
       }`}
     >
-      <div className={`w-9 text-center text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
+      <div className="flex items-center gap-4">
+        <div className={`w-9 text-center text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
 
-      <div className="shrink-0">
-        {exchange.logo ? (
-          <div className="relative w-11 h-11 rounded-xl overflow-hidden" style={{ background: exchange.logoBg || '#3b82f6' }}>
-            <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-contain p-1.5" unoptimized />
-          </div>
-        ) : (
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0"
-            style={{ background: exchange.logoBg || '#3b82f6' }}
-          >
-            {initials}
-          </div>
-        )}
+        <div className="shrink-0">
+          {exchange.logo ? (
+            <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
+              <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-contain p-1.5" unoptimized />
+            </div>
+          ) : (
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0"
+              style={{ background: exchange.logoBg || '#3b82f6' }}
+            >
+              {initials}
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-sm text-foreground truncate">{exchange.name}</p>
+          {tagline && <p className="text-xs text-muted mt-0.5 truncate">{tagline}</p>}
+        </div>
+
+        <div className="text-right shrink-0">
+          <p className="text-[10px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
+          <p className={`text-base whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+        </div>
       </div>
 
-      <div className="min-w-[160px]">
-        <p className="font-bold text-sm text-foreground">{exchange.name}</p>
-        {tagline && <p className="text-xs text-muted mt-0.5">{tagline}</p>}
-      </div>
-
-      <div className="hidden sm:flex flex-wrap gap-1.5 flex-1">
-        {exchange.badges?.slice(0, 2).map((b, i) => (
-          <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
-        ))}
-      </div>
-
-      <div className="text-right shrink-0 ml-auto sm:ml-0">
-        <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Объём 24ч' : '24h volume'}</p>
-        <p className={`text-base ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
-      </div>
+      {badges.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pl-[52px]">
+          {badges.map((b, i) => (
+            <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
+          ))}
+        </div>
+      )}
     </Link>
   );
 }

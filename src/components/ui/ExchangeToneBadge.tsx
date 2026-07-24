@@ -9,7 +9,7 @@ const TONE_CLASSES: Record<ExchangeBadgeTone, string> = {
 
 export default function ExchangeToneBadge({ text, tone, className = '' }: { text: string; tone: ExchangeBadgeTone; className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${TONE_CLASSES[tone] ?? TONE_CLASSES.off} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${TONE_CLASSES[tone] ?? TONE_CLASSES.off} ${className}`}>
       {text}
     </span>
   );
