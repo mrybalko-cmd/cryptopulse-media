@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, BASE } from '@/lib/metadata';
-import { fetchExchanges } from '@/lib/sanity';
+import { fetchExchanges, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from '@/lib/exchangeFilters';
 import ExchangeCard from '@/components/ui/ExchangeCard';
 import ExchangeFilters, { type ExchangeFilterState } from '@/components/ui/ExchangeFilters';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import PopularList from '@/components/ui/PopularList';
+import SidebarBanner from '@/components/ui/SidebarBanner';
 
 type SearchParams = {
   type?: string | string[];
@@ -63,7 +65,11 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
     minVolumeM: sp.minVolume ? Number(sp.minVolume) : undefined,
   };
 
-  const all = await fetchExchanges();
+  const [all, mobilePopular, mobileBanners] = await Promise.all([
+    fetchExchanges(),
+    fetchPopularContent(locale, 3),
+    fetchActiveBanners(locale),
+  ]);
   const filtered = all.filter(e => {
     if (filterState.types.length > 0 && !e.type?.some(t => filterState.types.includes(t))) return false;
     if (filterState.products.length > 0 && !filterState.products.some(p => exchangeHasProductCategory(e, p))) return false;
@@ -157,6 +163,13 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
                 </details>
               )}
             </>
+          )}
+
+          {mobilePopular.length > 0 && (
+            <div className="lg:hidden mt-8 flex flex-col gap-4">
+              <PopularList items={mobilePopular} locale={locale} />
+              {mobileBanners.length > 0 && <SidebarBanner banners={mobileBanners} locale={locale} />}
+            </div>
           )}
         </div>
 

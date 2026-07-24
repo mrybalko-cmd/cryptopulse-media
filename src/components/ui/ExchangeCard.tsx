@@ -16,6 +16,13 @@ function formatVolume(v: number | null | undefined): string {
   return `$${v.toLocaleString('en-US')}`;
 }
 
+// The listing shows just "MiCA licence" — the jurisdiction ("(Malta)",
+// "(Luxembourg)"...) only matters once you're on that exchange's own page,
+// where there's room to explain it. Same badge text, just trimmed here.
+function stripJurisdiction(text: string): string {
+  return text.replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+
 export default function ExchangeCard({
   exchange,
   rank,
@@ -38,18 +45,18 @@ export default function ExchangeCard({
         exchange.pinned ? 'border-2 border-red-500' : 'border-border'
       }`}
     >
-      <div className="flex items-center gap-3">
-        <Link href={`/${locale}/exchanges/${slug}`} className="flex items-center gap-4 flex-1 min-w-0">
-          <div className={`w-9 text-center text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+        <Link href={`/${locale}/exchanges/${slug}`} className="flex items-center gap-3 sm:gap-4 min-w-0 sm:flex-1">
+          <div className={`w-7 sm:w-9 text-center text-lg sm:text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
 
           <div className="shrink-0">
             {exchange.logo ? (
-              <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
                 <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-cover" unoptimized />
               </div>
             ) : (
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 border-2 border-[#ec4899]"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 border-2 border-[#ec4899]"
                 style={{ background: exchange.logoBg || '#3b82f6' }}
               >
                 {initials}
@@ -62,25 +69,49 @@ export default function ExchangeCard({
             {tagline && <p className="text-xs text-muted mt-0.5 truncate">{tagline}</p>}
           </div>
 
-          <div className="text-right shrink-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
-            <p className={`text-base whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+          <div className="hidden sm:block text-right shrink-0">
+            <p className="text-[9px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
+            <p className={`text-sm whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
           </div>
         </Link>
+
+        <div className="flex sm:hidden items-center justify-between gap-3 pl-[46px]">
+          <div className="text-left">
+            <p className="text-[9px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
+            <p className={`text-sm whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+          </div>
+          {exchange.tradeUrl ? (
+            <a
+              href={exchange.tradeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs font-extrabold px-3.5 py-1.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            >
+              {isRu ? 'Торговать' : 'Trade'}
+            </a>
+          ) : (
+            <span
+              aria-disabled="true"
+              className="shrink-0 text-xs font-extrabold px-3.5 py-1.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+            >
+              {isRu ? 'Торговать' : 'Trade'}
+            </span>
+          )}
+        </div>
 
         {exchange.tradeUrl ? (
           <a
             href={exchange.tradeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            className="hidden sm:inline-block shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
           >
             {isRu ? 'Торговать' : 'Trade'}
           </a>
         ) : (
           <span
             aria-disabled="true"
-            className="shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+            className="hidden sm:inline-block shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
           >
             {isRu ? 'Торговать' : 'Trade'}
           </span>
@@ -88,9 +119,9 @@ export default function ExchangeCard({
       </div>
 
       {badges.length > 0 && (
-        <Link href={`/${locale}/exchanges/${slug}`} className="flex flex-wrap gap-1.5 pl-[52px]">
+        <Link href={`/${locale}/exchanges/${slug}`} className="flex flex-wrap gap-1.5 pl-[46px] sm:pl-[52px]">
           {badges.map((b, i) => (
-            <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
+            <ExchangeToneBadge key={i} text={stripJurisdiction(isRu ? b.textRu : b.textEn)} tone={b.tone as ExchangeBadgeTone} />
           ))}
         </Link>
       )}
