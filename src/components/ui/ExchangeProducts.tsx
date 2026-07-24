@@ -15,9 +15,9 @@ function ProductCard({ product, locale }: { product: ExchangeProductRaw; locale:
   return (
     <details className="group bg-card border border-border rounded-xl overflow-hidden hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all">
       <summary className="cursor-pointer select-none list-none">
-        <div className="relative h-32 sm:h-36 bg-background overflow-hidden">
+        <div className="relative w-full aspect-[16/8] bg-background overflow-hidden">
           <Image
-            src={sanityImageTransform(product.image, { width: 640, height: 400 })!}
+            src={sanityImageTransform(product.image, { width: 900, height: 450 })!}
             alt={name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -44,7 +44,7 @@ function ProductCard({ product, locale }: { product: ExchangeProductRaw; locale:
 export default function ExchangeProducts({ products, locale }: { products?: ExchangeProductRaw[]; locale: string }) {
   if (!products || products.length === 0) return null;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {products.map((p, i) => (
         <ProductCard key={i} product={p} locale={locale} />
       ))}

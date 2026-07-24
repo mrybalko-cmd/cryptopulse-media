@@ -85,9 +85,7 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
   };
 
   return (
-    <section>
-      <h2 className="text-lg font-bold text-foreground mb-4">{isRu ? 'Отзывы' : 'Reviews'}</h2>
-
+    <div>
       {count > 0 && (
         <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4 mb-5">
           <p className="text-4xl font-black text-foreground">{average.toFixed(1)}</p>
@@ -179,6 +177,6 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
       ) : (
         <p className="text-sm text-muted">{isRu ? 'Пока нет отзывов — будьте первым!' : 'No reviews yet — be the first!'}</p>
       )}
-    </section>
+    </div>
   );
 }

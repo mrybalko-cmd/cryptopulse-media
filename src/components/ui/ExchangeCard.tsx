@@ -33,48 +33,67 @@ export default function ExchangeCard({
   const badges = exchange.badges?.slice(0, 2) ?? [];
 
   return (
-    <Link
-      href={`/${locale}/exchanges/${slug}`}
+    <div
       className={`flex flex-col gap-2.5 bg-card border rounded-xl px-4 py-3.5 hover:border-accent/50 hover:shadow-md transition-all ${
         exchange.pinned ? 'border-2 border-red-500' : 'border-border'
       }`}
     >
-      <div className="flex items-center gap-4">
-        <div className={`w-9 text-center text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
+      <div className="flex items-center gap-3">
+        <Link href={`/${locale}/exchanges/${slug}`} className="flex items-center gap-4 flex-1 min-w-0">
+          <div className={`w-9 text-center text-xl shrink-0 ${GRADIENT_TEXT}`}>{displayRank}</div>
 
-        <div className="shrink-0">
-          {exchange.logo ? (
-            <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
-              <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-contain p-1.5" unoptimized />
-            </div>
-          ) : (
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0"
-              style={{ background: exchange.logoBg || '#3b82f6' }}
-            >
-              {initials}
-            </div>
-          )}
-        </div>
+          <div className="shrink-0">
+            {exchange.logo ? (
+              <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0" style={{ background: exchange.logoBg || '#3b82f6' }}>
+                <Image src={sanityImageTransform(exchange.logo, { width: 88 })!} alt={exchange.name} fill className="object-contain p-1.5" unoptimized />
+              </div>
+            ) : (
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0"
+                style={{ background: exchange.logoBg || '#3b82f6' }}
+              >
+                {initials}
+              </div>
+            )}
+          </div>
 
-        <div className="min-w-0 flex-1">
-          <p className="font-bold text-sm text-foreground truncate">{exchange.name}</p>
-          {tagline && <p className="text-xs text-muted mt-0.5 truncate">{tagline}</p>}
-        </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-sm text-foreground truncate">{exchange.name}</p>
+            {tagline && <p className="text-xs text-muted mt-0.5 truncate">{tagline}</p>}
+          </div>
 
-        <div className="text-right shrink-0">
-          <p className="text-[10px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
-          <p className={`text-base whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
-        </div>
+          <div className="text-right shrink-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted whitespace-nowrap">{isRu ? 'Объём 24ч' : '24h volume'}</p>
+            <p className={`text-base whitespace-nowrap ${GRADIENT_TEXT}`}>{formatVolume(exchange.volume24h)}</p>
+          </div>
+        </Link>
+
+        {exchange.trackingUrl ? (
+          <a
+            href={exchange.trackingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            {isRu ? 'Торговать' : 'Trade'}
+          </a>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="shrink-0 text-xs font-extrabold px-3.5 py-2 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+          >
+            {isRu ? 'Торговать' : 'Trade'}
+          </span>
+        )}
       </div>
 
       {badges.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pl-[52px]">
+        <Link href={`/${locale}/exchanges/${slug}`} className="flex flex-wrap gap-1.5 pl-[52px]">
           {badges.map((b, i) => (
             <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
           ))}
-        </div>
+        </Link>
       )}
-    </Link>
+    </div>
   );
 }

@@ -767,7 +767,7 @@ export const fetchRecentMarketSnapshots = unstable_cache(
 export interface ExchangeBadgeRaw {
   textRu: string;
   textEn: string;
-  tone: 'ok' | 'warn' | 'off' | 'gold';
+  tone: 'ok' | 'warn' | 'off' | 'gold' | 'license';
   link?: string;
 }
 

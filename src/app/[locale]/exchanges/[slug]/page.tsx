@@ -126,19 +126,38 @@ export default async function ExchangeDetailPage({ params }: Props) {
             ))}
           </div>
         </div>
-        {rank && (
-          <div className="text-right shrink-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Место в рейтинге' : 'Rank'}</p>
-            <p className="text-2xl font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</p>
-          </div>
-        )}
+        <div className="flex flex-col items-end gap-2.5 shrink-0">
+          {rank && (
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Место в рейтинге' : 'Rank'}</p>
+              <p className="text-2xl font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</p>
+            </div>
+          )}
+          {exchange.trackingUrl ? (
+            <a
+              href={exchange.trackingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            >
+              {isRu ? 'Торговать' : 'Trade'} ↗
+            </a>
+          ) : (
+            <span
+              aria-disabled="true"
+              className="text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+            >
+              {isRu ? 'Торговать' : 'Trade'}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="flex flex-col gap-8 min-w-0">
           {description && description.length > 0 && (
             <details open className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-card-hover transition-colors">
+              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
                 <h2 className="text-lg font-bold text-foreground">{isRu ? 'Обзор' : 'Overview'}</h2>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
                   ▾
@@ -154,7 +173,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
 
           {products && products.length > 0 && (
             <details open className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-card-hover transition-colors">
+              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
                 <h2 className="text-lg font-bold text-foreground">{isRu ? 'Продукты' : 'Products'}</h2>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
                   ▾
@@ -175,7 +194,19 @@ export default async function ExchangeDetailPage({ params }: Props) {
             </section>
           )}
 
-          <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
+          <details className="group bg-card border border-border rounded-xl overflow-hidden">
+            <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
+              <h2 className="text-lg font-bold text-foreground">{isRu ? 'Отзывы' : 'Reviews'}</h2>
+              <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
+                ▾
+              </span>
+            </summary>
+            <div className="px-4 pb-4 pt-0 border-t border-border">
+              <div className="pt-4">
+                <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
+              </div>
+            </div>
+          </details>
         </div>
 
         <ExchangeNewsSidebar exchangeName={name} mentions={mentions} locale={locale} />
