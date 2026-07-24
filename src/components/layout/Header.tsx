@@ -16,7 +16,7 @@ export default function Header() {
   const [linkedTranslationHref, setLinkedTranslationHref] = useState<string | null>(null);
 
   const otherLocale = locale === 'ru' ? 'en' : 'ru';
-  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news)\/(.+)/);
+  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news|exchanges)\/(.+)/);
 
   useEffect(() => {
     if (!detailMatch) {
@@ -47,10 +47,11 @@ export default function Header() {
     { href: `/${locale}/assets`, label: t('assets') },
     { href: `/${locale}/ai`, label: 'AI', ai: true },
     { href: `/${locale}/rates`, label: t('rates') },
+    { href: `/${locale}/exchanges`, label: t('exchanges') },
   ];
 
   const isActive = (href: string) =>
-    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai') || href.endsWith('/rates')
+    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai') || href.endsWith('/rates') || href.endsWith('/exchanges')
       ? pathname.startsWith(href)
       : pathname === href;
 

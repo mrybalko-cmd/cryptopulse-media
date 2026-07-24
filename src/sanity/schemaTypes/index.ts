@@ -11,9 +11,11 @@ import { youtubeEmbedType } from './youtubeEmbed';
 import { tweetEmbedType } from './tweetEmbed';
 import { sidebarBannerType } from './sidebarBanner';
 import { marketSnapshotType } from './marketSnapshot';
+import { exchangeType } from './exchange';
+import { exchangeReviewType } from './exchangeReview';
 
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType,
-  sidebarBannerType, marketSnapshotType,
+  sidebarBannerType, marketSnapshotType, exchangeType, exchangeReviewType,
 ];

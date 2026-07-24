@@ -761,3 +761,266 @@ export const fetchRecentMarketSnapshots = unstable_cache(
   ['fetchRecentMarketSnapshots'],
   { revalidate: READ_CACHE_SECONDS }
 );
+
+// ---------------- Exchanges ----------------
+
+export interface ExchangeBadgeRaw {
+  textRu: string;
+  textEn: string;
+  tone: 'ok' | 'warn' | 'off' | 'gold';
+  link?: string;
+}
+
+export interface ExchangeRegionRaw {
+  regionRu: string;
+  regionEn: string;
+  tone: 'ok' | 'warn' | 'off';
+  noteRu?: string;
+  noteEn?: string;
+}
+
+export interface ExchangeProductRaw {
+  image: string;
+  nameRu: string;
+  nameEn: string;
+  shortRu?: string;
+  shortEn?: string;
+  longRu?: string;
+  longEn?: string;
+}
+
+export interface ExchangeRaw {
+  _id: string;
+  name: string;
+  logo: string | null;
+  logoBg?: string;
+  slugRu: string;
+  slugEn: string;
+  foundedYear?: number;
+  website: string;
+  type: string[];
+  taglineRu?: string;
+  taglineEn?: string;
+  volume24h?: number | null;
+  pinned?: boolean;
+  pinPosition?: number | null;
+  pinUntil?: string | null;
+  reviewsEnabled?: boolean;
+  badges?: ExchangeBadgeRaw[];
+}
+
+export interface ExchangeDetailRaw extends ExchangeRaw {
+  descriptionRu?: any[];
+  descriptionEn?: any[];
+  products?: ExchangeProductRaw[];
+  regions?: ExchangeRegionRaw[];
+  seo?: {
+    metaTitleRu?: string;
+    metaTitleEn?: string;
+    metaDescriptionRu?: string;
+    metaDescriptionEn?: string;
+    noIndex?: boolean;
+  };
+}
+
+const EXCHANGE_LIST_PROJECTION = `
+  _id, name, "logo": logo.asset->url, logoBg,
+  "slugRu": slugRu.current, "slugEn": slugEn.current,
+  foundedYear, website, type, taglineRu, taglineEn,
+  volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
+  badges[]{ textRu, textEn, tone, link }
+`;
+
+export const fetchExchanges = unstable_cache(
+  async (): Promise<ExchangeRaw[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(`*[_type == "exchange"]{ ${EXCHANGE_LIST_PROJECTION} }`);
+    } catch {
+      return [];
+    }
+  },
+  ['fetchExchanges'],
+  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges'] }
+);
+
+export const fetchExchangeBySlug = unstable_cache(
+  async (slug: string, locale: string): Promise<ExchangeDetailRaw | null> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    const slugField = locale === 'ru' ? 'slugRu' : 'slugEn';
+    try {
+      return await client.fetch(
+        `*[_type == "exchange" && ${slugField}.current == $slug][0]{
+          ${EXCHANGE_LIST_PROJECTION},
+          descriptionRu, descriptionEn,
+          products[]{ "image": image.asset->url, nameRu, nameEn, shortRu, shortEn, longRu, longEn },
+          regions[]{ regionRu, regionEn, tone, noteRu, noteEn },
+          seo
+        }`,
+        { slug }
+      );
+    } catch {
+      return null;
+    }
+  },
+  ['fetchExchangeBySlug'],
+  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges'] }
+);
+
+export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string }[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    return await client.fetch(`*[_type == "exchange"]{ "slugRu": slugRu.current, "slugEn": slugEn.current }`);
+  } catch {
+    return [];
+  }
+}
+
+function extractDomain(url?: string): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return null;
+  }
+}
+
+export interface ExchangeMention {
+  _type: 'article' | 'news';
+  title: string;
+  slug: string;
+  publishedAt: string;
+}
+
+// A material "mentions" an exchange purely by linking to it — either to the
+// exchange's own page on this site or out to its official website — so
+// editors don't need a separate manual tagging field, just the same inline
+// link they'd already add for the reader's benefit.
+export const fetchExchangeMentions = unstable_cache(
+  async (slugRu: string, slugEn: string, website: string, locale: string, limit = 6): Promise<ExchangeMention[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    const domain = extractDomain(website);
+    const p1 = `*/exchanges/${slugRu}*`;
+    const p2 = `*/exchanges/${slugEn}*`;
+    const p3 = domain ? `*${domain}*` : '*__no_domain_configured__*';
+    try {
+      return await client.fetch(
+        `*[_type in ["article", "news"] && language == $locale && publishedAt <= now()
+          && count(body[].markDefs[href match $p1 || href match $p2 || href match $p3]) > 0
+        ] | order(publishedAt desc) [0...$limit] {
+          _type, title, "slug": slug.current, publishedAt
+        }`,
+        { locale, p1, p2, p3, limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchExchangeMentions'],
+  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges', 'articles', 'news'] }
+);
+
+export interface ExchangeVolumeTarget { _id: string; coingeckoId: string }
+
+export async function fetchExchangesWithCoingeckoIds(): Promise<ExchangeVolumeTarget[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    return await client.fetch(`*[_type == "exchange" && defined(coingeckoId) && coingeckoId != ""]{ _id, coingeckoId }`);
+  } catch {
+    return [];
+  }
+}
+
+export async function updateExchangeVolume(id: string, volume24h: number) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return;
+  try {
+    await writeClient
+      .patch(id)
+      .set({ volume24h, volumeUpdatedAt: new Date().toISOString() })
+      .commit({ autoGenerateArrayKeys: false });
+  } catch {
+    // best-effort — next day's cron run retries
+  }
+}
+
+export interface ExchangeReview {
+  _id: string;
+  authorName: string;
+  rating: number;
+  text: string;
+  createdAt: string;
+}
+
+export const fetchExchangeReviews = unstable_cache(
+  async (exchangeId: string): Promise<ExchangeReview[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "exchangeReview" && exchange._ref == $exchangeId && approved == true] | order(createdAt desc) {
+          _id, authorName, rating, text, createdAt
+        }`,
+        { exchangeId }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchExchangeReviews'],
+  { revalidate: 20 }
+);
+
+export async function fetchExchangeReviewSummary(exchangeId: string): Promise<{ average: number; count: number }> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { average: 0, count: 0 };
+  try {
+    const ratings: number[] = await client.fetch(
+      `*[_type == "exchangeReview" && exchange._ref == $exchangeId && approved == true].rating`,
+      { exchangeId }
+    );
+    if (ratings.length === 0) return { average: 0, count: 0 };
+    const average = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    return { average: Math.round(average * 10) / 10, count: ratings.length };
+  } catch {
+    return { average: 0, count: 0 };
+  }
+}
+
+export async function isExchangeReviewingAllowed(exchangeId: string) {
+  try {
+    const doc = await client.fetch(`*[_id == $exchangeId][0]{ reviewsEnabled }`, { exchangeId });
+    return doc ? doc.reviewsEnabled !== false : false;
+  } catch {
+    return false;
+  }
+}
+
+export async function countRecentExchangeReviewsByIpHash(ipHash: string, sinceISO: string) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return 0;
+  try {
+    return await writeClient.fetch(
+      `count(*[_type == "exchangeReview" && ipHash == $ipHash && createdAt > $sinceISO])`,
+      { ipHash, sinceISO }
+    );
+  } catch {
+    return 0;
+  }
+}
+
+export async function createExchangeReview(input: {
+  authorName: string;
+  rating: number;
+  text: string;
+  exchangeId: string;
+  ipHash: string;
+}) {
+  if (!process.env.SANITY_API_WRITE_TOKEN) throw new Error('Sanity write token not configured');
+  await writeClient.create({
+    _type: 'exchangeReview',
+    authorName: input.authorName,
+    rating: input.rating,
+    text: input.text,
+    exchange: { _type: 'reference', _weak: true, _ref: input.exchangeId },
+    approved: false,
+    createdAt: new Date().toISOString(),
+    ipHash: input.ipHash,
+  });
+}

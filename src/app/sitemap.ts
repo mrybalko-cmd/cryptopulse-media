@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicCounts } from '@/lib/sanity';
+import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicCounts, fetchExchangeSlugsForSitemap } from '@/lib/sanity';
 import { GLOSSARY } from '@/lib/glossary';
 import { AI_GLOSSARY } from '@/lib/aiGlossary';
 import { COINS } from '@/lib/coins';
@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [
     articlesRu, articlesEn, newsRu, newsEn, authors,
     articleTopicCountsRu, articleTopicCountsEn, newsTopicCountsRu, newsTopicCountsEn,
+    exchangeSlugs,
   ] = await Promise.all([
     fetchArticles({ limit: 500, locale: 'ru' }),
     fetchArticles({ limit: 500, locale: 'en' }),
@@ -21,12 +22,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchTopicCounts('article', 'en'),
     fetchTopicCounts('news', 'ru'),
     fetchTopicCounts('news', 'en'),
+    fetchExchangeSlugsForSitemap(),
   ]);
 
   const STATIC_DATE = new Date('2026-06-01');
 
   // Listing pages: new content daily
-  const listingPaths = ['', '/news', '/articles', '/articles/popular', '/news/popular', '/ai', '/ai/glossary', '/authors'];
+  const listingPaths = ['', '/news', '/articles', '/articles/popular', '/news/popular', '/ai', '/ai/glossary', '/authors', '/exchanges'];
   // Tool/asset pages: content changes but template doesn't
   const toolPaths = [
     '/calculators', '/calculators/wealth', '/calculators/converter', '/calendar', '/assets', '/altcoin-season', '/pulse', '/rates',
@@ -112,5 +114,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...((newsTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages];
+  const exchangePages = (exchangeSlugs as { slugRu: string; slugEn: string }[]).flatMap(e => [
+    { url: `${BASE}/ru/exchanges/${e.slugRu}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
+    { url: `${BASE}/en/exchanges/${e.slugEn}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
+  ]);
+
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages];
 }

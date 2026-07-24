@@ -21,6 +21,7 @@
     { "source": "/ru/news/bitkoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "destination": "/ru/news/bitcoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "permanent": true }
   ],
   "crons": [
-    { "path": "/api/cron/pulse-snapshot", "schedule": "5 0 * * *" }
+    { "path": "/api/cron/pulse-snapshot", "schedule": "5 0 * * *" },
+    { "path": "/api/cron/exchange-volumes", "schedule": "15 0 * * *" }
   ]
 }
