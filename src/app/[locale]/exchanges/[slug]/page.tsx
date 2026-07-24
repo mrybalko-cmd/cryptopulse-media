@@ -115,7 +115,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
           <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">{name}</h1>
           <p className="text-muted text-sm mt-1">
             {exchange.foundedYear && <>{isRu ? 'С' : 'Since'} {exchange.foundedYear} · </>}
-            <a href={exchange.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            <a href={exchange.trackingUrl || exchange.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
               {exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
             </a>
           </p>
@@ -137,24 +137,34 @@ export default async function ExchangeDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="flex flex-col gap-8 min-w-0">
           {description && description.length > 0 && (
-            <details open className="group">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between">
+            <details open className="group bg-card border border-border rounded-xl overflow-hidden">
+              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-card-hover transition-colors">
                 <h2 className="text-lg font-bold text-foreground">{isRu ? 'Обзор' : 'Overview'}</h2>
-                <span className="text-muted group-open:rotate-180 transition-transform">▾</span>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
+                  ▾
+                </span>
               </summary>
-              <div className="mt-3">
-                <RichText value={description} fallbackAlt={name} locale={locale} />
+              <div className="px-4 pb-4 pt-0 border-t border-border">
+                <div className="pt-4">
+                  <RichText value={description} fallbackAlt={name} locale={locale} />
+                </div>
               </div>
             </details>
           )}
 
           {products && products.length > 0 && (
-            <details open className="group">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between mb-3">
+            <details open className="group bg-card border border-border rounded-xl overflow-hidden">
+              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-card-hover transition-colors">
                 <h2 className="text-lg font-bold text-foreground">{isRu ? 'Продукты' : 'Products'}</h2>
-                <span className="text-muted group-open:rotate-180 transition-transform">▾</span>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
+                  ▾
+                </span>
               </summary>
-              <ExchangeProducts products={products} locale={locale} />
+              <div className="px-4 pb-4 pt-0 border-t border-border">
+                <div className="pt-4">
+                  <ExchangeProducts products={products} locale={locale} />
+                </div>
+              </div>
             </details>
           )}
 

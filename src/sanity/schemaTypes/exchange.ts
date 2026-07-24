@@ -94,6 +94,13 @@ export const exchangeType = defineType({
     defineField({ name: 'foundedYear', title: 'Год основания', type: 'number', group: 'main' }),
     defineField({ name: 'website', title: 'Сайт биржи', type: 'url', group: 'main', validation: Rule => Rule.required() }),
     defineField({
+      name: 'trackingUrl',
+      title: 'Ссылка с UTM-метками (необязательно)',
+      type: 'url',
+      group: 'main',
+      description: 'Если заполнено — клик по сайту биржи на странице ведёт сюда вместо поля «Сайт биржи» выше. Текст самой ссылки на странице не меняется (всегда чистый домен) — UTM-метки видны только в адресной строке после перехода.',
+    }),
+    defineField({
       name: 'coingeckoId',
       title: 'CoinGecko exchange ID',
       type: 'string',
