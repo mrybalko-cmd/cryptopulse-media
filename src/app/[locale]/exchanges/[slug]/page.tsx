@@ -119,38 +119,38 @@ export default async function ExchangeDetailPage({ params }: Props) {
               {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
             </a>
           </p>
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-1 rounded-full border border-border text-foreground">{t}</span>)}
-            {exchange.badges?.map((b, i) => (
-              <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
-            ))}
+          <div className="flex items-center justify-between gap-3 mt-3">
+            <div className="flex flex-wrap gap-1.5">
+              {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-1 rounded-full border border-border text-foreground">{t}</span>)}
+              {exchange.badges?.map((b, i) => (
+                <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
+              ))}
+            </div>
+            {exchange.trackingUrl ? (
+              <a
+                href={exchange.trackingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                {isRu ? 'Торговать' : 'Trade'} ↗
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+              >
+                {isRu ? 'Торговать' : 'Trade'}
+              </span>
+            )}
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2.5 shrink-0">
-          {rank && (
-            <div className="text-right">
-              <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Место в рейтинге' : 'Rank'}</p>
-              <p className="text-2xl font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</p>
-            </div>
-          )}
-          {exchange.trackingUrl ? (
-            <a
-              href={exchange.trackingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
-            >
-              {isRu ? 'Торговать' : 'Trade'} ↗
-            </a>
-          ) : (
-            <span
-              aria-disabled="true"
-              className="text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
-            >
-              {isRu ? 'Торговать' : 'Trade'}
-            </span>
-          )}
-        </div>
+        {rank && (
+          <div className="text-right shrink-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Место в рейтинге' : 'Rank'}</p>
+            <p className="text-2xl font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
