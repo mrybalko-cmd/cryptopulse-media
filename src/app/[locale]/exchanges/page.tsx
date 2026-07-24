@@ -5,10 +5,12 @@ import { buildOg, BASE } from '@/lib/metadata';
 import { fetchExchanges } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
 import ExchangeCard from '@/components/ui/ExchangeCard';
+import ExchangeTypeFilter from '@/components/ui/ExchangeTypeFilter';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ type?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ type?: string | string[] }> };
 
-const TYPES = ['CEX', 'DEX', 'P2P'] as const;
+const TYPES = ['CEX', 'DEX', 'P2P'];
 const VISIBLE = 10;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -37,9 +39,11 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
+  const selectedTypes = (Array.isArray(type) ? type : type ? [type] : []).filter(t => TYPES.includes(t));
+
   const all = await fetchExchanges();
-  const filtered = type && TYPES.includes(type as (typeof TYPES)[number])
-    ? all.filter(e => e.type?.includes(type))
+  const filtered = selectedTypes.length > 0
+    ? all.filter(e => e.type?.some(t => selectedTypes.includes(t)))
     : all;
   const ranked = rankExchanges(filtered);
   const visible = ranked.slice(0, VISIBLE);
@@ -65,71 +69,67 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-6">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <span className="text-foreground">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</span>
-      </nav>
+      <div className="grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_256px] gap-6 lg:gap-8">
+        <div className="hidden lg:block">
+          <ExchangeTypeFilter selected={selectedTypes} locale={locale} variant="rail" />
+        </div>
 
-      <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-3">
-        {isRu ? 'Топ-20 криптобирж' : 'Top 20 Crypto Exchanges'}
-      </h1>
-      <p className="text-muted text-sm sm:text-base leading-relaxed max-w-2xl mb-2">
-        {isRu
-          ? 'Рейтинг по объёму торгов за 24 часа, обновляется автоматически. Продукты, статус лицензий и материалы CryptoPulse по каждой бирже.'
-          : 'Ranked by 24h trading volume, updated automatically. Products, licensing status and CryptoPulse coverage for each exchange.'}
-      </p>
-      <div className="flex items-center gap-1.5 text-xs text-muted mb-6">
-        <span className="w-1.5 h-1.5 rounded-full bg-positive shrink-0" />
-        {isRu ? 'Объём торгов обновляется раз в сутки' : 'Trading volume refreshed once a day'}
-      </div>
+        <div>
+          <nav className="flex items-center gap-1.5 text-xs text-muted mb-6">
+            <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
+            <span>›</span>
+            <span className="text-foreground">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</span>
+          </nav>
 
-      <div className="flex flex-wrap gap-2 mb-6">
-        <Link
-          href={`/${locale}/exchanges`}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${!type ? 'bg-accent text-white border-accent' : 'border-border text-muted hover:text-foreground'}`}
-        >
-          {isRu ? 'Все' : 'All'}
-        </Link>
-        {TYPES.map(t => (
-          <Link
-            key={t}
-            href={`/${locale}/exchanges?type=${t}`}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${type === t ? 'bg-accent text-white border-accent' : 'border-border text-muted hover:text-foreground'}`}
-          >
-            {t}
-          </Link>
-        ))}
-      </div>
-
-      {ranked.length === 0 ? (
-        <p className="text-sm text-muted">{isRu ? 'Пока нет добавленных бирж.' : 'No exchanges added yet.'}</p>
-      ) : (
-        <>
-          <div className="flex flex-col gap-2.5">
-            {visible.map(exchange => (
-              <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
-            ))}
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-3">
+            {isRu ? 'Топ-20 криптобирж' : 'Top 20 Crypto Exchanges'}
+          </h1>
+          <p className="text-muted text-sm sm:text-base leading-relaxed max-w-2xl mb-2">
+            {isRu
+              ? 'Рейтинг по объёму торгов за 24 часа, обновляется автоматически. Продукты, статус лицензий и материалы CryptoPulse по каждой бирже.'
+              : 'Ranked by 24h trading volume, updated automatically. Products, licensing status and CryptoPulse coverage for each exchange.'}
+          </p>
+          <div className="flex items-center gap-1.5 text-xs text-muted mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-positive shrink-0" />
+            {isRu ? 'Объём торгов обновляется раз в сутки' : 'Trading volume refreshed once a day'}
           </div>
 
-          {rest.length > 0 && (
-            <details className="mt-3">
-              <summary className="cursor-pointer select-none text-center text-sm font-semibold text-accent border border-dashed border-border rounded-lg py-3 list-none">
-                {isRu ? `Показать ещё ${rest.length} →` : `Show ${rest.length} more →`}
-              </summary>
-              <div className="flex flex-col gap-2.5 mt-2.5">
-                {rest.map(exchange => (
+          <div className="lg:hidden">
+            <ExchangeTypeFilter selected={selectedTypes} locale={locale} variant="inline" />
+          </div>
+
+          {ranked.length === 0 ? (
+            <p className="text-sm text-muted">{isRu ? 'Пока нет добавленных бирж.' : 'No exchanges added yet.'}</p>
+          ) : (
+            <>
+              <div className="flex flex-col gap-2.5">
+                {visible.map(exchange => (
                   <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
                 ))}
               </div>
-            </details>
+
+              {rest.length > 0 && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer select-none text-center text-sm font-semibold text-accent border border-dashed border-border rounded-lg py-3 list-none">
+                    {isRu ? `Показать ещё ${rest.length} →` : `Show ${rest.length} more →`}
+                  </summary>
+                  <div className="flex flex-col gap-2.5 mt-2.5">
+                    {rest.map(exchange => (
+                      <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
+                    ))}
+                  </div>
+                </details>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+
+        <PopularSidebar locale={locale} />
+      </div>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import ExchangeToneBadge, { type ExchangeBadgeTone } from '@/components/ui/Excha
 import ExchangeProducts from '@/components/ui/ExchangeProducts';
 import ExchangeRegions from '@/components/ui/ExchangeRegions';
 import ExchangeReviewSection from '@/components/ui/ExchangeReviewSection';
+import ExchangeNewsSidebar from '@/components/ui/ExchangeNewsSidebar';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -133,7 +134,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="flex flex-col gap-8 min-w-0">
           {description && description.length > 0 && (
             <details open className="group">
@@ -167,24 +168,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
           <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
         </div>
 
-        <aside>
-          <h2 className="text-sm font-bold text-foreground mb-3">{isRu ? 'Новости на CryptoPulse' : 'CryptoPulse coverage'}</h2>
-          {mentions.length > 0 ? (
-            <div className="flex flex-col">
-              {mentions.map((m, i) => (
-                <Link
-                  key={i}
-                  href={`/${locale}/${m._type === 'news' ? 'news' : 'articles'}/${m.slug}`}
-                  className="py-2.5 border-b border-border last:border-0 text-sm text-foreground hover:text-accent transition-colors"
-                >
-                  {m.title}
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted">{isRu ? 'Пока нет материалов, ссылающихся на эту биржу.' : 'No coverage linking to this exchange yet.'}</p>
-          )}
-        </aside>
+        <ExchangeNewsSidebar exchangeName={name} mentions={mentions} locale={locale} />
       </div>
     </div>
   );
