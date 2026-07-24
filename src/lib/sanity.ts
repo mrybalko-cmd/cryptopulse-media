@@ -809,6 +809,10 @@ export interface ExchangeRaw {
   pinUntil?: string | null;
   reviewsEnabled?: boolean;
   badges?: ExchangeBadgeRaw[];
+  // Name-only on the listing (no image/description) — just enough to
+  // support the "has this product" filter without pulling full detail data.
+  products?: { nameRu: string; nameEn: string }[];
+  regions?: { regionRu: string; regionEn: string; tone: string }[];
 }
 
 export interface ExchangeDetailRaw extends ExchangeRaw {
@@ -830,7 +834,9 @@ const EXCHANGE_LIST_PROJECTION = `
   "slugRu": slugRu.current, "slugEn": slugEn.current,
   foundedYear, website, linkLabel, trackingUrl, type, taglineRu, taglineEn,
   volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
-  badges[]{ textRu, textEn, tone, link }
+  badges[]{ textRu, textEn, tone, link },
+  regions[]{ regionRu, regionEn, tone },
+  products[]{ nameRu, nameEn }
 `;
 
 export const fetchExchanges = unstable_cache(
