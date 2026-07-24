@@ -91,14 +91,26 @@ export const exchangeType = defineType({
       validation: Rule => Rule.required(),
       components: { input: LockedSlugInput },
     }),
-    defineField({ name: 'foundedYear', title: 'Год основания', type: 'number', group: 'main' }),
-    defineField({ name: 'website', title: 'Сайт биржи', type: 'url', group: 'main', validation: Rule => Rule.required() }),
+    defineField({
+      name: 'foundedYear', title: 'Год основания', type: 'number', group: 'main',
+    }),
+    defineField({
+      name: 'website', title: 'Сайт биржи', type: 'url', group: 'main', validation: Rule => Rule.required(),
+      description: 'Официальный сайт — используется для JSON-LD и для автоматического поиска материалов, ссылающихся на биржу. Не редактируйте это поле ради UTM-меток, для этого ниже есть отдельные поля.',
+    }),
+    defineField({
+      name: 'linkLabel',
+      title: 'Текст ссылки на странице (необязательно)',
+      type: 'string',
+      group: 'main',
+      description: 'То, что видно на странице, например "binance.com". Если не заполнено — показывается домен из поля «Сайт биржи» выше.',
+    }),
     defineField({
       name: 'trackingUrl',
       title: 'Ссылка с UTM-метками (необязательно)',
       type: 'url',
       group: 'main',
-      description: 'Если заполнено — клик по сайту биржи на странице ведёт сюда вместо поля «Сайт биржи» выше. Текст самой ссылки на странице не меняется (всегда чистый домен) — UTM-метки видны только в адресной строке после перехода.',
+      description: 'Куда реально ведёт клик — используется в тексте-ссылке и в кнопке «Торговать». Показанный текст ссылки при этом не меняется, UTM-метки видны только в адресной строке после перехода.',
     }),
     defineField({
       name: 'coingeckoId',

@@ -116,7 +116,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
           <p className="text-muted text-sm mt-1">
             {exchange.foundedYear && <>{isRu ? 'С' : 'Since'} {exchange.foundedYear} · </>}
             <a href={exchange.trackingUrl || exchange.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-              {exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
+              {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
             </a>
           </p>
           <div className="flex flex-wrap gap-1.5 mt-3">
@@ -146,7 +146,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
               </summary>
               <div className="px-4 pb-4 pt-0 border-t border-border">
                 <div className="pt-4">
-                  <RichText value={description} fallbackAlt={name} locale={locale} />
+                  <RichText value={description} fallbackAlt={name} locale={locale} compact />
                 </div>
               </div>
             </details>

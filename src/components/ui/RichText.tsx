@@ -12,10 +12,15 @@ export default function RichText({
   value,
   fallbackAlt,
   locale,
+  compact = false,
 }: {
   value: any[];
   fallbackAlt: string;
   locale: string;
+  // Smaller type scale (prose-sm) for contexts where the body text is
+  // supporting content rather than the main thing being read — e.g. an
+  // exchange's "Overview" section vs. a full article.
+  compact?: boolean;
 }) {
   const components: PortableTextComponents = {
     types: {
@@ -112,7 +117,7 @@ export default function RichText({
   };
 
   return (
-    <div className="prose prose-invert max-w-none
+    <div className={`prose prose-invert max-w-none ${compact ? 'prose-sm' : ''}
       prose-headings:text-foreground prose-headings:font-extrabold prose-headings:tracking-tight
       prose-p:text-foreground prose-p:leading-[1.85]
       prose-a:text-article-link prose-a:underline prose-a:decoration-article-link prose-a:hover:text-article-accent prose-a:hover:decoration-article-accent
@@ -120,7 +125,7 @@ export default function RichText({
       prose-li:text-foreground prose-li:leading-[1.7] prose-li:marker:text-article-accent
       prose-blockquote:border-article-accent prose-blockquote:text-muted
       prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
-    ">
+    `}>
       <PortableText value={value} components={components} />
     </div>
   );

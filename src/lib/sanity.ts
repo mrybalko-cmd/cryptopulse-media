@@ -798,6 +798,7 @@ export interface ExchangeRaw {
   slugEn: string;
   foundedYear?: number;
   website: string;
+  linkLabel?: string;
   trackingUrl?: string;
   type: string[];
   taglineRu?: string;
@@ -827,7 +828,7 @@ export interface ExchangeDetailRaw extends ExchangeRaw {
 const EXCHANGE_LIST_PROJECTION = `
   _id, name, "logo": logo.asset->url, logoBg,
   "slugRu": slugRu.current, "slugEn": slugEn.current,
-  foundedYear, website, trackingUrl, type, taglineRu, taglineEn,
+  foundedYear, website, linkLabel, trackingUrl, type, taglineRu, taglineEn,
   volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
   badges[]{ textRu, textEn, tone, link }
 `;

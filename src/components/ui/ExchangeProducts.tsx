@@ -13,14 +13,14 @@ function ProductCard({ product, locale }: { product: ExchangeProductRaw; locale:
   const long = isRu ? product.longRu : product.longEn;
 
   return (
-    <details className="group bg-card border border-border rounded-xl overflow-hidden">
+    <details className="group bg-card border border-border rounded-xl overflow-hidden hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all">
       <summary className="cursor-pointer select-none list-none">
-        <div className="relative h-32 sm:h-36 bg-background">
+        <div className="relative h-32 sm:h-36 bg-background overflow-hidden">
           <Image
             src={sanityImageTransform(product.image, { width: 640, height: 400 })!}
             alt={name}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             unoptimized
           />
         </div>
