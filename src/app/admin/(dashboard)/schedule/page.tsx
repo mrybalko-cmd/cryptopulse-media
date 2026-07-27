@@ -19,7 +19,7 @@ const LEGEND = [
   { color: '#ec4899', label: 'Закрепление биржи' },
 ];
 
-const WEEKDAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const WEEKDAYS_SHORT_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
 function dayLabel(date: Date): string {
   const today = new Date();
@@ -42,49 +42,41 @@ function groupByDay(items: ScheduleItem[]) {
   return Array.from(groups.values());
 }
 
-function buildCalendarWeeks(items: ScheduleItem[], year: number, month: number): (Date | null)[][] {
-  const firstOfMonth = new Date(year, month, 1);
-  const lastOfMonth = new Date(year, month + 1, 0);
-  const startOffset = (firstOfMonth.getDay() + 6) % 7; // Monday-first
-  const days: (Date | null)[] = Array(startOffset).fill(null);
-  for (let d = 1; d <= lastOfMonth.getDate(); d++) days.push(new Date(year, month, d));
-  while (days.length % 7 !== 0) days.push(null);
-  const weeks: (Date | null)[][] = [];
-  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
-  return weeks;
+// Always "today + the next 13 days" (two full weeks), never a calendar-month
+// grid — the user explicitly wants a rolling window anchored on today, not
+// something that needs prev/next navigation to stay useful.
+function buildRollingDays(startFrom: Date, count: number): Date[] {
+  const start = new Date(startFrom.getFullYear(), startFrom.getMonth(), startFrom.getDate());
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return d;
+  });
 }
 
 export default async function AdminSchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; month?: string }>;
+  searchParams: Promise<{ view?: string }>;
 }) {
   const session = await getAdminSession();
   if (!session) redirect('/admin/login');
 
-  const { view, month: monthParam } = await searchParams;
+  const { view } = await searchParams;
   const activeView = view === 'calendar' ? 'calendar' : 'list';
 
   const allItems = await fetchScheduleItems();
   const items = allItems.filter(i => hasPermission(session, i.permission));
 
   const now = new Date();
-  const [pYear, pMonth] = monthParam?.match(/^\d{4}-\d{2}$/)
-    ? [Number(monthParam.slice(0, 4)), Number(monthParam.slice(5, 7)) - 1]
-    : [now.getFullYear(), now.getMonth()];
-
   const dayGroups = groupByDay(items);
-  const weeks = buildCalendarWeeks(items, pYear, pMonth);
+  const rollingDays = buildRollingDays(now, 14);
   const itemsByDate = new Map<string, ScheduleItem[]>();
   for (const item of items) {
     const key = new Date(item.at).toDateString();
     if (!itemsByDate.has(key)) itemsByDate.set(key, []);
     itemsByDate.get(key)!.push(item);
   }
-
-  const prevMonth = new Date(pYear, pMonth - 1, 1);
-  const nextMonth = new Date(pYear, pMonth + 1, 1);
-  const monthLabel = new Date(pYear, pMonth, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
 
   return (
     <div>
@@ -146,59 +138,49 @@ export default async function AdminSchedulePage({
         </div>
       ) : (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <Link href={`/admin/schedule?view=calendar&month=${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`} className="text-[12px] font-bold text-[var(--admin-text-muted)] hover:text-[var(--admin-text)]">
-              ← пред.
-            </Link>
-            <div className="text-[13px] font-bold capitalize">{monthLabel}</div>
-            <Link href={`/admin/schedule?view=calendar&month=${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`} className="text-[12px] font-bold text-[var(--admin-text-muted)] hover:text-[var(--admin-text)]">
-              след. →
-            </Link>
-          </div>
-          <div className="grid grid-cols-7 gap-1.5 mb-1.5">
-            {WEEKDAYS_RU.map(w => (
-              <div key={w} className="text-[10.5px] font-bold text-[var(--admin-text-muted)] text-center py-1">{w}</div>
-            ))}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {weeks.map((week, wi) => (
-              <div key={wi} className="grid grid-cols-7 gap-1.5">
-                {week.map((date, di) => {
-                  if (!date) return <div key={di} className="min-h-[84px] rounded-lg" />;
-                  const isToday = date.toDateString() === now.toDateString();
-                  const dayItems = itemsByDate.get(date.toDateString()) ?? [];
-                  return (
-                    <div
-                      key={di}
-                      className="border border-[var(--admin-border)] rounded-lg p-1.5 min-h-[84px] bg-[var(--admin-input)]"
-                    >
-                      <div className={`text-[10.5px] mb-1 ${isToday ? 'font-extrabold' : 'text-[var(--admin-text-muted)]'}`} style={isToday ? { color: 'var(--admin-focus)' } : undefined}>
-                        {date.getDate()}
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        {dayItems.slice(0, 3).map(item => {
-                          const meta = TYPE_META[item.type];
-                          return (
-                            <Link
-                              key={`${item.type}-${item.id}`}
-                              href={item.href}
-                              title={meta.title(item.title)}
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded truncate block"
-                              style={{ background: `${meta.color}33`, color: meta.color }}
-                            >
-                              {item.title}
-                            </Link>
-                          );
-                        })}
-                        {dayItems.length > 3 && (
-                          <span className="text-[9px] text-[var(--admin-text-muted)] px-1.5">+{dayItems.length - 3}</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+          <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Следующие 14 дней, начиная с сегодняшнего.</p>
+          <div className="grid grid-cols-7 gap-1.5">
+            {rollingDays.map(date => {
+              const isToday = date.toDateString() === now.toDateString();
+              const dayItems = itemsByDate.get(date.toDateString()) ?? [];
+              return (
+                <div
+                  key={date.toISOString()}
+                  className="border rounded-lg p-1.5 min-h-[92px]"
+                  style={{
+                    background: 'var(--admin-input)',
+                    borderColor: isToday ? 'var(--admin-focus)' : 'var(--admin-border)',
+                  }}
+                >
+                  <div className="text-[10px] text-[var(--admin-text-muted)] mb-0.5">{WEEKDAYS_SHORT_RU[date.getDay()]}</div>
+                  <div
+                    className={`text-[11px] mb-1 ${isToday ? 'font-extrabold' : 'text-[var(--admin-text-secondary)]'}`}
+                    style={isToday ? { color: 'var(--admin-focus)' } : undefined}
+                  >
+                    {date.getDate()} {date.toLocaleDateString('ru-RU', { month: 'short' })}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    {dayItems.slice(0, 3).map(item => {
+                      const meta = TYPE_META[item.type];
+                      return (
+                        <Link
+                          key={`${item.type}-${item.id}`}
+                          href={item.href}
+                          title={meta.title(item.title)}
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded truncate block"
+                          style={{ background: `${meta.color}33`, color: meta.color }}
+                        >
+                          {item.title}
+                        </Link>
+                      );
+                    })}
+                    {dayItems.length > 3 && (
+                      <span className="text-[9px] text-[var(--admin-text-muted)] px-1.5">+{dayItems.length - 3}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -4,6 +4,7 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminNewsList, type AdminNewsListItem } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { formatDateTime } from '../_shared/formatDateTime';
+import ListSearchBar from '../_shared/ListSearchBar';
 
 function statusOf(n: { publishTiming: string; publishedAt?: string }) {
   if (n.publishTiming === 'draft') return { color: 'var(--admin-text-muted)', label: 'Черновик' };
@@ -20,12 +21,17 @@ function matchesFilter(n: AdminNewsListItem, filter: string): boolean {
   return n.publishTiming !== 'draft' && !(n.publishTiming === 'scheduled' && n.publishedAt && new Date(n.publishedAt).getTime() > Date.now());
 }
 
-export default async function AdminNewsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+export default async function AdminNewsPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; lang?: string }> }) {
   await requireAdminPermission('news');
-  const { filter: rawFilter } = await searchParams;
+  const { filter: rawFilter, q, lang } = await searchParams;
   const filter = ['all', 'published', 'draft', 'scheduled'].includes(rawFilter ?? '') ? rawFilter! : 'all';
   const allNews = await fetchAdminNewsList();
-  const news = allNews.filter(n => matchesFilter(n, filter));
+  let news = allNews.filter(n => matchesFilter(n, filter));
+  if (lang === 'ru' || lang === 'en') news = news.filter(n => n.language === lang);
+  if (q?.trim()) {
+    const needle = q.trim().toLowerCase();
+    news = news.filter(n => n.title.toLowerCase().includes(needle));
+  }
 
   const counts = {
     all: allNews.length,
@@ -50,7 +56,7 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
         </Link>
       </div>
 
-      <div className="flex gap-1.5 mb-5">
+      <div className="flex gap-1.5 mb-4">
         {tabs.map(t => (
           <Link
             key={t.key}
@@ -64,8 +70,10 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
         ))}
       </div>
 
+      <ListSearchBar basePath="/admin/news" query={q} lang={lang} filter={filter} />
+
       {news.length === 0 ? (
-        <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего нет в этом фильтре.</p>
+        <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего не нашлось.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {news.map(n => {

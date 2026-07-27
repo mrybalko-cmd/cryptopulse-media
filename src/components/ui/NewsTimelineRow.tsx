@@ -104,7 +104,7 @@ export default function NewsTimelineRow({
           className="text-[13px] font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2"
           itemProp="headline"
         >
-          {!external && ownBadge && !breaking && (
+          {!external && ownBadge && (
             <Zap
               size={11}
               className="inline mr-1 -mt-px text-yellow-500 shrink-0"

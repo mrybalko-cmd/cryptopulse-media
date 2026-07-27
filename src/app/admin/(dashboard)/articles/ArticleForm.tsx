@@ -7,6 +7,7 @@ import SubmitButton from '../_shared/SubmitButton';
 import ChipPicker from '../_shared/ChipPicker';
 import TagChipsInput from '../_shared/TagChipsInput';
 import LanguageTabs from '../_shared/LanguageTabs';
+import AuthorPicker from '../_shared/AuthorPicker';
 
 const TOPICS = [
   { value: 'regulation', label: 'Регулирование' },
@@ -173,10 +174,7 @@ export default function ArticleForm({
       <div className="flex flex-col gap-4">
         <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-3.5">
           <h4 className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Автор</h4>
-          <select name="authorId" defaultValue={article?.authorId ?? ''} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12.5px]">
-            <option value="">— без автора —</option>
-            {authors.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
-          </select>
+          <AuthorPicker authors={authors} defaultValue={article?.authorId} />
         </div>
         <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-3.5">
           <h4 className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Настройки</h4>

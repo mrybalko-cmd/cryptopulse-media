@@ -4,6 +4,7 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminArticlesList, type AdminArticleListItem } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { formatDateTime } from '../_shared/formatDateTime';
+import ListSearchBar from '../_shared/ListSearchBar';
 
 function statusOf(a: { publishTiming: string; publishedAt?: string }) {
   if (a.publishTiming === 'draft') return { color: 'var(--admin-text-muted)', label: 'Черновик' };
@@ -20,12 +21,17 @@ function matchesFilter(a: AdminArticleListItem, filter: string): boolean {
   return a.publishTiming !== 'draft' && !(a.publishTiming === 'scheduled' && a.publishedAt && new Date(a.publishedAt).getTime() > Date.now());
 }
 
-export default async function AdminArticlesPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+export default async function AdminArticlesPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; lang?: string }> }) {
   await requireAdminPermission('articles');
-  const { filter: rawFilter } = await searchParams;
+  const { filter: rawFilter, q, lang } = await searchParams;
   const filter = ['all', 'published', 'draft', 'scheduled'].includes(rawFilter ?? '') ? rawFilter! : 'all';
   const allArticles = await fetchAdminArticlesList();
-  const articles = allArticles.filter(a => matchesFilter(a, filter));
+  let articles = allArticles.filter(a => matchesFilter(a, filter));
+  if (lang === 'ru' || lang === 'en') articles = articles.filter(a => a.language === lang);
+  if (q?.trim()) {
+    const needle = q.trim().toLowerCase();
+    articles = articles.filter(a => a.title.toLowerCase().includes(needle));
+  }
 
   const counts = {
     all: allArticles.length,
@@ -49,7 +55,7 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
         </Link>
       </div>
 
-      <div className="flex gap-1.5 mb-5">
+      <div className="flex gap-1.5 mb-4">
         {tabs.map(t => (
           <Link
             key={t.key}
@@ -63,8 +69,10 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
         ))}
       </div>
 
+      <ListSearchBar basePath="/admin/articles" query={q} lang={lang} filter={filter} />
+
       {articles.length === 0 ? (
-        <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего нет в этом фильтре.</p>
+        <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего не нашлось.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {articles.map(a => {

@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import '../globals.css';
 
 export const metadata = {
@@ -6,67 +5,79 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-// Admin uses its own bespoke palette (via CSS custom properties, switched by
-// [data-theme]) independent of the public site's --background/--foreground
-// tokens in globals.css — keeps the two theme systems from fighting.
+// Same mechanism and the same colors as the public site's own theme system
+// (src/components/layout/ThemeToggle.tsx + the html.light rules in
+// globals.css): a plain `html.light` class, toggled client-side and
+// persisted under the same `theme` localStorage key — so a preference set
+// on either the public site or /admin carries over to the other, since
+// they share one origin. --admin-* is still its own token set (the admin
+// layout has more surface tiers than the site does — a raised "input"
+// background, a dimmer fourth text tier for uppercase labels) but every
+// value below is taken directly from the site's --background/--foreground/
+// --muted/--border/--card/--card-hover/--accent so switching either theme
+// looks and behaves identically.
 const THEME_STYLE = `
-  html[data-theme="dark"] {
+  html {
     color-scheme: dark;
-    --admin-bg: #0f1115;
-    --admin-bg-alt: #131725;
-    --admin-panel: #161922;
-    --admin-input: #1c202b;
-    --admin-border: #262b38;
-    --admin-text: #eef0f4;
-    --admin-text-secondary: #c3c9d6;
-    --admin-text-muted: #8b93a7;
-    --admin-text-dim: #525a6b;
-    --admin-focus: #22d3ee;
+    --admin-bg: #1d1d1f;
+    --admin-bg-alt: #202023;
+    --admin-panel: #28282b;
+    --admin-input: #313135;
+    --admin-border: #313135;
+    --admin-text: #ffffff;
+    --admin-text-secondary: #d4d5da;
+    --admin-text-muted: #bdc0c7;
+    --admin-text-dim: #8b8d94;
+    --admin-focus: #06b6d4;
   }
-  html[data-theme="light"] {
+  html.light {
     color-scheme: light;
-    --admin-bg: #f3f4f6;
-    --admin-bg-alt: #e9ebef;
+    --admin-bg: #ffffff;
+    --admin-bg-alt: #f5f5f6;
     --admin-panel: #ffffff;
-    --admin-input: #f8f9fb;
-    --admin-border: #dfe2e8;
-    --admin-text: #14161a;
-    --admin-text-secondary: #3f4552;
-    --admin-text-muted: #6b7280;
-    --admin-text-dim: #9aa1ad;
+    --admin-input: #f5f5f6;
+    --admin-border: #dadce1;
+    --admin-text: #1d1d1f;
+    --admin-text-secondary: #4a4b50;
+    --admin-text-muted: #68696d;
+    --admin-text-dim: #9a9ba0;
     --admin-focus: #0891b2;
   }
 
   /* Every form control gets a deliberate focus ring in the theme's own accent
      color instead of the browser's default (often light/white) ring, which is
      what read as "white outlines around everything" after switching themes. */
-  html[data-theme] input,
-  html[data-theme] select,
-  html[data-theme] textarea,
-  html[data-theme] button {
+  html input,
+  html select,
+  html textarea,
+  html button {
     outline: none;
   }
-  html[data-theme] input:focus-visible,
-  html[data-theme] select:focus-visible,
-  html[data-theme] textarea:focus-visible,
-  html[data-theme] button:focus-visible {
+  html input:focus-visible,
+  html select:focus-visible,
+  html textarea:focus-visible,
+  html button:focus-visible {
     outline: 2px solid var(--admin-focus);
     outline-offset: 1px;
   }
-  html[data-theme] input[type="checkbox"],
-  html[data-theme] input[type="radio"] {
+  html input[type="checkbox"],
+  html input[type="radio"] {
     accent-color: var(--admin-focus);
   }
 `;
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get('admin_theme')?.value === 'light' ? 'light' : 'dark';
-
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" data-theme={theme}>
+    <html lang="ru">
       <head>
         <style dangerouslySetInnerHTML={{ __html: THEME_STYLE }} />
+        <script
+          // Pre-hydration, matching [locale]/layout.tsx's own snippet exactly —
+          // reads the same `theme` key so the page never flashes the wrong theme.
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body
         className="bg-[var(--admin-bg)] text-[var(--admin-text)]"

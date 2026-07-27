@@ -30,7 +30,17 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[19px] font-bold">{news.title}</h1>
-        <DeleteButton action={boundDelete} confirmMessage={`Удалить новость «${news.title}» безвозвратно? Это действие нельзя отменить.`} />
+        <div className="flex items-center gap-2">
+          <a
+            href={`/admin/preview/news/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[12.5px] font-bold text-[var(--admin-text-secondary)] border border-[var(--admin-border)] rounded-lg px-3.5 py-2 hover:border-cyan-500/40 hover:text-cyan-400 transition-colors"
+          >
+            👁 Предпросмотр
+          </a>
+          <DeleteButton action={boundDelete} confirmMessage={`Удалить новость «${news.title}» безвозвратно? Это действие нельзя отменить.`} />
+        </div>
       </div>
       <NewsForm news={news} authors={authors} translationCandidates={translationCandidates} action={boundAction} />
     </div>

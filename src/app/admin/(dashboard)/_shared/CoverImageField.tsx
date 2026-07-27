@@ -7,6 +7,7 @@ export default function CoverImageField({
   name,
   currentUrl,
   breakingDefault,
+  ownBadgeDefault,
 }: {
   name: string;
   currentUrl?: string | null;
@@ -14,26 +15,41 @@ export default function CoverImageField({
    * checkbox next to the preview — used by News, which has a `breaking` field.
    * Articles have no such field, so they omit this prop entirely. */
   breakingDefault?: boolean;
+  /** Same idea for the "⚡ Наш материал" (own-story) badge — shown right next to
+   * "Важное" when both apply, matching NewsCard's actual side-by-side layout. */
+  ownBadgeDefault?: boolean;
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [breaking, setBreaking] = useState(breakingDefault ?? false);
+  const [ownBadge, setOwnBadge] = useState(ownBadgeDefault ?? true);
   const showBreakingToggle = breakingDefault !== undefined;
-  const displayUrl = previewUrl ?? (currentUrl ? `${currentUrl}?w=1200` : null);
+  const showOwnBadgeToggle = ownBadgeDefault !== undefined;
+  const displayUrl = previewUrl ?? (currentUrl ? `${currentUrl}?w=640` : null);
 
   return (
     <div>
-      <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2">Обложка</div>
-      <div className="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-[var(--admin-input)] border border-[var(--admin-border)] mb-3">
+      <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2">Обложка (как будет выглядеть на сайте)</div>
+      <div className="relative w-full max-w-[340px] h-[176px] rounded-lg overflow-hidden bg-[var(--admin-input)] border border-[var(--admin-border)] mb-3">
         {displayUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={displayUrl} alt="" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[12px] text-[var(--admin-text-dim)]">Картинка не загружена</div>
         )}
-        {breaking && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold">
-            <Zap size={11} fill="currentColor" />
-            Важное
+        {(breaking || ownBadge) && (
+          <div className="absolute top-2 left-2 flex items-center gap-1.5">
+            {breaking && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-[10.5px] font-bold">
+                <Zap size={10} fill="currentColor" />
+                Важное
+              </div>
+            )}
+            {ownBadge && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-[10.5px] font-medium">
+                <Zap size={10} className="text-yellow-400" fill="currentColor" />
+                Наш материал
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -45,15 +61,23 @@ export default function CoverImageField({
           const file = e.target.files?.[0];
           setPreviewUrl(file ? URL.createObjectURL(file) : null);
         }}
-        className="w-full text-[12.5px] text-[var(--admin-text-muted)]"
+        className="w-full max-w-[340px] text-[12.5px] text-[var(--admin-text-muted)]"
       />
       {currentUrl && <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">Оставьте пустым, чтобы не менять текущую картинку.</p>}
-      {showBreakingToggle && (
-        <label className="flex items-center gap-2 text-[12.5px] mt-3">
-          <input type="checkbox" name="breaking" checked={breaking} onChange={e => setBreaking(e.target.checked)} />
-          ⚡ Молния (срочная новость) — как будет выглядеть бейдж на карточке
-        </label>
-      )}
+      <div className="flex flex-col gap-2 mt-3">
+        {showBreakingToggle && (
+          <label className="flex items-center gap-2 text-[12.5px]">
+            <input type="checkbox" name="breaking" checked={breaking} onChange={e => setBreaking(e.target.checked)} />
+            ⚡ Молния (срочная новость)
+          </label>
+        )}
+        {showOwnBadgeToggle && (
+          <label className="flex items-center gap-2 text-[12.5px]">
+            <input type="checkbox" name="ownBadge" checked={ownBadge} onChange={e => setOwnBadge(e.target.checked)} />
+            ⚡ Значок «Наш материал»
+          </label>
+        )}
+      </div>
     </div>
   );
 }
