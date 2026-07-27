@@ -199,7 +199,7 @@ export default async function AdminSchedulePage({
                 {dayItems.length === 0 ? (
                   <div className="border border-dashed border-[var(--admin-border)] rounded-xl px-4 py-2.5 text-[12px] text-[var(--admin-text-dim)]">Нет публикаций</div>
                 ) : (
-                  <div className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] divide-y divide-[var(--admin-border)]">
+                  <div className={`border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] divide-y divide-[var(--admin-border)] ${dayItems.length > 10 ? 'max-h-[460px] overflow-y-auto' : ''}`}>
                     {dayItems.map(item => {
                       const meta = TYPE_META[item.type];
                       return (
