@@ -3,13 +3,16 @@ import Link from 'next/link';
 import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission, type Permission } from '@/lib/admin/permissions';
 import LogoutButton from './LogoutButton';
+import ThemeToggle from './_shared/ThemeToggle';
 
 const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[] = [
   { href: '/admin', label: '🏠 Обзор', permission: null },
+  { href: '/admin/schedule', label: '🗓️ Расписание', permission: null },
   { href: '/admin/news', label: '📰 Новости', permission: 'news' },
   { href: '/admin/articles', label: '📝 Статьи', permission: 'articles' },
   { href: '/admin/banners', label: '🖼️ Баннеры', permission: 'banners' },
   { href: '/admin/exchanges', label: '🏦 Криптобиржи', permission: 'exchanges' },
+  { href: '/admin/exchange-reviews', label: '⭐ Отзывы о биржах', permission: 'exchanges' },
   { href: '/admin/comments', label: '💬 Комментарии', permission: 'comments' },
   { href: '/admin/homepage', label: '🏡 Главная страница', permission: 'homepage' },
 ];
@@ -22,7 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-screen">
-      <div className="w-[210px] bg-[#161922] border-r border-[#262b38] px-3.5 py-5 shrink-0 flex flex-col">
+      <div className="w-[210px] bg-[var(--admin-panel)] border-r border-[var(--admin-border)] px-3.5 py-5 shrink-0 flex flex-col">
         <div className="flex items-center gap-2 px-2 pb-5 font-extrabold text-sm">
           <span className="w-5 h-5 rounded-md bg-red-600 flex items-center justify-center text-[10px]">⚡</span>
           CryptoPulse.admin
@@ -32,27 +35,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[#8b93a7] hover:bg-[#1c202b] hover:text-[#eef0f4] transition-colors"
+              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
             >
               {item.label}
             </Link>
           ))}
           {session.isOwner && (
             <>
-              <div className="text-[10px] uppercase tracking-wide text-[#525a6b] px-2.5 pt-3.5 pb-1.5">Управление</div>
+              <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-dim)] px-2.5 pt-3.5 pb-1.5">Управление</div>
               <Link
                 href="/admin/users"
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[#8b93a7] hover:bg-[#1c202b] hover:text-[#eef0f4] transition-colors"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
               >
                 👥 Пользователи и права
               </Link>
             </>
           )}
         </nav>
-        <div className="pt-3 border-t border-[#262b38] mt-3">
-          <Link href="/admin/profile" className="block px-2.5 py-2 text-[12px] rounded-lg hover:bg-[#1c202b] transition-colors">
+        <div className="pt-3 border-t border-[var(--admin-border)] mt-3">
+          <ThemeToggle />
+          <Link href="/admin/profile" className="block px-2.5 py-2 text-[12px] rounded-lg hover:bg-[var(--admin-input)] transition-colors">
             <p className="font-semibold">{session.name}</p>
-            <p className="text-[#8b93a7]">{session.isOwner ? 'Владелец' : 'Сотрудник'} · Профиль</p>
+            <p className="text-[var(--admin-text-muted)]">{session.isOwner ? 'Владелец' : 'Сотрудник'} · Профиль</p>
           </Link>
           <LogoutButton />
         </div>

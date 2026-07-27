@@ -18,14 +18,14 @@ export default function SlugInput({
 
   return (
     <div>
-      <label className="text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block">{label}</label>
+      <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">{label}</label>
       <div className="flex gap-2">
         <input
           name={name}
           value={value}
           onChange={e => setValue(e.target.value)}
           required
-          className="flex-1 bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px] font-mono"
+          className="flex-1 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px] font-mono"
         />
         <button
           type="button"
@@ -33,7 +33,7 @@ export default function SlugInput({
             const titleEl = document.querySelector<HTMLInputElement>(`[name="${titleInputName}"]`);
             if (titleEl?.value) setValue(slugify(titleEl.value));
           }}
-          className="shrink-0 bg-[#1c202b] border border-[#262b38] rounded-lg px-3 text-[12px] font-semibold text-[#c3c9d6] hover:border-cyan-500/40 transition-colors"
+          className="shrink-0 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 text-[12px] font-semibold text-[var(--admin-text-secondary)] hover:border-cyan-500/40 transition-colors"
         >
           Сгенерировать из названия
         </button>

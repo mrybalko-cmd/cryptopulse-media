@@ -5,7 +5,7 @@ import { fetchAdminBanners } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 
 function statusOf(b: { active: boolean; startAt?: string; endAt?: string }) {
-  if (!b.active) return { color: '#8b93a7', label: 'Выключен' };
+  if (!b.active) return { color: 'var(--admin-text-muted)', label: 'Выключен' };
   const now = Date.now();
   const scheduled = (b.startAt && new Date(b.startAt).getTime() > now) || (b.endAt && new Date(b.endAt).getTime() < now);
   return scheduled ? { color: '#f2a93b', label: 'Запланирован/истёк' } : { color: '#22c55e', label: 'Активен' };
@@ -25,7 +25,7 @@ export default async function AdminBannersPage() {
       </div>
 
       {banners.length === 0 ? (
-        <p className="text-[13px] text-[#8b93a7]">Пока нет ни одного баннера.</p>
+        <p className="text-[13px] text-[var(--admin-text-muted)]">Пока нет ни одного баннера.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {banners.map(b => {
@@ -35,20 +35,20 @@ export default async function AdminBannersPage() {
               <Link
                 key={b._id}
                 href={`/admin/banners/${b._id}`}
-                className="flex items-center gap-3 border border-[#262b38] rounded-xl p-3 bg-[#161922] hover:border-cyan-500/40 transition-colors"
+                className="flex items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
               >
-                <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-[#1c202b]">
+                <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-[var(--admin-input)]">
                   {b.image && <Image src={sanityImageTransform(b.image, { width: 192 })!} alt={b.altText} fill className="object-cover" unoptimized />}
                 </div>
                 <div>
                   <div className="text-[13px] font-bold">{b.title}</div>
-                  <div className="text-[11px] text-[#8b93a7]">{b.language === 'all' ? 'Оба языка' : b.language.toUpperCase()} · вес {b.weight}</div>
+                  <div className="text-[11px] text-[var(--admin-text-muted)]">{b.language === 'all' ? 'Оба языка' : b.language.toUpperCase()} · вес {b.weight}</div>
                 </div>
                 <div className="ml-auto flex items-center gap-4">
-                  <div className="flex gap-3.5 text-[11px] text-[#8b93a7]">
-                    <span><b className="text-[#eef0f4]">{b.impressions.toLocaleString('ru-RU')}</b> показов</span>
-                    <span><b className="text-[#eef0f4]">{b.clicks.toLocaleString('ru-RU')}</b> кликов</span>
-                    <span><b className="text-[#eef0f4]">{ctr}%</b> CTR</span>
+                  <div className="flex gap-3.5 text-[11px] text-[var(--admin-text-muted)]">
+                    <span><b className="text-[var(--admin-text)]">{b.impressions.toLocaleString('ru-RU')}</b> показов</span>
+                    <span><b className="text-[var(--admin-text)]">{b.clicks.toLocaleString('ru-RU')}</b> кликов</span>
+                    <span><b className="text-[var(--admin-text)]">{ctr}%</b> CTR</span>
                   </div>
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ background: status.color }} title={status.label} />
                 </div>

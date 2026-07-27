@@ -19,36 +19,42 @@ async function parseProducts(
   formData: FormData,
   originalProducts: ExchangeProductItem[] | undefined
 ): Promise<(ExchangeProductItem & { imageAssetId?: string })[]> {
-  const products: (ExchangeProductItem & { imageAssetId?: string })[] = [];
+  const rows: { nameRu: string; nameEn: string; shortRu?: string; shortEn?: string; longRu?: string; longEn?: string; file: File | null; existingRef?: string }[] = [];
   let i = 0;
   while (formData.has(`product_nameRu_${i}`) || formData.has(`product_nameEn_${i}`)) {
     const nameRu = String(formData.get(`product_nameRu_${i}`) || '').trim();
     const nameEn = String(formData.get(`product_nameEn_${i}`) || '').trim();
-    if (!nameRu && !nameEn) {
-      i++;
-      continue;
+    if (nameRu || nameEn) {
+      rows.push({
+        nameRu,
+        nameEn,
+        shortRu: String(formData.get(`product_shortRu_${i}`) || '') || undefined,
+        shortEn: String(formData.get(`product_shortEn_${i}`) || '') || undefined,
+        longRu: String(formData.get(`product_longRu_${i}`) || '') || undefined,
+        longEn: String(formData.get(`product_longEn_${i}`) || '') || undefined,
+        file: formData.get(`product_image_${i}`) as File | null,
+        existingRef: originalProducts?.[i]?.imageAssetRef ?? undefined,
+      });
     }
-    const file = formData.get(`product_image_${i}`) as File | null;
-    let imageAssetId: string | undefined;
-    if (file && file.size > 0) {
-      imageAssetId = await uploadImageAsset(file);
-    } else {
-      imageAssetId = originalProducts?.[i]?.imageAssetRef ?? undefined;
-    }
-    products.push({
-      image: null,
-      imageAssetRef: null,
-      nameRu,
-      nameEn,
-      shortRu: String(formData.get(`product_shortRu_${i}`) || '') || undefined,
-      shortEn: String(formData.get(`product_shortEn_${i}`) || '') || undefined,
-      longRu: String(formData.get(`product_longRu_${i}`) || '') || undefined,
-      longEn: String(formData.get(`product_longEn_${i}`) || '') || undefined,
-      imageAssetId,
-    });
     i++;
   }
-  return products;
+
+  // Upload every row's new image concurrently instead of one-by-one.
+  const imageAssetIds = await Promise.all(
+    rows.map(row => (row.file && row.file.size > 0 ? uploadImageAsset(row.file) : Promise.resolve(row.existingRef)))
+  );
+
+  return rows.map((row, idx) => ({
+    image: null,
+    imageAssetRef: null,
+    nameRu: row.nameRu,
+    nameEn: row.nameEn,
+    shortRu: row.shortRu,
+    shortEn: row.shortEn,
+    longRu: row.longRu,
+    longEn: row.longEn,
+    imageAssetId: imageAssetIds[idx],
+  }));
 }
 
 function parseBadges(formData: FormData): ExchangeBadgeItem[] {
@@ -130,9 +136,11 @@ async function parseExchangeInput(
 
 export async function createExchangeAction(formData: FormData) {
   await requireAdminPermission('exchanges');
-  const input = await parseExchangeInput(formData, undefined, undefined, undefined);
   const logoFile = formData.get('logo') as File | null;
-  const logoAssetId = logoFile && logoFile.size > 0 ? await uploadImageAsset(logoFile) : undefined;
+  const [input, logoAssetId] = await Promise.all([
+    parseExchangeInput(formData, undefined, undefined, undefined),
+    logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
+  ]);
   const doc = await createExchange(input, logoAssetId);
   revalidateTag('exchanges', { expire: 0 });
   redirect(`/admin/exchanges/${doc._id}`);
@@ -146,9 +154,11 @@ export async function updateExchangeAction(
   formData: FormData
 ) {
   await requireAdminPermission('exchanges');
-  const input = await parseExchangeInput(formData, originalDescriptionRu, originalDescriptionEn, originalProducts);
   const logoFile = formData.get('logo') as File | null;
-  const logoAssetId = logoFile && logoFile.size > 0 ? await uploadImageAsset(logoFile) : undefined;
+  const [input, logoAssetId] = await Promise.all([
+    parseExchangeInput(formData, originalDescriptionRu, originalDescriptionEn, originalProducts),
+    logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
+  ]);
   await updateExchange(id, input, logoAssetId);
   revalidateTag('exchanges', { expire: 0 });
   redirect(`/admin/exchanges/${id}`);

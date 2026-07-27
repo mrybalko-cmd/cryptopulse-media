@@ -18,7 +18,7 @@ export default async function AdminUsersPage() {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-[12.5px]">
           <thead>
-            <tr className="text-[#8b93a7] text-[10px] uppercase tracking-wide">
+            <tr className="text-[var(--admin-text-muted)] text-[10px] uppercase tracking-wide">
               <th className="text-left pb-2.5 px-2">Сотрудник</th>
               {PERMISSIONS.map(p => <th key={p.key} className="pb-2.5 px-2">{p.label}</th>)}
               <th className="pb-2.5 px-2">Всё</th>
@@ -26,10 +26,10 @@ export default async function AdminUsersPage() {
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u._id} className="border-t border-[#262b38]">
+              <tr key={u._id} className="border-t border-[var(--admin-border)]">
                 <td className="py-2.5 px-2">
                   <Link href={`/admin/users/${u._id}`} className="font-bold hover:text-cyan-400">{u.name}</Link>
-                  <div className="text-[10.5px] text-[#8b93a7]">{u.email}{!u.active && ' · отключён'}</div>
+                  <div className="text-[10.5px] text-[var(--admin-text-muted)]">{u.email}{!u.active && ' · отключён'}</div>
                 </td>
                 {PERMISSIONS.map(p => (
                   <td key={p.key} className="text-center">{u.isOwner || u.permissions?.includes(p.key) ? '✅' : '—'}</td>

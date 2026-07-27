@@ -173,10 +173,11 @@ function imageField(assetId: string) {
 export interface AdminAuthorOption {
   _id: string;
   name: string;
+  photo: string | null;
 }
 
 export async function fetchAuthorOptions(): Promise<AdminAuthorOption[]> {
-  return client.fetch(`*[_type == "author"] | order(name asc){ _id, name }`);
+  return client.fetch(`*[_type == "author"] | order(name asc){ _id, name, "photo": photo.asset->url }`);
 }
 
 export async function fetchTranslationCandidates(
@@ -193,6 +194,7 @@ export interface AdminNewsListItem {
   title: string;
   language: 'ru' | 'en';
   slug: string;
+  coverImage: string | null;
   publishTiming: 'now' | 'scheduled';
   publishedAt?: string;
   topic?: string;
@@ -200,8 +202,8 @@ export interface AdminNewsListItem {
 }
 
 const NEWS_LIST_PROJECTION = `
-  _id, title, language, "slug": slug.current, publishTiming, publishedAt, topic,
-  "breaking": coalesce(breaking, false)
+  _id, title, language, "slug": slug.current, "coverImage": coverImage.asset->url,
+  publishTiming, publishedAt, topic, "breaking": coalesce(breaking, false)
 `;
 
 export async function fetchAdminNewsList(): Promise<AdminNewsListItem[]> {
@@ -357,6 +359,7 @@ export interface AdminArticleListItem {
   title: string;
   language: 'ru' | 'en';
   slug: string;
+  coverImage: string | null;
   publishTiming: 'now' | 'scheduled';
   publishedAt?: string;
   topic?: string;
@@ -364,8 +367,8 @@ export interface AdminArticleListItem {
 }
 
 const ARTICLE_LIST_PROJECTION = `
-  _id, title, language, "slug": slug.current, publishTiming, publishedAt, topic,
-  "badge": coalesce(badge, "none")
+  _id, title, language, "slug": slug.current, "coverImage": coverImage.asset->url,
+  publishTiming, publishedAt, topic, "badge": coalesce(badge, "none")
 `;
 
 export async function fetchAdminArticlesList(): Promise<AdminArticleListItem[]> {
@@ -805,7 +808,92 @@ export async function deleteComment(id: string) {
   await writeClient.delete(id);
 }
 
+// ---------------- Exchange reviews ----------------
+
+export interface AdminExchangeReviewDoc {
+  _id: string;
+  authorName: string;
+  rating: number;
+  text: string;
+  approved: boolean;
+  createdAt: string;
+  exchangeId: string | null;
+  exchangeName: string | null;
+  exchangeSlugRu: string | null;
+}
+
+const EXCHANGE_REVIEW_PROJECTION = `
+  _id, authorName, rating, text, approved, createdAt,
+  "exchangeId": exchange->_id, "exchangeName": exchange->name, "exchangeSlugRu": exchange->slugRu.current
+`;
+
+export async function fetchAdminExchangeReviews(filter: 'pending' | 'approved' | 'all' = 'pending'): Promise<AdminExchangeReviewDoc[]> {
+  const clause = filter === 'pending' ? '&& approved == false' : filter === 'approved' ? '&& approved == true' : '';
+  return client.fetch(`*[_type == "exchangeReview" ${clause}] | order(createdAt desc){ ${EXCHANGE_REVIEW_PROJECTION} }`);
+}
+
+export async function countPendingExchangeReviews(): Promise<number> {
+  return client.fetch(`count(*[_type == "exchangeReview" && approved == false])`);
+}
+
+export async function setExchangeReviewApproved(id: string, approved: boolean) {
+  await writeClient.patch(id).set({ approved }).commit({ autoGenerateArrayKeys: false });
+}
+
+export async function updateExchangeReviewText(id: string, text: string) {
+  await writeClient.patch(id).set({ text }).commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteExchangeReview(id: string) {
+  await writeClient.delete(id);
+}
+
 // ---------------- Dashboard counts ----------------
+
+export interface ScheduleItem {
+  type: 'news' | 'article' | 'banner-start' | 'banner-end' | 'exchange-pin';
+  id: string;
+  title: string;
+  at: string;
+  href: string;
+  permission: Permission;
+}
+
+export async function fetchScheduleItems(): Promise<ScheduleItem[]> {
+  const [news, articles, banners, exchanges] = await Promise.all([
+    client.fetch<{ _id: string; title: string; publishedAt: string }[]>(
+      `*[_type == "news" && publishTiming == "scheduled" && publishedAt > now()]{ _id, title, publishedAt }`
+    ),
+    client.fetch<{ _id: string; title: string; publishedAt: string }[]>(
+      `*[_type == "article" && publishTiming == "scheduled" && publishedAt > now()]{ _id, title, publishedAt }`
+    ),
+    client.fetch<{ _id: string; title: string; startAt?: string; endAt?: string }[]>(
+      `*[_type == "sidebarBanner" && (defined(startAt) || defined(endAt))]{ _id, title, startAt, endAt }`
+    ),
+    client.fetch<{ _id: string; name: string; pinUntil: string }[]>(
+      `*[_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil > now()]{ _id, name, pinUntil }`
+    ),
+  ]);
+
+  const items: ScheduleItem[] = [];
+  const now = Date.now();
+
+  for (const n of news) items.push({ type: 'news', id: n._id, title: n.title, at: n.publishedAt, href: `/admin/news/${n._id}`, permission: 'news' });
+  for (const a of articles) items.push({ type: 'article', id: a._id, title: a.title, at: a.publishedAt, href: `/admin/articles/${a._id}`, permission: 'articles' });
+  for (const b of banners) {
+    if (b.startAt && new Date(b.startAt).getTime() > now) {
+      items.push({ type: 'banner-start', id: b._id, title: b.title, at: b.startAt, href: `/admin/banners/${b._id}`, permission: 'banners' });
+    }
+    if (b.endAt && new Date(b.endAt).getTime() > now) {
+      items.push({ type: 'banner-end', id: b._id, title: b.title, at: b.endAt, href: `/admin/banners/${b._id}`, permission: 'banners' });
+    }
+  }
+  for (const e of exchanges) {
+    items.push({ type: 'exchange-pin', id: e._id, title: e.name, at: e.pinUntil, href: `/admin/exchanges/${e._id}`, permission: 'exchanges' });
+  }
+
+  return items.sort((x, y) => new Date(x.at).getTime() - new Date(y.at).getTime());
+}
 
 export async function fetchDashboardCounts() {
   // "Draft" in Sanity's own sense (an unpublished `drafts.*` revision) isn't

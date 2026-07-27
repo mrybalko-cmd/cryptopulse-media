@@ -3,6 +3,7 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminExchangeById } from '@/lib/admin/data';
 import { updateExchangeAction, deleteExchangeAction } from '../actions';
 import ExchangeForm from '../ExchangeForm';
+import DeleteButton from '../../_shared/DeleteButton';
 
 export default async function EditExchangePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('exchanges');
@@ -23,9 +24,7 @@ export default async function EditExchangePage({ params }: { params: Promise<{ i
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[19px] font-bold">{exchange.name}</h1>
-        <form action={boundDelete}>
-          <button type="submit" className="text-[12px] font-semibold text-red-400 hover:text-red-300">Удалить</button>
-        </form>
+        <DeleteButton action={boundDelete} confirmMessage={`Удалить биржу «${exchange.name}» безвозвратно? Это действие нельзя отменить.`} />
       </div>
       <ExchangeForm exchange={exchange} action={boundAction} />
     </div>

@@ -3,6 +3,7 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminNewsById, fetchAuthorOptions, fetchTranslationCandidates } from '@/lib/admin/data';
 import { updateNewsAction, deleteNewsAction } from '../actions';
 import NewsForm from '../NewsForm';
+import DeleteButton from '../../_shared/DeleteButton';
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('news');
@@ -29,9 +30,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[19px] font-bold">{news.title}</h1>
-        <form action={boundDelete}>
-          <button type="submit" className="text-[12px] font-semibold text-red-400 hover:text-red-300">Удалить</button>
-        </form>
+        <DeleteButton action={boundDelete} confirmMessage={`Удалить новость «${news.title}» безвозвратно? Это действие нельзя отменить.`} />
       </div>
       <NewsForm news={news} authors={authors} translationCandidates={translationCandidates} action={boundAction} />
     </div>

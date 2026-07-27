@@ -52,21 +52,22 @@ function describeNonTextBlock(block: PortableTextBlock): string {
 }
 
 function wrapMarks(span: Span, markDefs: MarkDef[]): string {
-  let text = span.text;
-  for (const mark of span.marks) {
+  let text = span.text ?? '';
+  const marks = span.marks ?? [];
+  for (const mark of marks) {
     const def = markDefs.find(d => d._key === mark);
     if (def && def._type === 'link' && def.href) {
       text = `[${text}](${def.href})`;
     }
   }
-  if (span.marks.includes('code')) text = `\`${text}\``;
-  if (span.marks.includes('em')) text = `*${text}*`;
-  if (span.marks.includes('strong')) text = `**${text}**`;
+  if (marks.includes('code')) text = `\`${text}\``;
+  if (marks.includes('em')) text = `*${text}*`;
+  if (marks.includes('strong')) text = `**${text}**`;
   return text;
 }
 
 function blockToParagraph(block: PortableTextBlock): string {
-  const children = (block.children as Span[] | undefined) ?? [];
+  const children = ((block.children as Span[] | undefined) ?? []).filter(c => c && c._type === 'span');
   const markDefs = (block.markDefs as MarkDef[] | undefined) ?? [];
   let text = children.map(span => wrapMarks(span, markDefs)).join('');
   const style = block.style as string | undefined;

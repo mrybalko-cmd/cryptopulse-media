@@ -13,6 +13,7 @@ export default async function AdminDashboardPage() {
     { key: 'articles' as const, href: '/admin/articles', icon: '📝', color: '#8b5cf6', title: 'Статьи', stat: counts.scheduledArticles, label: 'запланировано' },
     { key: 'banners' as const, href: '/admin/banners', icon: '🖼️', color: '#f2a93b', title: 'Баннеры', stat: counts.activeBanners, label: 'активных' },
     { key: 'exchanges' as const, href: '/admin/exchanges', icon: '🏦', color: '#22c55e', title: 'Криптобиржи', stat: counts.exchangeCount, label: 'бирж' },
+    { key: 'exchanges' as const, href: '/admin/exchange-reviews', icon: '⭐', color: '#f59e0b', title: 'Отзывы о биржах', stat: counts.pendingReviews, label: 'на проверке' },
     { key: 'comments' as const, href: '/admin/comments', icon: '💬', color: '#ec4899', title: 'Комментарии', stat: counts.pendingComments, label: 'на проверке' },
     { key: 'homepage' as const, href: '/admin/homepage', icon: '🏡', color: '#94a3b8', title: 'Главная страница', stat: null, label: 'настройки вывода' },
   ];
@@ -29,7 +30,7 @@ export default async function AdminDashboardPage() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         {visibleTiles.map(t => (
-          <Link key={t.key} href={t.href} className="bg-[#161922] border border-[#262b38] rounded-2xl p-4 hover:border-cyan-500/40 transition-colors">
+          <Link key={t.href} href={t.href} className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-2xl p-4 hover:border-cyan-500/40 transition-colors">
             <div className="w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[15px] mb-2.5" style={{ background: `${t.color}26`, color: t.color }}>
               {t.icon}
             </div>
@@ -37,17 +38,17 @@ export default async function AdminDashboardPage() {
             {t.stat !== null && (
               <>
                 <div className="text-[20px] font-black">{t.stat}</div>
-                <div className="text-[10px] text-[#8b93a7]">{t.label}</div>
+                <div className="text-[10px] text-[var(--admin-text-muted)]">{t.label}</div>
               </>
             )}
           </Link>
         ))}
         {session?.isOwner && (
-          <Link href="/admin/users" className="bg-[#161922] border border-[#262b38] rounded-2xl p-4 hover:border-cyan-500/40 transition-colors">
+          <Link href="/admin/users" className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-2xl p-4 hover:border-cyan-500/40 transition-colors">
             <div className="w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[15px] mb-2.5 bg-slate-400/15 text-slate-300">👥</div>
             <h3 className="text-[13px] font-bold mb-2.5">Пользователи</h3>
             <div className="text-[20px] font-black">{userCount}</div>
-            <div className="text-[10px] text-[#8b93a7]">сотрудника</div>
+            <div className="text-[10px] text-[var(--admin-text-muted)]">сотрудника</div>
           </Link>
         )}
       </div>

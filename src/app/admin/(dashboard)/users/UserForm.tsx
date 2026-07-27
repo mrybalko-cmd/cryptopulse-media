@@ -1,5 +1,7 @@
 import { PERMISSIONS } from '@/lib/admin/permissions';
 import type { AdminUserDoc } from '@/lib/admin/data';
+import SubmitButton from '../_shared/SubmitButton';
+import PasswordField from '../_shared/PasswordField';
 
 export default function UserForm({
   user,
@@ -13,25 +15,27 @@ export default function UserForm({
   return (
     <form action={action} className="max-w-lg">
       <div className="mb-4">
-        <label className="text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block">Имя</label>
-        <input name="name" defaultValue={user?.name} required className="w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px]" />
+        <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Имя</label>
+        <input name="name" defaultValue={user?.name} required className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
       </div>
       {mode === 'create' ? (
         <div className="mb-4">
-          <label className="text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block">Email (логин)</label>
-          <input name="email" type="email" required className="w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px]" />
+          <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Email (логин)</label>
+          <input name="email" type="email" required className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
         </div>
       ) : (
         <div className="mb-4">
-          <label className="text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block">Email</label>
-          <input value={user?.email} disabled className="w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px] opacity-50" />
+          <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Email</label>
+          <input value={user?.email} disabled className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px] opacity-50" />
         </div>
       )}
       <div className="mb-4">
-        <label className="text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block">
-          {mode === 'create' ? 'Пароль (минимум 8 символов)' : 'Новый пароль (оставьте пустым, чтобы не менять)'}
-        </label>
-        <input name={mode === 'create' ? 'password' : 'newPassword'} type="password" minLength={8} required={mode === 'create'} className="w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px]" />
+        <PasswordField
+          name={mode === 'create' ? 'password' : 'newPassword'}
+          label={mode === 'create' ? 'Пароль (минимум 8 символов)' : 'Новый пароль (оставьте пустым, чтобы не менять)'}
+          minLength={8}
+          required={mode === 'create'}
+        />
       </div>
 
       <label className="flex items-center gap-2 text-[12.5px] mb-3">
@@ -40,7 +44,7 @@ export default function UserForm({
       </label>
 
       <div className="mb-5">
-        <div className="text-[10.5px] uppercase tracking-wide text-[#8b93a7] font-bold mb-2">Права доступа (игнорируются, если «Владелец» включён)</div>
+        <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2">Права доступа (игнорируются, если «Владелец» включён)</div>
         <div className="flex flex-wrap gap-3">
           {PERMISSIONS.map(p => (
             <label key={p.key} className="flex items-center gap-1.5 text-[12.5px]">
@@ -58,9 +62,9 @@ export default function UserForm({
         </label>
       )}
 
-      <button type="submit" className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+      <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
         {mode === 'create' ? 'Добавить сотрудника' : 'Сохранить'}
-      </button>
+      </SubmitButton>
     </form>
   );
 }

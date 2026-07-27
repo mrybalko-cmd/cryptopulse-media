@@ -2,6 +2,8 @@ import type { AdminExchangeDoc } from '@/lib/admin/data';
 import { blocksToText } from '@/lib/admin/portableText';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
+import RichTextEditor from '../_shared/RichTextEditor';
+import SubmitButton from '../_shared/SubmitButton';
 
 const BADGE_TONES = [
   { value: 'license', label: '🔵 Лицензия (регуляторная)' },
@@ -17,9 +19,9 @@ const REGION_TONES = [
   { value: 'off', label: '⚪ Недоступна' },
 ];
 
-const inputCls = 'w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-3 py-2.5 text-[13px]';
-const smallInputCls = 'w-full bg-[#1c202b] border border-[#262b38] rounded-lg px-2.5 py-2 text-[12.5px]';
-const labelCls = 'text-[11.5px] font-bold text-[#c3c9d6] mb-1.5 block';
+const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
+const smallInputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12.5px]';
+const labelCls = 'text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block';
 
 export default function ExchangeForm({
   exchange,
@@ -34,7 +36,7 @@ export default function ExchangeForm({
 
   return (
     <form action={action} className="max-w-3xl">
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-3">Основное</h2>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Основное</h2>
       <div className="mb-5">
         <label className={labelCls}>Название</label>
         <input name="name" defaultValue={exchange?.name} required className={inputCls} />
@@ -107,25 +109,25 @@ export default function ExchangeForm({
         </div>
       </div>
 
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-3">Описание («Обзор»)</h2>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Описание («Обзор»)</h2>
       <div className="grid grid-cols-2 gap-3 mb-6">
         <div>
           <label className={labelCls}>RU</label>
-          <textarea name="descriptionRu" defaultValue={blocksToText(exchange?.descriptionRu)} rows={6} className={`${inputCls} font-mono`} />
+          <RichTextEditor name="descriptionRu" defaultValue={blocksToText(exchange?.descriptionRu)} rows={6} simple />
         </div>
         <div>
           <label className={labelCls}>EN</label>
-          <textarea name="descriptionEn" defaultValue={blocksToText(exchange?.descriptionEn)} rows={6} className={`${inputCls} font-mono`} />
+          <RichTextEditor name="descriptionEn" defaultValue={blocksToText(exchange?.descriptionEn)} rows={6} simple />
         </div>
       </div>
 
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-1">Продукты</h2>
-      <p className="text-[11px] text-[#8b93a7] mb-3">Оставьте название пустым, чтобы не создавать продукт в этой строке.</p>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Продукты</h2>
+      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте название пустым, чтобы не создавать продукт в этой строке.</p>
       <div className="flex flex-col gap-3 mb-6">
         {Array.from({ length: productRows }).map((_, i) => {
           const p = exchange?.products[i];
           return (
-            <div key={i} className="border border-[#262b38] rounded-lg p-3 bg-[#161922]">
+            <div key={i} className="border border-[var(--admin-border)] rounded-lg p-3 bg-[var(--admin-panel)]">
               <div className="grid grid-cols-2 gap-3 mb-2">
                 <input name={`product_nameRu_${i}`} defaultValue={p?.nameRu} placeholder="Название, RU" className={smallInputCls} />
                 <input name={`product_nameEn_${i}`} defaultValue={p?.nameEn} placeholder="Название, EN" className={smallInputCls} />
@@ -144,13 +146,13 @@ export default function ExchangeForm({
         })}
       </div>
 
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-1">Плашки</h2>
-      <p className="text-[11px] text-[#8b93a7] mb-3">Оставьте текст пустым, чтобы не создавать плашку в этой строке.</p>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Плашки</h2>
+      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте текст пустым, чтобы не создавать плашку в этой строке.</p>
       <div className="flex flex-col gap-2 mb-6">
         {Array.from({ length: badgeRows }).map((_, i) => {
           const b = exchange?.badges[i];
           return (
-            <div key={i} className="grid grid-cols-4 gap-2 border border-[#262b38] rounded-lg p-2.5 bg-[#161922]">
+            <div key={i} className="grid grid-cols-4 gap-2 border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
               <input name={`badge_textRu_${i}`} defaultValue={b?.textRu} placeholder="Текст, RU" className={smallInputCls} />
               <input name={`badge_textEn_${i}`} defaultValue={b?.textEn} placeholder="Текст, EN" className={smallInputCls} />
               <select name={`badge_tone_${i}`} defaultValue={b?.tone ?? 'off'} className={smallInputCls}>
@@ -162,13 +164,13 @@ export default function ExchangeForm({
         })}
       </div>
 
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-1">Статус по регионам</h2>
-      <p className="text-[11px] text-[#8b93a7] mb-3">Оставьте регион пустым, чтобы не создавать строку.</p>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Статус по регионам</h2>
+      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте регион пустым, чтобы не создавать строку.</p>
       <div className="flex flex-col gap-2 mb-6">
         {Array.from({ length: regionRows }).map((_, i) => {
           const r = exchange?.regions[i];
           return (
-            <div key={i} className="grid grid-cols-5 gap-2 border border-[#262b38] rounded-lg p-2.5 bg-[#161922]">
+            <div key={i} className="grid grid-cols-5 gap-2 border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
               <input name={`region_regionRu_${i}`} defaultValue={r?.regionRu} placeholder="Регион, RU" className={smallInputCls} />
               <input name={`region_regionEn_${i}`} defaultValue={r?.regionEn} placeholder="Регион, EN" className={smallInputCls} />
               <select name={`region_tone_${i}`} defaultValue={r?.tone ?? 'ok'} className={smallInputCls}>
@@ -181,7 +183,7 @@ export default function ExchangeForm({
         })}
       </div>
 
-      <h2 className="text-[13px] font-bold text-[#c3c9d6] mb-3">Рейтинг и закрепление</h2>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Рейтинг и закрепление</h2>
       <div className="mb-3">
         <label className="flex items-center gap-2 text-[12.5px]">
           <input type="checkbox" name="pinned" defaultChecked={exchange?.pinned ?? false} />
@@ -208,7 +210,7 @@ export default function ExchangeForm({
         Отзывы включены
       </label>
 
-      <div className="bg-[#161922] border border-[#262b38] rounded-xl p-4 mb-6">
+      <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-4 mb-6">
         <div className="text-[12.5px] font-bold mb-3">SEO</div>
         <div className="grid grid-cols-2 gap-3 mb-3">
           <input name="seoMetaTitleRu" defaultValue={exchange?.seoMetaTitleRu} placeholder="Meta Title, RU" className={smallInputCls} />
@@ -224,9 +226,9 @@ export default function ExchangeForm({
         </label>
       </div>
 
-      <button type="submit" className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+      <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
         {exchange ? 'Сохранить' : 'Создать биржу'}
-      </button>
+      </SubmitButton>
     </form>
   );
 }

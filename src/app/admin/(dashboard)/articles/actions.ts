@@ -43,8 +43,10 @@ async function uploadIfPresent(formData: FormData, field: string): Promise<strin
 export async function createArticleAction(formData: FormData) {
   await requireAdminPermission('articles');
   const input = parseArticleInput(formData, undefined);
-  const coverImageAssetId = await uploadIfPresent(formData, 'coverImage');
-  const ogImageAssetId = await uploadIfPresent(formData, 'seoOgImage');
+  const [coverImageAssetId, ogImageAssetId] = await Promise.all([
+    uploadIfPresent(formData, 'coverImage'),
+    uploadIfPresent(formData, 'seoOgImage'),
+  ]);
   const doc = await createArticle(input, coverImageAssetId, ogImageAssetId);
   revalidateTag('articles', { expire: 0 });
   redirect(`/admin/articles/${doc._id}`);
@@ -53,8 +55,10 @@ export async function createArticleAction(formData: FormData) {
 export async function updateArticleAction(id: string, originalBody: PortableTextBlock[] | undefined, formData: FormData) {
   await requireAdminPermission('articles');
   const input = parseArticleInput(formData, originalBody);
-  const coverImageAssetId = await uploadIfPresent(formData, 'coverImage');
-  const ogImageAssetId = await uploadIfPresent(formData, 'seoOgImage');
+  const [coverImageAssetId, ogImageAssetId] = await Promise.all([
+    uploadIfPresent(formData, 'coverImage'),
+    uploadIfPresent(formData, 'seoOgImage'),
+  ]);
   await updateArticle(id, input, coverImageAssetId, ogImageAssetId);
   revalidateTag('articles', { expire: 0 });
   redirect(`/admin/articles/${id}`);
