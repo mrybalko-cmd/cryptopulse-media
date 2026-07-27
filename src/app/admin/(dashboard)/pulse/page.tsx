@@ -1,6 +1,8 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchPulseHistory } from '@/lib/admin/data';
 import { formatPragueDate } from '@/lib/admin/timezone';
+import { fetchLatestPulse } from '@/lib/pulse';
+import PulseWidget from '@/components/ui/PulseWidget';
 
 const ZONES: Record<string, { color: string; ru: string }> = {
   flatline: { color: '#3b82f6', ru: 'Штиль' },
@@ -14,18 +16,20 @@ const HISTORY_LIMIT = 30;
 
 export default async function AdminPulsePage() {
   await requireAdminPermission('pulse');
-  const history = await fetchPulseHistory(HISTORY_LIMIT);
-  const latest = history[0];
+  const [history, latestPulse] = await Promise.all([
+    fetchPulseHistory(HISTORY_LIMIT),
+    fetchLatestPulse(),
+  ]);
 
   return (
     <div>
       <h1 className="text-[19px] font-bold mb-1">Pulse</h1>
       <p className="text-[11px] text-[var(--admin-text-muted)] mb-6 max-w-2xl">
         Данные считаются автоматически раз в сутки (крон в 00:05 UTC) и доступны здесь только для чтения — редактировать нечего,
-        это лог реальных значений. Карточка справа — так выглядит открытка Pulse при шеринге в соцсетях (по текущему снапшоту).
+        это лог реальных значений. Виджет справа — тот же компонент, что и на главной странице сайта.
       </p>
 
-      {!latest ? (
+      {history.length === 0 ? (
         <p className="text-[13px] text-[var(--admin-text-muted)]">Пока нет ни одного снапшота.</p>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
@@ -56,21 +60,11 @@ export default async function AdminPulsePage() {
           </div>
 
           <div>
-            <div
-              className="rounded-2xl p-6 text-white"
-              style={{ background: `linear-gradient(135deg, ${ZONES[latest.pulseClassification]?.color ?? '#0891b2'}, #0f172a)` }}
-            >
-              <div className="text-[11px] font-extrabold uppercase tracking-wide opacity-85 mb-1">
-                {ZONES[latest.pulseClassification]?.ru ?? latest.pulseClassification}
-              </div>
-              <div className="text-[44px] font-black leading-none">{latest.pulseScore}</div>
-              <div className="text-[11px] opacity-85 mt-2">
-                Fear&amp;Greed {latest.fearGreedValue} · Alt Season {latest.altSeasonValue} · Объём {latest.volumeChangePct >= 0 ? '+' : ''}{latest.volumeChangePct.toFixed(1)}%
-              </div>
-            </div>
-            <p className="text-[11px] text-[var(--admin-text-dim)] mt-3">
-              Обновлено: {new Date(latest.computedAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' })}
-            </p>
+            {latestPulse ? (
+              <PulseWidget data={latestPulse} locale="ru" idSuffix="admin" />
+            ) : (
+              <p className="text-[12px] text-[var(--admin-text-muted)]">Нет данных для виджета.</p>
+            )}
           </div>
         </div>
       )}

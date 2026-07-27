@@ -25,8 +25,11 @@ const LEGEND = [
 ];
 
 const LIST_DAYS = 21; // rolling window forward from today
-const CALENDAR_DAYS_BEFORE = 7; // recent past, so "realized" counts have something to show
-const CALENDAR_DAYS_AFTER = 13; // + today = 21 days total, matching the list window
+// Calendar view: fetch a wide window once (this site is only a few weeks
+// old, so "all history" is a trivial query) and let ScheduleCalendarView
+// page through it entirely client-side — no extra round trips needed.
+const CALENDAR_HISTORY_DAYS_BACK = 400;
+const CALENDAR_FUTURE_DAYS = 60;
 
 function dayLabel(date: Date): string {
   const key = pragueDateKey(date);
@@ -51,16 +54,6 @@ function buildRollingDays(startFrom: Date, count: number): Date[] {
   return Array.from({ length: count }, (_, i) => {
     const d = new Date(startFrom);
     d.setUTCDate(startFrom.getUTCDate() + i);
-    return d;
-  });
-}
-
-function buildDaysAround(centerDate: Date, daysBefore: number, daysAfter: number): Date[] {
-  const start = new Date(centerDate);
-  start.setUTCDate(centerDate.getUTCDate() - daysBefore);
-  return Array.from({ length: daysBefore + daysAfter + 1 }, (_, i) => {
-    const d = new Date(start);
-    d.setUTCDate(start.getUTCDate() + i);
     return d;
   });
 }
@@ -117,9 +110,9 @@ export default async function AdminSchedulePage({
   const pragueTodayDate = pragueToday();
   const todayKey = pragueDateKey(new Date());
   const windowStart = new Date(pragueTodayDate);
-  windowStart.setUTCDate(windowStart.getUTCDate() - CALENDAR_DAYS_BEFORE - 1);
+  windowStart.setUTCDate(windowStart.getUTCDate() - CALENDAR_HISTORY_DAYS_BACK);
   const windowEnd = new Date(pragueTodayDate);
-  windowEnd.setUTCDate(windowEnd.getUTCDate() + LIST_DAYS + 1);
+  windowEnd.setUTCDate(windowEnd.getUTCDate() + Math.max(LIST_DAYS, CALENDAR_FUTURE_DAYS) + 1);
 
   const { items: allItems, banners: allBanners } = await fetchScheduleItems(windowStart.toISOString(), windowEnd.toISOString());
   const items = allItems.filter(i => hasPermission(session, i.permission) && itemMatchesLang(i, lang));
@@ -134,7 +127,8 @@ export default async function AdminSchedulePage({
   }
 
   const listDays = buildRollingDays(pragueTodayDate, LIST_DAYS);
-  const calendarDays = buildDaysAround(pragueTodayDate, CALENDAR_DAYS_BEFORE, CALENDAR_DAYS_AFTER);
+  const historyStartKey = pragueDateKey(windowStart);
+  const futureEndKey = pragueDateKey(windowEnd);
 
   return (
     <div>
@@ -257,13 +251,14 @@ export default async function AdminSchedulePage({
       ) : (
         <div>
           <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">
-            Последние {CALENDAR_DAYS_BEFORE} дней и следующие {CALENDAR_DAYS_AFTER + 1} — кликните на день в ленте, чтобы увидеть подробности.
+            Кликните на день в ленте, чтобы увидеть подробности. Стрелки листают всю историю публикаций — и вперёд, к запланированному.
           </p>
           <ScheduleCalendarView
-            dayKeys={calendarDays.map(d => pragueDateKey(d))}
             itemsByDate={Object.fromEntries(itemsByDate)}
             banners={banners}
             todayKey={todayKey}
+            historyStartKey={historyStartKey}
+            futureEndKey={futureEndKey}
           />
         </div>
       )}

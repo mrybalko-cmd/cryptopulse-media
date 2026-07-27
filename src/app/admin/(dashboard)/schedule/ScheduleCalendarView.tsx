@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { ScheduleItem, ScheduleBannerWindow } from '@/lib/admin/data';
 import { pragueDateKey, formatPragueDate, formatPragueTime } from '@/lib/admin/timezone';
@@ -13,18 +13,31 @@ const TYPE_META: Record<ScheduleItem['type'], { color: string; label: string; ti
   'exchange-pin': { color: '#ec4899', label: 'Биржа', title: t => `${t} — истекает закрепление` },
 };
 
+// Symmetric around the anchor day, so "today" sits dead-center by default.
+const WINDOW_BEFORE = 10;
+const WINDOW_AFTER = 10;
+const STEP_DAYS = 14;
+
 function keyToDate(key: string): Date {
   return new Date(`${key}T00:00:00Z`);
 }
 
-function dayLabel(key: string, todayKey: string): string {
+function addDaysToKey(key: string, days: number): string {
   const d = keyToDate(key);
-  const monthDay = formatPragueDate(d, { day: 'numeric', month: 'long' });
+  d.setUTCDate(d.getUTCDate() + days);
+  return pragueDateKey(d);
+}
+
+function buildRange(centerKey: string, before: number, after: number): string[] {
+  const start = addDaysToKey(centerKey, -before);
+  return Array.from({ length: before + after + 1 }, (_, i) => addDaysToKey(start, i));
+}
+
+function dayLabel(key: string, todayKey: string): string {
+  const monthDay = formatPragueDate(keyToDate(key), { day: 'numeric', month: 'long' });
   if (key === todayKey) return `Сегодня, ${monthDay}`;
-  const tomorrowKey = pragueDateKey(new Date(keyToDate(todayKey).getTime() + 24 * 60 * 60 * 1000));
-  const yesterdayKey = pragueDateKey(new Date(keyToDate(todayKey).getTime() - 24 * 60 * 60 * 1000));
-  if (key === tomorrowKey) return `Завтра, ${monthDay}`;
-  if (key === yesterdayKey) return `Вчера, ${monthDay}`;
+  if (key === addDaysToKey(todayKey, 1)) return `Завтра, ${monthDay}`;
+  if (key === addDaysToKey(todayKey, -1)) return `Вчера, ${monthDay}`;
   return monthDay;
 }
 
@@ -36,17 +49,35 @@ function isBannerActiveOnDay(banner: ScheduleBannerWindow, dayKey: string): bool
 }
 
 export default function ScheduleCalendarView({
-  dayKeys,
   itemsByDate,
   banners,
   todayKey,
+  historyStartKey,
+  futureEndKey,
 }: {
-  dayKeys: string[];
   itemsByDate: Record<string, ScheduleItem[]>;
   banners: ScheduleBannerWindow[];
   todayKey: string;
+  historyStartKey: string;
+  futureEndKey: string;
 }) {
-  const [selected, setSelected] = useState(dayKeys.includes(todayKey) ? todayKey : dayKeys[0]);
+  const [anchorKey, setAnchorKey] = useState(todayKey);
+  const [selected, setSelected] = useState(todayKey);
+
+  const dayKeys = useMemo(() => buildRange(anchorKey, WINDOW_BEFORE, WINDOW_AFTER), [anchorKey]);
+  const canGoBack = dayKeys[0] > historyStartKey;
+  const canGoForward = dayKeys[dayKeys.length - 1] < futureEndKey;
+
+  function shift(days: number) {
+    const next = addDaysToKey(anchorKey, days);
+    setAnchorKey(next);
+    setSelected(next);
+  }
+
+  function goToday() {
+    setAnchorKey(todayKey);
+    setSelected(todayKey);
+  }
 
   const selectedItems = itemsByDate[selected] ?? [];
   const realizedItems = selectedItems.filter(i => i.realized);
@@ -56,8 +87,39 @@ export default function ScheduleCalendarView({
   return (
     <div>
       <div className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] p-4">
-        <div className="text-[11px] text-[var(--admin-text-muted)] font-bold mb-2.5">
-          {formatPragueDate(keyToDate(dayKeys[0]), { day: 'numeric', month: 'long' })} — {formatPragueDate(keyToDate(dayKeys[dayKeys.length - 1]), { day: 'numeric', month: 'long' })}
+        <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+          <div className="text-[11px] text-[var(--admin-text-muted)] font-bold">
+            {formatPragueDate(keyToDate(dayKeys[0]), { day: 'numeric', month: 'long' })} — {formatPragueDate(keyToDate(dayKeys[dayKeys.length - 1]), { day: 'numeric', month: 'long' })}
+          </div>
+          <div className="flex items-center gap-1">
+            {anchorKey !== todayKey && (
+              <button
+                type="button"
+                onClick={goToday}
+                className="text-[10.5px] font-bold px-2.5 py-1 rounded-md text-[var(--admin-focus)] hover:bg-[var(--admin-input)] transition-colors"
+              >
+                Сегодня
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => shift(-STEP_DAYS)}
+              disabled={!canGoBack}
+              className="w-7 h-7 rounded-md border border-[var(--admin-border)] flex items-center justify-center text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)] disabled:opacity-30 disabled:cursor-default transition-colors"
+              title="Раньше"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => shift(STEP_DAYS)}
+              disabled={!canGoForward}
+              className="w-7 h-7 rounded-md border border-[var(--admin-border)] flex items-center justify-center text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)] disabled:opacity-30 disabled:cursor-default transition-colors"
+              title="Позже"
+            >
+              ›
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto pb-1">
