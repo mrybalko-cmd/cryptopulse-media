@@ -372,7 +372,7 @@ const NEWS_LIST_PROJECTION = `
 `;
 
 export async function fetchAdminNewsList(): Promise<AdminNewsListItem[]> {
-  return client.fetch(`*[_type == "news"] | order(coalesce(publishedAt, _createdAt) desc){ ${NEWS_LIST_PROJECTION} }`);
+  return client.fetch(`*[_type == "news"] | order(select(publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now() => _createdAt, coalesce(publishedAt, _createdAt)) desc){ ${NEWS_LIST_PROJECTION} }`);
 }
 
 export const ADMIN_LIST_PAGE_SIZE = 40;
@@ -412,7 +412,7 @@ export async function fetchAdminNewsListPage(opts: {
 
   const [items, filteredTotal, countAll, countDraft, countScheduled] = await Promise.all([
     client.fetch<AdminNewsListItem[]>(
-      `*[_type == "news" ${langClause} ${qClause} ${filterClause}] | order(coalesce(publishedAt, _createdAt) desc) [${start}...${end}]{ ${NEWS_LIST_PROJECTION} }`,
+      `*[_type == "news" ${langClause} ${qClause} ${filterClause}] | order(select(publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now() => _createdAt, coalesce(publishedAt, _createdAt)) desc) [${start}...${end}]{ ${NEWS_LIST_PROJECTION} }`,
       params
     ),
     client.fetch<number>(`count(*[_type == "news" ${langClause} ${qClause} ${filterClause}])`, params),
@@ -594,7 +594,7 @@ const ARTICLE_LIST_PROJECTION = `
 `;
 
 export async function fetchAdminArticlesList(): Promise<AdminArticleListItem[]> {
-  return client.fetch(`*[_type == "article"] | order(coalesce(publishedAt, _createdAt) desc){ ${ARTICLE_LIST_PROJECTION} }`);
+  return client.fetch(`*[_type == "article"] | order(select(publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now() => _createdAt, coalesce(publishedAt, _createdAt)) desc){ ${ARTICLE_LIST_PROJECTION} }`);
 }
 
 export async function fetchAdminArticlesListPage(opts: {
@@ -612,7 +612,7 @@ export async function fetchAdminArticlesListPage(opts: {
 
   const [items, filteredTotal, countAll, countDraft, countScheduled] = await Promise.all([
     client.fetch<AdminArticleListItem[]>(
-      `*[_type == "article" ${langClause} ${qClause} ${filterClause}] | order(coalesce(publishedAt, _createdAt) desc) [${start}...${end}]{ ${ARTICLE_LIST_PROJECTION} }`,
+      `*[_type == "article" ${langClause} ${qClause} ${filterClause}] | order(select(publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now() => _createdAt, coalesce(publishedAt, _createdAt)) desc) [${start}...${end}]{ ${ARTICLE_LIST_PROJECTION} }`,
       params
     ),
     client.fetch<number>(`count(*[_type == "article" ${langClause} ${qClause} ${filterClause}])`, params),
