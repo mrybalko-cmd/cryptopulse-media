@@ -1,6 +1,7 @@
 import { client, writeClient } from '@/lib/sanity';
 import type { Permission } from './permissions';
 import type { PortableTextBlock } from './portableText';
+import { pragueDateKey, pragueDateKeyToUTCDate } from './timezone';
 
 // ---------------- Admin users ----------------
 
@@ -174,17 +175,22 @@ export interface AdminAuthorOption {
   _id: string;
   name: string;
   photo: string | null;
+  roleRu?: string;
+  roleEn?: string;
 }
 
 export async function fetchAuthorOptions(): Promise<AdminAuthorOption[]> {
-  return client.fetch(`*[_type == "author"] | order(name asc){ _id, name, "photo": photo.asset->url }`);
+  return client.fetch(`*[_type == "author"] | order(name asc){ _id, name, "photo": photo.asset->url, roleRu, roleEn }`);
 }
 
 export async function fetchTranslationCandidates(
   type: 'news' | 'article',
   language: 'ru' | 'en'
-): Promise<{ _id: string; title: string }[]> {
-  return client.fetch(`*[_type == $type && language == $language] | order(title asc){ _id, title }`, { type, language });
+): Promise<{ _id: string; title: string; coverImage: string | null }[]> {
+  return client.fetch(
+    `*[_type == $type && language == $language] | order(title asc){ _id, title, "coverImage": coverImage.asset->url }`,
+    { type, language }
+  );
 }
 
 // ---------------- News ----------------
@@ -747,12 +753,13 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
 export interface MaterialOption {
   _id: string;
   title: string;
+  authorId?: string;
   authorName?: string;
 }
 
 export async function fetchAllMaterialOptions(language: 'ru' | 'en'): Promise<MaterialOption[]> {
   return client.fetch(
-    `*[(_type == "article" || _type == "news") && language == $language] | order(title asc){ _id, title, "authorName": author->name }`,
+    `*[(_type == "article" || _type == "news") && language == $language] | order(title asc){ _id, title, "authorId": author._ref, "authorName": author->name }`,
     { language }
   );
 }
@@ -970,25 +977,33 @@ export interface DailyPublicationCount {
 }
 
 export async function fetchPublicationTrend(days: number): Promise<{ counts: DailyPublicationCount[]; total: number; average: number }> {
-  const start = new Date();
-  start.setDate(start.getDate() - (days - 1));
-  start.setHours(0, 0, 0, 0);
+  const todayKey = pragueDateKey(new Date());
+  const todayUTC = pragueDateKeyToUTCDate(todayKey);
+  const startUTC = new Date(todayUTC);
+  startUTC.setUTCDate(startUTC.getUTCDate() - (days - 1));
+  // Fetch a day of buffer on each side — CEST is UTC+2, so the Prague day
+  // boundary sits a couple of hours before/after the UTC one — then bucket
+  // precisely by Prague day key below rather than trusting this window edge.
+  const fetchStart = new Date(startUTC);
+  fetchStart.setUTCDate(fetchStart.getUTCDate() - 1);
+  const fetchEnd = new Date(todayUTC);
+  fetchEnd.setUTCDate(fetchEnd.getUTCDate() + 1);
 
   const rows = await client.fetch<{ publishedAt: string }[]>(
-    `*[_type in ["news", "article"] && defined(publishedAt) && publishedAt >= $start && publishedAt <= now()]{ publishedAt }`,
-    { start: start.toISOString() }
+    `*[_type in ["news", "article"] && defined(publishedAt) && publishedAt >= $start && publishedAt <= $end]{ publishedAt }`,
+    { start: fetchStart.toISOString(), end: fetchEnd.toISOString() }
   );
 
   const countByDay = new Map<string, number>();
   for (const row of rows) {
-    const key = row.publishedAt.slice(0, 10);
+    const key = pragueDateKey(row.publishedAt);
     countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
   }
 
   const counts: DailyPublicationCount[] = Array.from({ length: days }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
+    const d = new Date(startUTC);
+    d.setUTCDate(startUTC.getUTCDate() + i);
+    const key = pragueDateKey(d);
     return { date: key, count: countByDay.get(key) ?? 0 };
   });
 

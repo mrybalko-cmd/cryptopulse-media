@@ -8,6 +8,7 @@ import ChipPicker from '../_shared/ChipPicker';
 import TagChipsInput from '../_shared/TagChipsInput';
 import LanguageTabs from '../_shared/LanguageTabs';
 import AuthorPicker from '../_shared/AuthorPicker';
+import TranslationPicker from '../_shared/TranslationPicker';
 
 const TOPICS = [
   { value: 'regulation', label: 'Регулирование' },
@@ -39,7 +40,7 @@ export default function NewsForm({
 }: {
   news?: AdminNewsDoc;
   authors: AdminAuthorOption[];
-  translationCandidates: { _id: string; title: string }[];
+  translationCandidates: { _id: string; title: string; coverImage: string | null }[];
   action: (formData: FormData) => void;
 }) {
   return (
@@ -120,10 +121,7 @@ export default function NewsForm({
 
         <div className="mb-5">
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Перевод на другом языке</label>
-          <select name="translationRefId" defaultValue={news?.translationRefId ?? ''} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]">
-            <option value="">— нет —</option>
-            {translationCandidates.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
-          </select>
+          <TranslationPicker candidates={translationCandidates} defaultValue={news?.translationRefId} />
         </div>
 
         <details className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl mb-6" open>

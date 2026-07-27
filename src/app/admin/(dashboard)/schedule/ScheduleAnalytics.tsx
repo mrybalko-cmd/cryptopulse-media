@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { fetchPublicationTrend, fetchTopLikedContent, fetchAuthorLikesLeaderboard } from '@/lib/admin/data';
+import { pragueDateKey, formatPragueDate } from '@/lib/admin/timezone';
 
 const TREND_DAYS = 30;
 
-function formatDayLabel(dateStr: string): string {
-  const d = new Date(`${dateStr}T00:00:00`);
-  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+function formatDayLabel(dateKey: string): string {
+  // dateKey is already a Prague-local "YYYY-MM-DD" — parsing it as UTC
+  // midnight and formatting with the same Prague zone below is a safe
+  // round-trip (see pragueDateKeyToUTCDate), so day/month never drift.
+  return formatPragueDate(new Date(`${dateKey}T00:00:00Z`), { day: '2-digit', month: '2-digit' });
 }
 
 export default async function ScheduleAnalytics() {
@@ -17,7 +20,7 @@ export default async function ScheduleAnalytics() {
 
   const maxCount = Math.max(1, ...trend.counts.map(c => c.count));
   const maxAuthorLikes = Math.max(1, ...authorLeaderboard.map(a => a.totalLikes));
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = pragueDateKey(new Date());
 
   return (
     <div className="border border-[var(--admin-border)] rounded-2xl bg-[var(--admin-panel)] p-5 mb-6 grid grid-cols-1 lg:grid-cols-[1.3fr_1.15fr_0.95fr] gap-6">

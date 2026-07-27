@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission } from '@/lib/admin/permissions';
 import { fetchScheduleItems, type ScheduleItem, type ScheduleBannerWindow } from '@/lib/admin/data';
+import { pragueDateKey, pragueToday, formatPragueTime, formatPragueDate } from '@/lib/admin/timezone';
 import { redirect } from 'next/navigation';
 import ScheduleAnalytics from './ScheduleAnalytics';
 
@@ -22,42 +23,48 @@ const LEGEND = [
   { color: '#ec4899', label: 'Закрепление биржи' },
 ];
 
-const WEEKDAYS_SHORT_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const LIST_DAYS = 21; // rolling window forward from today
 const CALENDAR_DAYS_BEFORE = 7; // recent past, so "realized" counts have something to show
 const CALENDAR_DAYS_AFTER = 13; // + today = 21 days total, matching the list window
 
+function weekdayShort(date: Date): string {
+  const s = formatPragueDate(date, { weekday: 'short' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function dayLabel(date: Date): string {
-  const today = new Date();
-  const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  if (isSameDay(date, today)) return `Сегодня, ${date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
-  if (isSameDay(date, tomorrow)) return `Завтра, ${date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
-  if (isSameDay(date, yesterday)) return `Вчера, ${date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
-  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+  const key = pragueDateKey(date);
+  const now = new Date();
+  const todayKey = pragueDateKey(now);
+  const tomorrowKey = pragueDateKey(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+  const yesterdayKey = pragueDateKey(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+  const monthDay = formatPragueDate(date, { day: 'numeric', month: 'long' });
+  if (key === todayKey) return `Сегодня, ${monthDay}`;
+  if (key === tomorrowKey) return `Завтра, ${monthDay}`;
+  if (key === yesterdayKey) return `Вчера, ${monthDay}`;
+  return monthDay;
 }
 
 // Always "today + the next N-1 days", never a calendar-month grid — the user
 // explicitly wants a rolling window anchored on today, not something that
-// needs prev/next navigation to stay useful.
+// needs prev/next navigation to stay useful. `startFrom` must be a
+// UTC-midnight marker for a Prague calendar day (see pragueToday()) — plain
+// setDate()/getFullYear() would reinterpret it through the server's own
+// timezone, which is not necessarily Prague (or even the same zone twice).
 function buildRollingDays(startFrom: Date, count: number): Date[] {
-  const start = new Date(startFrom.getFullYear(), startFrom.getMonth(), startFrom.getDate());
   return Array.from({ length: count }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    const d = new Date(startFrom);
+    d.setUTCDate(startFrom.getUTCDate() + i);
     return d;
   });
 }
 
 function buildDaysAround(centerDate: Date, daysBefore: number, daysAfter: number): Date[] {
-  const start = new Date(centerDate.getFullYear(), centerDate.getMonth(), centerDate.getDate());
-  start.setDate(start.getDate() - daysBefore);
+  const start = new Date(centerDate);
+  start.setUTCDate(centerDate.getUTCDate() - daysBefore);
   return Array.from({ length: daysBefore + daysAfter + 1 }, (_, i) => {
     const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    d.setUTCDate(start.getUTCDate() + i);
     return d;
   });
 }
@@ -81,11 +88,14 @@ function bannerMatchesLang(banner: ScheduleBannerWindow, lang?: string): boolean
 
 function isBannerActiveOnDay(banner: ScheduleBannerWindow, day: Date): boolean {
   if (!banner.startAt || !banner.endAt) return false;
-  const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
-  const dayEnd = dayStart + 24 * 60 * 60 * 1000 - 1;
-  const start = new Date(banner.startAt).getTime();
-  const end = new Date(banner.endAt).getTime();
-  return start <= dayEnd && end >= dayStart;
+  // Compare Prague calendar-day keys (sortable as plain strings, "YYYY-MM-DD")
+  // rather than raw epoch math — the latter would compare against the day
+  // marker's own UTC midnight, which doesn't line up with the true Prague
+  // day boundary once CEST's +2h offset is accounted for.
+  const dayKey = pragueDateKey(day);
+  const startKey = pragueDateKey(banner.startAt);
+  const endKey = pragueDateKey(banner.endAt);
+  return startKey <= dayKey && dayKey <= endKey;
 }
 
 function buildHref(view: 'list' | 'calendar', lang?: string): string {
@@ -108,12 +118,12 @@ export default async function AdminSchedulePage({
   const activeView = view === 'calendar' ? 'calendar' : 'list';
   const lang = rawLang === 'ru' || rawLang === 'en' ? rawLang : undefined;
 
-  const now = new Date();
-  const windowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  windowStart.setDate(windowStart.getDate() - CALENDAR_DAYS_BEFORE);
-  const windowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  windowEnd.setDate(windowEnd.getDate() + LIST_DAYS);
-  windowEnd.setHours(23, 59, 59, 999);
+  const pragueTodayDate = pragueToday();
+  const todayKey = pragueDateKey(new Date());
+  const windowStart = new Date(pragueTodayDate);
+  windowStart.setUTCDate(windowStart.getUTCDate() - CALENDAR_DAYS_BEFORE - 1);
+  const windowEnd = new Date(pragueTodayDate);
+  windowEnd.setUTCDate(windowEnd.getUTCDate() + LIST_DAYS + 1);
 
   const { items: allItems, banners: allBanners } = await fetchScheduleItems(windowStart.toISOString(), windowEnd.toISOString());
   const items = allItems.filter(i => hasPermission(session, i.permission) && itemMatchesLang(i, lang));
@@ -122,13 +132,13 @@ export default async function AdminSchedulePage({
 
   const itemsByDate = new Map<string, ScheduleItem[]>();
   for (const item of items) {
-    const key = new Date(item.at).toDateString();
+    const key = pragueDateKey(item.at);
     if (!itemsByDate.has(key)) itemsByDate.set(key, []);
     itemsByDate.get(key)!.push(item);
   }
 
-  const listDays = buildRollingDays(now, LIST_DAYS);
-  const calendarDays = buildDaysAround(now, CALENDAR_DAYS_BEFORE, CALENDAR_DAYS_AFTER);
+  const listDays = buildRollingDays(pragueTodayDate, LIST_DAYS);
+  const calendarDays = buildDaysAround(pragueTodayDate, CALENDAR_DAYS_BEFORE, CALENDAR_DAYS_AFTER);
 
   return (
     <div>
@@ -181,10 +191,10 @@ export default async function AdminSchedulePage({
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {listDays.map(date => {
-              const dayItems = itemsByDate.get(date.toDateString()) ?? [];
+              const dayItems = itemsByDate.get(pragueDateKey(date)) ?? [];
               const summary = summarizeByType(dayItems);
               const activeBanners = banners.filter(b => isBannerActiveOnDay(b, date));
-              const isToday = date.toDateString() === now.toDateString();
+              const isToday = pragueDateKey(date) === todayKey;
               return (
                 <div
                   key={date.toISOString()}
@@ -230,7 +240,7 @@ export default async function AdminSchedulePage({
                             className="flex items-center gap-1.5 py-1 border-t border-[var(--admin-border)] first:border-t-0 hover:bg-[var(--admin-input)] -mx-1 px-1 rounded transition-colors"
                           >
                             <span className="text-[9.5px] text-[var(--admin-text-dim)] w-8 shrink-0 tabular-nums">
-                              {new Date(item.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                              {formatPragueTime(item.at)}
                             </span>
                             <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.realized ? 'var(--admin-text-dim)' : meta.color }} />
                             <span
@@ -255,8 +265,8 @@ export default async function AdminSchedulePage({
           </p>
           <div className="grid grid-cols-7 gap-1.5">
             {calendarDays.map(date => {
-              const isToday = date.toDateString() === now.toDateString();
-              const dayItems = itemsByDate.get(date.toDateString()) ?? [];
+              const isToday = pragueDateKey(date) === todayKey;
+              const dayItems = itemsByDate.get(pragueDateKey(date)) ?? [];
               const realizedItems = dayItems.filter(i => i.realized);
               const plannedItems = dayItems.filter(i => !i.realized);
               return (
@@ -268,12 +278,12 @@ export default async function AdminSchedulePage({
                     borderColor: isToday ? 'var(--admin-focus)' : 'var(--admin-border)',
                   }}
                 >
-                  <div className="text-[10px] text-[var(--admin-text-muted)] mb-0.5">{WEEKDAYS_SHORT_RU[date.getDay()]}</div>
+                  <div className="text-[10px] text-[var(--admin-text-muted)] mb-0.5">{weekdayShort(date)}</div>
                   <div
                     className={`text-[11px] mb-1 ${isToday ? 'font-extrabold' : 'text-[var(--admin-text-secondary)]'}`}
                     style={isToday ? { color: 'var(--admin-focus)' } : undefined}
                   >
-                    {date.getDate()} {date.toLocaleDateString('ru-RU', { month: 'short' })}
+                    {date.getUTCDate()} {formatPragueDate(date, { month: 'short' })}
                   </div>
 
                   <div className="flex flex-col gap-0.5 mb-1">

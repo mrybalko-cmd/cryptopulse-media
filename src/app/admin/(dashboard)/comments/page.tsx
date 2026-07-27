@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminComments } from '@/lib/admin/data';
+import { formatPragueDate } from '@/lib/admin/timezone';
 import { approveCommentAction, rejectCommentAction, deleteCommentAction, editCommentAction } from './actions';
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return formatPragueDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export default async function AdminCommentsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {

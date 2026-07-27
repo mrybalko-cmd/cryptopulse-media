@@ -1,7 +1,7 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminHomeSettings, fetchAuthorOptions, fetchAllMaterialOptions } from '@/lib/admin/data';
 import { updateHomeSettingsAction } from './actions';
-import AuthorSlotRow from './AuthorSlotRow';
+import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
 import SubmitButton from '../_shared/SubmitButton';
 
 const HOME_AUTHOR_SLOTS = 4;
@@ -42,25 +42,16 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
         <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Авторские колонки</h2>
         <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">
           На главной помещается ровно {HOME_AUTHOR_SLOTS} колонки в ряд — автор + материал на RU + материал на EN.
-          Порядок строк = порядок на сайте. Оставьте автора пустым, чтобы не показывать эту строку.
+          Стрелки слева меняют порядок строк = порядок на сайте. Материалы в списке — только те, что принадлежат
+          выбранному автору. Оставьте автора пустым, чтобы не показывать эту строку.
         </p>
-        <div className="flex flex-col gap-2 mb-6">
-          {Array.from({ length: HOME_AUTHOR_SLOTS }).map((_, i) => {
-            const slot = settings.featuredAuthors[i];
-            return (
-              <AuthorSlotRow
-                key={i}
-                index={i}
-                authors={authors}
-                materialsRu={materialsRu}
-                materialsEn={materialsEn}
-                defaultAuthorId={slot?.authorId}
-                defaultMaterialRuId={slot?.materialRuId}
-                defaultMaterialEnId={slot?.materialEnId}
-              />
-            );
-          })}
-        </div>
+        <HomeAuthorColumnsEditor
+          slotCount={HOME_AUTHOR_SLOTS}
+          authors={authors}
+          materialsRu={materialsRu}
+          materialsEn={materialsEn}
+          initialSlots={settings.featuredAuthors}
+        />
 
         <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           Сохранить

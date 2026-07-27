@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminExchangeReviews } from '@/lib/admin/data';
+import { formatPragueDate } from '@/lib/admin/timezone';
 import { approveExchangeReviewAction, rejectExchangeReviewAction, deleteExchangeReviewAction, editExchangeReviewAction } from './actions';
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return formatPragueDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export default async function AdminExchangeReviewsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
