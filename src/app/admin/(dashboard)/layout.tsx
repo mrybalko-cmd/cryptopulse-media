@@ -50,10 +50,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           )}
         </nav>
         <div className="pt-3 border-t border-[#262b38] mt-3">
-          <div className="px-2.5 py-2 text-[12px]">
+          <Link href="/admin/profile" className="block px-2.5 py-2 text-[12px] rounded-lg hover:bg-[#1c202b] transition-colors">
             <p className="font-semibold">{session.name}</p>
-            <p className="text-[#8b93a7]">{session.isOwner ? 'Владелец' : 'Сотрудник'}</p>
-          </div>
+            <p className="text-[#8b93a7]">{session.isOwner ? 'Владелец' : 'Сотрудник'} · Профиль</p>
+          </Link>
           <LogoutButton />
         </div>
       </div>

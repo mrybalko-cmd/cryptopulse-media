@@ -22,7 +22,7 @@ export default function BannerForm({
       <div className="mb-5">
         <div className="text-[10.5px] uppercase tracking-wide text-[#8b93a7] font-bold mb-2.5">Картинка (квадрат 1:1, мин. 600×600)</div>
         {banner?.image && (
-          <img src={`${banner.image}?w=100&h=100&fit=crop`} alt="" className="w-16 h-16 rounded-lg object-cover mb-2 border border-[#262b38]" />
+          <img src={`${banner.image}?w=320&h=320&fit=crop`} alt="" className="w-40 h-40 rounded-lg object-cover mb-2 border border-[#262b38]" />
         )}
         <input name="image" type="file" accept="image/*" className="w-full text-[12.5px] text-[#8b93a7]" />
         <p className="text-[11px] text-[#8b93a7] mt-1">{banner ? 'Оставьте пустым, чтобы не менять текущую картинку.' : ''}</p>

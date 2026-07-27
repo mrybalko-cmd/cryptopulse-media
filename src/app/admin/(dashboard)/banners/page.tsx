@@ -37,8 +37,8 @@ export default async function AdminBannersPage() {
                 href={`/admin/banners/${b._id}`}
                 className="flex items-center gap-3 border border-[#262b38] rounded-xl p-3 bg-[#161922] hover:border-cyan-500/40 transition-colors"
               >
-                <div className="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-[#1c202b]">
-                  {b.image && <Image src={sanityImageTransform(b.image, { width: 88 })!} alt={b.altText} fill className="object-cover" unoptimized />}
+                <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-[#1c202b]">
+                  {b.image && <Image src={sanityImageTransform(b.image, { width: 192 })!} alt={b.altText} fill className="object-cover" unoptimized />}
                 </div>
                 <div>
                   <div className="text-[13px] font-bold">{b.title}</div>

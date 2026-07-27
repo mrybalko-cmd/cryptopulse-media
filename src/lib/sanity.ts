@@ -593,7 +593,7 @@ export const fetchHomeSettings = unstable_cache(
     }
   },
   ['fetchHomeSettings'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['homeSettings'] }
 );
 
 // ── Article Topics ────────────────────────────────────────────────────────────
