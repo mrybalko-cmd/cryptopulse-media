@@ -899,28 +899,62 @@ export interface ExchangeMention {
   title: string;
   slug: string;
   publishedAt: string;
+  coverImage: string | null;
+}
+
+interface ExchangeMentionCandidate {
+  _type: 'article' | 'news';
+  title: string;
+  slug: string;
+  publishedAt: string;
+  coverImage: string | null;
+  hrefs: (string | null)[];
 }
 
 // A material "mentions" an exchange purely by linking to it — either to the
 // exchange's own page on this site or out to its official website — so
 // editors don't need a separate manual tagging field, just the same inline
 // link they'd already add for the reader's benefit.
+//
+// Matching is done here in JS, not with GROQ's `match` operator — `match`
+// tokenizes both sides on punctuation, so a pattern like "*binance.com*"
+// gets split into tokens including a bare "com*", which then matched the
+// "com" token of literally any other .com URL in the body (confirmed
+// against real content: articles with zero relation to Binance were
+// matching purely because they linked to some unrelated .com domain).
+// Comparing the actual parsed hostname is exact and can't false-positive
+// like that.
 export const fetchExchangeMentions = unstable_cache(
   async (slugRu: string, slugEn: string, website: string, locale: string, limit = 6): Promise<ExchangeMention[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     const domain = extractDomain(website);
-    const p1 = `*/exchanges/${slugRu}*`;
-    const p2 = `*/exchanges/${slugEn}*`;
-    const p3 = domain ? `*${domain}*` : '*__no_domain_configured__*';
+    const pathRu = `/exchanges/${slugRu}`;
+    const pathEn = `/exchanges/${slugEn}`;
+
     try {
-      return await client.fetch(
-        `*[_type in ["article", "news"] && language == $locale && publishedAt <= now()
-          && count(body[].markDefs[href match $p1 || href match $p2 || href match $p3]) > 0
-        ] | order(publishedAt desc) [0...$limit] {
-          _type, title, "slug": slug.current, publishedAt
+      const candidates: ExchangeMentionCandidate[] = await client.fetch(
+        `*[_type in ["article", "news"] && language == $locale && publishedAt <= now()] | order(publishedAt desc) {
+          _type, title, "slug": slug.current, publishedAt,
+          "coverImage": coverImage.asset->url,
+          "hrefs": body[].markDefs[].href
         }`,
-        { locale, p1, p2, p3, limit }
+        { locale }
       );
+
+      const matches = candidates.filter(c =>
+        (c.hrefs || []).some(href => {
+          if (!href) return false;
+          if (href.includes(pathRu) || href.includes(pathEn)) return true;
+          if (!domain) return false;
+          try {
+            return new URL(href).hostname.replace(/^www\./, '') === domain;
+          } catch {
+            return false;
+          }
+        })
+      );
+
+      return matches.slice(0, limit).map(({ _type, title, slug, publishedAt, coverImage }) => ({ _type, title, slug, publishedAt, coverImage }));
     } catch {
       return [];
     }

@@ -119,5 +119,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages];
+  const exchangeNewsPages = (exchangeSlugs as { slugRu: string; slugEn: string }[]).flatMap(e => [
+    { url: `${BASE}/ru/exchanges/${e.slugRu}/news`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.5 },
+    { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.5 },
+  ]);
+
+  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

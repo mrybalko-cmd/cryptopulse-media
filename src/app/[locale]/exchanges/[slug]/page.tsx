@@ -18,9 +18,12 @@ import ExchangeToneBadge, { type ExchangeBadgeTone } from '@/components/ui/Excha
 import ExchangeProducts from '@/components/ui/ExchangeProducts';
 import ExchangeRegions from '@/components/ui/ExchangeRegions';
 import ExchangeReviewSection from '@/components/ui/ExchangeReviewSection';
-import ExchangeNewsSidebar from '@/components/ui/ExchangeNewsSidebar';
+import ExchangeNewsSection from '@/components/ui/ExchangeNewsSection';
+import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+const MENTIONS_FETCH_LIMIT = 8;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -57,14 +60,13 @@ export default async function ExchangeDetailPage({ params }: Props) {
 
   const [all, mentions, reviews, reviewSummary] = await Promise.all([
     fetchExchanges(),
-    fetchExchangeMentions(exchange.slugRu, exchange.slugEn, exchange.website, locale),
+    fetchExchangeMentions(exchange.slugRu, exchange.slugEn, exchange.website, locale, MENTIONS_FETCH_LIMIT),
     fetchExchangeReviews(exchange._id),
     fetchExchangeReviewSummary(exchange._id),
   ]);
   const rank = rankExchanges(all).find(e => e._id === exchange._id)?.rank;
 
   const name = exchange.name;
-  const tagline = isRu ? exchange.taglineRu : exchange.taglineEn;
   const description = isRu ? exchange.descriptionRu : exchange.descriptionEn;
   const products = exchange.products;
   const initials = name.slice(0, 2).toUpperCase();
@@ -88,8 +90,15 @@ export default async function ExchangeDetailPage({ params }: Props) {
     ],
   };
 
+  const navLinks = [
+    { id: 'overview', ru: 'Обзор', en: 'Overview' },
+    { id: 'products', ru: 'Продукты', en: 'Products' },
+    { id: 'news', ru: 'Новости', en: 'News' },
+    { id: 'reviews', ru: 'Отзывы', en: 'Reviews' },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
@@ -101,7 +110,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
         <span className="text-foreground">{name}</span>
       </nav>
 
-      <div className="flex items-start gap-4 mb-10">
+      <div className="flex items-start gap-4 mb-6">
         {exchange.logo ? (
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
             <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={name} fill className="object-cover" unoptimized />
@@ -119,95 +128,78 @@ export default async function ExchangeDetailPage({ params }: Props) {
               {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
             </a>
           </p>
-          <div className="flex flex-wrap items-center gap-1.5 mt-3">
+          <div className="flex flex-wrap items-center gap-2 mt-3">
             {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-1 rounded-full border border-border text-foreground">{t}</span>)}
             {exchange.badges?.map((b, i) => (
               <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
             ))}
+            {rank && (
+              <span className="inline-flex items-baseline gap-1 px-3 py-1 rounded-full border border-border">
+                <span className="text-[9.5px] uppercase tracking-wide text-muted">{isRu ? 'Место' : 'Rank'}</span>
+                <span className="text-sm font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</span>
+              </span>
+            )}
             {exchange.tradeUrl ? (
               <a
                 href={exchange.tradeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 ml-3 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
               >
                 {isRu ? 'Торговать' : 'Trade'} ↗
               </a>
             ) : (
               <span
                 aria-disabled="true"
-                className="shrink-0 ml-3 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
+                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
               >
                 {isRu ? 'Торговать' : 'Trade'}
               </span>
             )}
           </div>
         </div>
-        {rank && (
-          <div className="text-right shrink-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted">{isRu ? 'Место в рейтинге' : 'Rank'}</p>
-            <p className="text-2xl font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</p>
-          </div>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
-        <div className="flex flex-col gap-8 min-w-0">
+      <nav className="flex gap-1 border-b border-border mb-8 sticky top-14 md:top-[6.25rem] bg-background z-10 -mx-4 px-4 sm:-mx-6 sm:px-6">
+        {navLinks.map(l => (
+          <a key={l.id} href={`#${l.id}`} className="px-3.5 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
+            {isRu ? l.ru : l.en}
+          </a>
+        ))}
+      </nav>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-8 lg:gap-10">
+        <div className="flex flex-col gap-10 min-w-0">
           {description && description.length > 0 && (
-            <details open className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
-                <h2 className="text-lg font-bold text-foreground">{isRu ? 'Обзор' : 'Overview'}</h2>
-                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
-                  ▾
-                </span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 border-t border-border">
-                <div className="pt-4">
-                  <RichText value={description} fallbackAlt={name} locale={locale} compact />
-                </div>
-              </div>
-            </details>
+            <section id="overview" className="scroll-mt-28">
+              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Обзор' : 'Overview'}</h2>
+              <RichText value={description} fallbackAlt={name} locale={locale} compact />
+            </section>
           )}
 
           {products && products.length > 0 && (
-            <details open className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
-                <h2 className="text-lg font-bold text-foreground">{isRu ? 'Продукты' : 'Products'}</h2>
-                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
-                  ▾
-                </span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 border-t border-border">
-                <div className="pt-4">
-                  <ExchangeProducts products={products} locale={locale} />
-                </div>
-              </div>
-            </details>
+            <section id="products" className="scroll-mt-28">
+              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Продукты' : 'Products'}</h2>
+              <ExchangeProducts products={products} locale={locale} />
+            </section>
           )}
 
           {exchange.regions && exchange.regions.length > 0 && (
-            <section>
+            <section className="scroll-mt-28">
               <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Регулирование и доступность' : 'Regulation & Availability'}</h2>
               <ExchangeRegions regions={exchange.regions} locale={locale} />
             </section>
           )}
 
-          <details className="group bg-card border border-border rounded-xl overflow-hidden">
-            <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-3 p-4 hover:bg-[var(--card-hover)] transition-colors">
-              <h2 className="text-lg font-bold text-foreground">{isRu ? 'Отзывы' : 'Reviews'}</h2>
-              <span className="flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted shrink-0 group-open:rotate-180 group-open:bg-accent group-open:text-white group-open:border-accent transition-all">
-                ▾
-              </span>
-            </summary>
-            <div className="px-4 pb-4 pt-0 border-t border-border">
-              <div className="pt-4">
-                <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
-              </div>
-            </div>
-          </details>
+          <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} />
+
+          <section id="reviews" className="scroll-mt-28">
+            <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Отзывы' : 'Reviews'}</h2>
+            <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
+          </section>
         </div>
 
-        <ExchangeNewsSidebar exchangeName={name} mentions={mentions} locale={locale} />
+        <PopularSidebar locale={locale} limit={7} />
       </div>
     </div>
   );

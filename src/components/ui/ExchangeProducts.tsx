@@ -13,7 +13,7 @@ function ProductCard({ product, locale }: { product: ExchangeProductRaw; locale:
   const long = isRu ? product.longRu : product.longEn;
 
   return (
-    <details className="group bg-card border border-border rounded-xl overflow-hidden hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all">
+    <details className="group shrink-0 w-[78%] sm:w-auto sm:shrink snap-start bg-card border border-border rounded-xl overflow-hidden hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all">
       <summary className="cursor-pointer select-none list-none">
         <div className="relative w-full aspect-[16/8] bg-background overflow-hidden">
           <Image
@@ -44,7 +44,7 @@ function ProductCard({ product, locale }: { product: ExchangeProductRaw; locale:
 export default function ExchangeProducts({ products, locale }: { products?: ExchangeProductRaw[]; locale: string }) {
   if (!products || products.length === 0) return null;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
       {products.map((p, i) => (
         <ProductCard key={i} product={p} locale={locale} />
       ))}
