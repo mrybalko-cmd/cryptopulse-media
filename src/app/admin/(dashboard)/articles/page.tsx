@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminArticlesList, type AdminArticleListItem } from '@/lib/admin/data';
+import { fetchAdminArticlesListPage, ADMIN_LIST_PAGE_SIZE, type AdminListStatusFilter } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { formatDateTime } from '../_shared/formatDateTime';
 import ListSearchBar from '../_shared/ListSearchBar';
@@ -14,30 +14,14 @@ function statusOf(a: { publishTiming: string; publishedAt?: string }) {
   return { color: '#22c55e', label: 'Опубликовано' };
 }
 
-function matchesFilter(a: AdminArticleListItem, filter: string): boolean {
-  if (filter === 'all') return true;
-  if (filter === 'draft') return a.publishTiming === 'draft';
-  if (filter === 'scheduled') return a.publishTiming === 'scheduled' && !!a.publishedAt && new Date(a.publishedAt).getTime() > Date.now();
-  return a.publishTiming !== 'draft' && !(a.publishTiming === 'scheduled' && a.publishedAt && new Date(a.publishedAt).getTime() > Date.now());
-}
-
-export default async function AdminArticlesPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; lang?: string }> }) {
+export default async function AdminArticlesPage({ searchParams }: { searchParams: Promise<{ filter?: string; q?: string; lang?: string; page?: string }> }) {
   await requireAdminPermission('articles');
-  const { filter: rawFilter, q, lang } = await searchParams;
-  const filter = ['all', 'published', 'draft', 'scheduled'].includes(rawFilter ?? '') ? rawFilter! : 'all';
-  const allArticles = await fetchAdminArticlesList();
-  let articles = allArticles.filter(a => matchesFilter(a, filter));
-  if (lang === 'ru' || lang === 'en') articles = articles.filter(a => a.language === lang);
-  if (q?.trim()) {
-    const needle = q.trim().toLowerCase();
-    articles = articles.filter(a => a.title.toLowerCase().includes(needle));
-  }
+  const { filter: rawFilter, q, lang: rawLang, page: rawPage } = await searchParams;
+  const filter: AdminListStatusFilter = ['all', 'published', 'draft', 'scheduled'].includes(rawFilter ?? '') ? (rawFilter as AdminListStatusFilter) : 'all';
+  const lang = rawLang === 'ru' || rawLang === 'en' ? rawLang : undefined;
+  const page = Math.max(1, Number(rawPage) || 1);
 
-  const counts = {
-    all: allArticles.length,
-    draft: allArticles.filter(a => a.publishTiming === 'draft').length,
-    scheduled: allArticles.filter(a => matchesFilter(a, 'scheduled')).length,
-  };
+  const { items: articles, filteredTotal, counts } = await fetchAdminArticlesListPage({ filter, lang, q: q?.trim() || undefined, page });
 
   const tabs = [
     { key: 'all', label: `Все (${counts.all})` },
@@ -45,6 +29,18 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
     { key: 'draft', label: `Черновики (${counts.draft})` },
     { key: 'scheduled', label: `Запланировано (${counts.scheduled})` },
   ] as const;
+
+  function pageHref(p: number) {
+    const params = new URLSearchParams();
+    if (filter !== 'all') params.set('filter', filter);
+    if (q) params.set('q', q);
+    if (lang) params.set('lang', lang);
+    if (p > 1) params.set('page', String(p));
+    const qs = params.toString();
+    return qs ? `/admin/articles?${qs}` : '/admin/articles';
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / ADMIN_LIST_PAGE_SIZE));
 
   return (
     <div>
@@ -99,6 +95,24 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
               </Link>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-5 text-[12px] text-[var(--admin-text-muted)]">
+          <span>Стр. {page} из {totalPages} · всего {filteredTotal}</span>
+          <div className="flex gap-2">
+            {page > 1 && (
+              <Link href={pageHref(page - 1)} className="font-bold px-3 py-1.5 rounded-lg border border-[var(--admin-border)] hover:border-cyan-500/40 transition-colors">
+                ‹ Назад
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link href={pageHref(page + 1)} className="font-bold px-3 py-1.5 rounded-lg border border-[var(--admin-border)] hover:border-cyan-500/40 transition-colors">
+                Далее ›
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission } from '@/lib/admin/permissions';
 import { fetchScheduleItems, type ScheduleItem, type ScheduleBannerWindow } from '@/lib/admin/data';
@@ -164,7 +165,9 @@ export default async function AdminSchedulePage({
         </div>
       </div>
 
-      <ScheduleAnalytics />
+      <Suspense fallback={<div className="h-[220px] rounded-2xl bg-[var(--admin-panel)] border border-[var(--admin-border)] mb-6 animate-pulse" />}>
+        <ScheduleAnalytics />
+      </Suspense>
 
       <div className="flex gap-4 flex-wrap text-[11px] text-[var(--admin-text-muted)] mb-5">
         {LEGEND.map(l => (

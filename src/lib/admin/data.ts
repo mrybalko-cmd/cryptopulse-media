@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { client, writeClient } from '@/lib/sanity';
 import type { Permission } from './permissions';
 import type { PortableTextBlock } from './portableText';
@@ -374,6 +375,59 @@ export async function fetchAdminNewsList(): Promise<AdminNewsListItem[]> {
   return client.fetch(`*[_type == "news"] | order(coalesce(publishedAt, _createdAt) desc){ ${NEWS_LIST_PROJECTION} }`);
 }
 
+export const ADMIN_LIST_PAGE_SIZE = 40;
+
+export type AdminListStatusFilter = 'all' | 'published' | 'draft' | 'scheduled';
+
+// Was: fetch every doc of the type (unbounded — 750+ news docs with an image
+// join each) and filter/paginate in JS. That's the single biggest admin
+// perf offender: filters/search now run in GROQ so only a page's worth of
+// docs (with their image joins) ever crosses the wire, and status counts
+// come from count() queries instead of scanning the full fetched array.
+function statusFilterClause(filter: AdminListStatusFilter): string {
+  if (filter === 'draft') return '&& publishTiming == "draft"';
+  if (filter === 'scheduled') return '&& publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now()';
+  if (filter === 'published') return '&& publishTiming != "draft" && !(publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now())';
+  return '';
+}
+
+export interface AdminListPage<T> {
+  items: T[];
+  filteredTotal: number;
+  counts: { all: number; published: number; draft: number; scheduled: number };
+}
+
+export async function fetchAdminNewsListPage(opts: {
+  filter: AdminListStatusFilter;
+  lang?: 'ru' | 'en';
+  q?: string;
+  page: number;
+}): Promise<AdminListPage<AdminNewsListItem>> {
+  const langClause = opts.lang ? `&& language == $lang` : '';
+  const qClause = opts.q ? `&& title match $q` : '';
+  const params = { lang: opts.lang, q: opts.q ? `*${opts.q}*` : undefined };
+  const filterClause = statusFilterClause(opts.filter);
+  const start = Math.max(0, (opts.page - 1) * ADMIN_LIST_PAGE_SIZE);
+  const end = start + ADMIN_LIST_PAGE_SIZE;
+
+  const [items, filteredTotal, countAll, countDraft, countScheduled] = await Promise.all([
+    client.fetch<AdminNewsListItem[]>(
+      `*[_type == "news" ${langClause} ${qClause} ${filterClause}] | order(coalesce(publishedAt, _createdAt) desc) [${start}...${end}]{ ${NEWS_LIST_PROJECTION} }`,
+      params
+    ),
+    client.fetch<number>(`count(*[_type == "news" ${langClause} ${qClause} ${filterClause}])`, params),
+    client.fetch<number>(`count(*[_type == "news"])`),
+    client.fetch<number>(`count(*[_type == "news" && publishTiming == "draft"])`),
+    client.fetch<number>(`count(*[_type == "news" && publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now()])`),
+  ]);
+
+  return {
+    items,
+    filteredTotal,
+    counts: { all: countAll, draft: countDraft, scheduled: countScheduled, published: countAll - countDraft - countScheduled },
+  };
+}
+
 export interface AdminNewsDoc {
   _id: string;
   language: 'ru' | 'en';
@@ -541,6 +595,37 @@ const ARTICLE_LIST_PROJECTION = `
 
 export async function fetchAdminArticlesList(): Promise<AdminArticleListItem[]> {
   return client.fetch(`*[_type == "article"] | order(coalesce(publishedAt, _createdAt) desc){ ${ARTICLE_LIST_PROJECTION} }`);
+}
+
+export async function fetchAdminArticlesListPage(opts: {
+  filter: AdminListStatusFilter;
+  lang?: 'ru' | 'en';
+  q?: string;
+  page: number;
+}): Promise<AdminListPage<AdminArticleListItem>> {
+  const langClause = opts.lang ? `&& language == $lang` : '';
+  const qClause = opts.q ? `&& title match $q` : '';
+  const params = { lang: opts.lang, q: opts.q ? `*${opts.q}*` : undefined };
+  const filterClause = statusFilterClause(opts.filter);
+  const start = Math.max(0, (opts.page - 1) * ADMIN_LIST_PAGE_SIZE);
+  const end = start + ADMIN_LIST_PAGE_SIZE;
+
+  const [items, filteredTotal, countAll, countDraft, countScheduled] = await Promise.all([
+    client.fetch<AdminArticleListItem[]>(
+      `*[_type == "article" ${langClause} ${qClause} ${filterClause}] | order(coalesce(publishedAt, _createdAt) desc) [${start}...${end}]{ ${ARTICLE_LIST_PROJECTION} }`,
+      params
+    ),
+    client.fetch<number>(`count(*[_type == "article" ${langClause} ${qClause} ${filterClause}])`, params),
+    client.fetch<number>(`count(*[_type == "article"])`),
+    client.fetch<number>(`count(*[_type == "article" && publishTiming == "draft"])`),
+    client.fetch<number>(`count(*[_type == "article" && publishTiming == "scheduled" && defined(publishedAt) && publishedAt > now()])`),
+  ]);
+
+  return {
+    items,
+    filteredTotal,
+    counts: { all: countAll, draft: countDraft, scheduled: countScheduled, published: countAll - countDraft - countScheduled },
+  };
 }
 
 export interface AdminArticleDoc {
@@ -921,12 +1006,20 @@ export interface MaterialOption {
   authorName?: string;
 }
 
-export async function fetchAllMaterialOptions(language: 'ru' | 'en'): Promise<MaterialOption[]> {
-  return client.fetch(
-    `*[(_type == "article" || _type == "news") && language == $language] | order(title asc){ _id, title, "authorId": author._ref, "authorName": author->name }`,
-    { language }
-  );
-}
+// Feeds the homepage author-column material pickers, which need the whole
+// set client-side for per-author filtering (see HomeAuthorColumnsEditor) —
+// hundreds of docs either way, so a few minutes of staleness here is a much
+// better trade than an 800+ row unbounded fetch on every /admin/homepage view.
+export const fetchAllMaterialOptions = unstable_cache(
+  async (language: 'ru' | 'en'): Promise<MaterialOption[]> => {
+    return client.fetch(
+      `*[(_type == "article" || _type == "news") && language == $language] | order(title asc){ _id, title, "authorId": author._ref, "authorName": author->name }`,
+      { language }
+    );
+  },
+  ['admin-all-material-options'],
+  { revalidate: 180 }
+);
 
 export interface HomeSettingsInput {
   showNews: boolean;
@@ -1140,7 +1233,13 @@ export interface DailyPublicationCount {
   count: number;
 }
 
-export async function fetchPublicationTrend(days: number): Promise<{ counts: DailyPublicationCount[]; total: number; average: number }> {
+// These three stats queries don't need per-request freshness (a few minutes
+// of staleness is fine for "top liked"/"trend"/"by author" widgets) but were
+// each scanning hundreds of docs with no bound on every /admin/schedule view
+// — fetchAuthorLikesLeaderboard alone measured ~800ms unbounded. Caching them
+// for a few minutes turns that into a one-time cost instead of a per-visit one.
+export const fetchPublicationTrend = unstable_cache(
+  async (days: number): Promise<{ counts: DailyPublicationCount[]; total: number; average: number }> => {
   const todayKey = pragueDateKey(new Date());
   const todayUTC = pragueDateKeyToUTCDate(todayKey);
   const startUTC = new Date(todayUTC);
@@ -1174,7 +1273,10 @@ export async function fetchPublicationTrend(days: number): Promise<{ counts: Dai
   const total = counts.reduce((sum, c) => sum + c.count, 0);
   const average = days > 0 ? total / days : 0;
   return { counts, total, average };
-}
+  },
+  ['admin-publication-trend'],
+  { revalidate: 180 }
+);
 
 export interface TopLikedItem {
   id: string;
@@ -1185,7 +1287,8 @@ export interface TopLikedItem {
   href: string;
 }
 
-export async function fetchTopLikedContent(limit: number): Promise<TopLikedItem[]> {
+export const fetchTopLikedContent = unstable_cache(
+  async (limit: number): Promise<TopLikedItem[]> => {
   const rows = await client.fetch<{ _id: string; _type: 'news' | 'article'; title: string; language: 'ru' | 'en'; likes: number }[]>(
     `*[_type in ["news", "article"] && coalesce(likes, 0) > 0] | order(likes desc)[0...${limit}]{ _id, _type, title, language, "likes": coalesce(likes, 0) }`
   );
@@ -1197,7 +1300,10 @@ export async function fetchTopLikedContent(limit: number): Promise<TopLikedItem[
     likes: r.likes,
     href: r._type === 'news' ? `/admin/news/${r._id}` : `/admin/articles/${r._id}`,
   }));
-}
+  },
+  ['admin-top-liked'],
+  { revalidate: 180 }
+);
 
 export interface AuthorLikesLeaderboardItem {
   id: string;
@@ -1205,7 +1311,8 @@ export interface AuthorLikesLeaderboardItem {
   totalLikes: number;
 }
 
-export async function fetchAuthorLikesLeaderboard(): Promise<AuthorLikesLeaderboardItem[]> {
+export const fetchAuthorLikesLeaderboard = unstable_cache(
+  async (): Promise<AuthorLikesLeaderboardItem[]> => {
   const [rows, authors] = await Promise.all([
     client.fetch<{ authorId: string | null; likes: number }[]>(
       `*[_type in ["news", "article"] && defined(author)]{ "authorId": author._ref, "likes": coalesce(likes, 0) }`
@@ -1223,7 +1330,10 @@ export async function fetchAuthorLikesLeaderboard(): Promise<AuthorLikesLeaderbo
     .map(a => ({ id: a._id, name: a.name, totalLikes: totals.get(a._id) ?? 0 }))
     .filter(a => a.totalLikes > 0)
     .sort((a, b) => b.totalLikes - a.totalLikes);
-}
+  },
+  ['admin-author-likes-leaderboard'],
+  { revalidate: 180 }
+);
 
 // ---------------- Pulse (read-only snapshot log) ----------------
 //
