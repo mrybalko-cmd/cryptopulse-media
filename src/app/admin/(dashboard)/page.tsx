@@ -9,16 +9,17 @@ export default async function AdminDashboardPage() {
   const userCount = session?.isOwner ? await countAdminUsers() : null;
 
   const tiles = [
-    { key: 'news' as const, href: '/admin/news', icon: '📰', color: '#06b6d4', title: 'Новости', stat: counts.scheduledNews, label: 'запланировано' },
-    { key: 'articles' as const, href: '/admin/articles', icon: '📝', color: '#8b5cf6', title: 'Статьи', stat: counts.scheduledArticles, label: 'запланировано' },
+    { key: 'news' as const, href: '/admin/news', icon: '📰', color: '#06b6d4', title: 'Новости', stat: counts.draftNews, label: 'черновиков' },
+    { key: 'articles' as const, href: '/admin/articles', icon: '📝', color: '#8b5cf6', title: 'Статьи', stat: counts.draftArticles, label: 'черновиков' },
     { key: 'banners' as const, href: '/admin/banners', icon: '🖼️', color: '#f2a93b', title: 'Баннеры', stat: counts.activeBanners, label: 'активных' },
     { key: 'exchanges' as const, href: '/admin/exchanges', icon: '🏦', color: '#22c55e', title: 'Криптобиржи', stat: counts.exchangeCount, label: 'бирж' },
     { key: 'exchanges' as const, href: '/admin/exchange-reviews', icon: '⭐', color: '#f59e0b', title: 'Отзывы о биржах', stat: counts.pendingReviews, label: 'на проверке' },
     { key: 'comments' as const, href: '/admin/comments', icon: '💬', color: '#ec4899', title: 'Комментарии', stat: counts.pendingComments, label: 'на проверке' },
+    { key: null, href: '/admin/schedule', icon: '📅', color: '#22d3ee', title: 'Расписание', stat: counts.scheduleThisWeek, label: 'событий на неделе' },
     { key: 'homepage' as const, href: '/admin/homepage', icon: '🏡', color: '#94a3b8', title: 'Главная страница', stat: null, label: 'настройки вывода' },
   ];
 
-  const visibleTiles = tiles.filter(t => hasPermission(session, t.key));
+  const visibleTiles = tiles.filter(t => t.key === null || hasPermission(session, t.key));
 
   return (
     <div>

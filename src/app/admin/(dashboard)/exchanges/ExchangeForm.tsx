@@ -1,5 +1,4 @@
 import type { AdminExchangeDoc } from '@/lib/admin/data';
-import { blocksToText } from '@/lib/admin/portableText';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import RichTextEditor from '../_shared/RichTextEditor';
@@ -113,11 +112,11 @@ export default function ExchangeForm({
       <div className="grid grid-cols-2 gap-3 mb-6">
         <div>
           <label className={labelCls}>RU</label>
-          <RichTextEditor name="descriptionRu" defaultValue={blocksToText(exchange?.descriptionRu)} rows={6} simple />
+          <RichTextEditor name="descriptionRu" originalBlocks={exchange?.descriptionRu} rows={6} simple />
         </div>
         <div>
           <label className={labelCls}>EN</label>
-          <RichTextEditor name="descriptionEn" defaultValue={blocksToText(exchange?.descriptionEn)} rows={6} simple />
+          <RichTextEditor name="descriptionEn" originalBlocks={exchange?.descriptionEn} rows={6} simple />
         </div>
       </div>
 

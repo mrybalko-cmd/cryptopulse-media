@@ -74,13 +74,14 @@ export const articleType = defineType({
       type: 'string',
       options: {
         list: [
+          { title: 'Черновик / Draft', value: 'draft' },
           { title: 'Сейчас / Now', value: 'now' },
           { title: 'Запланировать / Scheduled', value: 'scheduled' },
         ],
         layout: 'radio',
       },
       initialValue: 'now',
-      description: 'On first publish, "Now" stamps the actual moment you click Publish. "Scheduled" hides the material from the site until the date/time below.',
+      description: 'On first publish, "Now" stamps the actual moment you click Publish. "Scheduled" hides the material from the site until the date/time below. "Draft" has no publish date at all, so it never matches the site\'s publishedAt <= now() queries.',
     }),
     defineField({
       name: 'publishedAt',

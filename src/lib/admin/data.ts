@@ -195,7 +195,7 @@ export interface AdminNewsListItem {
   language: 'ru' | 'en';
   slug: string;
   coverImage: string | null;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   topic?: string;
   breaking: boolean;
@@ -218,7 +218,7 @@ export interface AdminNewsDoc {
   excerpt?: string;
   coverImage: string | null;
   coverImageAlt?: string;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   body: PortableTextBlock[];
   sourceName?: string;
@@ -238,6 +238,8 @@ export interface AdminNewsDoc {
   authorId?: string;
   commentsEnabled: boolean;
   translationRefId?: string;
+  views: number;
+  likes: number;
 }
 
 const NEWS_DOC_PROJECTION = `
@@ -251,7 +253,8 @@ const NEWS_DOC_PROJECTION = `
   topic, "ownBadge": coalesce(ownBadge, true), "badge": coalesce(badge, "none"),
   "breaking": coalesce(breaking, false), pinnedUntil,
   "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true),
-  "translationRefId": translationRef._ref
+  "translationRefId": translationRef._ref,
+  "views": coalesce(views, 0), "likes": coalesce(likes, 0)
 `;
 
 export async function fetchAdminNewsById(id: string): Promise<AdminNewsDoc | null> {
@@ -265,7 +268,7 @@ export interface NewsInput {
   excerpt?: string;
   coverImageAssetId?: string;
   coverImageAlt?: string;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   body: PortableTextBlock[];
   sourceName?: string;
@@ -345,6 +348,7 @@ export async function updateNews(id: string, input: NewsInput, coverImageAssetId
   if (ogImageAssetId) patch.set({ 'seo.ogImage': imageField(ogImageAssetId) });
   if (!input.authorId) patch.unset(['author']);
   if (!input.translationRefId) patch.unset(['translationRef']);
+  if (input.publishTiming === 'draft') patch.unset(['publishedAt']);
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 
@@ -360,7 +364,7 @@ export interface AdminArticleListItem {
   language: 'ru' | 'en';
   slug: string;
   coverImage: string | null;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   topic?: string;
   badge: string;
@@ -383,7 +387,7 @@ export interface AdminArticleDoc {
   excerpt?: string;
   coverImage: string | null;
   coverImageAlt?: string;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   readingTime?: number;
   topic?: string;
@@ -400,6 +404,8 @@ export interface AdminArticleDoc {
   authorId?: string;
   commentsEnabled: boolean;
   translationRefId?: string;
+  views: number;
+  likes: number;
 }
 
 const ARTICLE_DOC_PROJECTION = `
@@ -411,7 +417,8 @@ const ARTICLE_DOC_PROJECTION = `
   "seoOgImage": seo.ogImage.asset->url, "seoSchemaType": coalesce(seo.schemaType, "BlogPosting"),
   "seoCanonicalUrl": seo.canonicalUrl, "seoNoIndex": coalesce(seo.noIndex, false),
   "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true),
-  "translationRefId": translationRef._ref
+  "translationRefId": translationRef._ref,
+  "views": coalesce(views, 0), "likes": coalesce(likes, 0)
 `;
 
 export async function fetchAdminArticleById(id: string): Promise<AdminArticleDoc | null> {
@@ -424,7 +431,7 @@ export interface ArticleInput {
   slug: string;
   excerpt?: string;
   coverImageAlt?: string;
-  publishTiming: 'now' | 'scheduled';
+  publishTiming: 'now' | 'scheduled' | 'draft';
   publishedAt?: string;
   readingTime?: number;
   topic?: string;
@@ -497,6 +504,7 @@ export async function updateArticle(id: string, input: ArticleInput, coverImageA
   if (ogImageAssetId) patch.set({ 'seo.ogImage': imageField(ogImageAssetId) });
   if (!input.authorId) patch.unset(['author']);
   if (!input.translationRefId) patch.unset(['translationRef']);
+  if (input.publishTiming === 'draft') patch.unset(['publishedAt']);
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 
@@ -896,16 +904,23 @@ export async function fetchScheduleItems(): Promise<ScheduleItem[]> {
 }
 
 export async function fetchDashboardCounts() {
-  // "Draft" in Sanity's own sense (an unpublished `drafts.*` revision) isn't
-  // visible to the standard published-content read client — the closest
-  // meaningful signal we can query is "scheduled but not live yet".
-  const [scheduledNews, scheduledArticles, activeBanners, exchangeCount, pendingComments, pendingReviews] = await Promise.all([
-    client.fetch(`count(*[_type == "news" && publishTiming == "scheduled" && publishedAt > now()])`),
-    client.fetch(`count(*[_type == "article" && publishTiming == "scheduled" && publishedAt > now()])`),
+  const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek] = await Promise.all([
+    client.fetch(`count(*[_type == "news" && publishTiming == "draft"])`),
+    client.fetch(`count(*[_type == "article" && publishTiming == "draft"])`),
     client.fetch(`count(*[_type == "sidebarBanner" && active == true])`),
     client.fetch(`count(*[_type == "exchange"])`),
     client.fetch(`count(*[_type == "comment" && approved == false])`),
     client.fetch(`count(*[_type == "exchangeReview" && approved == false])`),
+    client.fetch(
+      `count(*[
+        (_type == "news" && publishTiming == "scheduled" && publishedAt > now() && publishedAt < $weekFromNow) ||
+        (_type == "article" && publishTiming == "scheduled" && publishedAt > now() && publishedAt < $weekFromNow) ||
+        (_type == "sidebarBanner" && ((defined(startAt) && startAt > now() && startAt < $weekFromNow) || (defined(endAt) && endAt > now() && endAt < $weekFromNow))) ||
+        (_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil > now() && pinUntil < $weekFromNow)
+      ])`,
+      { weekFromNow }
+    ),
   ]);
-  return { scheduledNews, scheduledArticles, activeBanners, exchangeCount, pendingComments, pendingReviews };
+  return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek };
 }

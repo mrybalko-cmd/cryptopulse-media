@@ -3,11 +3,16 @@
 // (News/Articles/Exchange descriptions).
 //
 // Only `block` (paragraph) entries round-trip through real text editing.
-// Non-text blocks (image, quoteBlock, youtubeEmbed, tweetEmbed) can't be
-// authored from plain text, so they're kept completely untouched and shown
-// as a single marker line (`⟦index: description⟧`) — deleting that line
-// drops the block, but editing surrounding text never corrupts it. Complex
-// embeds still need to be added/edited in Sanity Studio (/studio).
+// Non-text blocks that already existed (image, quoteBlock, youtubeEmbed,
+// tweetEmbed) can't be re-authored from plain text, so they're kept
+// completely untouched and shown as a single marker line
+// (`⟦index: description⟧`) — deleting that line drops the block, but
+// editing surrounding text never corrupts it. Complex embeds from Studio
+// still need Studio to edit their fields directly.
+//
+// NEW inline inserts from the toolbar use a different bracket style
+// (`[[img:N]]`, `[[youtube:URL]]`, `[[tweet:URL]]`) so they're never
+// confused with the preserve-as-is markers above.
 
 export interface PortableTextBlock {
   _type: string;
@@ -61,8 +66,12 @@ function wrapMarks(span: Span, markDefs: MarkDef[]): string {
     }
   }
   if (marks.includes('code')) text = `\`${text}\``;
+  if (marks.includes('underline')) text = `__${text}__`;
+  if (marks.includes('strike-through')) text = `~~${text}~~`;
   if (marks.includes('em')) text = `*${text}*`;
   if (marks.includes('strong')) text = `**${text}**`;
+  if (marks.includes('large')) text = `{+${text}+}`;
+  if (marks.includes('small')) text = `{-${text}-}`;
   return text;
 }
 
@@ -70,8 +79,11 @@ function blockToParagraph(block: PortableTextBlock): string {
   const children = ((block.children as Span[] | undefined) ?? []).filter(c => c && c._type === 'span');
   const markDefs = (block.markDefs as MarkDef[] | undefined) ?? [];
   let text = children.map(span => wrapMarks(span, markDefs)).join('');
+  const listItem = block.listItem as string | undefined;
   const style = block.style as string | undefined;
-  if (style === 'h2') text = `## ${text}`;
+  if (listItem === 'bullet') text = `- ${text}`;
+  else if (listItem === 'number') text = `1. ${text}`;
+  else if (style === 'h2') text = `## ${text}`;
   else if (style === 'h3') text = `### ${text}`;
   else if (style === 'blockquote') text = `> ${text}`;
   return text;
@@ -84,7 +96,9 @@ export function blocksToText(blocks: PortableTextBlock[] | undefined): string {
     .join('\n\n');
 }
 
-const INLINE_RE = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`/g;
+// Order matters: longer/more-specific tokens (**, __, ~~, {+ {-) must be
+// tried before the single-char ones (*) that could otherwise match first.
+const INLINE_RE = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\{\+([^}]+)\+\}|\{-([^}]+)-\}|\*([^*]+)\*|`([^`]+)`/g;
 
 function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
   const markDefs: MarkDef[] = [];
@@ -103,9 +117,17 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
     } else if (match[3] !== undefined) {
       spans.push({ _type: 'span', _key: randomKey(), text: match[3], marks: ['strong'] });
     } else if (match[4] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[4], marks: ['em'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[4], marks: ['underline'] });
     } else if (match[5] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[5], marks: ['code'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[5], marks: ['strike-through'] });
+    } else if (match[6] !== undefined) {
+      spans.push({ _type: 'span', _key: randomKey(), text: match[6], marks: ['large'] });
+    } else if (match[7] !== undefined) {
+      spans.push({ _type: 'span', _key: randomKey(), text: match[7], marks: ['small'] });
+    } else if (match[8] !== undefined) {
+      spans.push({ _type: 'span', _key: randomKey(), text: match[8], marks: ['em'] });
+    } else if (match[9] !== undefined) {
+      spans.push({ _type: 'span', _key: randomKey(), text: match[9], marks: ['code'] });
     }
     lastIndex = INLINE_RE.lastIndex;
   }
@@ -120,6 +142,7 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
 
 function paragraphToBlock(para: string): PortableTextBlock {
   let style = 'normal';
+  let listItem: string | undefined;
   let content = para;
   if (content.startsWith('### ')) {
     style = 'h3';
@@ -130,22 +153,59 @@ function paragraphToBlock(para: string): PortableTextBlock {
   } else if (content.startsWith('> ')) {
     style = 'blockquote';
     content = content.slice(2);
+  } else if (content.startsWith('- ')) {
+    listItem = 'bullet';
+    content = content.slice(2);
+  } else if (/^\d+\.\s/.test(content)) {
+    listItem = 'number';
+    content = content.replace(/^\d+\.\s/, '');
   }
   const { spans, markDefs } = parseInline(content);
-  return { _type: 'block', _key: randomKey(), style, markDefs, children: spans };
+  return {
+    _type: 'block',
+    _key: randomKey(),
+    style,
+    ...(listItem ? { listItem, level: 1 } : {}),
+    markDefs,
+    children: spans,
+  };
 }
 
-export function textToBlocks(text: string, originalBlocks: PortableTextBlock[] | undefined): PortableTextBlock[] {
+function imageField(assetId: string) {
+  return { _type: 'image' as const, asset: { _type: 'reference' as const, _ref: assetId } };
+}
+
+export function textToBlocks(
+  text: string,
+  originalBlocks: PortableTextBlock[] | undefined,
+  newImageAssetIds?: Record<number, string>
+): PortableTextBlock[] {
   const paragraphs = text
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean);
   const result: PortableTextBlock[] = [];
   for (const para of paragraphs) {
-    const markerMatch = para.match(/^⟦(\d+):/);
-    if (markerMatch) {
-      const original = originalBlocks?.[Number(markerMatch[1])];
+    const preserveMatch = para.match(/^⟦(\d+):/);
+    if (preserveMatch) {
+      const original = originalBlocks?.[Number(preserveMatch[1])];
       if (original && original._type !== 'block') result.push(original);
+      continue;
+    }
+    const imageMatch = para.match(/^\[\[img:(\d+)\]\]$/);
+    if (imageMatch) {
+      const assetId = newImageAssetIds?.[Number(imageMatch[1])];
+      if (assetId) result.push({ _key: randomKey(), ...imageField(assetId) });
+      continue;
+    }
+    const youtubeMatch = para.match(/^\[\[youtube:(.+)\]\]$/);
+    if (youtubeMatch) {
+      result.push({ _type: 'youtubeEmbed', _key: randomKey(), url: youtubeMatch[1].trim() });
+      continue;
+    }
+    const tweetMatch = para.match(/^\[\[tweet:(.+)\]\]$/);
+    if (tweetMatch) {
+      result.push({ _type: 'tweetEmbed', _key: randomKey(), url: tweetMatch[1].trim() });
       continue;
     }
     result.push(paragraphToBlock(para));
