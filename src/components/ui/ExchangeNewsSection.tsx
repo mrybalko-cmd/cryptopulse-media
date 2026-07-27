@@ -7,7 +7,7 @@ function formatDate(iso: string, locale: string) {
   return new Date(iso).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
 }
 
-const VISIBLE = 6;
+const VISIBLE = 4;
 
 // On the page itself now (not a sidebar list) — a real module you can browse,
 // with a link through to the full archive once there's more than fits here.

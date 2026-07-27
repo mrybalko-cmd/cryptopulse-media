@@ -13,7 +13,7 @@ import {
   fetchExchangeReviewSummary,
 } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
-import RichText from '@/components/ui/RichText';
+import CollapsibleRichText from '@/components/ui/CollapsibleRichText';
 import ExchangeToneBadge, { type ExchangeBadgeTone } from '@/components/ui/ExchangeToneBadge';
 import ExchangeProducts from '@/components/ui/ExchangeProducts';
 import ExchangeRegions from '@/components/ui/ExchangeRegions';
@@ -173,7 +173,14 @@ export default async function ExchangeDetailPage({ params }: Props) {
           {description && description.length > 0 && (
             <section id="overview" className="scroll-mt-28">
               <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Обзор' : 'Overview'}</h2>
-              <RichText value={description} fallbackAlt={name} locale={locale} compact />
+              <CollapsibleRichText value={description} fallbackAlt={name} locale={locale} />
+            </section>
+          )}
+
+          {exchange.regions && exchange.regions.length > 0 && (
+            <section id="regulation" className="scroll-mt-28">
+              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Регулирование и доступность' : 'Regulation & Availability'}</h2>
+              <ExchangeRegions regions={exchange.regions} locale={locale} />
             </section>
           )}
 
@@ -181,13 +188,6 @@ export default async function ExchangeDetailPage({ params }: Props) {
             <section id="products" className="scroll-mt-28">
               <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Продукты' : 'Products'}</h2>
               <ExchangeProducts products={products} locale={locale} />
-            </section>
-          )}
-
-          {exchange.regions && exchange.regions.length > 0 && (
-            <section className="scroll-mt-28">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Регулирование и доступность' : 'Regulation & Availability'}</h2>
-              <ExchangeRegions regions={exchange.regions} locale={locale} />
             </section>
           )}
 
