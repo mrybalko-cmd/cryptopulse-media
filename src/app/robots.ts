@@ -6,12 +6,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: 'Googlebot-News',
         allow: '/',
-        disallow: ['/studio/', '/api/'],
+        disallow: ['/studio/', '/api/', '/admin/'],
       },
       {
         userAgent: '*',
         allow: ['/', '/_next/static/', '/_next/image'],
-        disallow: ['/studio/', '/api/'],
+        disallow: ['/studio/', '/api/', '/admin/'],
       },
     ],
     sitemap: [
