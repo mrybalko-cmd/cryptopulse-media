@@ -7,7 +7,7 @@ import { formatDateTime } from '../_shared/formatDateTime';
 import ListSearchBar from '../_shared/ListSearchBar';
 
 function statusOf(a: { publishTiming: string; publishedAt?: string }) {
-  if (a.publishTiming === 'draft') return { color: 'var(--admin-text-muted)', label: 'Черновик' };
+  if (a.publishTiming === 'draft') return { color: '#8b8d94', label: 'Черновик' };
   if (a.publishTiming === 'scheduled' && a.publishedAt && new Date(a.publishedAt).getTime() > Date.now()) {
     return { color: '#f2a93b', label: 'Запланировано на' };
   }
@@ -90,13 +90,12 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
                   <div className="text-[13px] font-bold">{a.title}</div>
                   <div className="text-[11px] text-[var(--admin-text-muted)]">{a.language.toUpperCase()} · {a.topic || 'без темы'}</div>
                 </div>
-                <div className="ml-auto flex items-center gap-3 text-right">
-                  <div>
-                    <div className="text-[11px] text-[var(--admin-text-muted)]">{status.label}</div>
-                    {status.label !== 'Черновик' && <div className="text-[11px] text-[var(--admin-text-secondary)] font-semibold">{formatDateTime(a.publishedAt)}</div>}
-                  </div>
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: status.color }} />
-                </div>
+                <span
+                  className="ml-auto text-[10.5px] font-extrabold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0"
+                  style={{ background: `${status.color}26`, color: status.color }}
+                >
+                  {status.label}{status.label !== 'Черновик' ? ` · ${formatDateTime(a.publishedAt)}` : ''}
+                </span>
               </Link>
             );
           })}

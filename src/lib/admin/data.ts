@@ -183,6 +183,85 @@ export async function fetchAuthorOptions(): Promise<AdminAuthorOption[]> {
   return client.fetch(`*[_type == "author"] | order(name asc){ _id, name, "photo": photo.asset->url, roleRu, roleEn }`);
 }
 
+export interface AdminAuthorDoc {
+  _id: string;
+  name: string;
+  slug: string;
+  photo: string | null;
+  roleRu?: string;
+  roleEn?: string;
+  bioRu?: string;
+  bioEn?: string;
+  telegram?: string;
+  linkedin?: string;
+  facebook?: string;
+  twitter?: string;
+  email?: string;
+}
+
+const AUTHOR_DOC_PROJECTION = `
+  _id, name, "slug": slug.current, "photo": photo.asset->url,
+  roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, email
+`;
+
+export async function fetchAdminAuthors(): Promise<AdminAuthorDoc[]> {
+  return client.fetch(`*[_type == "author"] | order(name asc){ ${AUTHOR_DOC_PROJECTION} }`);
+}
+
+export async function fetchAdminAuthorById(id: string): Promise<AdminAuthorDoc | null> {
+  return client.fetch(`*[_type == "author" && _id == $id][0]{ ${AUTHOR_DOC_PROJECTION} }`, { id });
+}
+
+export interface AuthorInput {
+  name: string;
+  slug: string;
+  roleRu?: string;
+  roleEn?: string;
+  bioRu?: string;
+  bioEn?: string;
+  telegram?: string;
+  linkedin?: string;
+  facebook?: string;
+  twitter?: string;
+  email?: string;
+}
+
+function authorSetFields(input: AuthorInput) {
+  return {
+    name: input.name,
+    slug: { _type: 'slug' as const, current: input.slug },
+    roleRu: input.roleRu || undefined,
+    roleEn: input.roleEn || undefined,
+    bioRu: input.bioRu || undefined,
+    bioEn: input.bioEn || undefined,
+    telegram: input.telegram || undefined,
+    linkedin: input.linkedin || undefined,
+    facebook: input.facebook || undefined,
+    twitter: input.twitter || undefined,
+    email: input.email || undefined,
+  };
+}
+
+export async function createAuthor(input: AuthorInput, photoAssetId?: string) {
+  const fields = authorSetFields(input);
+  return writeClient.create({
+    _type: 'author',
+    ...fields,
+    ...(photoAssetId ? { photo: imageField(photoAssetId) } : {}),
+  });
+}
+
+export async function updateAuthor(id: string, input: AuthorInput, photoAssetId?: string) {
+  const fields = authorSetFields(input);
+  const patch = writeClient.patch(id).set(fields);
+  if (photoAssetId) patch.set({ photo: imageField(photoAssetId) });
+  await patch.commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteAuthor(id: string) {
+  await writeClient.delete(id);
+}
+
 export async function fetchTranslationCandidates(
   type: 'news' | 'article',
   language: 'ru' | 'en'
@@ -191,6 +270,85 @@ export async function fetchTranslationCandidates(
     `*[_type == $type && language == $language] | order(title asc){ _id, title, "coverImage": coverImage.asset->url }`,
     { type, language }
   );
+}
+
+// ---------------- Calendar events ----------------
+
+export interface AdminCalendarEventDoc {
+  _id: string;
+  titleRu: string;
+  titleEn: string;
+  slug: string;
+  descriptionRu?: string;
+  descriptionEn?: string;
+  date: string;
+  category: string;
+  importance: 'low' | 'medium' | 'high';
+  icon: string | null;
+  sourceUrl?: string;
+  likes: number;
+  dislikes: number;
+}
+
+const CALENDAR_EVENT_PROJECTION = `
+  _id, "titleRu": title.ru, "titleEn": title.en, "slug": slug.current,
+  "descriptionRu": description.ru, "descriptionEn": description.en,
+  date, category, importance, "icon": icon.asset->url, sourceUrl,
+  "likes": coalesce(likes, 0), "dislikes": coalesce(dislikes, 0)
+`;
+
+export async function fetchAdminCalendarEvents(): Promise<AdminCalendarEventDoc[]> {
+  return client.fetch(`*[_type == "calendarEvent"] | order(date asc){ ${CALENDAR_EVENT_PROJECTION} }`);
+}
+
+export async function fetchAdminCalendarEventById(id: string): Promise<AdminCalendarEventDoc | null> {
+  return client.fetch(`*[_type == "calendarEvent" && _id == $id][0]{ ${CALENDAR_EVENT_PROJECTION} }`, { id });
+}
+
+export interface CalendarEventInput {
+  titleRu: string;
+  titleEn: string;
+  slug: string;
+  descriptionRu?: string;
+  descriptionEn?: string;
+  date: string;
+  category: string;
+  importance: 'low' | 'medium' | 'high';
+  sourceUrl?: string;
+}
+
+function calendarEventSetFields(input: CalendarEventInput) {
+  return {
+    title: { _type: 'object' as const, ru: input.titleRu, en: input.titleEn },
+    slug: { _type: 'slug' as const, current: input.slug },
+    description: { _type: 'object' as const, ru: input.descriptionRu || undefined, en: input.descriptionEn || undefined },
+    date: input.date,
+    category: input.category,
+    importance: input.importance,
+    sourceUrl: input.sourceUrl || undefined,
+  };
+}
+
+export async function createCalendarEvent(input: CalendarEventInput, iconAssetId?: string) {
+  const fields = calendarEventSetFields(input);
+  return writeClient.create({
+    _type: 'calendarEvent',
+    ...fields,
+    likes: 0,
+    dislikes: 0,
+    ...(iconAssetId ? { icon: imageField(iconAssetId) } : {}),
+  });
+}
+
+export async function updateCalendarEvent(id: string, input: CalendarEventInput, iconAssetId?: string) {
+  const fields = calendarEventSetFields(input);
+  const patch = writeClient.patch(id).set(fields);
+  if (iconAssetId) patch.set({ icon: imageField(iconAssetId) });
+  await patch.commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteCalendarEvent(id: string) {
+  await writeClient.delete(id);
 }
 
 // ---------------- News ----------------
@@ -527,11 +685,17 @@ export interface AdminExchangeListItem {
   pinned: boolean;
   pinPosition?: number;
   volume24h?: number;
+  type: string[];
+  foundedYear?: number;
+  regionTones: string[];
 }
 
 export async function fetchAdminExchangesList(): Promise<AdminExchangeListItem[]> {
   const list = await client.fetch<AdminExchangeListItem[]>(
-    `*[_type == "exchange"] | order(name asc){ _id, name, "logo": logo.asset->url, "pinned": coalesce(pinned, false), pinPosition, volume24h }`
+    `*[_type == "exchange"] | order(name asc){
+      _id, name, "logo": logo.asset->url, "pinned": coalesce(pinned, false), pinPosition, volume24h,
+      "type": coalesce(type, []), foundedYear, "regionTones": regions[].tone
+    }`
   );
   // Pinned exchanges rise to the top (ordered by their pin position), matching
   // how they're elevated on the public site; everything else stays name-sorted.
@@ -1059,4 +1223,30 @@ export async function fetchAuthorLikesLeaderboard(): Promise<AuthorLikesLeaderbo
     .map(a => ({ id: a._id, name: a.name, totalLikes: totals.get(a._id) ?? 0 }))
     .filter(a => a.totalLikes > 0)
     .sort((a, b) => b.totalLikes - a.totalLikes);
+}
+
+// ---------------- Pulse (read-only snapshot log) ----------------
+//
+// marketSnapshot is written once a day by /api/cron/pulse-snapshot — every
+// field is readOnly in the schema, so this admin section is a history log
+// plus a preview of what the share card looks like today, not an editor.
+
+export interface PulseSnapshot {
+  _id: string;
+  date: string;
+  totalVolume24h: number;
+  fearGreedValue: number;
+  altSeasonValue: number;
+  volumeChangePct: number;
+  pulseScore: number;
+  pulseClassification: string;
+  computedAt: string;
+}
+
+export async function fetchPulseHistory(limit: number): Promise<PulseSnapshot[]> {
+  return client.fetch(
+    `*[_type == "marketSnapshot"] | order(date desc) [0...${limit}]{
+      _id, date, totalVolume24h, fearGreedValue, altSeasonValue, volumeChangePct, pulseScore, pulseClassification, computedAt
+    }`
+  );
 }

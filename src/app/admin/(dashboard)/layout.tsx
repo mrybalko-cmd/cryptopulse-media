@@ -15,6 +15,9 @@ const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[
   { href: '/admin/exchange-reviews', label: '⭐ Exchange reviews', permission: 'exchanges' },
   { href: '/admin/comments', label: '💬 Comments', permission: 'comments' },
   { href: '/admin/homepage', label: '🏡 Homepage', permission: 'homepage' },
+  { href: '/admin/authors', label: '👤 Authors', permission: 'authors' },
+  { href: '/admin/calendar', label: '📅 Calendar events', permission: 'calendar' },
+  { href: '/admin/pulse', label: '📈 Pulse', permission: 'pulse' },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {

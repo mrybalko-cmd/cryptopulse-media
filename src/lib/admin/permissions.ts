@@ -5,6 +5,9 @@ export const PERMISSIONS = [
   { key: 'exchanges', label: 'Криптобиржи' },
   { key: 'comments', label: 'Комментарии' },
   { key: 'homepage', label: 'Главная страница' },
+  { key: 'authors', label: 'Авторы' },
+  { key: 'calendar', label: 'Календарь событий' },
+  { key: 'pulse', label: 'Pulse' },
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number]['key'];

@@ -5,6 +5,7 @@ import { fetchScheduleItems, type ScheduleItem, type ScheduleBannerWindow } from
 import { pragueDateKey, pragueToday, formatPragueTime, formatPragueDate } from '@/lib/admin/timezone';
 import { redirect } from 'next/navigation';
 import ScheduleAnalytics from './ScheduleAnalytics';
+import ScheduleCalendarView from './ScheduleCalendarView';
 
 const TYPE_META: Record<ScheduleItem['type'], { color: string; label: string; title: (t: string) => string }> = {
   news: { color: '#06b6d4', label: 'Новость', title: t => t },
@@ -26,11 +27,6 @@ const LEGEND = [
 const LIST_DAYS = 21; // rolling window forward from today
 const CALENDAR_DAYS_BEFORE = 7; // recent past, so "realized" counts have something to show
 const CALENDAR_DAYS_AFTER = 13; // + today = 21 days total, matching the list window
-
-function weekdayShort(date: Date): string {
-  const s = formatPragueDate(date, { weekday: 'short' });
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
 
 function dayLabel(date: Date): string {
   const key = pragueDateKey(date);
@@ -261,64 +257,14 @@ export default async function AdminSchedulePage({
       ) : (
         <div>
           <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">
-            Последние {CALENDAR_DAYS_BEFORE} дней и следующие {CALENDAR_DAYS_AFTER + 1}, начиная с сегодняшнего — реализованные и запланированные публикации.
+            Последние {CALENDAR_DAYS_BEFORE} дней и следующие {CALENDAR_DAYS_AFTER + 1} — кликните на день в ленте, чтобы увидеть подробности.
           </p>
-          <div className="grid grid-cols-7 gap-1.5">
-            {calendarDays.map(date => {
-              const isToday = pragueDateKey(date) === todayKey;
-              const dayItems = itemsByDate.get(pragueDateKey(date)) ?? [];
-              const realizedItems = dayItems.filter(i => i.realized);
-              const plannedItems = dayItems.filter(i => !i.realized);
-              return (
-                <div
-                  key={date.toISOString()}
-                  className="border rounded-lg p-1.5 min-h-[110px]"
-                  style={{
-                    background: 'var(--admin-input)',
-                    borderColor: isToday ? 'var(--admin-focus)' : 'var(--admin-border)',
-                  }}
-                >
-                  <div className="text-[10px] text-[var(--admin-text-muted)] mb-0.5">{weekdayShort(date)}</div>
-                  <div
-                    className={`text-[11px] mb-1 ${isToday ? 'font-extrabold' : 'text-[var(--admin-text-secondary)]'}`}
-                    style={isToday ? { color: 'var(--admin-focus)' } : undefined}
-                  >
-                    {date.getUTCDate()} {formatPragueDate(date, { month: 'short' })}
-                  </div>
-
-                  <div className="flex flex-col gap-0.5 mb-1">
-                    {realizedItems.length > 0 && (
-                      <span className="text-[9px] font-bold text-green-400">✅ Реализовано: {realizedItems.length}</span>
-                    )}
-                    {plannedItems.length > 0 && (
-                      <span className="text-[9px] font-bold" style={{ color: 'var(--admin-focus)' }}>🕓 План: {plannedItems.length}</span>
-                    )}
-                    {dayItems.length === 0 && <span className="text-[9px] text-[var(--admin-text-dim)]">—</span>}
-                  </div>
-
-                  <div className="flex flex-col gap-0.5">
-                    {dayItems.slice(0, 3).map(item => {
-                      const meta = TYPE_META[item.type];
-                      return (
-                        <Link
-                          key={`${item.type}-${item.id}`}
-                          href={item.href}
-                          title={meta.title(item.title)}
-                          className="text-[9px] font-bold px-1.5 py-0.5 rounded truncate block"
-                          style={{ background: `${meta.color}33`, color: meta.color }}
-                        >
-                          {item.realized ? '✓ ' : ''}{item.title}
-                        </Link>
-                      );
-                    })}
-                    {dayItems.length > 3 && (
-                      <span className="text-[9px] text-[var(--admin-text-muted)] px-1.5">+{dayItems.length - 3}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <ScheduleCalendarView
+            dayKeys={calendarDays.map(d => pragueDateKey(d))}
+            itemsByDate={Object.fromEntries(itemsByDate)}
+            banners={banners}
+            todayKey={todayKey}
+          />
         </div>
       )}
     </div>
