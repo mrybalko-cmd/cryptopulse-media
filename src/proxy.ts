@@ -12,7 +12,7 @@ export function proxy(request: NextRequest) {
     // since the default locale here never changes.
     return NextResponse.redirect(new URL(`/${routing.defaultLocale}`, request.url), 308);
   }
-  if (pathname.startsWith('/studio') || pathname.startsWith('/api')) {
+  if (pathname.startsWith('/studio') || pathname.startsWith('/api') || pathname.startsWith('/admin')) {
     return NextResponse.next();
   }
   const response = handleI18n(request);
