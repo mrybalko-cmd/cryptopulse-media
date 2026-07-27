@@ -519,13 +519,21 @@ export interface AdminExchangeListItem {
   name: string;
   logo: string | null;
   pinned: boolean;
+  pinPosition?: number;
   volume24h?: number;
 }
 
 export async function fetchAdminExchangesList(): Promise<AdminExchangeListItem[]> {
-  return client.fetch(
-    `*[_type == "exchange"] | order(name asc){ _id, name, "logo": logo.asset->url, "pinned": coalesce(pinned, false), volume24h }`
+  const list = await client.fetch<AdminExchangeListItem[]>(
+    `*[_type == "exchange"] | order(name asc){ _id, name, "logo": logo.asset->url, "pinned": coalesce(pinned, false), pinPosition, volume24h }`
   );
+  // Pinned exchanges rise to the top (ordered by their pin position), matching
+  // how they're elevated on the public site; everything else stays name-sorted.
+  return list.sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    if (a.pinned && b.pinned) return (a.pinPosition ?? 99) - (b.pinPosition ?? 99);
+    return 0;
+  });
 }
 
 export interface ExchangeBadgeItem { textRu: string; textEn: string; tone: string; link?: string }
@@ -865,42 +873,71 @@ export interface ScheduleItem {
   at: string;
   href: string;
   permission: Permission;
+  /** null = not language-specific (banners/exchanges); 'all' = banner shown in both languages */
+  language: 'ru' | 'en' | 'all' | null;
+  /** true once `at` is in the past — i.e. already happened/published, not merely planned */
+  realized: boolean;
 }
 
-export async function fetchScheduleItems(): Promise<ScheduleItem[]> {
+export interface ScheduleBannerWindow {
+  _id: string;
+  title: string;
+  startAt?: string;
+  endAt?: string;
+  language: 'ru' | 'en' | 'all';
+}
+
+/** windowStart/windowEnd are ISO strings bounding which items are fetched. */
+export async function fetchScheduleItems(
+  windowStart: string,
+  windowEnd: string
+): Promise<{ items: ScheduleItem[]; banners: ScheduleBannerWindow[] }> {
   const [news, articles, banners, exchanges] = await Promise.all([
-    client.fetch<{ _id: string; title: string; publishedAt: string }[]>(
-      `*[_type == "news" && publishTiming == "scheduled" && publishedAt > now()]{ _id, title, publishedAt }`
+    client.fetch<{ _id: string; title: string; publishedAt: string; language: 'ru' | 'en' }[]>(
+      `*[_type == "news" && defined(publishedAt) && publishedAt >= $windowStart && publishedAt <= $windowEnd]{ _id, title, publishedAt, language }`,
+      { windowStart, windowEnd }
     ),
-    client.fetch<{ _id: string; title: string; publishedAt: string }[]>(
-      `*[_type == "article" && publishTiming == "scheduled" && publishedAt > now()]{ _id, title, publishedAt }`
+    client.fetch<{ _id: string; title: string; publishedAt: string; language: 'ru' | 'en' }[]>(
+      `*[_type == "article" && defined(publishedAt) && publishedAt >= $windowStart && publishedAt <= $windowEnd]{ _id, title, publishedAt, language }`,
+      { windowStart, windowEnd }
     ),
-    client.fetch<{ _id: string; title: string; startAt?: string; endAt?: string }[]>(
-      `*[_type == "sidebarBanner" && (defined(startAt) || defined(endAt))]{ _id, title, startAt, endAt }`
+    client.fetch<ScheduleBannerWindow[]>(
+      `*[_type == "sidebarBanner" && (defined(startAt) || defined(endAt))]{ _id, title, startAt, endAt, "language": coalesce(language, "all") }`
     ),
     client.fetch<{ _id: string; name: string; pinUntil: string }[]>(
-      `*[_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil > now()]{ _id, name, pinUntil }`
+      `*[_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil >= $windowStart && pinUntil <= $windowEnd]{ _id, name, pinUntil }`,
+      { windowStart, windowEnd }
     ),
   ]);
 
   const items: ScheduleItem[] = [];
   const now = Date.now();
+  const startMs = new Date(windowStart).getTime();
+  const endMs = new Date(windowEnd).getTime();
+  const inWindow = (iso: string) => {
+    const t = new Date(iso).getTime();
+    return t >= startMs && t <= endMs;
+  };
 
-  for (const n of news) items.push({ type: 'news', id: n._id, title: n.title, at: n.publishedAt, href: `/admin/news/${n._id}`, permission: 'news' });
-  for (const a of articles) items.push({ type: 'article', id: a._id, title: a.title, at: a.publishedAt, href: `/admin/articles/${a._id}`, permission: 'articles' });
+  for (const n of news) {
+    items.push({ type: 'news', id: n._id, title: n.title, at: n.publishedAt, href: `/admin/news/${n._id}`, permission: 'news', language: n.language, realized: new Date(n.publishedAt).getTime() <= now });
+  }
+  for (const a of articles) {
+    items.push({ type: 'article', id: a._id, title: a.title, at: a.publishedAt, href: `/admin/articles/${a._id}`, permission: 'articles', language: a.language, realized: new Date(a.publishedAt).getTime() <= now });
+  }
   for (const b of banners) {
-    if (b.startAt && new Date(b.startAt).getTime() > now) {
-      items.push({ type: 'banner-start', id: b._id, title: b.title, at: b.startAt, href: `/admin/banners/${b._id}`, permission: 'banners' });
+    if (b.startAt && inWindow(b.startAt)) {
+      items.push({ type: 'banner-start', id: b._id, title: b.title, at: b.startAt, href: `/admin/banners/${b._id}`, permission: 'banners', language: b.language, realized: new Date(b.startAt).getTime() <= now });
     }
-    if (b.endAt && new Date(b.endAt).getTime() > now) {
-      items.push({ type: 'banner-end', id: b._id, title: b.title, at: b.endAt, href: `/admin/banners/${b._id}`, permission: 'banners' });
+    if (b.endAt && inWindow(b.endAt)) {
+      items.push({ type: 'banner-end', id: b._id, title: b.title, at: b.endAt, href: `/admin/banners/${b._id}`, permission: 'banners', language: b.language, realized: new Date(b.endAt).getTime() <= now });
     }
   }
   for (const e of exchanges) {
-    items.push({ type: 'exchange-pin', id: e._id, title: e.name, at: e.pinUntil, href: `/admin/exchanges/${e._id}`, permission: 'exchanges' });
+    items.push({ type: 'exchange-pin', id: e._id, title: e.name, at: e.pinUntil, href: `/admin/exchanges/${e._id}`, permission: 'exchanges', language: null, realized: new Date(e.pinUntil).getTime() <= now });
   }
 
-  return items.sort((x, y) => new Date(x.at).getTime() - new Date(y.at).getTime());
+  return { items: items.sort((x, y) => new Date(x.at).getTime() - new Date(y.at).getTime()), banners };
 }
 
 export async function fetchDashboardCounts() {

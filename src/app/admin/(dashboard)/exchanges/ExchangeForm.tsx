@@ -3,20 +3,9 @@ import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import RichTextEditor from '../_shared/RichTextEditor';
 import SubmitButton from '../_shared/SubmitButton';
-
-const BADGE_TONES = [
-  { value: 'license', label: '🔵 Лицензия (регуляторная)' },
-  { value: 'gold', label: '🏆 Золотой / корпоративный статус' },
-  { value: 'warn', label: '🟡 Предупреждение / ограничение' },
-  { value: 'ok', label: '🟢 Ок' },
-  { value: 'off', label: '⚪ Нейтральный' },
-];
-
-const REGION_TONES = [
-  { value: 'ok', label: '🟢 Разрешена' },
-  { value: 'warn', label: '🟡 Предупреждение' },
-  { value: 'off', label: '⚪ Недоступна' },
-];
+import ProductsRepeater from './ProductsRepeater';
+import BadgesRepeater from './BadgesRepeater';
+import RegionsRepeater from './RegionsRepeater';
 
 const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
 const smallInputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12.5px]';
@@ -29,10 +18,6 @@ export default function ExchangeForm({
   exchange?: AdminExchangeDoc;
   action: (formData: FormData) => void;
 }) {
-  const productRows = Math.max((exchange?.products.length ?? 0) + 3, 6);
-  const badgeRows = Math.max((exchange?.badges.length ?? 0) + 4, 8);
-  const regionRows = Math.max((exchange?.regions.length ?? 0) + 4, 8);
-
   return (
     <form action={action} className="max-w-3xl">
       <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Основное</h2>
@@ -112,75 +97,25 @@ export default function ExchangeForm({
       <div className="grid grid-cols-2 gap-3 mb-6">
         <div>
           <label className={labelCls}>RU</label>
-          <RichTextEditor name="descriptionRu" originalBlocks={exchange?.descriptionRu} rows={6} simple />
+          <RichTextEditor name="descriptionRu" originalBlocks={exchange?.descriptionRu} rows={6} simple hidePreview />
         </div>
         <div>
           <label className={labelCls}>EN</label>
-          <RichTextEditor name="descriptionEn" originalBlocks={exchange?.descriptionEn} rows={6} simple />
+          <RichTextEditor name="descriptionEn" originalBlocks={exchange?.descriptionEn} rows={6} simple hidePreview />
         </div>
       </div>
 
-      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Продукты</h2>
-      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте название пустым, чтобы не создавать продукт в этой строке.</p>
-      <div className="flex flex-col gap-3 mb-6">
-        {Array.from({ length: productRows }).map((_, i) => {
-          const p = exchange?.products[i];
-          return (
-            <div key={i} className="border border-[var(--admin-border)] rounded-lg p-3 bg-[var(--admin-panel)]">
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                <input name={`product_nameRu_${i}`} defaultValue={p?.nameRu} placeholder="Название, RU" className={smallInputCls} />
-                <input name={`product_nameEn_${i}`} defaultValue={p?.nameEn} placeholder="Название, EN" className={smallInputCls} />
-              </div>
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                <input name={`product_shortRu_${i}`} defaultValue={p?.shortRu} placeholder="Короткое описание, RU" className={smallInputCls} />
-                <input name={`product_shortEn_${i}`} defaultValue={p?.shortEn} placeholder="Короткое описание, EN" className={smallInputCls} />
-              </div>
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                <textarea name={`product_longRu_${i}`} defaultValue={p?.longRu} placeholder="Полное описание, RU" rows={2} className={smallInputCls} />
-                <textarea name={`product_longEn_${i}`} defaultValue={p?.longEn} placeholder="Полное описание, EN" rows={2} className={smallInputCls} />
-              </div>
-              <ImageField name={`product_image_${i}`} label="Картинка продукта (~1600×800)" currentUrl={p?.image} size={72} />
-            </div>
-          );
-        })}
-      </div>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Продукты</h2>
+      <ProductsRepeater existing={exchange?.products ?? []} />
+      <div className="mb-4" />
 
-      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Плашки</h2>
-      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте текст пустым, чтобы не создавать плашку в этой строке.</p>
-      <div className="flex flex-col gap-2 mb-6">
-        {Array.from({ length: badgeRows }).map((_, i) => {
-          const b = exchange?.badges[i];
-          return (
-            <div key={i} className="grid grid-cols-4 gap-2 border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
-              <input name={`badge_textRu_${i}`} defaultValue={b?.textRu} placeholder="Текст, RU" className={smallInputCls} />
-              <input name={`badge_textEn_${i}`} defaultValue={b?.textEn} placeholder="Текст, EN" className={smallInputCls} />
-              <select name={`badge_tone_${i}`} defaultValue={b?.tone ?? 'off'} className={smallInputCls}>
-                {BADGE_TONES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-              <input name={`badge_link_${i}`} defaultValue={b?.link} placeholder="Ссылка (необяз.)" className={smallInputCls} />
-            </div>
-          );
-        })}
-      </div>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Плашки</h2>
+      <BadgesRepeater existing={exchange?.badges ?? []} />
+      <div className="mb-4" />
 
-      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Статус по регионам</h2>
-      <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">Оставьте регион пустым, чтобы не создавать строку.</p>
-      <div className="flex flex-col gap-2 mb-6">
-        {Array.from({ length: regionRows }).map((_, i) => {
-          const r = exchange?.regions[i];
-          return (
-            <div key={i} className="grid grid-cols-5 gap-2 border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
-              <input name={`region_regionRu_${i}`} defaultValue={r?.regionRu} placeholder="Регион, RU" className={smallInputCls} />
-              <input name={`region_regionEn_${i}`} defaultValue={r?.regionEn} placeholder="Регион, EN" className={smallInputCls} />
-              <select name={`region_tone_${i}`} defaultValue={r?.tone ?? 'ok'} className={smallInputCls}>
-                {REGION_TONES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-              <input name={`region_noteRu_${i}`} defaultValue={r?.noteRu} placeholder="Комментарий, RU" className={smallInputCls} />
-              <input name={`region_noteEn_${i}`} defaultValue={r?.noteEn} placeholder="Комментарий, EN" className={smallInputCls} />
-            </div>
-          );
-        })}
-      </div>
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Статус по регионам</h2>
+      <RegionsRepeater existing={exchange?.regions ?? []} />
+      <div className="mb-2" />
 
       <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Рейтинг и закрепление</h2>
       <div className="mb-3">

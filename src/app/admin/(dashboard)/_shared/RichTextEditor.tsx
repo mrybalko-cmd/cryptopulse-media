@@ -166,6 +166,7 @@ export default function RichTextEditor({
   originalBlocks,
   rows = 16,
   simple = false,
+  hidePreview = false,
 }: {
   name: string;
   /** Original Portable Text blocks — supplies both the initial text (via
@@ -174,6 +175,8 @@ export default function RichTextEditor({
   rows?: number;
   /** Hides list/embed/image buttons for schemas that don't support them (e.g. exchange descriptions). */
   simple?: boolean;
+  /** Hides the rendered-preview panel below the textarea. */
+  hidePreview?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(() => blocksToText(originalBlocks));
@@ -262,12 +265,14 @@ export default function RichTextEditor({
         <input key={idx} type="file" accept="image/*" name={`${name}_image_${idx}`} className="hidden" onChange={sync} />
       ))}
 
-      <div className="mt-3">
-        <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-1.5">Предпросмотр</div>
-        <div className="border border-[var(--admin-border)] rounded-lg px-4 py-3 text-[14px] leading-[1.75] text-[var(--admin-text-secondary)] min-h-[80px]">
-          {text.trim() ? <PreviewBlocks blocks={previewBlocks} /> : <span className="text-[var(--admin-text-dim)] text-[12.5px]">Начните печатать — здесь появится предпросмотр</span>}
+      {!hidePreview && (
+        <div className="mt-3">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-1.5">Предпросмотр</div>
+          <div className="border border-[var(--admin-border)] rounded-lg px-4 py-3 text-[14px] leading-[1.75] text-[var(--admin-text-secondary)] min-h-[80px]">
+            {text.trim() ? <PreviewBlocks blocks={previewBlocks} /> : <span className="text-[var(--admin-text-dim)] text-[12.5px]">Начните печатать — здесь появится предпросмотр</span>}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

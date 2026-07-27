@@ -6,15 +6,15 @@ import LogoutButton from './LogoutButton';
 import ThemeToggle from './_shared/ThemeToggle';
 
 const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[] = [
-  { href: '/admin', label: '🏠 Обзор', permission: null },
-  { href: '/admin/schedule', label: '🗓️ Расписание', permission: null },
-  { href: '/admin/news', label: '📰 Новости', permission: 'news' },
-  { href: '/admin/articles', label: '📝 Статьи', permission: 'articles' },
-  { href: '/admin/banners', label: '🖼️ Баннеры', permission: 'banners' },
-  { href: '/admin/exchanges', label: '🏦 Криптобиржи', permission: 'exchanges' },
-  { href: '/admin/exchange-reviews', label: '⭐ Отзывы о биржах', permission: 'exchanges' },
-  { href: '/admin/comments', label: '💬 Комментарии', permission: 'comments' },
-  { href: '/admin/homepage', label: '🏡 Главная страница', permission: 'homepage' },
+  { href: '/admin', label: '🏠 Обзор / Overview', permission: null },
+  { href: '/admin/schedule', label: '🗓️ Расписание / Schedule', permission: null },
+  { href: '/admin/news', label: '📰 Новости / News', permission: 'news' },
+  { href: '/admin/articles', label: '📝 Статьи / Articles', permission: 'articles' },
+  { href: '/admin/banners', label: '🖼️ Баннеры / Banners', permission: 'banners' },
+  { href: '/admin/exchanges', label: '🏦 Криптобиржи / Exchanges', permission: 'exchanges' },
+  { href: '/admin/exchange-reviews', label: '⭐ Отзывы о биржах / Exchange reviews', permission: 'exchanges' },
+  { href: '/admin/comments', label: '💬 Комментарии / Comments', permission: 'comments' },
+  { href: '/admin/homepage', label: '🏡 Главная страница / Homepage', permission: 'homepage' },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 href="/admin/users"
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
               >
-                👥 Пользователи и права
+                👥 Пользователи и права / Users & permissions
               </Link>
             </>
           )}

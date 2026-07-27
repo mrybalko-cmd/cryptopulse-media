@@ -16,8 +16,7 @@ import {
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 
 async function parseProducts(
-  formData: FormData,
-  originalProducts: ExchangeProductItem[] | undefined
+  formData: FormData
 ): Promise<(ExchangeProductItem & { imageAssetId?: string })[]> {
   const rows: { nameRu: string; nameEn: string; shortRu?: string; shortEn?: string; longRu?: string; longEn?: string; file: File | null; existingRef?: string }[] = [];
   let i = 0;
@@ -33,7 +32,7 @@ async function parseProducts(
         longRu: String(formData.get(`product_longRu_${i}`) || '') || undefined,
         longEn: String(formData.get(`product_longEn_${i}`) || '') || undefined,
         file: formData.get(`product_image_${i}`) as File | null,
-        existingRef: originalProducts?.[i]?.imageAssetRef ?? undefined,
+        existingRef: String(formData.get(`product_existingImageRef_${i}`) || '') || undefined,
       });
     }
     i++;
@@ -99,8 +98,7 @@ function parseRegions(formData: FormData): ExchangeRegionItem[] {
 async function parseExchangeInput(
   formData: FormData,
   originalDescriptionRu: PortableTextBlock[] | undefined,
-  originalDescriptionEn: PortableTextBlock[] | undefined,
-  originalProducts: ExchangeProductItem[] | undefined
+  originalDescriptionEn: PortableTextBlock[] | undefined
 ): Promise<ExchangeInput> {
   const pinUntilRaw = String(formData.get('pinUntil') || '');
   return {
@@ -119,7 +117,7 @@ async function parseExchangeInput(
     taglineEn: String(formData.get('taglineEn') || ''),
     descriptionRu: textToBlocks(String(formData.get('descriptionRu') || ''), originalDescriptionRu),
     descriptionEn: textToBlocks(String(formData.get('descriptionEn') || ''), originalDescriptionEn),
-    products: await parseProducts(formData, originalProducts),
+    products: await parseProducts(formData),
     badges: parseBadges(formData),
     regions: parseRegions(formData),
     pinned: formData.get('pinned') === 'on',
@@ -138,7 +136,7 @@ export async function createExchangeAction(formData: FormData) {
   await requireAdminPermission('exchanges');
   const logoFile = formData.get('logo') as File | null;
   const [input, logoAssetId] = await Promise.all([
-    parseExchangeInput(formData, undefined, undefined, undefined),
+    parseExchangeInput(formData, undefined, undefined),
     logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
   ]);
   const doc = await createExchange(input, logoAssetId);
@@ -150,13 +148,12 @@ export async function updateExchangeAction(
   id: string,
   originalDescriptionRu: PortableTextBlock[] | undefined,
   originalDescriptionEn: PortableTextBlock[] | undefined,
-  originalProducts: ExchangeProductItem[] | undefined,
   formData: FormData
 ) {
   await requireAdminPermission('exchanges');
   const logoFile = formData.get('logo') as File | null;
   const [input, logoAssetId] = await Promise.all([
-    parseExchangeInput(formData, originalDescriptionRu, originalDescriptionEn, originalProducts),
+    parseExchangeInput(formData, originalDescriptionRu, originalDescriptionEn),
     logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
   ]);
   await updateExchange(id, input, logoAssetId);

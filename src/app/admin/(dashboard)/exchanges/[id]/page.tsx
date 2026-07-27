@@ -13,7 +13,7 @@ export default async function EditExchangePage({ params }: { params: Promise<{ i
 
   const boundAction = async (formData: FormData) => {
     'use server';
-    await updateExchangeAction(id, exchange.descriptionRu, exchange.descriptionEn, exchange.products, formData);
+    await updateExchangeAction(id, exchange.descriptionRu, exchange.descriptionEn, formData);
   };
   const boundDelete = async () => {
     'use server';
