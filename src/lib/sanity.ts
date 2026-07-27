@@ -1,7 +1,7 @@
 import { createClient } from '@sanity/client';
 import { unstable_cache } from 'next/cache';
 
-const client = createClient({
+export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
@@ -10,7 +10,7 @@ const client = createClient({
 
 const READ_CACHE_SECONDS = 300;
 
-const writeClient = createClient({
+export const writeClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',

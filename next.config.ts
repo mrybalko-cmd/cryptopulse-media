@@ -4,6 +4,11 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Default 1MB is too small for banner image uploads in /admin (server
+    // actions posting a File via FormData go through this same limit).
+    serverActions: { bodySizeLimit: '8mb' },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,
