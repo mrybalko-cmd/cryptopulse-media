@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission } from '@/lib/admin/permissions';
 import { fetchScheduleItems, type ScheduleItem, type ScheduleBannerWindow } from '@/lib/admin/data';
-import { pragueDateKey, pragueToday, formatPragueTime, formatPragueDate } from '@/lib/admin/timezone';
+import { pragueDateKey, pragueToday, formatPragueDate } from '@/lib/admin/timezone';
 import { redirect } from 'next/navigation';
 import ScheduleAnalytics from './ScheduleAnalytics';
 import ScheduleCalendarView from './ScheduleCalendarView';
+import DayItemsList from './DayItemsList';
 
 const TYPE_META: Record<ScheduleItem['type'], { color: string; label: string; title: (t: string) => string }> = {
   news: { color: '#06b6d4', label: 'Новость', title: t => t },
@@ -219,29 +220,7 @@ export default async function AdminSchedulePage({
                   {dayItems.length === 0 ? (
                     <div className="flex-1 flex items-center text-[11px] text-[var(--admin-text-dim)]">Нет публикаций</div>
                   ) : (
-                    <div className={`flex flex-col ${dayItems.length > 4 ? 'max-h-[168px] overflow-y-auto pr-0.5' : ''}`}>
-                      {dayItems.map(item => {
-                        const meta = TYPE_META[item.type];
-                        return (
-                          <Link
-                            key={`${item.type}-${item.id}-${item.at}`}
-                            href={item.href}
-                            title={meta.title(item.title)}
-                            className="flex items-center gap-1.5 py-1 border-t border-[var(--admin-border)] first:border-t-0 hover:bg-[var(--admin-input)] -mx-1 px-1 rounded transition-colors"
-                          >
-                            <span className="text-[9.5px] text-[var(--admin-text-dim)] w-8 shrink-0 tabular-nums">
-                              {formatPragueTime(item.at)}
-                            </span>
-                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.realized ? 'var(--admin-text-dim)' : meta.color }} />
-                            <span
-                              className={`text-[10.5px] flex-1 min-w-0 truncate ${item.realized ? 'text-[var(--admin-text-dim)]' : 'text-[var(--admin-text)] font-semibold'}`}
-                            >
-                              {item.realized ? '✓ ' : ''}{item.title}
-                            </span>
-                          </Link>
-                        );
-                      })}
-                    </div>
+                    <DayItemsList items={dayItems} />
                   )}
                 </div>
               );

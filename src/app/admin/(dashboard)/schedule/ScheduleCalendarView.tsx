@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { ScheduleItem, ScheduleBannerWindow } from '@/lib/admin/data';
 import { pragueDateKey, formatPragueDate, formatPragueTime } from '@/lib/admin/timezone';
@@ -83,6 +83,15 @@ export default function ScheduleCalendarView({
   const realizedItems = selectedItems.filter(i => i.realized);
   const plannedItems = selectedItems.filter(i => !i.realized);
   const selectedBanners = banners.filter(b => isBannerActiveOnDay(b, selected));
+  const nextUpIndex = selectedItems.findIndex(i => !i.realized);
+  const nextUpRef = useRef<HTMLAnchorElement>(null);
+
+  // Re-center on whichever publication is next up (or the last realized one,
+  // if the whole day is already done) every time the selected day changes —
+  // not just on first mount, since the list is capped-height and scrollable.
+  useEffect(() => {
+    nextUpRef.current?.scrollIntoView({ block: 'center' });
+  }, [selected]);
 
   return (
     <div>
@@ -192,19 +201,27 @@ export default function ScheduleCalendarView({
             <div className="text-[12px] text-[var(--admin-text-dim)] py-3">Нет запланированных или опубликованных материалов на этот день.</div>
           ) : (
             <div className="flex flex-col gap-1.5 max-h-[420px] overflow-y-auto pr-1">
-              {selectedItems.map(item => {
+              {selectedItems.map((item, i) => {
                 const meta = TYPE_META[item.type];
+                const isNextUp = i === nextUpIndex;
                 return (
                   <Link
                     key={`${item.type}-${item.id}-${item.at}`}
+                    ref={isNextUp ? nextUpRef : undefined}
                     href={item.href}
-                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[var(--admin-input)] hover:brightness-110 transition-all"
-                    style={{ borderLeft: `3px solid ${item.realized ? 'var(--admin-text-dim)' : meta.color}` }}
+                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg hover:brightness-110 transition-all"
+                    style={{
+                      borderLeft: `3px solid ${item.realized ? 'var(--admin-text-dim)' : meta.color}`,
+                      background: isNextUp ? 'rgba(6,182,212,.10)' : 'var(--admin-input)',
+                    }}
                   >
                     <span className="text-[11px] text-[var(--admin-text-dim)] w-11 shrink-0 tabular-nums">{formatPragueTime(item.at)}</span>
                     <span className={`text-[12.5px] flex-1 min-w-0 truncate ${item.realized ? 'text-[var(--admin-text-dim)]' : 'font-semibold'}`}>
                       {item.realized ? '✓ ' : ''}{meta.title(item.title)}
                     </span>
+                    {isNextUp && (
+                      <span className="text-[8px] font-extrabold uppercase shrink-0" style={{ color: 'var(--admin-focus)' }}>Далее</span>
+                    )}
                     {item.language && item.language !== 'all' && (
                       <span className="text-[9px] font-extrabold uppercase text-[var(--admin-text-dim)] shrink-0">{item.language}</span>
                     )}
