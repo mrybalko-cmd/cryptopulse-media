@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Zap, Pin, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 
@@ -49,8 +50,8 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
           </span>
         )}
         {!external && ownBadge && !aiTopic && (
-          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-red-600 flex items-center justify-center" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
-            <Zap size={10} className="text-yellow-400" fill="currentColor" />
+          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded overflow-hidden relative shrink-0" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
+            <Image src="/logo-mark.png" alt="" fill className="object-cover" />
           </span>
         )}
         {pinned && (
