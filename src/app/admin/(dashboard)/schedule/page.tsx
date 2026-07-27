@@ -175,56 +175,78 @@ export default async function AdminSchedulePage({
       </div>
 
       {activeView === 'list' ? (
-        <div className="flex flex-col gap-5 max-w-2xl">
-          <p className="text-[11px] text-[var(--admin-text-muted)]">Следующие {LIST_DAYS} дней, начиная с сегодняшнего.</p>
-          {listDays.map(date => {
-            const dayItems = itemsByDate.get(date.toDateString()) ?? [];
-            const summary = summarizeByType(dayItems);
-            const activeBanners = banners.filter(b => isBannerActiveOnDay(b, date));
-            return (
-              <div key={date.toISOString()}>
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="text-[11px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold">{dayLabel(date)}</span>
-                  {summary.map(s => (
-                    <span key={s.type} className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: `${TYPE_META[s.type].color}26`, color: TYPE_META[s.type].color }}>
-                      {s.count} {TYPE_META[s.type].label.toLowerCase()}
+        <div>
+          <p className="text-[11px] text-[var(--admin-text-muted)] mb-3">
+            Следующие {LIST_DAYS} дней, начиная с сегодняшнего. ✓ и приглушённый текст — уже опубликовано; яркий текст — ещё запланировано.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {listDays.map(date => {
+              const dayItems = itemsByDate.get(date.toDateString()) ?? [];
+              const summary = summarizeByType(dayItems);
+              const activeBanners = banners.filter(b => isBannerActiveOnDay(b, date));
+              const isToday = date.toDateString() === now.toDateString();
+              return (
+                <div
+                  key={date.toISOString()}
+                  className="border rounded-xl p-3 bg-[var(--admin-panel)] flex flex-col min-h-[100px]"
+                  style={{ borderColor: isToday ? 'var(--admin-focus)' : 'var(--admin-border)' }}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                    <span
+                      className="text-[11.5px] font-bold"
+                      style={{ color: isToday ? 'var(--admin-focus)' : 'var(--admin-text-secondary)' }}
+                    >
+                      {dayLabel(date)}
                     </span>
-                  ))}
-                  {activeBanners.map(b => (
-                    <Link key={b._id} href={`/admin/banners/${b._id}`} className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400">
-                      📢 {b.title}
-                    </Link>
-                  ))}
-                </div>
-                {dayItems.length === 0 ? (
-                  <div className="border border-dashed border-[var(--admin-border)] rounded-xl px-4 py-2.5 text-[12px] text-[var(--admin-text-dim)]">Нет публикаций</div>
-                ) : (
-                  <div className={`border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] divide-y divide-[var(--admin-border)] ${dayItems.length > 10 ? 'max-h-[460px] overflow-y-auto' : ''}`}>
-                    {dayItems.map(item => {
-                      const meta = TYPE_META[item.type];
-                      return (
-                        <Link
-                          key={`${item.type}-${item.id}-${item.at}`}
-                          href={item.href}
-                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--admin-input)] transition-colors"
-                        >
-                          <span className="text-[11.5px] text-[var(--admin-text-muted)] w-11 shrink-0 tabular-nums">
-                            {new Date(item.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: meta.color }} />
-                          <span className="text-[12.5px] font-semibold flex-1">{meta.title(item.title)}</span>
-                          {item.language && item.language !== 'all' && (
-                            <span className="text-[9px] font-extrabold uppercase text-[var(--admin-text-dim)] tracking-wide shrink-0">{item.language}</span>
-                          )}
-                          <span className="text-[9.5px] font-extrabold uppercase text-[var(--admin-text-muted)] tracking-wide shrink-0">{meta.label}</span>
-                        </Link>
-                      );
-                    })}
+                    {activeBanners.map(b => (
+                      <Link key={b._id} href={`/admin/banners/${b._id}`} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 shrink-0">
+                        📢 {b.title}
+                      </Link>
+                    ))}
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {summary.length > 0 && (
+                    <div className="flex items-center gap-2.5 mb-2 flex-wrap">
+                      {summary.map(s => (
+                        <span key={s.type} className="flex items-center gap-1 text-[10px] font-extrabold tabular-nums" style={{ color: TYPE_META[s.type].color }}>
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: TYPE_META[s.type].color }} />
+                          {s.count}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {dayItems.length === 0 ? (
+                    <div className="flex-1 flex items-center text-[11px] text-[var(--admin-text-dim)]">Нет публикаций</div>
+                  ) : (
+                    <div className={`flex flex-col ${dayItems.length > 4 ? 'max-h-[168px] overflow-y-auto pr-0.5' : ''}`}>
+                      {dayItems.map(item => {
+                        const meta = TYPE_META[item.type];
+                        return (
+                          <Link
+                            key={`${item.type}-${item.id}-${item.at}`}
+                            href={item.href}
+                            title={meta.title(item.title)}
+                            className="flex items-center gap-1.5 py-1 border-t border-[var(--admin-border)] first:border-t-0 hover:bg-[var(--admin-input)] -mx-1 px-1 rounded transition-colors"
+                          >
+                            <span className="text-[9.5px] text-[var(--admin-text-dim)] w-8 shrink-0 tabular-nums">
+                              {new Date(item.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.realized ? 'var(--admin-text-dim)' : meta.color }} />
+                            <span
+                              className={`text-[10.5px] flex-1 min-w-0 truncate ${item.realized ? 'text-[var(--admin-text-dim)]' : 'text-[var(--admin-text)] font-semibold'}`}
+                            >
+                              {item.realized ? '✓ ' : ''}{item.title}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div>
