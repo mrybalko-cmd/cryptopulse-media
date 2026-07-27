@@ -961,3 +961,87 @@ export async function fetchDashboardCounts() {
   ]);
   return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek };
 }
+
+// ---------------- Schedule analytics ----------------
+
+export interface DailyPublicationCount {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+export async function fetchPublicationTrend(days: number): Promise<{ counts: DailyPublicationCount[]; total: number; average: number }> {
+  const start = new Date();
+  start.setDate(start.getDate() - (days - 1));
+  start.setHours(0, 0, 0, 0);
+
+  const rows = await client.fetch<{ publishedAt: string }[]>(
+    `*[_type in ["news", "article"] && defined(publishedAt) && publishedAt >= $start && publishedAt <= now()]{ publishedAt }`,
+    { start: start.toISOString() }
+  );
+
+  const countByDay = new Map<string, number>();
+  for (const row of rows) {
+    const key = row.publishedAt.slice(0, 10);
+    countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
+  }
+
+  const counts: DailyPublicationCount[] = Array.from({ length: days }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    return { date: key, count: countByDay.get(key) ?? 0 };
+  });
+
+  const total = counts.reduce((sum, c) => sum + c.count, 0);
+  const average = days > 0 ? total / days : 0;
+  return { counts, total, average };
+}
+
+export interface TopLikedItem {
+  id: string;
+  type: 'news' | 'article';
+  title: string;
+  language: 'ru' | 'en';
+  likes: number;
+  href: string;
+}
+
+export async function fetchTopLikedContent(limit: number): Promise<TopLikedItem[]> {
+  const rows = await client.fetch<{ _id: string; _type: 'news' | 'article'; title: string; language: 'ru' | 'en'; likes: number }[]>(
+    `*[_type in ["news", "article"] && coalesce(likes, 0) > 0] | order(likes desc)[0...${limit}]{ _id, _type, title, language, "likes": coalesce(likes, 0) }`
+  );
+  return rows.map(r => ({
+    id: r._id,
+    type: r._type,
+    title: r.title,
+    language: r.language,
+    likes: r.likes,
+    href: r._type === 'news' ? `/admin/news/${r._id}` : `/admin/articles/${r._id}`,
+  }));
+}
+
+export interface AuthorLikesLeaderboardItem {
+  id: string;
+  name: string;
+  totalLikes: number;
+}
+
+export async function fetchAuthorLikesLeaderboard(): Promise<AuthorLikesLeaderboardItem[]> {
+  const [rows, authors] = await Promise.all([
+    client.fetch<{ authorId: string | null; likes: number }[]>(
+      `*[_type in ["news", "article"] && defined(author)]{ "authorId": author._ref, "likes": coalesce(likes, 0) }`
+    ),
+    fetchAuthorOptions(),
+  ]);
+
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    if (!row.authorId) continue;
+    totals.set(row.authorId, (totals.get(row.authorId) ?? 0) + row.likes);
+  }
+
+  return authors
+    .map(a => ({ id: a._id, name: a.name, totalLikes: totals.get(a._id) ?? 0 }))
+    .filter(a => a.totalLikes > 0)
+    .sort((a, b) => b.totalLikes - a.totalLikes);
+}

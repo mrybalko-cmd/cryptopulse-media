@@ -3,6 +3,7 @@ import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission } from '@/lib/admin/permissions';
 import { fetchScheduleItems, type ScheduleItem, type ScheduleBannerWindow } from '@/lib/admin/data';
 import { redirect } from 'next/navigation';
+import ScheduleAnalytics from './ScheduleAnalytics';
 
 const TYPE_META: Record<ScheduleItem['type'], { color: string; label: string; title: (t: string) => string }> = {
   news: { color: '#06b6d4', label: 'Новость', title: t => t },
@@ -161,6 +162,8 @@ export default async function AdminSchedulePage({
           </div>
         </div>
       </div>
+
+      <ScheduleAnalytics />
 
       <div className="flex gap-4 flex-wrap text-[11px] text-[var(--admin-text-muted)] mb-5">
         {LEGEND.map(l => (
