@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
+import Image from 'next/image';
 import { Menu, X, Zap } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SiteSearch from '@/components/ui/SiteSearch';
@@ -75,9 +76,8 @@ export default function Header() {
 
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-2 sm:gap-2.5 group">
-          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-red-600 flex items-center justify-center shrink-0">
-            <Zap size={13} className="text-yellow-400 sm:hidden" fill="currentColor" />
-            <Zap size={17} className="text-yellow-400 hidden sm:block" fill="currentColor" />
+          <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
+            <Image src="/logo-mark.png" alt="" fill className="object-cover" priority />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             CryptoPulse<span className="text-accent">.media</span>
