@@ -141,7 +141,7 @@ export default function NewsForm({
             </div>
             <div className="mb-3">
               <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Ключевые слова</label>
-              <TagChipsInput name="seoKeywords" defaultValue={news?.seoKeywords ? news.seoKeywords.split(',').map(s => s.trim()).filter(Boolean) : []} />
+              <TagChipsInput name="seoKeywords" defaultValue={news?.seoKeywords ? news.seoKeywords.split(',').map(s => s.trim()).filter(Boolean) : []} minRecommended={10} />
             </div>
             <div className="mb-3">
               <ImageField name="seoOgImage" label="OG Image (соцсети, 1200×630)" currentUrl={news?.seoOgImage} size={100} />

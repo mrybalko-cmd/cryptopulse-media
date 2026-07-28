@@ -131,9 +131,11 @@ function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
     if (block._type !== 'block') {
       flushList(`list-${i}`);
       if (block._type === 'image') {
+        const alt = block.alt ? String(block.alt) : null;
         nodes.push(
-          <div key={i} className="my-3 h-28 rounded-lg bg-gradient-to-br from-[var(--admin-input)] to-[var(--admin-border)] flex items-center justify-center text-[11px] text-[var(--admin-text-muted)]">
-            🖼️ изображение
+          <div key={i} className="my-3 h-28 rounded-lg bg-gradient-to-br from-[var(--admin-input)] to-[var(--admin-border)] flex flex-col items-center justify-center gap-1 text-[11px] text-[var(--admin-text-muted)] px-3 text-center">
+            <span>🖼️ изображение</span>
+            {alt ? <span className="text-[10px] italic truncate max-w-full">alt: {alt}</span> : <span className="text-[10px] text-red-400/80">alt-текст не задан</span>}
           </div>
         );
       } else if (block._type === 'youtubeEmbed') {
@@ -272,8 +274,9 @@ export default function RichTextEditor({
             <ToolbarButton
               title="Вставить картинку"
               onClick={() => {
+                const alt = window.prompt('Alt-текст картинки (для доступности и SEO, можно оставить пустым):') || '';
                 const idx = addImageSlot();
-                if (ref.current) { insertAtCursor(ref.current, `[[img:${idx}]]`); sync(); }
+                if (ref.current) { insertAtCursor(ref.current, `[[img:${idx}${alt ? `|${alt}` : ''}]]`); sync(); }
               }}
             >
               🖼️

@@ -49,15 +49,6 @@ function truncate(s: string, n: number): string {
   return s.length > n ? `${s.slice(0, n)}…` : s;
 }
 
-function describeNonTextBlock(block: PortableTextBlock): string {
-  switch (block._type) {
-    case 'image':
-      return 'изображение (редактируется в /studio)';
-    default:
-      return String(block._type);
-  }
-}
-
 function wrapMarks(span: Span, markDefs: MarkDef[]): string {
   let text = span.text ?? '';
   const marks = span.marks ?? [];
@@ -112,7 +103,11 @@ export function blocksToText(blocks: PortableTextBlock[] | undefined): string {
       if (block._type === 'quoteBlock') return quoteBlockToText(block);
       if (block._type === 'youtubeEmbed') return `[[youtube:${block.url ?? ''}]]`;
       if (block._type === 'tweetEmbed') return `[[tweet:${block.url ?? ''}]]`;
-      return `⟦${i}: ${describeNonTextBlock(block)}⟧`;
+      // Image asset/crop can't be re-authored from plain text, but the alt
+      // text can — the marker carries it so editing the line updates just
+      // that field on save while the original asset reference is preserved.
+      if (block._type === 'image') return `⟦${i}:image:${String(block.alt ?? '')}⟧`;
+      return `⟦${i}: ${String(block._type)}⟧`;
     })
     .join('\n\n');
 }
@@ -229,16 +224,23 @@ export function textToBlocks(
     .filter(Boolean);
   const result: PortableTextBlock[] = [];
   for (const para of paragraphs) {
+    const imageAltMatch = para.match(/^⟦(\d+):image:([\s\S]*)⟧$/);
+    if (imageAltMatch) {
+      const original = originalBlocks?.[Number(imageAltMatch[1])];
+      if (original && original._type === 'image') result.push({ ...original, alt: imageAltMatch[2] || undefined });
+      continue;
+    }
     const preserveMatch = para.match(/^⟦(\d+):/);
     if (preserveMatch) {
       const original = originalBlocks?.[Number(preserveMatch[1])];
       if (original && original._type !== 'block') result.push(original);
       continue;
     }
-    const imageMatch = para.match(/^\[\[img:(\d+)\]\]$/);
+    const imageMatch = para.match(/^\[\[img:(\d+)(?:\|([\s\S]*))?\]\]$/);
     if (imageMatch) {
       const assetId = newImageAssetIds?.[Number(imageMatch[1])];
-      if (assetId) result.push({ _key: randomKey(), ...imageField(assetId) });
+      const alt = imageMatch[2];
+      if (assetId) result.push({ _key: randomKey(), ...imageField(assetId), ...(alt ? { alt } : {}) });
       continue;
     }
     const youtubeMatch = para.match(/^\[\[youtube:(.+)\]\]$/);

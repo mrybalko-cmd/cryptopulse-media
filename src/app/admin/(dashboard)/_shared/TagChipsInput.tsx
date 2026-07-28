@@ -6,10 +6,13 @@ export default function TagChipsInput({
   name,
   defaultValue,
   placeholder = 'Добавить и нажать Enter',
+  minRecommended,
 }: {
   name: string;
   defaultValue?: string[];
   placeholder?: string;
+  /** Shows a live counter/warning below the input (e.g. the editorial "at least 10 SEO keywords" rule). */
+  minRecommended?: number;
 }) {
   const [tags, setTags] = useState<string[]>(defaultValue ?? []);
   const [draft, setDraft] = useState('');
@@ -51,6 +54,13 @@ export default function TagChipsInput({
         placeholder={placeholder}
         className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2 text-[12.5px]"
       />
+      {minRecommended !== undefined && (
+        <div className={`text-[11px] font-semibold mt-1.5 ${tags.length >= minRecommended ? 'text-green-400' : 'text-amber-400'}`}>
+          {tags.length >= minRecommended
+            ? `✓ ${tags.length} / ${minRecommended} ключевых слов`
+            : `${tags.length} / ${minRecommended} ключевых слов — добавьте ещё ${minRecommended - tags.length}`}
+        </div>
+      )}
     </div>
   );
 }
