@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createArticle, updateArticle, deleteArticle, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
+import { createArticle, updateArticle, deleteArticle, duplicateArticle, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 
@@ -102,4 +102,12 @@ export async function restoreArticleRevisionAction(formData: FormData) {
   await restoreRevision(id, revisionId);
   revalidateTag('articles', { expire: 0 });
   redirect(`/admin/articles/${id}`);
+}
+
+export async function duplicateArticleAction(formData: FormData) {
+  await requireAdminPermission('articles');
+  const id = String(formData.get('id'));
+  const newId = await duplicateArticle(id);
+  revalidateTag('articles', { expire: 0 });
+  redirect(`/admin/articles/${newId}`);
 }

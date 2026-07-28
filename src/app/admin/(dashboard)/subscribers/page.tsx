@@ -69,7 +69,7 @@ export default async function AdminSubscribersPage({
         ))}
       </div>
 
-      <ListSearchBar basePath="/admin/subscribers" query={q} lang={locale} filter={status} />
+      <ListSearchBar basePath="/admin/subscribers" query={q} lang={locale} filter={status} placeholder="Поиск по email…" />
 
       {items.length === 0 ? (
         <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего не нашлось.</p>

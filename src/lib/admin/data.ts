@@ -404,7 +404,7 @@ export async function fetchAdminNewsListPage(opts: {
   page: number;
 }): Promise<AdminListPage<AdminNewsListItem>> {
   const langClause = opts.lang ? `&& language == $lang` : '';
-  const qClause = opts.q ? `&& title match $q` : '';
+  const qClause = opts.q ? `&& (title match $q || pt::text(body) match $q)` : '';
   const params = { lang: opts.lang, q: opts.q ? `*${opts.q}*` : undefined };
   const filterClause = statusFilterClause(opts.filter);
   const start = Math.max(0, (opts.page - 1) * ADMIN_LIST_PAGE_SIZE);
@@ -574,6 +574,25 @@ export async function deleteNews(id: string) {
   await writeClient.delete(id);
 }
 
+// Clones the raw document as-is (keeps images/body/SEO intact) rather than
+// routing through NewsInput/newsSetFields — that pipeline is built for
+// form submissions, not for cloning a document Sanity already has in full.
+export async function duplicateNews(id: string): Promise<string> {
+  const original = await client.fetch<Record<string, unknown> | null>(`*[_id == $id][0]`, { id });
+  if (!original) throw new Error('News item not found');
+  const { _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u, slug, title, publishedAt: _p, ...rest } = original;
+  const originalSlug = (slug as { current?: string } | undefined)?.current ?? 'copy';
+  const newSlug = `${originalSlug}-copy-${Math.random().toString(36).slice(2, 7)}`;
+  const doc = await writeClient.create({
+    ...rest,
+    title: `(Копия) ${String(title ?? '')}`,
+    slug: { _type: 'slug', current: newSlug },
+    publishTiming: 'draft',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
+  return doc._id;
+}
+
 // ---------------- Articles ----------------
 
 export interface AdminArticleListItem {
@@ -604,7 +623,7 @@ export async function fetchAdminArticlesListPage(opts: {
   page: number;
 }): Promise<AdminListPage<AdminArticleListItem>> {
   const langClause = opts.lang ? `&& language == $lang` : '';
-  const qClause = opts.q ? `&& title match $q` : '';
+  const qClause = opts.q ? `&& (title match $q || pt::text(body) match $q)` : '';
   const params = { lang: opts.lang, q: opts.q ? `*${opts.q}*` : undefined };
   const filterClause = statusFilterClause(opts.filter);
   const start = Math.max(0, (opts.page - 1) * ADMIN_LIST_PAGE_SIZE);
@@ -762,6 +781,22 @@ export async function updateArticle(id: string, input: ArticleInput, coverImageA
 
 export async function deleteArticle(id: string) {
   await writeClient.delete(id);
+}
+
+export async function duplicateArticle(id: string): Promise<string> {
+  const original = await client.fetch<Record<string, unknown> | null>(`*[_id == $id][0]`, { id });
+  if (!original) throw new Error('Article not found');
+  const { _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u, slug, title, publishedAt: _p, ...rest } = original;
+  const originalSlug = (slug as { current?: string } | undefined)?.current ?? 'copy';
+  const newSlug = `${originalSlug}-copy-${Math.random().toString(36).slice(2, 7)}`;
+  const doc = await writeClient.create({
+    ...rest,
+    title: `(Копия) ${String(title ?? '')}`,
+    slug: { _type: 'slug', current: newSlug },
+    publishTiming: 'draft',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
+  return doc._id;
 }
 
 // ---------------- Exchanges ----------------

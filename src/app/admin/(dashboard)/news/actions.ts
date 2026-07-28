@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createNews, updateNews, deleteNews, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
+import { createNews, updateNews, deleteNews, duplicateNews, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 
@@ -104,4 +104,12 @@ export async function restoreNewsRevisionAction(formData: FormData) {
   await restoreRevision(id, revisionId);
   revalidateTag('news', { expire: 0 });
   redirect(`/admin/news/${id}`);
+}
+
+export async function duplicateNewsAction(formData: FormData) {
+  await requireAdminPermission('news');
+  const id = String(formData.get('id'));
+  const newId = await duplicateNews(id);
+  revalidateTag('news', { expire: 0 });
+  redirect(`/admin/news/${newId}`);
 }

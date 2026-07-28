@@ -5,12 +5,14 @@ export default function ListSearchBar({
   query,
   lang,
   filter,
+  placeholder = 'Поиск по заголовку и тексту…',
 }: {
   basePath: string;
   query?: string;
   lang?: string;
   /** Preserves the currently-active status filter tab across a search/lang change. */
   filter?: string;
+  placeholder?: string;
 }) {
   function buildUrl(overrides: { lang?: string }) {
     const params = new URLSearchParams();
@@ -31,7 +33,7 @@ export default function ListSearchBar({
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Поиск по заголовку…"
+          placeholder={placeholder}
           className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2 text-[12.5px]"
         />
       </form>

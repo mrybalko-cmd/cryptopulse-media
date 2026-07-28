@@ -5,6 +5,7 @@ import { fetchAdminArticlesListPage, ADMIN_LIST_PAGE_SIZE, type AdminListStatusF
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { formatDateTime } from '../_shared/formatDateTime';
 import ListSearchBar from '../_shared/ListSearchBar';
+import { duplicateArticleAction } from './actions';
 
 function statusOf(a: { publishTiming: string; publishedAt?: string }) {
   if (a.publishTiming === 'draft') return { color: '#8b8d94', label: 'Черновик' };
@@ -74,25 +75,36 @@ export default async function AdminArticlesPage({ searchParams }: { searchParams
           {articles.map(a => {
             const status = statusOf(a);
             return (
-              <Link
-                key={a._id}
-                href={`/admin/articles/${a._id}`}
-                className="flex items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
-              >
-                <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--admin-input)]">
-                  {a.coverImage && <Image src={sanityImageTransform(a.coverImage, { width: 112 })!} alt="" fill className="object-cover" unoptimized />}
-                </div>
-                <div>
-                  <div className="text-[13px] font-bold">{a.title}</div>
-                  <div className="text-[11px] text-[var(--admin-text-muted)]">{a.language.toUpperCase()} · {a.topic || 'без темы'}</div>
-                </div>
-                <span
-                  className="ml-auto text-[10.5px] font-extrabold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0"
-                  style={{ background: `${status.color}26`, color: status.color }}
+              <div key={a._id} className="flex items-center gap-2">
+                <Link
+                  href={`/admin/articles/${a._id}`}
+                  className="flex-1 min-w-0 flex items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
                 >
-                  {status.label}{status.label !== 'Черновик' ? ` · ${formatDateTime(a.publishedAt)}` : ''}
-                </span>
-              </Link>
+                  <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--admin-input)]">
+                    {a.coverImage && <Image src={sanityImageTransform(a.coverImage, { width: 112 })!} alt="" fill className="object-cover" unoptimized />}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-bold truncate">{a.title}</div>
+                    <div className="text-[11px] text-[var(--admin-text-muted)]">{a.language.toUpperCase()} · {a.topic || 'без темы'}</div>
+                  </div>
+                  <span
+                    className="ml-auto text-[10.5px] font-extrabold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0"
+                    style={{ background: `${status.color}26`, color: status.color }}
+                  >
+                    {status.label}{status.label !== 'Черновик' ? ` · ${formatDateTime(a.publishedAt)}` : ''}
+                  </span>
+                </Link>
+                <form action={duplicateArticleAction}>
+                  <input type="hidden" name="id" value={a._id} />
+                  <button
+                    type="submit"
+                    title="Дублировать как черновик"
+                    className="w-10 h-10 shrink-0 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[15px] hover:border-cyan-500/40 transition-colors"
+                  >
+                    ⧉
+                  </button>
+                </form>
+              </div>
             );
           })}
         </div>

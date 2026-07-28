@@ -10,6 +10,7 @@ import LanguageTabs from '../_shared/LanguageTabs';
 import AuthorPicker from '../_shared/AuthorPicker';
 import TranslationPicker from '../_shared/TranslationPicker';
 import HistoryPanel from '../_shared/HistoryPanel';
+import SerpPreview from '../_shared/SerpPreview';
 import { getArticleHistoryAction, restoreArticleRevisionAction } from './actions';
 
 const TOPICS = [
@@ -129,6 +130,10 @@ export default function ArticleForm({
             <div className="mb-3">
               <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Meta Description</label>
               <textarea name="seoMetaDescription" defaultValue={article?.seoMetaDescription} rows={2} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+            </div>
+            <div className="mb-4">
+              <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Превью в поиске Google</label>
+              <SerpPreview section="articles" />
             </div>
             <div className="mb-3">
               <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Ключевые слова</label>
