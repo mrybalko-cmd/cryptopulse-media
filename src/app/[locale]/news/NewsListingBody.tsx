@@ -73,7 +73,10 @@ export default function NewsListingBody({ locale, title, subtitle, items, page, 
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {title}
+          {page > 1 && <span className="text-muted font-normal text-lg ml-2">— {locale === 'ru' ? 'страница' : 'page'} {page}</span>}
+        </h1>
         <p className="text-muted text-sm mt-1">{subtitle}</p>
       </div>
 

@@ -4,6 +4,25 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  // A full Content-Security-Policy needs every legitimate script/style/embed
+  // source enumerated first (GA, Ahrefs, Vercel Analytics, YouTube/Twitter
+  // embeds, Sanity Studio's own network calls at /studio) — getting that
+  // wrong silently breaks those rather than failing loudly, so it's left as
+  // a separate, carefully-tested follow-up. These four are safe on any site:
+  // no allowlist to maintain, nothing here can break an existing feature.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
+  },
   experimental: {
     // Default 1MB is too small for banner image uploads in /admin (server
     // actions posting a File via FormData go through this same limit).

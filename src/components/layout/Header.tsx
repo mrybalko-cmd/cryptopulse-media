@@ -77,7 +77,7 @@ export default function Header() {
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-2 sm:gap-2.5 group">
           <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
-            <Image src="/logo-mark.png" alt="" fill sizes="36px" className="object-cover" priority />
+            <Image src="/logo-mark.png" alt="CryptoPulse.media" fill sizes="36px" className="object-cover" priority />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             CryptoPulse<span className="text-accent">.media</span>

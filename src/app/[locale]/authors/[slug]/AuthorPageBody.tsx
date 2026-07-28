@@ -59,7 +59,10 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
           <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
             {isRu ? 'Автор' : 'Author'}
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">{author.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
+            {author.name}
+            {page > 1 && <span className="text-muted font-normal text-lg ml-2">— {locale === 'ru' ? 'страница' : 'page'} {page}</span>}
+          </h1>
           {(isRu ? author.roleRu : author.roleEn) && (
             <p className="text-sm text-accent mb-3">{isRu ? author.roleRu : author.roleEn}</p>
           )}
