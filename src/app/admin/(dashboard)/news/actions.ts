@@ -5,6 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createNews, updateNews, deleteNews, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
+import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 
 async function uploadIfPresent(formData: FormData, field: string): Promise<string | undefined> {
   const file = formData.get(field) as File | null;
@@ -89,4 +90,18 @@ export async function deleteNewsAction(id: string) {
   await deleteNews(id);
   revalidateTag('news', { expire: 0 });
   redirect('/admin/news');
+}
+
+export async function getNewsHistoryAction(id: string) {
+  await requireAdminPermission('news');
+  return fetchDocumentHistory(id);
+}
+
+export async function restoreNewsRevisionAction(formData: FormData) {
+  await requireAdminPermission('news');
+  const id = String(formData.get('id'));
+  const revisionId = String(formData.get('revisionId'));
+  await restoreRevision(id, revisionId);
+  revalidateTag('news', { expire: 0 });
+  redirect(`/admin/news/${id}`);
 }

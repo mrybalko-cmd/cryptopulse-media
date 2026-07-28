@@ -5,6 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createArticle, updateArticle, deleteArticle, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
+import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 
 async function uploadIfPresent(formData: FormData, field: string): Promise<string | undefined> {
   const file = formData.get(field) as File | null;
@@ -87,4 +88,18 @@ export async function deleteArticleAction(id: string) {
   await deleteArticle(id);
   revalidateTag('articles', { expire: 0 });
   redirect('/admin/articles');
+}
+
+export async function getArticleHistoryAction(id: string) {
+  await requireAdminPermission('articles');
+  return fetchDocumentHistory(id);
+}
+
+export async function restoreArticleRevisionAction(formData: FormData) {
+  await requireAdminPermission('articles');
+  const id = String(formData.get('id'));
+  const revisionId = String(formData.get('revisionId'));
+  await restoreRevision(id, revisionId);
+  revalidateTag('articles', { expire: 0 });
+  redirect(`/admin/articles/${id}`);
 }

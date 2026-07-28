@@ -9,6 +9,8 @@ import TagChipsInput from '../_shared/TagChipsInput';
 import LanguageTabs from '../_shared/LanguageTabs';
 import AuthorPicker from '../_shared/AuthorPicker';
 import TranslationPicker from '../_shared/TranslationPicker';
+import HistoryPanel from '../_shared/HistoryPanel';
+import { getNewsHistoryAction, restoreNewsRevisionAction } from './actions';
 
 const TOPICS = [
   { value: 'regulation', label: 'Регулирование' },
@@ -47,6 +49,10 @@ export default function NewsForm({
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
       <div className="min-w-0">
         <LanguageTabs name="language" defaultValue={news?.language ?? 'ru'} />
+
+        {news?._id && (
+          <HistoryPanel docId={news._id} listAction={getNewsHistoryAction} restoreAction={restoreNewsRevisionAction} />
+        )}
 
         <div className="mb-5">
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Заголовок</label>
