@@ -280,7 +280,7 @@ export default async function ArticlePage({ params }: Props) {
       {/* Popular — mobile, replaces Related articles in that slot */}
       {popularItems.length > 0 && (
         <div className="lg:hidden mt-12 pt-8 border-t border-border">
-          <PopularList items={popularItems} locale={locale} />
+          <PopularList items={popularItems} locale={locale} asHeadings={false} />
           {banners.length > 0 && (
             <div className="max-w-xs mx-auto mt-4">
               <SidebarBanner banners={banners} locale={locale} />

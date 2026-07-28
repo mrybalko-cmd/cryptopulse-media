@@ -160,7 +160,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
 
           {mobilePopular.length > 0 && (
             <div className="lg:hidden mt-8 flex flex-col gap-4">
-              <PopularList items={mobilePopular} locale={locale} />
+              <PopularList items={mobilePopular} locale={locale} asHeadings={false} />
               {mobileBanners.length > 0 && <SidebarBanner banners={mobileBanners} locale={locale} />}
             </div>
           )}
