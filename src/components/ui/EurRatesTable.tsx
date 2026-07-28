@@ -72,7 +72,7 @@ export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; loc
             style={i < sorted.length - 1 ? { borderBottom: `1px solid ${border}` } : undefined}
           >
             <span className="flex items-center gap-2 px-3.5 py-3 min-w-0">
-              <Image src={r.logo} alt="" width={20} height={20} className="rounded-md shrink-0" unoptimized />
+              <Image src={r.logo} alt={r.source} width={20} height={20} className="rounded-md shrink-0" unoptimized />
               <span className="truncate">
                 <span className="font-medium text-foreground">{r.source}</span>
                 <span className="text-muted"> · {r.asset}</span>

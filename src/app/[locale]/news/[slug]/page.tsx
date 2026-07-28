@@ -201,7 +201,7 @@ export default async function NewsDetailPage({ params }: Props) {
           {/* Byline — always visible, required for Google News */}
           <div className="flex items-center gap-1.5 text-xs text-muted">
             {news.author?.photo ? (
-              <Image src={news.author.photo} alt="" width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
+              <Image src={news.author.photo} alt={news.author.name || ''} width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
             ) : (
               <User size={12} />
             )}

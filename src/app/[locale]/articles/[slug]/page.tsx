@@ -194,7 +194,7 @@ export default async function ArticlePage({ params }: Props) {
           {/* Byline — always visible, required for Google News */}
           <div className="flex items-center gap-1.5 text-xs text-muted">
             {article.author?.photo ? (
-              <Image src={article.author.photo} alt="" width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
+              <Image src={article.author.photo} alt={article.author.name || ''} width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
             ) : (
               <User size={12} />
             )}
