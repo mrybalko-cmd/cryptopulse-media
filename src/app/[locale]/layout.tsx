@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -13,6 +14,10 @@ import '../globals.css';
 const BASE = 'https://cryptopulse.media';
 const GA_ID = 'G-8YJT9B6XFV';
 const AHREFS_KEY = '9PVWiRWYIPxrsY1xzgp+vA';
+
+// Cyrillic subset is required — half the site's content is Russian, and
+// without it Inter would silently fall back to the system font for RU text.
+const inter = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-inter', display: 'swap' });
 
 type Props = {
   children: React.ReactNode;
@@ -87,7 +92,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   };
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />

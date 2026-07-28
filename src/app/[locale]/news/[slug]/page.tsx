@@ -166,7 +166,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {news.coverImage && (() => {
         const dims = sanityImageDimensions(news.coverImage) ?? { width: 1200, height: 630 };
         return (
-          <div className="rounded-lg overflow-hidden mb-8">
+          <div className="rounded-[20px] overflow-hidden mb-8">
             <Image
               src={sanityImageTransform(news.coverImage, { width: 1536 })!}
               alt={news.coverImageAlt || news.title}
@@ -200,7 +200,11 @@ export default async function NewsDetailPage({ params }: Props) {
         <div className="flex items-center flex-wrap gap-3">
           {/* Byline — always visible, required for Google News */}
           <div className="flex items-center gap-1.5 text-xs text-muted">
-            <User size={12} />
+            {news.author?.photo ? (
+              <Image src={news.author.photo} alt="" width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
+            ) : (
+              <User size={12} />
+            )}
             {news.author?.slug ? (
               <a
                 href={`/${locale}/authors/${news.author.slug}`}

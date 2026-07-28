@@ -72,7 +72,7 @@ html.light {
   --color-article-accent-tint: var(--article-accent-tint);
   --color-article-link: var(--article-link);
   --color-share-hover: var(--share-hover-bg);
-  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 * {
