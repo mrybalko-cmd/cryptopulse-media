@@ -27,7 +27,7 @@ function ImportanceDots({ importance, locale }: { importance: string; locale: st
   );
 }
 
-function EventRow({ event, locale, pageUrl }: { event: CalendarEvent; locale: string; pageUrl: string }) {
+function EventRow({ event, locale, pageUrl, disambiguateTitle }: { event: CalendarEvent; locale: string; pageUrl: string; disambiguateTitle: boolean }) {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const title = event.title[loc];
@@ -35,6 +35,11 @@ function EventRow({ event, locale, pageUrl }: { event: CalendarEvent; locale: st
   const categoryLabel = CATEGORY_LABELS[event.category]?.[loc] || event.category;
   const date = new Date(event.date);
   const dateStr = date.toLocaleDateString(isRu ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  // Recurring events (monthly CPI, FOMC decisions, etc.) share the exact same
+  // title across multiple entries — appending month/year keeps each <h3> on
+  // the page unique instead of repeating byte-identical headings.
+  const monthYear = date.toLocaleDateString(isRu ? 'ru-RU' : 'en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const displayTitle = disambiguateTitle ? `${title} — ${monthYear}` : title;
 
   return (
     <div id={event.slug} className="flex gap-4 bg-card border border-border rounded-xl p-4 scroll-mt-20 md:scroll-mt-32">
@@ -51,7 +56,7 @@ function EventRow({ event, locale, pageUrl }: { event: CalendarEvent; locale: st
           <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">{categoryLabel}</span>
           <ImportanceDots importance={event.importance} locale={locale} />
         </div>
-        <h3 className="text-sm font-semibold text-foreground leading-snug">{title}</h3>
+        <h3 className="text-sm font-semibold text-foreground leading-snug">{displayTitle}</h3>
         {description && <p className="text-sm text-muted mt-1 leading-relaxed">{description}</p>}
         {event.sourceUrl && (
           <a
@@ -73,6 +78,7 @@ function EventRow({ event, locale, pageUrl }: { event: CalendarEvent; locale: st
 
 export default function CalendarFilter({ events, locale, pageUrl }: Props) {
   const isRu = locale === 'ru';
+  const loc = isRu ? 'ru' : 'en';
   const [category, setCategory] = useState<string>('all');
 
   const todayISO = new Date().toISOString().slice(0, 10);
@@ -81,6 +87,15 @@ export default function CalendarFilter({ events, locale, pageUrl }: Props) {
     () => CATEGORY_ORDER.filter((c) => events.some((e) => e.category === c)),
     [events]
   );
+
+  const titleCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const e of events) {
+      const t = e.title[loc];
+      counts[t] = (counts[t] || 0) + 1;
+    }
+    return counts;
+  }, [events, loc]);
 
   const filtered = category === 'all' ? events : events.filter((e) => e.category === category);
   const upcoming = filtered.filter((e) => e.date >= todayISO);
@@ -117,7 +132,7 @@ export default function CalendarFilter({ events, locale, pageUrl }: Props) {
         {upcoming.length > 0 ? (
           <div className="flex flex-col gap-3">
             {upcoming.map((event) => (
-              <EventRow key={event._id} event={event} locale={locale} pageUrl={pageUrl} />
+              <EventRow key={event._id} event={event} locale={locale} pageUrl={pageUrl} disambiguateTitle={titleCounts[event.title[loc]] > 1} />
             ))}
           </div>
         ) : (
@@ -132,7 +147,7 @@ export default function CalendarFilter({ events, locale, pageUrl }: Props) {
           </h2>
           <div className="flex flex-col gap-3 opacity-70">
             {past.map((event) => (
-              <EventRow key={event._id} event={event} locale={locale} pageUrl={pageUrl} />
+              <EventRow key={event._id} event={event} locale={locale} pageUrl={pageUrl} disambiguateTitle={titleCounts[event.title[loc]] > 1} />
             ))}
           </div>
         </section>
