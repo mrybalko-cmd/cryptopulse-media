@@ -88,7 +88,7 @@ export default async function ScheduleAnalytics() {
       {/* By authors */}
       <div className="lg:border-l lg:border-[var(--admin-border)] lg:pl-6">
         <div className="text-[12.5px] font-bold flex items-center gap-1.5 mb-4">
-          <span className="text-violet-400">👤</span> По авторам
+          <span className="text-violet-400">👤</span> По авторам — сумма лайков
         </div>
         {authorLeaderboard.length === 0 ? (
           <p className="text-[12px] text-[var(--admin-text-muted)]">Пока нет данных.</p>
@@ -98,7 +98,7 @@ export default async function ScheduleAnalytics() {
               <div key={a.id}>
                 <div className="flex items-center justify-between text-[12.5px] font-semibold mb-1">
                   <span>{a.name}</span>
-                  <span className="tabular-nums font-extrabold">{a.totalLikes}</span>
+                  <span className="tabular-nums font-extrabold">♡ {a.totalLikes}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-[var(--admin-input)] overflow-hidden">
                   <div className="h-full rounded-full bg-violet-500" style={{ width: `${(a.totalLikes / maxAuthorLikes) * 100}%` }} />
