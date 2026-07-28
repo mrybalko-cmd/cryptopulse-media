@@ -1209,7 +1209,7 @@ export async function fetchScheduleItems(
 
 export async function fetchDashboardCounts() {
   const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-  const [draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek] = await Promise.all([
+  const [draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers] = await Promise.all([
     client.fetch(`count(*[_type == "news" && publishTiming == "draft"])`),
     client.fetch(`count(*[_type == "article" && publishTiming == "draft"])`),
     client.fetch(`count(*[_type == "sidebarBanner" && active == true])`),
@@ -1225,8 +1225,9 @@ export async function fetchDashboardCounts() {
       ])`,
       { weekFromNow }
     ),
+    client.fetch(`count(*[_type == "emailSubscriber" && active != false])`),
   ]);
-  return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek };
+  return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers };
 }
 
 // ---------------- Schedule analytics ----------------
@@ -1362,4 +1363,72 @@ export async function fetchPulseHistory(limit: number): Promise<PulseSnapshot[]>
       _id, date, totalVolume24h, fearGreedValue, altSeasonValue, volumeChangePct, pulseScore, pulseClassification, computedAt
     }`
   );
+}
+
+// ---------------- Email Subscribers ----------------
+
+export interface AdminSubscriber {
+  _id: string;
+  email: string;
+  locale: 'ru' | 'en';
+  source?: string;
+  subscribedAt: string;
+  active: boolean;
+}
+
+export interface AdminSubscribersPage {
+  items: AdminSubscriber[];
+  filteredTotal: number;
+  counts: { all: number; active: number; inactive: number };
+}
+
+export async function fetchAdminSubscribersPage(opts: {
+  q?: string;
+  locale?: 'ru' | 'en';
+  status?: 'all' | 'active' | 'inactive';
+  page: number;
+}): Promise<AdminSubscribersPage> {
+  const localeClause = opts.locale ? `&& locale == $locale` : '';
+  const qClause = opts.q ? `&& email match $q` : '';
+  const statusClause = opts.status === 'active' ? `&& active != false` : opts.status === 'inactive' ? `&& active == false` : '';
+  const params = { locale: opts.locale, q: opts.q ? `*${opts.q}*` : undefined };
+  const start = Math.max(0, (opts.page - 1) * ADMIN_LIST_PAGE_SIZE);
+  const end = start + ADMIN_LIST_PAGE_SIZE;
+
+  const [items, filteredTotal, countAll, countInactive] = await Promise.all([
+    client.fetch<AdminSubscriber[]>(
+      `*[_type == "emailSubscriber" ${localeClause} ${qClause} ${statusClause}] | order(subscribedAt desc) [${start}...${end}]{
+        _id, email, locale, source, subscribedAt, "active": coalesce(active, true)
+      }`,
+      params
+    ),
+    client.fetch<number>(`count(*[_type == "emailSubscriber" ${localeClause} ${qClause} ${statusClause}])`, params),
+    client.fetch<number>(`count(*[_type == "emailSubscriber"])`),
+    client.fetch<number>(`count(*[_type == "emailSubscriber" && active == false])`),
+  ]);
+
+  return {
+    items,
+    filteredTotal,
+    counts: { all: countAll, inactive: countInactive, active: countAll - countInactive },
+  };
+}
+
+export async function fetchAllSubscriberEmails(status: 'all' | 'active' | 'inactive', locale?: 'ru' | 'en'): Promise<AdminSubscriber[]> {
+  const localeClause = locale ? `&& locale == $locale` : '';
+  const statusClause = status === 'active' ? `&& active != false` : status === 'inactive' ? `&& active == false` : '';
+  return client.fetch<AdminSubscriber[]>(
+    `*[_type == "emailSubscriber" ${localeClause} ${statusClause}] | order(subscribedAt desc) {
+      _id, email, locale, source, subscribedAt, "active": coalesce(active, true)
+    }`,
+    { locale }
+  );
+}
+
+export async function setSubscriberActive(id: string, active: boolean): Promise<void> {
+  await writeClient.patch(id).set({ active }).commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteSubscriber(id: string): Promise<void> {
+  await writeClient.delete(id);
 }

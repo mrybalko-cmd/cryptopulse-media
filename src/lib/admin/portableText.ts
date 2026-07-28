@@ -2,17 +2,24 @@
 // markdown-ish textarea, used by the admin panel's quick body editors
 // (News/Articles/Exchange descriptions).
 //
-// Only `block` (paragraph) entries round-trip through real text editing.
-// Non-text blocks that already existed (image, quoteBlock, youtubeEmbed,
-// tweetEmbed) can't be re-authored from plain text, so they're kept
-// completely untouched and shown as a single marker line
-// (`⟦index: description⟧`) — deleting that line drops the block, but
-// editing surrounding text never corrupts it. Complex embeds from Studio
-// still need Studio to edit their fields directly.
+// `block` (paragraph/heading/list/quote), `quoteBlock`, `youtubeEmbed` and
+// `tweetEmbed` all round-trip through real text editing — creating a new one
+// or editing an existing one both just mean typing/changing the matching
+// line. Only `image` can't be represented as text (needs a real file), so it
+// stays frozen as a single marker line (`⟦index: description⟧`) — deleting
+// that line drops the image, but editing surrounding text never corrupts it.
 //
-// NEW inline inserts from the toolbar use a different bracket style
-// (`[[img:N]]`, `[[youtube:URL]]`, `[[tweet:URL]]`) so they're never
-// confused with the preserve-as-is markers above.
+// Syntax summary:
+//   # / ## / ### / ####   -> heading levels 1-4
+//   > text                 -> blockquote paragraph
+//   - text / 1. text       -> bullet / numbered list item (leading "  " pairs = nesting level)
+//   **bold** *italic* __underline__ ~~strike~~ `code` {+large+} {-small-}
+//   [text](url)            -> dofollow link (default)
+//   [text](url "nofollow") -> nofollow link
+//   [[quote:author|source|style|text]] -> quoteBlock (author/source/style may be empty)
+//   [[youtube:URL]] / [[tweet:URL]]    -> embeds
+//   [[img:N]]               -> newly-uploaded image (N = file input slot index)
+//   ⟦N: description⟧        -> pre-existing image, preserved untouched
 
 export interface PortableTextBlock {
   _type: string;
@@ -31,6 +38,7 @@ interface MarkDef {
   _key: string;
   _type: string;
   href?: string;
+  rel?: string;
 }
 
 function randomKey(): string {
@@ -45,12 +53,6 @@ function describeNonTextBlock(block: PortableTextBlock): string {
   switch (block._type) {
     case 'image':
       return 'изображение (редактируется в /studio)';
-    case 'quoteBlock':
-      return `цитата — "${truncate(String(block.text ?? ''), 50)}"`;
-    case 'youtubeEmbed':
-      return `YouTube — ${block.url ?? ''}`;
-    case 'tweetEmbed':
-      return `твит — ${block.url ?? ''}`;
     default:
       return String(block._type);
   }
@@ -62,7 +64,8 @@ function wrapMarks(span: Span, markDefs: MarkDef[]): string {
   for (const mark of marks) {
     const def = markDefs.find(d => d._key === mark);
     if (def && def._type === 'link' && def.href) {
-      text = `[${text}](${def.href})`;
+      const flag = def.rel === 'nofollow' ? ' "nofollow"' : '';
+      text = `[${text}](${def.href}${flag})`;
     }
   }
   if (marks.includes('code')) text = `\`${text}\``;
@@ -75,16 +78,28 @@ function wrapMarks(span: Span, markDefs: MarkDef[]): string {
   return text;
 }
 
+function quoteBlockToText(block: PortableTextBlock): string {
+  const author = String(block.quoteAuthor ?? '');
+  const source = String(block.source ?? '');
+  const style = String(block.style ?? 'plain');
+  const text = String(block.text ?? '');
+  return `[[quote:${author}|${source}|${style}|${text}]]`;
+}
+
 function blockToParagraph(block: PortableTextBlock): string {
   const children = ((block.children as Span[] | undefined) ?? []).filter(c => c && c._type === 'span');
   const markDefs = (block.markDefs as MarkDef[] | undefined) ?? [];
   let text = children.map(span => wrapMarks(span, markDefs)).join('');
   const listItem = block.listItem as string | undefined;
   const style = block.style as string | undefined;
-  if (listItem === 'bullet') text = `- ${text}`;
-  else if (listItem === 'number') text = `1. ${text}`;
+  const level = Math.max(1, Number(block.level) || 1);
+  const indent = '  '.repeat(level - 1);
+  if (listItem === 'bullet') text = `${indent}- ${text}`;
+  else if (listItem === 'number') text = `${indent}1. ${text}`;
+  else if (style === 'h1') text = `# ${text}`;
   else if (style === 'h2') text = `## ${text}`;
   else if (style === 'h3') text = `### ${text}`;
+  else if (style === 'h4') text = `#### ${text}`;
   else if (style === 'blockquote') text = `> ${text}`;
   return text;
 }
@@ -92,13 +107,21 @@ function blockToParagraph(block: PortableTextBlock): string {
 export function blocksToText(blocks: PortableTextBlock[] | undefined): string {
   if (!blocks || blocks.length === 0) return '';
   return blocks
-    .map((block, i) => (block._type === 'block' ? blockToParagraph(block) : `⟦${i}: ${describeNonTextBlock(block)}⟧`))
+    .map((block, i) => {
+      if (block._type === 'block') return blockToParagraph(block);
+      if (block._type === 'quoteBlock') return quoteBlockToText(block);
+      if (block._type === 'youtubeEmbed') return `[[youtube:${block.url ?? ''}]]`;
+      if (block._type === 'tweetEmbed') return `[[tweet:${block.url ?? ''}]]`;
+      return `⟦${i}: ${describeNonTextBlock(block)}⟧`;
+    })
     .join('\n\n');
 }
 
 // Order matters: longer/more-specific tokens (**, __, ~~, {+ {-) must be
 // tried before the single-char ones (*) that could otherwise match first.
-const INLINE_RE = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\{\+([^}]+)\+\}|\{-([^}]+)-\}|\*([^*]+)\*|`([^`]+)`/g;
+// Link group is now 3 captures (text, url, optional nofollow/dofollow flag)
+// so every mark group below it shifts up by one vs. the pre-nofollow version.
+const INLINE_RE = /\[([^\]]+)\]\(([^()\s]+)(?:\s+"(nofollow|dofollow)")?\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\{\+([^}]+)\+\}|\{-([^}]+)-\}|\*([^*]+)\*|`([^`]+)`/g;
 
 function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
   const markDefs: MarkDef[] = [];
@@ -112,22 +135,22 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
     }
     if (match[1] !== undefined) {
       const key = randomKey();
-      markDefs.push({ _key: key, _type: 'link', href: match[2] });
+      markDefs.push({ _key: key, _type: 'link', href: match[2], ...(match[3] === 'nofollow' ? { rel: 'nofollow' } : {}) });
       spans.push({ _type: 'span', _key: randomKey(), text: match[1], marks: [key] });
-    } else if (match[3] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[3], marks: ['strong'] });
     } else if (match[4] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[4], marks: ['underline'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[4], marks: ['strong'] });
     } else if (match[5] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[5], marks: ['strike-through'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[5], marks: ['underline'] });
     } else if (match[6] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[6], marks: ['large'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[6], marks: ['strike-through'] });
     } else if (match[7] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[7], marks: ['small'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[7], marks: ['large'] });
     } else if (match[8] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[8], marks: ['em'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[8], marks: ['small'] });
     } else if (match[9] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[9], marks: ['code'] });
+      spans.push({ _type: 'span', _key: randomKey(), text: match[9], marks: ['em'] });
+    } else if (match[10] !== undefined) {
+      spans.push({ _type: 'span', _key: randomKey(), text: match[10], marks: ['code'] });
     }
     lastIndex = INLINE_RE.lastIndex;
   }
@@ -143,29 +166,44 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
 function paragraphToBlock(para: string): PortableTextBlock {
   let style = 'normal';
   let listItem: string | undefined;
+  let level = 1;
   let content = para;
-  if (content.startsWith('### ')) {
+
+  if (content.startsWith('#### ')) {
+    style = 'h4';
+    content = content.slice(5);
+  } else if (content.startsWith('### ')) {
     style = 'h3';
     content = content.slice(4);
   } else if (content.startsWith('## ')) {
     style = 'h2';
     content = content.slice(3);
+  } else if (content.startsWith('# ')) {
+    style = 'h1';
+    content = content.slice(2);
   } else if (content.startsWith('> ')) {
     style = 'blockquote';
     content = content.slice(2);
-  } else if (content.startsWith('- ')) {
-    listItem = 'bullet';
-    content = content.slice(2);
-  } else if (/^\d+\.\s/.test(content)) {
-    listItem = 'number';
-    content = content.replace(/^\d+\.\s/, '');
+  } else {
+    const bulletMatch = content.match(/^( *)-\s([\s\S]*)$/);
+    const numberMatch = content.match(/^( *)\d+\.\s([\s\S]*)$/);
+    if (bulletMatch) {
+      listItem = 'bullet';
+      level = Math.floor(bulletMatch[1].length / 2) + 1;
+      content = bulletMatch[2];
+    } else if (numberMatch) {
+      listItem = 'number';
+      level = Math.floor(numberMatch[1].length / 2) + 1;
+      content = numberMatch[2];
+    }
   }
+
   const { spans, markDefs } = parseInline(content);
   return {
     _type: 'block',
     _key: randomKey(),
     style,
-    ...(listItem ? { listItem, level: 1 } : {}),
+    ...(listItem ? { listItem, level } : {}),
     markDefs,
     children: spans,
   };
@@ -175,14 +213,19 @@ function imageField(assetId: string) {
   return { _type: 'image' as const, asset: { _type: 'reference' as const, _ref: assetId } };
 }
 
+const QUOTE_STYLES = ['plain', 'accent', 'attributed'];
+
 export function textToBlocks(
   text: string,
   originalBlocks: PortableTextBlock[] | undefined,
   newImageAssetIds?: Record<number, string>
 ): PortableTextBlock[] {
+  // Trim only surrounding newlines/trailing whitespace here, not leading
+  // spaces — those encode list-nesting level and must survive into
+  // paragraphToBlock's indent detection below.
   const paragraphs = text
     .split(/\n\s*\n/)
-    .map(p => p.trim())
+    .map(p => p.replace(/^\n+/, '').replace(/\s+$/, ''))
     .filter(Boolean);
   const result: PortableTextBlock[] = [];
   for (const para of paragraphs) {
@@ -206,6 +249,20 @@ export function textToBlocks(
     const tweetMatch = para.match(/^\[\[tweet:(.+)\]\]$/);
     if (tweetMatch) {
       result.push({ _type: 'tweetEmbed', _key: randomKey(), url: tweetMatch[1].trim() });
+      continue;
+    }
+    const quoteMatch = para.match(/^\[\[quote:([^|]*)\|([^|]*)\|([^|]*)\|([\s\S]*)\]\]$/);
+    if (quoteMatch) {
+      const [, author, source, styleRaw, quoteText] = quoteMatch;
+      const style = QUOTE_STYLES.includes(styleRaw) ? styleRaw : 'plain';
+      result.push({
+        _type: 'quoteBlock',
+        _key: randomKey(),
+        text: quoteText,
+        ...(author ? { quoteAuthor: author } : {}),
+        ...(source ? { source } : {}),
+        style,
+      });
       continue;
     }
     result.push(paragraphToBlock(para));

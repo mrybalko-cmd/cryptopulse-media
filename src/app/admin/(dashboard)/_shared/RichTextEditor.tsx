@@ -58,7 +58,7 @@ function Sep() {
   return <div className="w-px h-5 bg-[var(--admin-border)] mx-1" />;
 }
 
-function PreviewSpan({ span, markDefs }: { span: { text: string; marks: string[] }; markDefs: { _key: string; _type: string; href?: string }[] }) {
+function PreviewSpan({ span, markDefs }: { span: { text: string; marks: string[] }; markDefs: { _key: string; _type: string; href?: string; rel?: string }[] }) {
   let node: React.ReactNode = span.text;
   const marks = span.marks ?? [];
   if (marks.includes('code')) node = <code className="bg-[var(--admin-border)] px-1 rounded text-[0.9em]">{node}</code>;
@@ -71,10 +71,36 @@ function PreviewSpan({ span, markDefs }: { span: { text: string; marks: string[]
   for (const mark of marks) {
     const def = markDefs.find(d => d._key === mark);
     if (def?._type === 'link' && def.href) {
-      node = <a href={def.href} className="text-cyan-400 underline">{node}</a>;
+      node = (
+        <a href={def.href} className="text-cyan-400 underline" title={def.rel === 'nofollow' ? 'nofollow' : 'dofollow'}>
+          {node}
+          {def.rel === 'nofollow' && <sup className="text-[9px] text-[var(--admin-text-dim)] no-underline">nf</sup>}
+        </a>
+      );
     }
   }
   return <>{node}</>;
+}
+
+function QuotePreview({ block }: { block: PortableTextBlock }) {
+  const text = String(block.text ?? '');
+  const author = block.quoteAuthor ? String(block.quoteAuthor) : null;
+  const source = block.source ? String(block.source) : null;
+  const style = String(block.style ?? 'plain');
+  const accent = style === 'accent';
+  return (
+    <div
+      className="my-3 pl-3.5 border-l-[3px] italic text-[var(--admin-text-secondary)]"
+      style={{ borderColor: accent ? 'var(--admin-accent, #06b6d4)' : 'var(--admin-border)' }}
+    >
+      “{text}”
+      {(author || source) && (
+        <div className="not-italic text-[11px] text-[var(--admin-text-muted)] mt-1">
+          — {[author, source].filter(Boolean).join(', ')}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
@@ -86,13 +112,16 @@ function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
     const Tag = listBuffer.type === 'number' ? 'ol' : 'ul';
     nodes.push(
       <Tag key={key} className={Tag === 'ol' ? 'list-decimal pl-5 my-2' : 'list-disc pl-5 my-2'}>
-        {listBuffer.items.map((item, i) => (
-          <li key={i}>
-            {((item.children as { text: string; marks: string[] }[]) ?? []).map((span, si) => (
-              <PreviewSpan key={si} span={span} markDefs={(item.markDefs as { _key: string; _type: string; href?: string }[]) ?? []} />
-            ))}
-          </li>
-        ))}
+        {listBuffer.items.map((item, i) => {
+          const level = Math.max(1, Number(item.level) || 1);
+          return (
+            <li key={i} style={{ marginLeft: (level - 1) * 18 }}>
+              {((item.children as { text: string; marks: string[] }[]) ?? []).map((span, si) => (
+                <PreviewSpan key={si} span={span} markDefs={(item.markDefs as { _key: string; _type: string; href?: string }[]) ?? []} />
+              ))}
+            </li>
+          );
+        })}
       </Tag>
     );
     listBuffer = null;
@@ -119,6 +148,8 @@ function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
             🐦 Твит: {String(block.url ?? '')}
           </div>
         );
+      } else if (block._type === 'quoteBlock') {
+        nodes.push(<QuotePreview key={i} block={block} />);
       } else {
         nodes.push(
           <div key={i} className="my-2 text-[11px] text-[var(--admin-text-muted)] italic">⟦{describeUnknown(block)}⟧</div>
@@ -140,8 +171,10 @@ function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
     const markDefs = (block.markDefs as { _key: string; _type: string; href?: string }[]) ?? [];
     const content = children.map((span, si) => <PreviewSpan key={si} span={span} markDefs={markDefs} />);
     const style = block.style as string | undefined;
-    if (style === 'h2') nodes.push(<h2 key={i} className="text-[17px] font-bold mt-4 mb-2">{content}</h2>);
+    if (style === 'h1') nodes.push(<h1 key={i} className="text-[20px] font-bold mt-4 mb-2">{content}</h1>);
+    else if (style === 'h2') nodes.push(<h2 key={i} className="text-[17px] font-bold mt-4 mb-2">{content}</h2>);
     else if (style === 'h3') nodes.push(<h3 key={i} className="text-[15px] font-bold mt-3 mb-1.5">{content}</h3>);
+    else if (style === 'h4') nodes.push(<h4 key={i} className="text-[13.5px] font-bold mt-2.5 mb-1">{content}</h4>);
     else if (style === 'blockquote') {
       nodes.push(
         <blockquote key={i} className="border-l-[3px] pl-3.5 my-2.5 italic text-[var(--admin-text-muted)]" style={{ borderColor: 'var(--admin-focus)' }}>
@@ -212,13 +245,28 @@ export default function RichTextEditor({
         <ToolbarButton title="Крупнее" onClick={() => { if (ref.current) { wrapSelection(ref.current, '{+', '+}'); sync(); } }}>A+</ToolbarButton>
         <ToolbarButton title="Мельче" onClick={() => { if (ref.current) { wrapSelection(ref.current, '{-', '-}'); sync(); } }}>A-</ToolbarButton>
         <Sep />
-        <ToolbarButton title="Ссылка" onClick={() => { if (ref.current) { wrapSelection(ref.current, '[', '](https://)'); sync(); } }}>🔗</ToolbarButton>
+        <ToolbarButton
+          title="Ссылка (со спросом про nofollow)"
+          onClick={() => {
+            if (!ref.current) return;
+            const url = window.prompt('Ссылка (URL):');
+            if (!url) return;
+            const nofollow = window.confirm('Пометить ссылку как nofollow?\nOK — nofollow, Отмена — обычная (dofollow)');
+            const suffix = nofollow ? ` "nofollow"` : '';
+            wrapSelection(ref.current, '[', `](${url.trim()}${suffix})`);
+            sync();
+          }}
+        >
+          🔗
+        </ToolbarButton>
         {!simple && (
           <>
-            <ToolbarButton title="Подзаголовок" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '## '); sync(); } }}>H2</ToolbarButton>
-            <ToolbarButton title="Подзаголовок поменьше" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '### '); sync(); } }}>H3</ToolbarButton>
-            <ToolbarButton title="Цитата-абзац" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '> '); sync(); } }}>❝</ToolbarButton>
-            <ToolbarButton title="Маркированный список" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '- '); sync(); } }}>≡</ToolbarButton>
+            <ToolbarButton title="Заголовок H1" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '# '); sync(); } }}>H1</ToolbarButton>
+            <ToolbarButton title="Подзаголовок H2" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '## '); sync(); } }}>H2</ToolbarButton>
+            <ToolbarButton title="Подзаголовок H3" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '### '); sync(); } }}>H3</ToolbarButton>
+            <ToolbarButton title="Подзаголовок H4" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '#### '); sync(); } }}>H4</ToolbarButton>
+            <ToolbarButton title="Цитата-абзац (простая)" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '> '); sync(); } }}>❝</ToolbarButton>
+            <ToolbarButton title="Маркированный список (Tab-отступ — вложенность)" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '- '); sync(); } }}>≡</ToolbarButton>
             <ToolbarButton title="Нумерованный список" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '1. '); sync(); } }}>1.</ToolbarButton>
             <Sep />
             <ToolbarButton
@@ -248,6 +296,23 @@ export default function RichTextEditor({
             >
               🐦
             </ToolbarButton>
+            <ToolbarButton
+              title="Вставить карточку-цитату (текст + автор + источник)"
+              onClick={() => {
+                const quoteText = window.prompt('Текст цитаты:');
+                if (!quoteText) return;
+                const author = window.prompt('Автор (необязательно):') || '';
+                const source = window.prompt('Источник (необязательно, например: интервью Bloomberg, 2026):') || '';
+                const accent = window.confirm('Акцентный стиль оформления?\nOK — акцентная, Отмена — обычная');
+                const style = accent ? 'accent' : (author ? 'attributed' : 'plain');
+                if (ref.current) {
+                  insertAtCursor(ref.current, `[[quote:${author}|${source}|${style}|${quoteText}]]`);
+                  sync();
+                }
+              }}
+            >
+              “”
+            </ToolbarButton>
           </>
         )}
       </div>
@@ -257,6 +322,26 @@ export default function RichTextEditor({
         name={name}
         defaultValue={text}
         onInput={e => setText(e.currentTarget.value)}
+        onKeyDown={e => {
+          // Tab indents (Shift+Tab outdents) the current line by one "  " step —
+          // this is how list nesting level is expressed in the markdown syntax.
+          if (e.key !== 'Tab') return;
+          e.preventDefault();
+          const el = e.currentTarget;
+          const start = el.selectionStart;
+          const value = el.value;
+          const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+          if (e.shiftKey) {
+            if (value.slice(lineStart, lineStart + 2) === '  ') {
+              el.value = value.slice(0, lineStart) + value.slice(lineStart + 2);
+              el.selectionStart = el.selectionEnd = Math.max(lineStart, start - 2);
+            }
+          } else {
+            el.value = value.slice(0, lineStart) + '  ' + value.slice(lineStart);
+            el.selectionStart = el.selectionEnd = start + 2;
+          }
+          setText(el.value);
+        }}
         rows={rows}
         className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3.5 py-3 text-[15px] leading-[1.85] font-sans"
       />
