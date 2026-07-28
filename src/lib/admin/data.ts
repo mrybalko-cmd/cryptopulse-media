@@ -1374,6 +1374,36 @@ export const fetchAuthorLikesLeaderboard = unstable_cache(
   { revalidate: 180 }
 );
 
+export interface AuthorPublicationCountItem {
+  id: string;
+  name: string;
+  count: number;
+}
+
+export const fetchAuthorPublicationCounts = unstable_cache(
+  async (): Promise<AuthorPublicationCountItem[]> => {
+  const [rows, authors] = await Promise.all([
+    client.fetch<{ authorId: string | null }[]>(
+      `*[_type in ["news", "article"] && defined(author)]{ "authorId": author._ref }`
+    ),
+    fetchAuthorOptions(),
+  ]);
+
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    if (!row.authorId) continue;
+    totals.set(row.authorId, (totals.get(row.authorId) ?? 0) + 1);
+  }
+
+  return authors
+    .map(a => ({ id: a._id, name: a.name, count: totals.get(a._id) ?? 0 }))
+    .filter(a => a.count > 0)
+    .sort((a, b) => b.count - a.count);
+  },
+  ['admin-author-publication-counts'],
+  { revalidate: 180 }
+);
+
 // ---------------- Pulse (read-only snapshot log) ----------------
 //
 // marketSnapshot is written once a day by /api/cron/pulse-snapshot — every

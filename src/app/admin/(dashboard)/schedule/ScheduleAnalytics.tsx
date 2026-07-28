@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { fetchPublicationTrend, fetchTopLikedContent, fetchAuthorLikesLeaderboard } from '@/lib/admin/data';
+import { fetchPublicationTrend, fetchTopLikedContent, fetchAuthorLikesLeaderboard, fetchAuthorPublicationCounts } from '@/lib/admin/data';
 import { pragueDateKey, formatPragueDate } from '@/lib/admin/timezone';
 
 const TREND_DAYS = 30;
@@ -12,18 +12,22 @@ function formatDayLabel(dateKey: string): string {
 }
 
 export default async function ScheduleAnalytics() {
-  const [trend, topLiked, authorLeaderboard] = await Promise.all([
+  const [trend, topLiked, authorLeaderboard, pubCounts] = await Promise.all([
     fetchPublicationTrend(TREND_DAYS),
     fetchTopLikedContent(10),
     fetchAuthorLikesLeaderboard(),
+    fetchAuthorPublicationCounts(),
   ]);
 
   const maxCount = Math.max(1, ...trend.counts.map(c => c.count));
   const maxAuthorLikes = Math.max(1, ...authorLeaderboard.map(a => a.totalLikes));
   const todayStr = pragueDateKey(new Date());
+  const totalPubs = pubCounts.reduce((sum, a) => sum + a.count, 0);
+  const maxPubCount = Math.max(1, ...pubCounts.map(a => a.count));
 
   return (
-    <div className="border border-[var(--admin-border)] rounded-2xl bg-[var(--admin-panel)] p-5 mb-6 grid grid-cols-1 lg:grid-cols-[1.3fr_1.15fr_0.95fr] gap-6">
+    <div className="border border-[var(--admin-border)] rounded-2xl bg-[var(--admin-panel)] p-5 mb-6">
+    <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1.15fr_0.95fr] gap-6">
       {/* Publication trend */}
       <div>
         <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
@@ -108,6 +112,36 @@ export default async function ScheduleAnalytics() {
           </div>
         )}
       </div>
+    </div>
+
+    {/* Publications per author */}
+    <div className="mt-5 pt-5 border-t border-[var(--admin-border)]">
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <div className="text-[12.5px] font-bold flex items-center gap-1.5">
+          <span className="text-cyan-400">📰</span> Публикаций по авторам
+        </div>
+        <div className="text-[10px] text-[var(--admin-text-dim)]">{totalPubs} всего</div>
+      </div>
+      {pubCounts.length === 0 ? (
+        <p className="text-[12px] text-[var(--admin-text-muted)]">Пока нет данных.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {pubCounts.map(a => (
+            <div key={a.id}>
+              <div className="text-[11px] font-bold text-[var(--admin-text-secondary)] truncate mb-1.5">{a.name}</div>
+              <div className="text-[20px] font-extrabold tabular-nums mb-1.5">{a.count}</div>
+              <div className="h-[5px] rounded-full bg-[var(--admin-input)] overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${(a.count / maxPubCount) * 100}%`, background: 'linear-gradient(90deg, var(--admin-focus), #22d3ee)' }}
+                />
+              </div>
+              <div className="text-[9.5px] text-[var(--admin-text-dim)] mt-1">{totalPubs > 0 ? Math.round((a.count / totalPubs) * 100) : 0}%</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
     </div>
   );
 }
