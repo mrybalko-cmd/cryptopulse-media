@@ -43,6 +43,7 @@ async function parseArticleInput(formData: FormData, originalBody: PortableTextB
     readingTime: readingTimeRaw ? Number(readingTimeRaw) : undefined,
     topic: String(formData.get('topic') || ''),
     badge: String(formData.get('badge') || 'none'),
+    ownBadge: formData.get('ownBadge') === 'on',
     body: textToBlocks(String(formData.get('body') || ''), originalBody, newImageAssetIds),
     seoFocusKeyphrase: String(formData.get('seoFocusKeyphrase') || ''),
     seoMetaTitle: String(formData.get('seoMetaTitle') || ''),

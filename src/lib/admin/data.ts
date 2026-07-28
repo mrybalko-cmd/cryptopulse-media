@@ -641,6 +641,7 @@ export interface AdminArticleDoc {
   readingTime?: number;
   topic?: string;
   badge: string;
+  ownBadge: boolean;
   body: PortableTextBlock[];
   seoFocusKeyphrase?: string;
   seoMetaTitle?: string;
@@ -660,7 +661,7 @@ export interface AdminArticleDoc {
 const ARTICLE_DOC_PROJECTION = `
   _id, language, title, "slug": slug.current, excerpt,
   "coverImage": coverImage.asset->url, "coverImageAlt": coverImage.alt,
-  publishTiming, publishedAt, readingTime, topic, "badge": coalesce(badge, "none"), body,
+  publishTiming, publishedAt, readingTime, topic, "badge": coalesce(badge, "none"), "ownBadge": coalesce(ownBadge, true), body,
   "seoFocusKeyphrase": seo.focusKeyphrase, "seoMetaTitle": seo.metaTitle,
   "seoMetaDescription": seo.metaDescription, "seoKeywords": array::join(seo.keywords, ", "),
   "seoOgImage": seo.ogImage.asset->url, "seoSchemaType": coalesce(seo.schemaType, "BlogPosting"),
@@ -685,6 +686,7 @@ export interface ArticleInput {
   readingTime?: number;
   topic?: string;
   badge: string;
+  ownBadge: boolean;
   body: PortableTextBlock[];
   seoFocusKeyphrase?: string;
   seoMetaTitle?: string;
@@ -710,6 +712,7 @@ function articleSetFields(input: ArticleInput) {
     readingTime: input.readingTime || undefined,
     topic: input.topic || undefined,
     badge: input.badge,
+    ownBadge: input.ownBadge,
     body: input.body,
     seo: {
       _type: 'object',
