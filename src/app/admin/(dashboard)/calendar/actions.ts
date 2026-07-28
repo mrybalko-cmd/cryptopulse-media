@@ -2,7 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent, uploadImageAsset, type CalendarEventInput } from '@/lib/admin/data';
+import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent, fetchAdminCalendarEventById, uploadImageAsset, type CalendarEventInput } from '@/lib/admin/data';
+import { logActivity } from '@/lib/admin/activityLog';
 
 function parseInput(formData: FormData): CalendarEventInput {
   return {
@@ -37,7 +38,9 @@ export async function updateCalendarEventAction(id: string, formData: FormData) 
 }
 
 export async function deleteCalendarEventAction(id: string) {
-  await requireAdminPermission('calendar');
+  const session = await requireAdminPermission('calendar');
+  const doc = await fetchAdminCalendarEventById(id);
   await deleteCalendarEvent(id);
+  await logActivity(session, { action: 'delete', entityType: 'calendarEvent', entityTitle: doc?.titleRu ?? id, entityId: id });
   redirect('/admin/calendar');
 }

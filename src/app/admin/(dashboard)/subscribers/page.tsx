@@ -101,6 +101,7 @@ export default async function AdminSubscribersPage({
               </form>
               <form action={deleteSubscriberAction}>
                 <input type="hidden" name="id" value={s._id} />
+                <input type="hidden" name="email" value={s.email} />
                 <button
                   type="submit"
                   className="text-[11.5px] font-bold px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:border-red-500/60 transition-colors whitespace-nowrap shrink-0"

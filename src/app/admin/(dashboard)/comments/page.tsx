@@ -76,7 +76,12 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
                     <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-cyan-500 text-[#06222b] self-start">Сохранить</button>
                   </form>
                 </details>
-                <form action={deleteCommentAction} className="ml-auto"><input type="hidden" name="id" value={c._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button></form>
+                <form action={deleteCommentAction} className="ml-auto">
+                  <input type="hidden" name="id" value={c._id} />
+                  <input type="hidden" name="authorName" value={c.authorName} />
+                  <input type="hidden" name="text" value={c.text} />
+                  <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button>
+                </form>
               </div>
             </div>
           ))}

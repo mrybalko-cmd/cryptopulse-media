@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { setExchangeReviewApproved, updateExchangeReviewText, deleteExchangeReview } from '@/lib/admin/data';
+import { logActivity } from '@/lib/admin/activityLog';
 
 export async function approveExchangeReviewAction(formData: FormData) {
   await requireAdminPermission('exchanges');
@@ -17,8 +18,17 @@ export async function rejectExchangeReviewAction(formData: FormData) {
 }
 
 export async function deleteExchangeReviewAction(formData: FormData) {
-  await requireAdminPermission('exchanges');
-  await deleteExchangeReview(String(formData.get('id')));
+  const session = await requireAdminPermission('exchanges');
+  const id = String(formData.get('id'));
+  const authorName = String(formData.get('authorName') || '');
+  const text = String(formData.get('text') || '');
+  await deleteExchangeReview(id);
+  await logActivity(session, {
+    action: 'delete',
+    entityType: 'exchangeReview',
+    entityTitle: `${authorName}: ${text.slice(0, 60)}`,
+    entityId: id,
+  });
   revalidatePath('/admin/exchange-reviews');
 }
 

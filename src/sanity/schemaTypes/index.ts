@@ -14,9 +14,10 @@ import { marketSnapshotType } from './marketSnapshot';
 import { exchangeType } from './exchange';
 import { exchangeReviewType } from './exchangeReview';
 import { adminUserType } from './adminUser';
+import { adminActivityLogType } from './adminActivityLog';
 
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType,
-  sidebarBannerType, marketSnapshotType, exchangeType, exchangeReviewType, adminUserType,
+  sidebarBannerType, marketSnapshotType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
 ];

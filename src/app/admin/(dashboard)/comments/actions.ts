@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { setCommentApproved, updateCommentText, deleteComment } from '@/lib/admin/data';
+import { logActivity } from '@/lib/admin/activityLog';
 
 export async function approveCommentAction(formData: FormData) {
   await requireAdminPermission('comments');
@@ -17,8 +18,17 @@ export async function rejectCommentAction(formData: FormData) {
 }
 
 export async function deleteCommentAction(formData: FormData) {
-  await requireAdminPermission('comments');
-  await deleteComment(String(formData.get('id')));
+  const session = await requireAdminPermission('comments');
+  const id = String(formData.get('id'));
+  const authorName = String(formData.get('authorName') || '');
+  const text = String(formData.get('text') || '');
+  await deleteComment(id);
+  await logActivity(session, {
+    action: 'delete',
+    entityType: 'comment',
+    entityTitle: `${authorName}: ${text.slice(0, 60)}`,
+    entityId: id,
+  });
   revalidatePath('/admin/comments');
 }
 

@@ -74,7 +74,12 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
                     <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-cyan-500 text-[#06222b] self-start">Сохранить</button>
                   </form>
                 </details>
-                <form action={deleteExchangeReviewAction} className="ml-auto"><input type="hidden" name="id" value={r._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button></form>
+                <form action={deleteExchangeReviewAction} className="ml-auto">
+                  <input type="hidden" name="id" value={r._id} />
+                  <input type="hidden" name="authorName" value={r.authorName} />
+                  <input type="hidden" name="text" value={r.text} />
+                  <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button>
+                </form>
               </div>
             </div>
           ))}

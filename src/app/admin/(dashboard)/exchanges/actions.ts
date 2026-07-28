@@ -7,6 +7,7 @@ import {
   createExchange,
   updateExchange,
   deleteExchange,
+  fetchAdminExchangeById,
   uploadImageAsset,
   type ExchangeInput,
   type ExchangeProductItem,
@@ -14,6 +15,7 @@ import {
   type ExchangeRegionItem,
 } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
+import { logActivity } from '@/lib/admin/activityLog';
 
 async function parseProducts(
   formData: FormData
@@ -162,8 +164,10 @@ export async function updateExchangeAction(
 }
 
 export async function deleteExchangeAction(id: string) {
-  await requireAdminPermission('exchanges');
+  const session = await requireAdminPermission('exchanges');
+  const doc = await fetchAdminExchangeById(id);
   await deleteExchange(id);
+  await logActivity(session, { action: 'delete', entityType: 'exchange', entityTitle: doc?.name ?? id, entityId: id });
   revalidateTag('exchanges', { expire: 0 });
   redirect('/admin/exchanges');
 }

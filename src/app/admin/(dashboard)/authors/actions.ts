@@ -2,7 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createAuthor, updateAuthor, deleteAuthor, uploadImageAsset, type AuthorInput } from '@/lib/admin/data';
+import { createAuthor, updateAuthor, deleteAuthor, fetchAdminAuthorById, uploadImageAsset, type AuthorInput } from '@/lib/admin/data';
+import { logActivity } from '@/lib/admin/activityLog';
 
 function parseInput(formData: FormData): AuthorInput {
   return {
@@ -39,7 +40,9 @@ export async function updateAuthorAction(id: string, formData: FormData) {
 }
 
 export async function deleteAuthorAction(id: string) {
-  await requireAdminPermission('authors');
+  const session = await requireAdminPermission('authors');
+  const doc = await fetchAdminAuthorById(id);
   await deleteAuthor(id);
+  await logActivity(session, { action: 'delete', entityType: 'author', entityTitle: doc?.name ?? id, entityId: id });
   redirect('/admin/authors');
 }

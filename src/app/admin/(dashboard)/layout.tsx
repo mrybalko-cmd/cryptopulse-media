@@ -53,6 +53,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
               >
                 👥 Users & permissions
               </Link>
+              <Link
+                href="/admin/activity"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
+              >
+                🕵️ Activity log
+              </Link>
             </>
           )}
         </nav>

@@ -3,9 +3,10 @@
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createNews, updateNews, deleteNews, duplicateNews, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
+import { createNews, updateNews, deleteNews, duplicateNews, fetchAdminNewsById, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
+import { logActivity } from '@/lib/admin/activityLog';
 
 async function uploadIfPresent(formData: FormData, field: string): Promise<string | undefined> {
   const file = formData.get(field) as File | null;
@@ -86,8 +87,10 @@ export async function updateNewsAction(id: string, originalBody: PortableTextBlo
 }
 
 export async function deleteNewsAction(id: string) {
-  await requireAdminPermission('news');
+  const session = await requireAdminPermission('news');
+  const doc = await fetchAdminNewsById(id);
   await deleteNews(id);
+  await logActivity(session, { action: 'delete', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
   revalidateTag('news', { expire: 0 });
   redirect('/admin/news');
 }
