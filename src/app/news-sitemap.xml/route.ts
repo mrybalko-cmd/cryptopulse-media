@@ -12,6 +12,7 @@ const BASE = 'https://cryptopulse.media';
 export const revalidate = 300;
 
 type NewsItem = {
+  _type: 'news' | 'article';
   slug: { current: string };
   title: string;
   language: string;
@@ -23,8 +24,8 @@ async function fetchRecentNews(): Promise<NewsItem[]> {
   try {
     const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     return await client.fetch(
-      `*[_type == "news" && publishedAt <= now() && publishedAt >= $since] | order(publishedAt desc) [0...1000] {
-        slug, title, language, publishedAt
+      `*[_type in ["news", "article"] && publishedAt <= now() && publishedAt >= $since] | order(publishedAt desc) [0...1000] {
+        _type, slug, title, language, publishedAt
       }`,
       { since: twoDaysAgo }
     );
@@ -43,8 +44,9 @@ export async function GET() {
       const pubDate = new Date(item.publishedAt).toISOString();
       const lang = item.language === 'en' ? 'en' : 'ru';
       const title = item.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const section = item._type === 'article' ? 'articles' : 'news';
       return `  <url>
-    <loc>${BASE}/${locale}/news/${item.slug.current}</loc>
+    <loc>${BASE}/${locale}/${section}/${item.slug.current}</loc>
     <news:news>
       <news:publication>
         <news:name>CryptoPulse.media</news:name>
