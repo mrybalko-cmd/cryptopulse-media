@@ -50,7 +50,12 @@ export default function ArticleForm({
   return (
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
       <div className="min-w-0">
-        <LanguageTabs name="language" defaultValue={article?.language ?? 'ru'} />
+        <LanguageTabs
+          name="language"
+          defaultValue={article?.language ?? 'ru'}
+          mode={article?._id ? 'edit' : 'create'}
+          translationHref={article?.translationRefId ? `/admin/articles/${article.translationRefId}` : undefined}
+        />
 
         {article?._id && (
           <HistoryPanel docId={article._id} listAction={getArticleHistoryAction} restoreAction={restoreArticleRevisionAction} />

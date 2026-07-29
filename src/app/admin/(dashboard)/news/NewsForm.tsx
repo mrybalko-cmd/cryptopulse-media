@@ -49,7 +49,12 @@ export default function NewsForm({
   return (
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
       <div className="min-w-0">
-        <LanguageTabs name="language" defaultValue={news?.language ?? 'ru'} />
+        <LanguageTabs
+          name="language"
+          defaultValue={news?.language ?? 'ru'}
+          mode={news?._id ? 'edit' : 'create'}
+          translationHref={news?.translationRefId ? `/admin/news/${news.translationRefId}` : undefined}
+        />
 
         {news?._id && (
           <HistoryPanel docId={news._id} listAction={getNewsHistoryAction} restoreAction={restoreNewsRevisionAction} />
