@@ -74,7 +74,7 @@ export default function NewsForm({
             name="coverImage"
             currentUrl={news?.coverImage}
             breakingDefault={news?.breaking ?? false}
-            ownBadgeDefault={news?.ownBadge ?? true}
+            ownBadgeDefault={news?.ownBadge ?? false}
           />
         </div>
         <div className="mb-5">

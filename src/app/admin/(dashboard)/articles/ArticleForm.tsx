@@ -71,7 +71,7 @@ export default function ArticleForm({
         </div>
 
         <div className="mb-5">
-          <CoverImageField name="coverImage" currentUrl={article?.coverImage} ownBadgeDefault={article?.ownBadge ?? true} />
+          <CoverImageField name="coverImage" currentUrl={article?.coverImage} ownBadgeDefault={article?.ownBadge ?? false} />
         </div>
         <div className="mb-5">
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Alt-текст обложки</label>

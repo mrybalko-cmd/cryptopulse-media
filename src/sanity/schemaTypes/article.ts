@@ -126,8 +126,8 @@ export const articleType = defineType({
       name: 'ownBadge',
       title: '⚡ Значок «Наш материал» / Own story badge',
       type: 'boolean',
-      initialValue: true,
-      description: 'Показывать молнию «Наш материал». По умолчанию включено для всех наших публикаций.',
+      initialValue: false,
+      description: 'Показывать молнию «Наш материал». Редакционное решение — включается вручную для конкретных материалов.',
     }),
     defineField({
       name: 'badge',

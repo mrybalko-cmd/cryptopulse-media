@@ -21,7 +21,7 @@ export default function CoverImageField({
 }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [breaking, setBreaking] = useState(breakingDefault ?? false);
-  const [ownBadge, setOwnBadge] = useState(ownBadgeDefault ?? true);
+  const [ownBadge, setOwnBadge] = useState(ownBadgeDefault ?? false);
   const showBreakingToggle = breakingDefault !== undefined;
   const showOwnBadgeToggle = ownBadgeDefault !== undefined;
   const displayUrl = previewUrl ?? (currentUrl ? `${currentUrl}?w=640` : null);
