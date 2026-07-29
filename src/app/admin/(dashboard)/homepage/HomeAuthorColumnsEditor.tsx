@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { AdminAuthorOption, MaterialOption } from '@/lib/admin/data';
+import MaterialPicker from '../_shared/MaterialPicker';
 
 const selectCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12.5px]';
 
@@ -108,27 +109,29 @@ export default function HomeAuthorColumnsEditor({
                 {authors.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
               </select>
 
-              <select
-                name={`slot_materialRuId_${i}`}
-                value={slot.materialRuId}
-                onChange={e => updateSlot(i, { materialRuId: e.target.value })}
-                disabled={!slot.authorId}
-                className={selectCls}
-              >
-                <option value="">{slot.authorId ? '— материал RU —' : '— сначала автор —'}</option>
-                {ownMaterialsRu.map(m => <option key={m._id} value={m._id}>{m.title}</option>)}
-              </select>
+              {slot.authorId ? (
+                <MaterialPicker
+                  name={`slot_materialRuId_${i}`}
+                  candidates={ownMaterialsRu}
+                  value={slot.materialRuId}
+                  onChange={id => updateSlot(i, { materialRuId: id })}
+                  locale="ru"
+                />
+              ) : (
+                <div className={`${selectCls} text-[var(--admin-text-muted)]`}>— сначала автор —</div>
+              )}
 
-              <select
-                name={`slot_materialEnId_${i}`}
-                value={slot.materialEnId}
-                onChange={e => updateSlot(i, { materialEnId: e.target.value })}
-                disabled={!slot.authorId}
-                className={selectCls}
-              >
-                <option value="">{slot.authorId ? '— материал EN —' : '— сначала автор —'}</option>
-                {ownMaterialsEn.map(m => <option key={m._id} value={m._id}>{m.title}</option>)}
-              </select>
+              {slot.authorId ? (
+                <MaterialPicker
+                  name={`slot_materialEnId_${i}`}
+                  candidates={ownMaterialsEn}
+                  value={slot.materialEnId}
+                  onChange={id => updateSlot(i, { materialEnId: id })}
+                  locale="en"
+                />
+              ) : (
+                <div className={`${selectCls} text-[var(--admin-text-muted)]`}>— сначала автор —</div>
+              )}
             </div>
           );
         })}

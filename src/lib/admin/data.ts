@@ -1042,16 +1042,20 @@ export interface MaterialOption {
   title: string;
   authorId?: string;
   authorName?: string;
+  coverImage: string | null;
+  publishedAt?: string;
 }
 
 // Feeds the homepage author-column material pickers, which need the whole
 // set client-side for per-author filtering (see HomeAuthorColumnsEditor) —
 // hundreds of docs either way, so a few minutes of staleness here is a much
 // better trade than an 800+ row unbounded fetch on every /admin/homepage view.
+// Ordered by recency (not title) so the picker's default "recent 3" view
+// needs no extra client-side sort.
 export const fetchAllMaterialOptions = unstable_cache(
   async (language: 'ru' | 'en'): Promise<MaterialOption[]> => {
     return client.fetch(
-      `*[(_type == "article" || _type == "news") && language == $language] | order(title asc){ _id, title, "authorId": author._ref, "authorName": author->name }`,
+      `*[(_type == "article" || _type == "news") && language == $language] | order(publishedAt desc){ _id, title, "authorId": author._ref, "authorName": author->name, "coverImage": coverImage.asset->url, publishedAt }`,
       { language }
     );
   },
