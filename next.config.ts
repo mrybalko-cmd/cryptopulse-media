@@ -4,13 +4,34 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  // A full Content-Security-Policy needs every legitimate script/style/embed
-  // source enumerated first (GA, Ahrefs, Vercel Analytics, YouTube/Twitter
-  // embeds, Sanity Studio's own network calls at /studio) — getting that
-  // wrong silently breaks those rather than failing loudly, so it's left as
-  // a separate, carefully-tested follow-up. These four are safe on any site:
-  // no allowlist to maintain, nothing here can break an existing feature.
+  // The CSP is scoped to the locale-prefixed public routes only (/ru/*,
+  // /en/*) — /admin and /studio never match either source pattern, so they
+  // keep getting the four headers below but no CSP at all. Sanity Studio in
+  // particular is a heavy third-party SPA with its own script/style/connect
+  // needs we don't have full visibility into; restricting it here risked
+  // silently breaking the CMS editing UI for no real security benefit (it's
+  // an authenticated, noindexed internal tool, not the audience this policy
+  // protects). Every origin below is enumerated from the actual code: GA
+  // (layout.tsx), Ahrefs analytics (layout.tsx), the YouTube embed iframe
+  // (YouTubeEmbed.tsx — Twitter/X embeds are plain server-rendered links,
+  // no iframe), and the image CDNs already allowlisted in images.remotePatterns
+  // below. script-src/style-src keep 'unsafe-inline' for the pre-hydration
+  // theme script and Tailwind's inline style attributes — real nonce-based
+  // hardening is a further step, not attempted here.
   async headers() {
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://analytics.ahrefs.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://vitals.vercel-insights.com",
+      "frame-src https://www.youtube.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "frame-ancestors 'self'",
+    ].join('; ');
+
     return [
       {
         source: '/:path*',
@@ -20,6 +41,14 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
+      },
+      {
+        source: '/ru/:path*',
+        headers: [{ key: 'Content-Security-Policy', value: csp }],
+      },
+      {
+        source: '/en/:path*',
+        headers: [{ key: 'Content-Security-Policy', value: csp }],
       },
     ];
   },
