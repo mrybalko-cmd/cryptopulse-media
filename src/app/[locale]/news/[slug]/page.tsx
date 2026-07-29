@@ -39,8 +39,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = news.seo?.metaTitle || news.title;
   const description = truncateDesc(news.seo?.metaDescription || news.excerpt || '');
+  // 16:9 (not the classic 1200x630 OG ratio) — Google Discover's own image
+  // guidance calls out 16:9 specifically for large-image thumbnail eligibility.
   const ogImageUrl = news.seoOgImageUrl
-    || sanityImageTransform(news.coverImage, { width: 1200, height: 630, format: 'jpg' })
+    || sanityImageTransform(news.coverImage, { width: 1200, height: 675, format: 'jpg' })
     || `https://cryptopulse.media/${locale}/opengraph-image`;
   const canonicalUrl = news.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/news/${slug}`;
   const translationLang = news.translation?.language;
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `https://cryptopulse.media/${locale}/news/${slug}`,
       siteName: 'CryptoPulse.media',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
+      images: [{ url: ogImageUrl, width: 1200, height: 675, alt: title }],
       publishedTime: news.publishedAt,
       modifiedTime: news.updatedAt || news.publishedAt,
       ...(news.author?.slug && {

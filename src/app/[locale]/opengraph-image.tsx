@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og';
 
-export const size = { width: 1200, height: 630 };
+// 16:9, not the classic 1200x630 OG ratio — Google Discover's own image
+// guidance calls out 16:9 specifically for large-image thumbnail eligibility.
+export const size = { width: 1200, height: 675 };
 export const contentType = 'image/png';
 
 function Pill({ color, bg, children }: { color: string; bg: string; children: string }) {
