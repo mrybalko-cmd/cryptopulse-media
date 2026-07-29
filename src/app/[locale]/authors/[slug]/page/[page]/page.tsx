@@ -29,11 +29,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const role = (isRu ? author.roleRu : author.roleEn) || '';
   const title = `${author.name}${role ? ` — ${role}` : ''} — ${isRu ? 'страница' : 'page'} ${page}`;
   const bio = isRu ? author.bioRu : author.bioEn;
+  // Bio text is identical across every page in this author's pagination
+  // series — append the page number so each page's description is unique
+  // instead of all of them repeating the same bio verbatim.
+  const pageSuffix = isRu ? ` — страница ${page}` : ` — page ${page}`;
   const description = bio
-    ? bio.slice(0, 155)
+    ? `${bio.slice(0, 155 - pageSuffix.length)}${pageSuffix}`
     : isRu
-    ? `Материалы автора ${author.name} на CryptoPulse.media`
-    : `Articles by ${author.name} on CryptoPulse.media`;
+    ? `Материалы автора ${author.name} на CryptoPulse.media${pageSuffix}`
+    : `Articles by ${author.name} on CryptoPulse.media${pageSuffix}`;
   return {
     title,
     description,

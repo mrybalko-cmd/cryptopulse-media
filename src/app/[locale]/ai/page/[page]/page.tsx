@@ -23,9 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = isRu
     ? `AI & Искусственный интеллект в крипто — страница ${page} — CryptoPulse.media`
     : `AI & Artificial Intelligence in Crypto — page ${page} — CryptoPulse.media`;
+  // Page-invariant text here would give every page in the series (indexed,
+  // unlike /news and /articles pagination) an identical meta description —
+  // append the page number so each is unique.
   const description = isRu
-    ? 'Новости и аналитика об искусственном интеллекте в мире криптовалют и блокчейна.'
-    : 'News and analysis on artificial intelligence in the crypto and blockchain world.';
+    ? `Новости и аналитика об искусственном интеллекте в мире криптовалют и блокчейна — страница ${page}.`
+    : `News and analysis on artificial intelligence in the crypto and blockchain world — page ${page}.`;
   return {
     title,
     description,

@@ -26,7 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'news' });
   const title = t('title');
-  const description = t('subtitle');
+  // t('subtitle') is identical on every page in this series — append the
+  // page number so the meta description isn't byte-identical across them.
+  const description = `${t('subtitle')} ${locale === 'ru' ? `— страница ${page}` : `— page ${page}`}`;
   return {
     title,
     description,
