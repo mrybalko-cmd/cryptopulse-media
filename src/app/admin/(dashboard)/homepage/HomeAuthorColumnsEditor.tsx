@@ -70,7 +70,7 @@ export default function HomeAuthorColumnsEditor({
           const ownMaterialsRu = materialsRu.filter(m => m.authorId === slot.authorId);
           const ownMaterialsEn = materialsEn.filter(m => m.authorId === slot.authorId);
           return (
-            <div key={slot.key} className="grid grid-cols-[28px_52px_1fr_1fr_1fr] gap-2 items-center border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
+            <div key={slot.key} className="grid grid-cols-[28px_52px_minmax(180px,1.4fr)_1fr_1fr] gap-2 items-center border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
               <div className="flex flex-col gap-0.5">
                 <button
                   type="button"

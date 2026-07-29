@@ -51,6 +51,7 @@ export default function ArticleForm({
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
       <div className="min-w-0">
         <LanguageTabs
+          key={article?._id ?? 'new'}
           name="language"
           defaultValue={article?.language ?? 'ru'}
           mode={article?._id ? 'edit' : 'create'}

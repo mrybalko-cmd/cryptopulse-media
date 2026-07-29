@@ -50,6 +50,7 @@ export default function NewsForm({
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
       <div className="min-w-0">
         <LanguageTabs
+          key={news?._id ?? 'new'}
           name="language"
           defaultValue={news?.language ?? 'ru'}
           mode={news?._id ? 'edit' : 'create'}
