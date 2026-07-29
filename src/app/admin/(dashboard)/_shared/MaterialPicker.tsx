@@ -58,14 +58,14 @@ export default function MaterialPicker({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <input type="hidden" name={name} value={value} />
 
       {!searching && (
         <button
           type="button"
           onClick={() => setSearching(true)}
-          className="w-full flex items-center gap-2 bg-[var(--admin-input)] border border-cyan-500/40 rounded-lg px-2.5 py-2 text-left"
+          className="w-full min-w-0 flex items-center gap-2 bg-[var(--admin-input)] border border-cyan-500/40 rounded-lg px-2.5 py-2 text-left"
         >
           {selected ? (
             <>
