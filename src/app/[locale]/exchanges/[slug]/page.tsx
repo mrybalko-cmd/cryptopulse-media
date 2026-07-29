@@ -96,10 +96,16 @@ export default async function ExchangeDetailPage({ params }: Props) {
     ],
   };
 
+  // Each tab must match a section that actually renders below — the
+  // "overview"/"products"/"news" sections are all conditional on the
+  // exchange having that data, and an unconditional tab pointing at a
+  // section that didn't render is a broken in-page jump link (Sitechecker
+  // flagged exactly this on exchanges missing one of these fields).
   const navLinks = [
-    { id: 'overview', ru: 'Обзор', en: 'Overview' },
-    { id: 'products', ru: 'Продукты', en: 'Products' },
-    { id: 'news', ru: 'Новости', en: 'News' },
+    ...(description && description.length > 0 ? [{ id: 'overview', ru: 'Обзор', en: 'Overview' }] : []),
+    ...(exchange.regions && exchange.regions.length > 0 ? [{ id: 'regulation', ru: 'Регулирование', en: 'Regulation' }] : []),
+    ...(products && products.length > 0 ? [{ id: 'products', ru: 'Продукты', en: 'Products' }] : []),
+    ...(mentions.length > 0 ? [{ id: 'news', ru: 'Новости', en: 'News' }] : []),
     { id: 'reviews', ru: 'Отзывы', en: 'Reviews' },
   ];
 
