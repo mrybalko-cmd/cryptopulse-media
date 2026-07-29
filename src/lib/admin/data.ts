@@ -468,7 +468,7 @@ const NEWS_DOC_PROJECTION = `
   "seoMetaDescription": seo.metaDescription, "seoKeywords": array::join(seo.keywords, ", "),
   "seoOgImage": seo.ogImage.asset->url, "seoCanonicalUrl": seo.canonicalUrl,
   "seoNoIndex": coalesce(seo.noIndex, false),
-  topic, "ownBadge": coalesce(ownBadge, true), "badge": coalesce(badge, "none"),
+  topic, "ownBadge": coalesce(ownBadge, false), "badge": coalesce(badge, "none"),
   "breaking": coalesce(breaking, false), pinnedUntil,
   "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true),
   "translationRefId": translationRef._ref,
@@ -680,7 +680,7 @@ export interface AdminArticleDoc {
 const ARTICLE_DOC_PROJECTION = `
   _id, language, title, "slug": slug.current, excerpt,
   "coverImage": coverImage.asset->url, "coverImageAlt": coverImage.alt,
-  publishTiming, publishedAt, readingTime, topic, "badge": coalesce(badge, "none"), "ownBadge": coalesce(ownBadge, true), body,
+  publishTiming, publishedAt, readingTime, topic, "badge": coalesce(badge, "none"), "ownBadge": coalesce(ownBadge, false), body,
   "seoFocusKeyphrase": seo.focusKeyphrase, "seoMetaTitle": seo.metaTitle,
   "seoMetaDescription": seo.metaDescription, "seoKeywords": array::join(seo.keywords, ", "),
   "seoOgImage": seo.ogImage.asset->url, "seoSchemaType": coalesce(seo.schemaType, "BlogPosting"),

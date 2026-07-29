@@ -107,7 +107,7 @@ export default async function PopularNewsPage({ params }: Props) {
               publishedAt={Math.floor(new Date(item.publishedAt).getTime() / 1000)}
               locale={locale}
               breaking={item.breaking}
-              ownBadge={item.ownBadge !== false}
+              ownBadge={item.ownBadge === true}
               badge={item.badge}
               views={item.views}
               likes={item.likes}

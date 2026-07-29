@@ -109,7 +109,7 @@ export default function NewsLoadMore({ locale, initialCount, pageSize = 20, last
                       topic={item.topic}
                       locale={locale}
                       breaking={item.breaking}
-                      ownBadge={item.ownBadge !== false}
+                      ownBadge={item.ownBadge === true}
                       badge={item.badge}
                       views={item.views}
                     />

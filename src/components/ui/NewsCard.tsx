@@ -25,7 +25,7 @@ interface NewsCardProps {
   badge?: string;
 }
 
-export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking, ownBadge = true, badge }: NewsCardProps) {
+export default function NewsCard({ title, source, href, external, publishedAt, categories, locale, imageUrl, pinned, breaking, ownBadge = false, badge }: NewsCardProps) {
   const dateLocale = locale === 'ru' ? ru : enUS;
   const timeAgo = formatDistanceToNow(new Date(publishedAt * 1000), { addSuffix: true, locale: dateLocale });
   const tags = [...new Set(categories?.split('|').filter(Boolean))].slice(0, 2);

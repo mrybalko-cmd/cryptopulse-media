@@ -38,7 +38,7 @@ export async function fetchOwnNews({
     topic: n.topic,
     pinned: !!n.pinnedUntil && new Date(n.pinnedUntil) > new Date(),
     breaking: !!n.breaking,
-    ownBadge: n.ownBadge !== false,
+    ownBadge: n.ownBadge === true,
     badge: n.badge,
     views: typeof n.views === 'number' ? n.views : undefined,
     likes: typeof n.likes === 'number' ? n.likes : undefined,

@@ -27,7 +27,7 @@ interface Props {
 }
 
 export default function NewsTimelineRow({
-  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = true, badge, views,
+  title, href, external, publishedAt, imageUrl, topic, locale, pinned, breaking, ownBadge = false, badge, views,
 }: Props) {
   const [imgErr, setImgErr] = useState(false);
 

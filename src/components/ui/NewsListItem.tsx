@@ -19,7 +19,7 @@ interface NewsListItemProps {
   aiTopic?: boolean;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = true, badge, views, likes, aiTopic }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = false, badge, views, likes, aiTopic }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
   const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',

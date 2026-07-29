@@ -145,7 +145,7 @@ export default async function NewsTopicPage({ params }: Props) {
               imageUrl={item.coverImage}
               locale={locale}
               breaking={item.breaking}
-              ownBadge={item.ownBadge !== false}
+              ownBadge={item.ownBadge === true}
               badge={item.badge}
             />
           ))}
