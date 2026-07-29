@@ -123,8 +123,13 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
   const spans: Span[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
-  INLINE_RE.lastIndex = 0;
-  while ((match = INLINE_RE.exec(content)) !== null) {
+  // A fresh regex instance per call — not the shared module-level INLINE_RE —
+  // because large/small now recurse into parseInline() below. Sharing one
+  // stateful `g`-flag regex across the outer loop and a recursive inner call
+  // means the inner call's own `lastIndex = 0` reset corrupts the outer
+  // loop's position, which without care turns into an infinite loop.
+  const re = new RegExp(INLINE_RE.source, INLINE_RE.flags);
+  while ((match = re.exec(content)) !== null) {
     if (match.index > lastIndex) {
       spans.push({ _type: 'span', _key: randomKey(), text: content.slice(lastIndex, match.index), marks: [] });
     }
@@ -139,15 +144,24 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
     } else if (match[6] !== undefined) {
       spans.push({ _type: 'span', _key: randomKey(), text: match[6], marks: ['strike-through'] });
     } else if (match[7] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[7], marks: ['large'] });
+      // large/small are wrapper marks that commonly wrap other inline markup
+      // (most often a link, e.g. a "quote source" caption) — recurse so that
+      // nested syntax like [text](url) still becomes a real link mark instead
+      // of surviving as literal "[text](url)" text with only the large/small
+      // mark applied.
+      const inner = parseInline(match[7]);
+      for (const s of inner.spans) spans.push({ ...s, marks: [...s.marks, 'large'] });
+      markDefs.push(...inner.markDefs);
     } else if (match[8] !== undefined) {
-      spans.push({ _type: 'span', _key: randomKey(), text: match[8], marks: ['small'] });
+      const inner = parseInline(match[8]);
+      for (const s of inner.spans) spans.push({ ...s, marks: [...s.marks, 'small'] });
+      markDefs.push(...inner.markDefs);
     } else if (match[9] !== undefined) {
       spans.push({ _type: 'span', _key: randomKey(), text: match[9], marks: ['em'] });
     } else if (match[10] !== undefined) {
       spans.push({ _type: 'span', _key: randomKey(), text: match[10], marks: ['code'] });
     }
-    lastIndex = INLINE_RE.lastIndex;
+    lastIndex = re.lastIndex;
   }
   if (lastIndex < content.length) {
     spans.push({ _type: 'span', _key: randomKey(), text: content.slice(lastIndex), marks: [] });
