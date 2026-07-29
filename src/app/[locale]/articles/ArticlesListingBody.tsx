@@ -7,7 +7,7 @@ import { Flame } from 'lucide-react';
 const TOPICS: Record<string, { ru: string; en: string }> = {
   regulation: { ru: 'Регулирование', en: 'Regulation' },
   defi: { ru: 'DeFi & Web3', en: 'DeFi & Web3' },
-  bitcoin: { ru: 'Bitcoin', en: 'Bitcoin' },
+  bitcoin: { ru: 'Биткоин', en: 'Bitcoin' },
   market: { ru: 'Рынок', en: 'Market' },
   technology: { ru: 'Технологии', en: 'Technology' },
   security: { ru: 'Безопасность', en: 'Security' },
