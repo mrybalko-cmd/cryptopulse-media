@@ -45,7 +45,7 @@ function EventRow({ event, locale, pageUrl, disambiguateTitle }: { event: Calend
     <div id={event.slug} className="flex gap-4 bg-card border border-border rounded-xl p-4 scroll-mt-20 md:scroll-mt-32">
       <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-accent/10 flex items-center justify-center text-base relative">
         {event.iconUrl ? (
-          <Image src={event.iconUrl} alt={title} fill sizes="36px" className="object-cover" />
+          <Image src={event.iconUrl} alt={title} width={36} height={36} className="w-full h-full object-cover" />
         ) : (
           CATEGORY_ICON[event.category] || '🗓️'
         )}

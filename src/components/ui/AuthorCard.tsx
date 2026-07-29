@@ -34,9 +34,9 @@ export default function AuthorCard({ author, locale }: Props) {
           <Image
             src={author.photo}
             alt={author.name}
-            fill
-            className="object-cover"
-            sizes="64px"
+            width={64}
+            height={64}
+            className="w-full h-full object-cover"
           />
         </div>
       ) : (

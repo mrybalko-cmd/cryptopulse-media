@@ -125,7 +125,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
       <div className="flex items-start gap-4 mb-6">
         {exchange.logo ? (
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
-            <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={name} fill className="object-cover" unoptimized />
+            <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={name} width={64} height={64} className="w-full h-full object-cover" unoptimized />
           </div>
         ) : (
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black shrink-0 border-2 border-[#ec4899]" style={{ background: exchange.logoBg || '#3b82f6' }}>

@@ -94,7 +94,7 @@ export default async function ExchangeNewsArchivePage({ params }: Props) {
             >
               <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-background">
                 {m.coverImage && (
-                  <Image src={sanityImageTransform(m.coverImage, { width: 160 })!} alt={m.title} fill className="object-cover" unoptimized />
+                  <Image src={sanityImageTransform(m.coverImage, { width: 160 })!} alt={m.title} width={80} height={80} className="w-full h-full object-cover" unoptimized />
                 )}
               </div>
               <div className="min-w-0">

@@ -51,7 +51,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         )}
         {!external && ownBadge && !aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded overflow-hidden relative shrink-0" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
-            <Image src="/logo-mark.png" alt={locale === 'ru' ? 'Наш материал' : 'Our story'} fill sizes="16px" className="object-cover" />
+            <Image src="/logo-mark.png" alt={locale === 'ru' ? 'Наш материал' : 'Our story'} width={16} height={16} className="w-full h-full object-cover" />
           </span>
         )}
         {pinned && (

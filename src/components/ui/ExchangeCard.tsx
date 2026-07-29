@@ -52,7 +52,7 @@ export default function ExchangeCard({
           <div className="shrink-0">
             {exchange.logo ? (
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
-                <Image src={sanityImageTransform(exchange.logo, { width: 112 })!} alt={exchange.name} fill className="object-cover" unoptimized />
+                <Image src={sanityImageTransform(exchange.logo, { width: 112 })!} alt={exchange.name} width={56} height={56} className="w-full h-full object-cover" unoptimized />
               </div>
             ) : (
               <div

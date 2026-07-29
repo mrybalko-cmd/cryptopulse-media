@@ -40,7 +40,7 @@ export default function ExchangeNewsSection({
           >
             <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-background">
               {m.coverImage && (
-                <Image src={sanityImageTransform(m.coverImage, { width: 112 })!} alt={m.title} fill className="object-cover" unoptimized />
+                <Image src={sanityImageTransform(m.coverImage, { width: 112 })!} alt={m.title} width={56} height={56} className="w-full h-full object-cover" unoptimized />
               )}
             </div>
             <div className="min-w-0">
