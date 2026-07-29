@@ -9,10 +9,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'legal' });
+  const isRu = locale === 'ru';
+  const description = isRu
+    ? 'Как CryptoPulse.media собирает, использует и защищает ваши персональные данные.'
+    : 'How CryptoPulse.media collects, uses, and protects your personal data.';
   return {
     title: t('privacyTitle'),
-    openGraph: buildOg({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description: '', locale }),
-    twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description: '', locale }),
+    description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/privacy`,
       languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy' },

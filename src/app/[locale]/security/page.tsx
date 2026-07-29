@@ -10,10 +10,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'legal' });
+  const isRu = locale === 'ru';
+  const description = isRu
+    ? 'Как распознать и избежать крипто-скама, фишинга и мошенничества от имени CryptoPulse.media.'
+    : 'How to recognize and avoid crypto scams, phishing, and fraud impersonating CryptoPulse.media.';
   return {
     title: t('securityTitle'),
-    openGraph: buildOg({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description: '', locale }),
-    twitter: buildTwitter({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description: '', locale }),
+    description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/security`,
       languages: { ru: `${BASE}/ru/security`, en: `${BASE}/en/security` },

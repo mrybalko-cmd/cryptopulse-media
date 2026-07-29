@@ -11,10 +11,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'legal' });
+  const isRu = locale === 'ru';
+  const description = isRu
+    ? 'Редакционная политика CryptoPulse.media: источники, исправления и независимость от рекламодателей.'
+    : "CryptoPulse.media's editorial policy: sourcing, corrections, and independence from advertisers.";
   return {
     title: t('editorialPolicyTitle'),
-    openGraph: buildOg({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description: '', locale }),
-    twitter: buildTwitter({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description: '', locale }),
+    description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/editorial-policy`,
       languages: { ru: `${BASE}/ru/editorial-policy`, en: `${BASE}/en/editorial-policy` },

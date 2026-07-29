@@ -9,10 +9,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'legal' });
+  const isRu = locale === 'ru';
+  const description = isRu
+    ? 'Дисклеймер CryptoPulse.media: материалы носят информационный характер и не являются финансовой консультацией.'
+    : "CryptoPulse.media's disclaimer: content is for informational purposes only and is not financial advice.";
   return {
     title: t('disclaimerTitle'),
-    openGraph: buildOg({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description: '', locale }),
-    twitter: buildTwitter({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description: '', locale }),
+    description,
+    openGraph: buildOg({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description, locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/disclaimer`,
       languages: { ru: 'https://cryptopulse.media/ru/disclaimer', en: 'https://cryptopulse.media/en/disclaimer' },
