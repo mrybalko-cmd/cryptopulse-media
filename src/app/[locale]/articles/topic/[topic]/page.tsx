@@ -37,6 +37,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const articles = await fetchArticlesByTopic(topic, locale, 50);
   const isThin = articles.length < 3;
 
+  // "isThin" is evaluated independently per locale, so one language's topic
+  // page can be indexable while the other is noindexed. Only emit hreflang
+  // when BOTH sides are indexable — otherwise it's the "hreflang to/from a
+  // noindex URL" pattern SEO audits flag. A cheap limit-3 fetch is enough
+  // since we only need to know whether the other side clears the threshold.
+  const otherLocale = isRu ? 'en' : 'ru';
+  const otherArticles = await fetchArticlesByTopic(topic, otherLocale, 3);
+  const otherIsThin = otherArticles.length < 3;
+
   return {
     title,
     description,
@@ -45,10 +54,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/articles/topic/${topic}`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/articles/topic/${topic}`,
-      languages: {
-        ru: `${BASE}/ru/articles/topic/${topic}`,
-        en: `${BASE}/en/articles/topic/${topic}`,
-      },
+      ...(!isThin && !otherIsThin && {
+        languages: {
+          ru: `${BASE}/ru/articles/topic/${topic}`,
+          en: `${BASE}/en/articles/topic/${topic}`,
+        },
+      }),
     },
   };
 }

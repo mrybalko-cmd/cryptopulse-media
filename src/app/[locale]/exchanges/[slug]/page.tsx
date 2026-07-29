@@ -46,7 +46,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/exchanges/${slug}`, title, description, locale, image: exchange.logo || undefined }),
     alternates: {
       canonical: `${BASE}/${locale}/exchanges/${slug}`,
-      languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}`, en: `${BASE}/en/exchanges/${exchange.slugEn}` },
+      // noIndex is one shared field on this bilingual document, so both
+      // locale pages are noindexed together — never emit hreflang between
+      // them in that case (see the pagination routes for the full reasoning).
+      ...(!exchange.seo?.noIndex && {
+        languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}`, en: `${BASE}/en/exchanges/${exchange.slugEn}` },
+      }),
     },
   };
 }

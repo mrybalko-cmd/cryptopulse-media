@@ -28,12 +28,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/articles/page/${page}`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/articles/page/${page}`, title, description, locale }),
+    // No hreflang here: this route is always noindex,follow (below), and a
+    // noindexed page annotating an equally-noindexed sibling as its language
+    // alternate is exactly the "hreflang to/from noindex URL" pattern SEO
+    // audits flag — hreflang should only ever point between indexable pages.
     alternates: {
       canonical: `${BASE}/${locale}/articles/page/${page}`,
-      languages: {
-        ru: `${BASE}/ru/articles/page/${page}`,
-        en: `${BASE}/en/articles/page/${page}`,
-      },
     },
     robots: { index: false, follow: true },
   };
