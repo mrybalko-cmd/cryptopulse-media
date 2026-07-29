@@ -42,14 +42,10 @@ export default function NewsTimelineRow({
   const inner = (
     <article
       className="group flex items-start gap-2.5 py-2.5 border-b border-border/50 last:border-b-0 hover:bg-foreground/[0.03] -mx-2 px-2 rounded-lg transition-colors"
-      itemScope
-      itemType="https://schema.org/NewsArticle"
     >
       {/* Time */}
       <time
         dateTime={isoStr}
-        itemProp="datePublished"
-        content={isoStr}
         suppressHydrationWarning
         className="w-[38px] shrink-0 font-mono text-[11px] leading-none text-muted text-right tabular-nums mt-[3px]"
       >
@@ -63,7 +59,6 @@ export default function NewsTimelineRow({
             src={imageUrl}
             alt={title}
             fill
-            itemProp="image"
             className="object-cover"
             sizes="40px"
             unoptimized={!imageUrl.includes('cdn.sanity.io')}
@@ -102,7 +97,6 @@ export default function NewsTimelineRow({
         {/* Title */}
         <h3
           className="text-[13px] font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2"
-          itemProp="headline"
         >
           {!external && ownBadge && (
             <Zap
