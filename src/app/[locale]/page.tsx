@@ -310,7 +310,7 @@ export default async function HomePage({ params }: Props) {
           lg:hidden to avoid a second repeat there. */}
       {pulseData && (
         <div className="lg:hidden">
-          <PulseWidget data={pulseData} locale={locale} idSuffix="home-mobile" />
+          <PulseWidget data={pulseData} locale={locale} idSuffix="home-mobile" asHeading={false} />
         </div>
       )}
     </div>

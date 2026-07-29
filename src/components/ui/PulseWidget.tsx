@@ -22,15 +22,23 @@ export default function PulseWidget({
   locale,
   idSuffix = 'default',
   className = '',
+  asHeading = true,
 }: {
   data: PulseData;
   locale: string;
   idSuffix?: string;
   className?: string;
+  // The homepage renders this widget twice — once for desktop, once for
+  // mobile — toggled purely via CSS so only one is ever visible per
+  // viewport (see PopularList's asHeadings for the identical reasoning).
+  // Real <h2> tags in both copies still read as a literal duplicate
+  // heading to crawlers, so the non-canonical copy passes false here.
+  asHeading?: boolean;
 }) {
   const isRu = locale === 'ru';
   const verdict = VERDICTS[data.classification]?.[isRu ? 'ru' : 'en'] ?? data.classification;
   const gradId = `pulse-ecg-${idSuffix}`;
+  const TitleTag = asHeading ? 'h2' : 'p';
   const pulseHref = `/${locale}/pulse`;
   const shareUrl = `${BASE}${pulseHref}`;
   const shareText = isRu
@@ -55,10 +63,10 @@ export default function PulseWidget({
           icons below get their own separate action, since <a> can't nest
           interactive children. */}
       <Link href={pulseHref} className="flex flex-col flex-1">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-foreground mb-3 relative">
+        <TitleTag className="flex items-center gap-2 text-sm font-bold text-foreground mb-3 relative">
           <span className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse motion-reduce:animate-none" style={{ background: GRAD.b, boxShadow: `0 0 6px ${GRAD.b}` }} aria-hidden="true" />
           {isRu ? 'Пульс рынка' : 'Market Pulse'}
-        </h2>
+        </TitleTag>
 
         <svg className="w-full h-10 relative" viewBox="0 0 320 60" preserveAspectRatio="none" aria-hidden="true">
           <path

@@ -132,7 +132,7 @@ export default async function PulsePage({ params }: Props) {
         </div>
         {data ? (
           <div className="shrink-0 w-full sm:w-64">
-            <PulseWidget data={data} locale={locale} idSuffix="pulse-page" />
+            <PulseWidget data={data} locale={locale} idSuffix="pulse-page" asHeading={false} />
           </div>
         ) : (
           <p className="text-xs text-muted shrink-0">
