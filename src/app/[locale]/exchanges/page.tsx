@@ -21,14 +21,25 @@ function toArray(v?: string | string[]): string[] {
   return Array.isArray(v) ? v : v ? [v] : [];
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu ? 'Криптобиржи — рейтинг по объёму торгов' : 'Crypto Exchanges — Ranked by Trading Volume';
   const description = isRu
     ? 'Рейтинг крупнейших криптобирж по объёму торгов за 24 часа: продукты, лицензии, доступность по регионам и новости CryptoPulse по каждой бирже.'
     : 'Ranking of the largest crypto exchanges by 24h trading volume: products, licensing, regional availability and CryptoPulse coverage for each exchange.';
+
+  // Any filter/sort query param produces a distinct crawlable URL (e.g.
+  // ?type=DEX&sort=year), but canonical always points back at the bare
+  // /exchanges — these aren't meant to be indexed as their own entity.
+  // hreflang on a non-canonical variant always points at the OTHER
+  // locale's bare URL too, which can't reciprocate back to this exact
+  // query string — "missing reciprocal hreflang" and, since many filter
+  // combinations render identical content, "technically duplicate URLs".
+  // Omit hreflang entirely on filtered variants; only the bare URL keeps it.
+  const hasFilters = Object.keys(sp).length > 0;
 
   return {
     title,
@@ -37,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/exchanges`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/exchanges`,
-      languages: { ru: `${BASE}/ru/exchanges`, en: `${BASE}/en/exchanges` },
+      ...(!hasFilters && { languages: { ru: `${BASE}/ru/exchanges`, en: `${BASE}/en/exchanges` } }),
     },
   };
 }
