@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import TrxCalculator from '@/components/ui/TrxCalculator';
 import { TRX_QUOTES, TRX_FAQ } from '@/lib/trxData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['tron trx история', 'justin sun криптовалюта', 'trc-20 usdt', 'tron блокчейн', 'trx калькулятор']
       : ['tron trx history', 'justin sun cryptocurrency', 'trc-20 usdt', 'tron blockchain', 'trx investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/trx`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/trx`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/trx`,
       languages: {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/about`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/about`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/about`,
       languages: { ru: `${BASE}/ru/about`, en: `${BASE}/en/about` },

@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchLatestPulse, PULSE_WEIGHTS } from '@/lib/pulse';
 import { fetchPopularContent } from '@/lib/sanity';
 import PulseWidget from '@/components/ui/PulseWidget';
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/pulse`, title, description, locale, image: `${BASE}/${locale}/pulse/opengraph-image` }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/pulse`, title, description, locale, image: `${BASE}/${locale}/pulse/opengraph-image` }),
     alternates: {
       canonical: `${BASE}/${locale}/pulse`,
       languages: { ru: `${BASE}/ru/pulse`, en: `${BASE}/en/pulse` },

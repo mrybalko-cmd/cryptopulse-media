@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL } from '@/lib/constants';
 
@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('securityTitle'),
     openGraph: buildOg({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description: '', locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/security`, title: t('securityTitle'), description: '', locale }),
     alternates: {
       canonical: `${BASE}/${locale}/security`,
       languages: { ru: `${BASE}/ru/security`, en: `${BASE}/en/security` },

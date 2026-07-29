@@ -3,7 +3,7 @@ export const revalidate = 300;
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from './AuthorPageBody';
 
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/authors/${slug}`, title, description, locale, image: author.photo }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/authors/${slug}`, title, description, locale, image: author.photo }),
     alternates: {
       canonical: `${BASE}/${locale}/authors/${slug}`,
       languages: { ru: `${BASE}/ru/authors/${slug}`, en: `${BASE}/en/authors/${slug}` },

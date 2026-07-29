@@ -5,7 +5,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchAltcoinSeasonIndex, type AltcoinSeasonCoin } from '@/lib/altcoinSeason';
 import AltcoinSeasonWidget from '@/components/ui/AltcoinSeasonWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/altcoin-season`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/altcoin-season`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/altcoin-season`,
       languages: { ru: `${BASE}/ru/altcoin-season`, en: `${BASE}/en/altcoin-season` },

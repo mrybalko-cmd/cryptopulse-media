@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchEurRates } from '@/lib/eurRates';
 import EurCalculator from '@/components/ui/EurCalculator';
 import EurRatesTable from '@/components/ui/EurRatesTable';
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/rates`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/rates`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/rates`,
       languages: { ru: `${BASE}/ru/rates`, en: `${BASE}/en/rates` },

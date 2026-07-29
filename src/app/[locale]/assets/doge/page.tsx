@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import DogeCalculator from '@/components/ui/DogeCalculator';
 import { DOGE_QUOTES, DOGE_FAQ } from '@/lib/dogeData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['dogecoin история', 'doge илон маск', 'dogecoin мем', 'doge калькулятор', 'dogecoin цена']
       : ['dogecoin history', 'doge elon musk', 'dogecoin meme', 'doge investment calculator', 'dogecoin price'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/doge`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/doge`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/doge`,
       languages: {

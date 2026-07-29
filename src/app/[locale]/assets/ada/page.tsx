@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import AdaCalculator from '@/components/ui/AdaCalculator';
 import { ADA_QUOTES, ADA_FAQ } from '@/lib/adaData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['cardano история', 'ada криптовалюта', 'cardano ouroboros', 'charles hoskinson', 'ada калькулятор']
       : ['cardano history', 'ada cryptocurrency', 'cardano ouroboros', 'charles hoskinson', 'ada investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/ada`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/ada`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/ada`,
       languages: {

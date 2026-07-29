@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchTopLikedArticles } from '@/lib/sanity';
 import ArticleCard from '@/components/ui/ArticleCard';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/articles/popular`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/articles/popular`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/articles/popular`,
       languages: { ru: `${BASE}/ru/articles/popular`, en: `${BASE}/en/articles/popular` },

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import XrpCalculator from '@/components/ui/XrpCalculator';
 import { XRP_QUOTES, XRP_FAQ } from '@/lib/xrpData';
 
@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['xrp история', 'ripple иск sec', 'что если бы купил xrp', 'брэд гарлингхаус', 'ripplenet', 'xrp калькулятор']
       : ['xrp history', 'ripple sec lawsuit', 'what if i bought xrp', 'brad garlinghouse', 'ripplenet', 'xrp investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/xrp`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/xrp`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/xrp`,
       languages: {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import TonCalculator from '@/components/ui/TonCalculator';
 import { TON_QUOTES, TON_FAQ } from '@/lib/tonData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['ton блокчейн', 'toncoin telegram', 'ton история', 'pavel durov криптовалюта', 'ton калькулятор']
       : ['ton blockchain', 'toncoin telegram', 'ton history', 'pavel durov cryptocurrency', 'ton investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/ton`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/ton`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/ton`,
       languages: {

@@ -3,7 +3,7 @@ export const revalidate = 300;
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { fetchNewsByTopic } from '@/lib/sanity';
@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     ...(isThin && { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }),
     openGraph: buildOg({ url: `${BASE}/${locale}/news/topic/${topic}`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/news/topic/${topic}`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/news/topic/${topic}`,
       languages: {

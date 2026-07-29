@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { COINS, COIN_IDS, fetchTopAssetPrices } from '@/lib/coins';
 
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/assets`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets`,
       languages: {

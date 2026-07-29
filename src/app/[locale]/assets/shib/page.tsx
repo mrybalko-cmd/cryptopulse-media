@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import ShibCalculator from '@/components/ui/ShibCalculator';
 import { SHIB_QUOTES, SHIB_FAQ } from '@/lib/shibData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['shiba inu shib история', 'ryoshi создатель shib', 'виталик бутерин shib', 'shibarium', 'shib калькулятор']
       : ['shiba inu shib history', 'ryoshi shib creator', 'vitalik buterin shib', 'shibarium', 'shib investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/shib`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/shib`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/shib`,
       languages: {

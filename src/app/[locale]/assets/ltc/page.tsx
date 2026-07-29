@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import LtcCalculator from '@/components/ui/LtcCalculator';
 import { LTC_QUOTES, LTC_FAQ } from '@/lib/ltcData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['litecoin ltc история', 'charlie lee', 'litecoin mimblewimble', 'ltc халвинг', 'ltc калькулятор']
       : ['litecoin ltc history', 'charlie lee', 'litecoin mimblewimble', 'ltc halving', 'ltc investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/ltc`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/ltc`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/ltc`,
       languages: {

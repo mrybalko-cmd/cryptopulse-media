@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import DotCalculator from '@/components/ui/DotCalculator';
 import { DOT_QUOTES, DOT_FAQ } from '@/lib/dotData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['polkadot dot история', 'gavin wood криптовалюта', 'parachain polkadot', 'dot блокчейн', 'dot калькулятор']
       : ['polkadot dot history', 'gavin wood cryptocurrency', 'parachain polkadot', 'dot blockchain', 'dot investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/dot`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/dot`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/dot`,
       languages: {

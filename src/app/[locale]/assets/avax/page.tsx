@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import AvaxCalculator from '@/components/ui/AvaxCalculator';
 import { AVAX_QUOTES, AVAX_FAQ } from '@/lib/avaxData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['avalanche avax история', 'avax блокчейн', 'emin gun sirer', 'avalanche суб-сети', 'avax калькулятор']
       : ['avalanche avax history', 'avax blockchain', 'emin gun sirer', 'avalanche subnets', 'avax investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/avax`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/avax`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/avax`,
       languages: {

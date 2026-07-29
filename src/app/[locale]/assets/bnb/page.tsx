@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import BnbCalculator from '@/components/ui/BnbCalculator';
 import { BNB_QUOTES, BNB_FAQ } from '@/lib/bnbData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['binance coin история', 'bnb токен', 'bsc блокчейн', 'binance smart chain', 'bnb калькулятор']
       : ['binance coin history', 'bnb token', 'bsc blockchain', 'binance smart chain', 'bnb investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/bnb`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/bnb`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/bnb`,
       languages: {

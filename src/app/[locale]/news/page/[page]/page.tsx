@@ -2,7 +2,7 @@ export const revalidate = 300;
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { fetchOwnNews } from '@/lib/news';
 import NewsListingBody from '../../NewsListingBody';
@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/news/page/${page}`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/news/page/${page}`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/news/page/${page}`,
       languages: {

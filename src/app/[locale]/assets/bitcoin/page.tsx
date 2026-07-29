@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import BitcoinCalculator from '@/components/ui/BitcoinCalculator';
 import { BTC_QUOTES, BTC_FAQ } from '@/lib/bitcoinData';
 
@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['биткоин история', 'что если бы купил биткоин', 'биткоин пицца', 'сатоши накамото', 'биткоин калькулятор']
       : ['bitcoin history', 'what if i bought bitcoin', 'bitcoin pizza story', 'satoshi nakamoto', 'bitcoin investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/bitcoin`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/bitcoin`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/bitcoin`,
       languages: {

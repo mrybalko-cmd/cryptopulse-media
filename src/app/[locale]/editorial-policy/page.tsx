@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
@@ -14,6 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('editorialPolicyTitle'),
     openGraph: buildOg({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description: '', locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/editorial-policy`, title: t('editorialPolicyTitle'), description: '', locale }),
     alternates: {
       canonical: `${BASE}/${locale}/editorial-policy`,
       languages: { ru: `${BASE}/ru/editorial-policy`, en: `${BASE}/en/editorial-policy` },

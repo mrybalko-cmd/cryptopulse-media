@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import SolanaCalculator from '@/components/ui/SolanaCalculator';
 import { SOL_QUOTES, SOL_FAQ } from '@/lib/solanaData';
 
@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['solana история', 'что если бы купил solana', 'proof of history', 'анатолий яковенко', 'solana nft', 'solana калькулятор']
       : ['solana history', 'what if i bought solana', 'proof of history', 'anatoly yakovenko', 'solana nft', 'solana investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/solana`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/solana`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/solana`,
       languages: {

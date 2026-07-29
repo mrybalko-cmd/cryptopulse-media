@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import EthereumCalculator from '@/components/ui/EthereumCalculator';
 import { ETH_QUOTES, ETH_FAQ } from '@/lib/ethereumData';
 
@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['эфириум история', 'что если бы купил эфириум', 'смарт-контракты ethereum', 'виталик бутерин', 'ethereum калькулятор', 'the merge ethereum']
       : ['ethereum history', 'what if i bought ethereum', 'smart contracts ethereum', 'vitalik buterin', 'ethereum investment calculator', 'the merge'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/ethereum`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/ethereum`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/ethereum`,
       languages: {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchCalendarEvents } from '@/lib/sanity';
 import CalendarFilter from '@/components/ui/CalendarFilter';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -87,6 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/calendar`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/calendar`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/calendar`,
       languages: { ru: `${BASE}/ru/calendar`, en: `${BASE}/en/calendar` },

@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { fetchExchangeBySlug, fetchExchangeMentions } from '@/lib/sanity';
 
@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/exchanges/${slug}/news`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/exchanges/${slug}/news`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/exchanges/${slug}/news`,
       languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}/news`, en: `${BASE}/en/exchanges/${exchange.slugEn}/news` },

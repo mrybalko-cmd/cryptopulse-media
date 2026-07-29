@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
 
@@ -12,6 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('privacyTitle'),
     openGraph: buildOg({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description: '', locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description: '', locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/privacy`,
       languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy' },

@@ -20,6 +20,33 @@ export function buildOg(opts: {
   };
 }
 
+/**
+ * Next.js does NOT fall back to `openGraph` for the `twitter` metadata
+ * block — they're separate namespaces, and a nested object like `twitter`
+ * defined once (e.g. in the root layout) is entirely overwritten by the
+ * next segment that defines it, never deep-merged. Since no per-page
+ * generateMetadata previously set its own `twitter`, every page fell back
+ * to the root layout's bare `{ card: 'summary_large_image' }` — no title,
+ * description, or image — which is what Sitechecker flags as "Twitter card
+ * incomplete" site-wide. Call this alongside buildOg with the same opts.
+ */
+export function buildTwitter(opts: {
+  url?: string;
+  title: string;
+  description: string;
+  locale: string;
+  type?: 'website' | 'article';
+  image?: string;
+}) {
+  const fallbackImage = `${BASE}/${opts.locale}/opengraph-image`;
+  return {
+    card: 'summary_large_image' as const,
+    title: opts.title,
+    description: opts.description,
+    images: [opts.image || fallbackImage],
+  };
+}
+
 export function truncateDesc(text: string, max = 155): string {
   if (!text || text.length <= max) return text;
   const cut = text.slice(0, max);

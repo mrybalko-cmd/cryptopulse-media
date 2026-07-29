@@ -3,7 +3,7 @@ export const revalidate = 300;
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { fetchAIContent } from '@/lib/sanity';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import AIPageBody, { AI_PAGE_FAQ } from '@/components/ui/AIPageBody';
 
 export const AI_PAGE_SIZE = 20;
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['AI криптовалюта', 'искусственный интеллект блокчейн', 'ChatGPT крипто', 'AI трейдинг', 'нейросети крипто']
       : ['AI crypto', 'artificial intelligence blockchain', 'ChatGPT crypto', 'AI trading', 'neural networks crypto'],
     openGraph: buildOg({ url: `${BASE}/${locale}/ai`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/ai`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/ai`,
       languages: {

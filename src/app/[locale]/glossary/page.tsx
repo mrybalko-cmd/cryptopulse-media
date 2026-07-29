@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
 import { GLOSSARY } from '@/lib/glossary';
 
@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/glossary`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/glossary`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/glossary`,
       languages: { ru: `${BASE}/ru/glossary`, en: `${BASE}/en/glossary` },

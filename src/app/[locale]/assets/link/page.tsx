@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { buildOg, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import LinkCalculator from '@/components/ui/LinkCalculator';
 import { LINK_QUOTES, LINK_FAQ } from '@/lib/linkData';
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? ['chainlink link история', 'sergey nazarov', 'chainlink оракул defi', 'link токен', 'link калькулятор']
       : ['chainlink link history', 'sergey nazarov', 'chainlink oracle defi', 'link token', 'link investment calculator'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/link`, title, description, locale }),
+    twitter: buildTwitter({ url: `${BASE}/${locale}/assets/link`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/assets/link`,
       languages: {
