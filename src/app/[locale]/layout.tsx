@@ -111,6 +111,21 @@ export default async function LocaleLayout({ children, params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Google Reader Revenue Manager — Subscribe with Google Basic,
+            configured as open-access (no paywall). Gives Google a structured
+            signal about content access for News/Discover; same snippet
+            works across every page, only `lang` varies by locale. */}
+        <Script async src="https://news.google.com/swg/js/v1/swg-basic.js" strategy="afterInteractive" />
+        <Script id="swg-basic-init" strategy="afterInteractive">
+          {`(self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
+            basicSubscriptions.init({
+              type: "NewsArticle",
+              isPartOfType: ["Product"],
+              isPartOfProductId: "CAow3cm3DA:openaccess",
+              clientOptions: { theme: "light", lang: "${locale}" },
+            });
+          });`}
+        </Script>
       </head>
       <body suppressHydrationWarning className="overflow-x-clip">
         <NextIntlClientProvider messages={messages}>

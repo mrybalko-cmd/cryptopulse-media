@@ -12,21 +12,24 @@ const nextConfig: NextConfig = {
   // silently breaking the CMS editing UI for no real security benefit (it's
   // an authenticated, noindexed internal tool, not the audience this policy
   // protects). Every origin below is enumerated from the actual code: GA
-  // (layout.tsx), Ahrefs analytics (layout.tsx), the YouTube embed iframe
-  // (YouTubeEmbed.tsx — Twitter/X embeds are plain server-rendered links,
-  // no iframe), and the image CDNs already allowlisted in images.remotePatterns
-  // below. script-src/style-src keep 'unsafe-inline' for the pre-hydration
-  // theme script and Tailwind's inline style attributes — real nonce-based
-  // hardening is a further step, not attempted here.
+  // (layout.tsx), Ahrefs analytics (layout.tsx), Google Reader Revenue
+  // Manager / Subscribe with Google Basic (layout.tsx — runs its own
+  // network calls and can render its own UI in an iframe), the YouTube
+  // embed iframe (YouTubeEmbed.tsx — Twitter/X embeds are plain
+  // server-rendered links, no iframe), and the image CDNs already
+  // allowlisted in images.remotePatterns below. script-src/style-src keep
+  // 'unsafe-inline' for the pre-hydration theme script and Tailwind's
+  // inline style attributes — real nonce-based hardening is a further
+  // step, not attempted here.
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://analytics.ahrefs.com",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://analytics.ahrefs.com https://news.google.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://vitals.vercel-insights.com",
-      "frame-src https://www.youtube.com",
+      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://vitals.vercel-insights.com https://news.google.com",
+      "frame-src https://www.youtube.com https://news.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "frame-ancestors 'self'",
