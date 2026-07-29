@@ -67,6 +67,10 @@ export default async function AuthorsPage({ params }: Props) {
       {authors.length === 0 ? (
         <p className="text-muted text-sm">{isRu ? 'Авторы появятся скоро.' : 'Authors coming soon.'}</p>
       ) : (
+        <>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+          {isRu ? 'Команда' : 'Team'}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {authors.map((author: any) => (
             <Link
@@ -112,6 +116,7 @@ export default async function AuthorsPage({ params }: Props) {
             </Link>
           ))}
         </div>
+        </>
       )}
     </div>
   );

@@ -81,6 +81,10 @@ export default async function ExchangeNewsArchivePage({ params }: Props) {
       {mentions.length === 0 ? (
         <p className="text-sm text-muted">{isRu ? 'Пока нет материалов, ссылающихся на эту биржу.' : 'No coverage linking to this exchange yet.'}</p>
       ) : (
+        <>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+          {isRu ? 'Все материалы' : 'All coverage'}
+        </h2>
         <div className="flex flex-col gap-3">
           {mentions.map((m, i) => (
             <Link
@@ -97,12 +101,13 @@ export default async function ExchangeNewsArchivePage({ params }: Props) {
                 <span className="text-[10px] font-extrabold text-accent uppercase tracking-wide">
                   {m._type === 'news' ? (isRu ? 'Новость' : 'News') : (isRu ? 'Статья' : 'Article')}
                 </span>
-                <p className="text-sm font-bold text-foreground leading-snug mt-0.5">{m.title}</p>
+                <h3 className="text-sm font-bold text-foreground leading-snug mt-0.5">{m.title}</h3>
                 <p className="text-xs text-muted mt-1.5">{formatDate(m.publishedAt, locale)}</p>
               </div>
             </Link>
           ))}
         </div>
+        </>
       )}
     </div>
   );

@@ -95,6 +95,9 @@ export default async function PopularNewsPage({ params }: Props) {
 
       {news.length > 0 ? (
         <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+            {isRu ? 'По количеству лайков' : 'Ranked by likes'}
+          </h2>
           {news.map((item) => (
             <NewsListItem
               key={item._id}

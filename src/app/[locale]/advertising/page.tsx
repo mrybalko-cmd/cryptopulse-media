@@ -48,10 +48,12 @@ export default async function AdvertisingPage({ params }: Props) {
       ">
         {isRu ? (
           <>
+            <h2>О рекламе</h2>
             <p>
               {SITE_NAME} публикует рекламные новости и статьи для проектов из крипто- и
               финтех-индустрии.
             </p>
+            <h2>Как разместить материал</h2>
             <p>
               Если вы хотите разместить материал о своём проекте — напишите на{' '}
               <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, и мы обсудим условия и формат
@@ -60,10 +62,12 @@ export default async function AdvertisingPage({ params }: Props) {
           </>
         ) : (
           <>
+            <h2>About advertising</h2>
             <p>
               {SITE_NAME} publishes sponsored news and articles for projects from the crypto and
               fintech industry.
             </p>
+            <h2>How to get featured</h2>
             <p>
               If you'd like to feature your project — email{' '}
               <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we'll discuss the terms and

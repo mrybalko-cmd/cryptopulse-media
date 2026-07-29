@@ -53,6 +53,9 @@ export default async function CurrencyConverterPage({ params }: Props) {
         </p>
       </div>
 
+      <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+        {isRu ? 'Калькулятор' : 'Calculator'}
+      </h2>
       <CurrencyConverter locale={locale} />
 
       <p className="text-xs text-muted mt-8">

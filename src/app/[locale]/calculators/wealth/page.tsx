@@ -53,6 +53,9 @@ export default async function WealthComparisonPage({ params }: Props) {
         </p>
       </div>
 
+      <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+        {isRu ? 'Калькулятор' : 'Calculator'}
+      </h2>
       <WealthCalculator locale={locale} />
 
       <p className="text-xs text-muted mt-8">

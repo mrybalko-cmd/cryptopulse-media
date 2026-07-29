@@ -94,6 +94,9 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
 
       {articles.length > 0 ? (
         <>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+            {locale === 'ru' ? 'Все статьи' : 'All articles'}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {articles.map((article: any, i: number) => (
               <ArticleCard

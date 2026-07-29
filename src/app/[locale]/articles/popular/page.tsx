@@ -94,6 +94,10 @@ export default async function PopularArticlesPage({ params }: Props) {
       </div>
 
       {articles.length > 0 ? (
+        <>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-muted mb-4">
+          {isRu ? 'По количеству лайков' : 'Ranked by likes'}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {articles.map((article, i) => (
             <ArticleCard
@@ -113,6 +117,7 @@ export default async function PopularArticlesPage({ params }: Props) {
             />
           ))}
         </div>
+        </>
       ) : (
         <div className="border border-dashed border-border rounded-lg py-20 flex items-center justify-center">
           <p className="text-muted text-sm">
