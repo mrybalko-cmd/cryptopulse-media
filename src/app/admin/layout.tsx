@@ -7,15 +7,17 @@ export const metadata = {
 
 // Same mechanism and the same colors as the public site's own theme system
 // (src/components/layout/ThemeToggle.tsx + the html.light rules in
-// globals.css): a plain `html.light` class, toggled client-side and
-// persisted under the same `theme` localStorage key — so a preference set
-// on either the public site or /admin carries over to the other, since
-// they share one origin. --admin-* is still its own token set (the admin
-// layout has more surface tiers than the site does — a raised "input"
-// background, a dimmer fourth text tier for uppercase labels) but every
-// value below is taken directly from the site's --background/--foreground/
-// --muted/--border/--card/--card-hover/--accent so switching either theme
-// looks and behaves identically.
+// globals.css): a plain `html.light` class, toggled client-side. Persisted
+// under its OWN `admin-theme` localStorage key (deliberately separate from
+// the public site's `theme` key) — the admin is a shared panel used by
+// multiple staff members, each free to pick their own theme, and that
+// choice must never leak to or from the public site sharing the same
+// origin. --admin-* is still its own token set (the admin layout has more
+// surface tiers than the site does — a raised "input" background, a
+// dimmer fourth text tier for uppercase labels) but every value below is
+// taken directly from the site's --background/--foreground/--muted/
+// --border/--card/--card-hover/--accent so switching either theme looks
+// and behaves identically.
 const THEME_STYLE = `
   html {
     color-scheme: dark;
@@ -72,10 +74,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <head>
         <style dangerouslySetInnerHTML={{ __html: THEME_STYLE }} />
         <script
-          // Pre-hydration, matching [locale]/layout.tsx's own snippet exactly —
-          // reads the same `theme` key so the page never flashes the wrong theme.
+          // Pre-hydration, same mechanism as [locale]/layout.tsx's own snippet
+          // but reading the admin's own `admin-theme` key so the page never
+          // flashes the wrong theme.
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('admin-theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
           }}
         />
       </head>

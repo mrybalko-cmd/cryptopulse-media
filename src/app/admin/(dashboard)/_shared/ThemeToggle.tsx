@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
-// Mirrors src/components/layout/ThemeToggle.tsx exactly: same `.light`
-// class toggle, same `theme` localStorage key, so the preference is shared
-// between the public site and /admin (one origin, one localStorage).
+// Mirrors src/components/layout/ThemeToggle.tsx's mechanism (same `.light`
+// class toggle) but persisted under its own `admin-theme` localStorage key,
+// deliberately separate from the public site's `theme` key — multiple staff
+// members share this admin panel and each picks their own theme here
+// without it leaking to (or from) the public site on the same origin.
 export default function ThemeToggle() {
   const [isLight, setIsLight] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -13,7 +15,7 @@ export default function ThemeToggle() {
   useEffect(() => {
     let stored: string | null = null;
     try {
-      stored = localStorage.getItem('theme');
+      stored = localStorage.getItem('admin-theme');
     } catch {}
     const shouldBeLight = stored === 'light';
     document.documentElement.classList.toggle('light', shouldBeLight);
@@ -26,7 +28,7 @@ export default function ThemeToggle() {
     setIsLight(next);
     document.documentElement.classList.toggle('light', next);
     try {
-      localStorage.setItem('theme', next ? 'light' : 'dark');
+      localStorage.setItem('admin-theme', next ? 'light' : 'dark');
     } catch {}
   }
 
