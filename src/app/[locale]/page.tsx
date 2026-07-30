@@ -157,8 +157,8 @@ export default async function HomePage({ params }: Props) {
         {homeSettings.showNews && (
         <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>
           <div className="flex items-center justify-center mb-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
+            <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+              <span className="w-2 h-2 rounded-full bg-red-600 shrink-0" />
               <Link href={`/${locale}/news`} className="hover:text-accent transition-colors">
                 {t('latestNews')}
               </Link>
