@@ -248,6 +248,7 @@ export default async function HomePage({ params }: Props) {
                           publishedAt={article.publishedAt}
                           locale={locale}
                           compact
+                          titleLines={3}
                         />
                       ))}
                     </div>

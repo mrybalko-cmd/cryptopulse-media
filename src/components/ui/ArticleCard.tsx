@@ -23,6 +23,10 @@ interface ArticleCardProps {
   likes?: number;
   priority?: boolean;
   topic?: string;
+  // Allow the title to run to three lines instead of the default two (used by
+  // the homepage second row, where the cards have spare vertical space) —
+  // font size is unchanged, only the line-clamp cap.
+  titleLines?: 2 | 3;
   // Bottom-to-top gradient fade over the cover image, blending it into the
   // card background — purely decorative (no text sits on the image).
   // Defaults off site-wide per user preference; kept as an escape hatch
@@ -31,7 +35,7 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = false
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = false, titleLines = 2
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -72,7 +76,7 @@ export default function ArticleCard({
             <ArticleBadge badge={badge} locale={locale} />
           </div>
         )}
-        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} line-clamp-2`}>
+        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} ${titleLines === 3 ? 'line-clamp-3' : 'line-clamp-2'}`}>
           {title}
         </h3>
         {!compact && <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>}
