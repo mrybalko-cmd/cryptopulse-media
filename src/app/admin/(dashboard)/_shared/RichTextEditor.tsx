@@ -52,11 +52,23 @@ function insertAtCursor(el: HTMLTextAreaElement, text: string) {
   const start = el.selectionStart;
   const end = el.selectionEnd;
   const value = el.value;
-  const needsNewlineBefore = start > 0 && value[start - 1] !== '\n';
-  const insert = `${needsNewlineBefore ? '\n\n' : ''}${text}\n\n`;
-  el.value = value.slice(0, start) + insert + value.slice(end);
+  const before = value.slice(0, start);
+  const after = value.slice(end);
+  // Block-level markers (image/embed/quote) are only parsed when they sit on
+  // their OWN paragraph — i.e. separated by a blank line on both sides. A
+  // single "\n" isn't enough: "текст\n[[img:0]]" is one paragraph, so the
+  // marker is treated as literal text and the image never renders in the
+  // preview AND is dropped on save. Top up to a full blank-line boundary
+  // regardless of where the caret sits (start of a line, mid-text, etc.).
+  let prefix = '';
+  if (before.length > 0 && !before.endsWith('\n\n')) prefix = before.endsWith('\n') ? '\n' : '\n\n';
+  let suffix = '\n\n';
+  if (after.startsWith('\n\n')) suffix = '';
+  else if (after.startsWith('\n')) suffix = '\n';
+  const insert = `${prefix}${text}${suffix}`;
+  el.value = before + insert + after;
   el.focus();
-  const pos = start + insert.length;
+  const pos = before.length + insert.length;
   el.selectionStart = el.selectionEnd = pos;
 }
 
