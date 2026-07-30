@@ -172,9 +172,9 @@ export default async function ExchangeDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <nav className="flex gap-1 border-b border-border mb-8 sticky top-14 md:top-[6.25rem] bg-background z-10 -mx-4 px-4 sm:-mx-6 sm:px-6">
+      <nav className="flex gap-1 border-b border-border mb-8 sticky top-14 md:top-[6.25rem] bg-background z-10 -mx-4 px-4 sm:-mx-6 sm:px-6 overflow-x-auto scrollbar-none">
         {navLinks.map(l => (
-          <a key={l.id} href={`#${l.id}`} className="px-3.5 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
+          <a key={l.id} href={`#${l.id}`} className="whitespace-nowrap shrink-0 px-3.5 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
             {isRu ? l.ru : l.en}
           </a>
         ))}

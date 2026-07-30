@@ -61,8 +61,10 @@ export default function Header() {
       {/* ── Main bar: logo centered, controls right ────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
 
-        {/* Left — burger on mobile (moved off the crowded right side), empty spacer on desktop */}
-        <div className="flex items-center">
+        {/* Left — burger + theme toggle on mobile (theme sits right next to the
+            menu button so it's reachable without opening the drawer); empty
+            spacer on desktop where the theme toggle lives on the right. */}
+        <div className="flex items-center gap-1.5">
           <button
             className="md:hidden p-2 rounded-lg border border-border text-foreground hover:border-accent transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -72,6 +74,7 @@ export default function Header() {
           >
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
+          <ThemeToggle className="md:hidden p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
         </div>
 
         {/* Logo */}
@@ -156,9 +159,6 @@ export default function Header() {
               ))}
             </ul>
           </nav>
-          <div className="flex items-center justify-end px-8 py-4 border-t border-border">
-            <ThemeToggle className="p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
-          </div>
         </div>
       )}
     </header>
