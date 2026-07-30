@@ -87,6 +87,13 @@ html.light {
 
 html {
   scroll-behavior: smooth;
+  /* Kill sideways scroll at the root. `overflow-x: clip` on <body> alone is
+     not enough: unlike `hidden`, `clip` does NOT propagate to the viewport,
+     so the html/viewport stayed horizontally scrollable on any minor overflow
+     (hover `-mx-*` bleed, sub-pixel rounding). Clipping the x-axis here stops
+     that while leaving vertical scroll and the sticky header intact. */
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 body {
