@@ -6,7 +6,7 @@ import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar, ExternalLink, Eye, User, Zap } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
@@ -210,11 +210,6 @@ export default async function NewsDetailPage({ params }: Props) {
         <div className="flex items-center flex-wrap gap-3">
           {/* Byline — always visible, required for Google News */}
           <div className="flex items-center gap-1.5 text-xs text-muted">
-            {news.author?.photo ? (
-              <Image src={news.author.photo} alt={news.author.name || ''} width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
-            ) : (
-              <User size={12} />
-            )}
             {news.author?.slug ? (
               <a
                 href={`/${locale}/authors/${news.author.slug}`}

@@ -6,7 +6,7 @@ import ViewTracker from '@/components/ui/ViewTracker';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Clock, Calendar, Eye, User } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
 import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -203,11 +203,6 @@ export default async function ArticlePage({ params }: Props) {
         <div className="flex items-center flex-wrap gap-3">
           {/* Byline — always visible, required for Google News */}
           <div className="flex items-center gap-1.5 text-xs text-muted">
-            {article.author?.photo ? (
-              <Image src={article.author.photo} alt={article.author.name || ''} width={20} height={20} className="rounded-full object-cover shrink-0" unoptimized />
-            ) : (
-              <User size={12} />
-            )}
             {article.author?.slug ? (
               <a
                 href={`/${locale}/authors/${article.author.slug}`}

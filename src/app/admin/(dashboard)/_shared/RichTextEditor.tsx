@@ -140,7 +140,9 @@ function ImagePreview({ block }: { block: PortableTextBlock }) {
     <figure className="my-3">
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt} className="w-full max-h-80 object-contain rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)]" />
+        // Match the live site (RichText.tsx): full column width, natural height,
+        // no letterbox background — so the preview shows exactly what ships.
+        <img src={src} alt={alt} className="w-full h-auto rounded-lg" />
       ) : (
         <div className="h-28 rounded-lg border border-dashed border-[var(--admin-border)] bg-[var(--admin-input)] flex items-center justify-center text-[11px] text-[var(--admin-text-dim)] px-3 text-center">
           Файл ещё не выбран — картинка появится здесь после выбора
