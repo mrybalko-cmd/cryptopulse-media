@@ -76,7 +76,7 @@ export default function ArticleCard({
             <ArticleBadge badge={badge} locale={locale} />
           </div>
         )}
-        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-accent transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} ${titleLines === 3 ? 'line-clamp-3' : 'line-clamp-2'}`}>
+        <h3 className={`font-semibold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} ${titleLines === 3 ? 'line-clamp-3' : 'line-clamp-2'}`}>
           {title}
         </h3>
         {!compact && <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>}
@@ -109,7 +109,7 @@ export default function ArticleCard({
                   {likes}
                 </span>
               )}
-              <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight size={14} className="group-hover:text-[var(--title-hover)] group-hover:translate-x-0.5 transition-all" />
             </div>
           )}
         </div>

@@ -43,7 +43,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
           <ArticleBadge badge={badge} locale={locale} />
         </div>
       )}
-      <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
+      <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors">
         {aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center shrink-0" title="AI">
             <Zap size={10} className="text-white" fill="currentColor" />

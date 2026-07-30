@@ -55,7 +55,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
         <span className="block text-[10.5px] font-black uppercase tracking-[0.12em] text-article-accent mb-1.5">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="font-semibold text-foreground leading-snug group-hover:text-accent transition-colors text-[18px] line-clamp-2">
+        <h3 className="font-semibold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors text-[18px] line-clamp-2">
           {article.title}
         </h3>
         <div className="flex items-center justify-between mt-2">
@@ -76,7 +76,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
             {typeof article.likes === 'number' && article.likes > 0 && (
               <span className="flex items-center gap-1"><Heart size={11} />{article.likes}</span>
             )}
-            <ArrowRight size={14} className="group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight size={14} className="group-hover:text-[var(--title-hover)] group-hover:translate-x-0.5 transition-all" />
           </div>
         </div>
       </div>

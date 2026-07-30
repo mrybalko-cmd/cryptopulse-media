@@ -44,7 +44,7 @@ export default function PopularList({
           >
             <span className="text-lg font-extrabold text-accent/30 leading-none shrink-0">{i + 1}</span>
             <div className="min-w-0">
-              <ItemTag className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-accent transition-colors">
+              <ItemTag className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-[var(--title-hover)] transition-colors">
                 {item.title}
               </ItemTag>
               <p className="flex items-center gap-1 text-[11px] text-muted mt-1">

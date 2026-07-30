@@ -36,6 +36,10 @@
   /* Cool-gray fill behind the "Тема дня" text block on the homepage —
      slightly cooler than --card so the copy separates from the cover. */
   --tema-fill: #1b1e26;
+
+  /* Hover color for card titles/links — a muted dark red instead of the
+     bright cyan accent (per user preference). */
+  --title-hover: #cf4842;
 }
 
 html.light {
@@ -63,6 +67,7 @@ html.light {
   --share-hover-bg: #cfd2d7;
 
   --tema-fill: #f1f4f8;
+  --title-hover: #b5362c;
 }
 
 @theme inline {
