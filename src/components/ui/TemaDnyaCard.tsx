@@ -34,12 +34,15 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
   return (
     <Link
       href={`/${locale}/articles/${article.slug.current}`}
-      className="group flex flex-col h-full w-full max-w-[640px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="group flex flex-col w-full max-w-[620px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
     >
+      {/* Image-forward hero (incrypted-style): the cover keeps a natural 16:9
+          ratio so it isn't cropped top/bottom; the card grows to its own
+          height (the Popular list beside it stretches to match). */}
       {article.coverImage && (
-        <div className="relative flex-1 min-h-0 overflow-hidden">
+        <div className="relative w-full aspect-[16/9] overflow-hidden">
           <Image
-            src={sanityImageTransform(article.coverImage, { width: 900 })!}
+            src={sanityImageTransform(article.coverImage, { width: 960 })!}
             alt={article.coverImageAlt || article.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -48,20 +51,14 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
           />
         </div>
       )}
-      {/* Text zone is a fixed 30% of the card height (cover fills the other
-          70%). No excerpt — just the kicker, a two-line title (tightened
-          leading/spacing so both lines always fit in the band) and meta. */}
-      <div
-        className="flex flex-col justify-center overflow-hidden basis-[30%] grow-0 shrink-0 px-4"
-        style={{ backgroundColor: 'var(--tema-fill)' }}
-      >
-        <span className="text-[10.5px] font-black uppercase tracking-[0.12em] text-article-accent mb-1">
+      <div className="p-4" style={{ backgroundColor: 'var(--tema-fill)' }}>
+        <span className="block text-[10.5px] font-black uppercase tracking-[0.12em] text-article-accent mb-1.5">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="font-semibold text-foreground leading-[1.18] group-hover:text-accent transition-colors text-[17px] line-clamp-2">
+        <h3 className="font-semibold text-foreground leading-snug group-hover:text-accent transition-colors text-[18px] line-clamp-2">
           {article.title}
         </h3>
-        <div className="flex items-center justify-between mt-1.5">
+        <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-2 text-muted text-xs">
             <span>{date}</span>
             {article.readingTime && (
