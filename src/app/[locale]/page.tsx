@@ -8,6 +8,7 @@ import ArticleCard from '@/components/ui/ArticleCard';
 import ArticleRowCard from '@/components/ui/ArticleRowCard';
 import ArticleCarousel from '@/components/ui/ArticleCarousel';
 import AuthorColumns from '@/components/ui/AuthorColumns';
+import TemaDnyaCard from '@/components/ui/TemaDnyaCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
@@ -219,22 +220,15 @@ export default async function HomePage({ params }: Props) {
                   cards, since PopularList/TopAssetsWidget fill their cell
                   height (h-full) rather than sizing to their own content. */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {heroArticles.map((article: any, i: number) => (
-                  <ArticleCard
-                    key={article._id}
-                    title={article.title}
-                    excerpt={article.excerpt}
-                    slug={article.slug.current}
-                    coverImage={article.coverImage}
-                    publishedAt={article.publishedAt}
-                    readingTime={article.readingTime}
-                    badge={article.badge}
-                    views={article.views}
-                    likes={article.likes}
-                    locale={locale}
-                    priority={i < 2}
-                          />
-                ))}
+                {/* «Тема дня» — один ведущий материал вместо двух геройских
+                    карточек, отцентрирован в своих двух колонках (равные
+                    отступы). Popular (кол. 3, ряд 1) и Пульс (кол. 3, ряд 2)
+                    остаются той же ширины и выровнены — их не трогаем. */}
+                {heroArticles[0] && (
+                  <div className="lg:col-span-2 flex justify-center">
+                    <TemaDnyaCard article={heroArticles[0]} locale={locale} />
+                  </div>
+                )}
                 {hasPopular && <PopularList items={popularItems} locale={locale} />}
                 {row2Articles.length > 0 && (
                   <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2 h-full">
