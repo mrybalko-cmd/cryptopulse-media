@@ -345,8 +345,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     slug: 'aml',
     term: { ru: 'AML', en: 'AML' },
     definition: {
-      ru: 'Anti-Money Laundering («противодействие отмыванию денег») — комплекс политик и процедур, которые биржи и финансовые организации применяют для предотвращения незаконных финансовых операций.',
-      en: 'Anti-Money Laundering — a set of policies and procedures that exchanges and financial institutions use to prevent illicit financial activity.',
+      ru: 'Anti-Money Laundering («противодействие отмыванию денег») — комплекс политик и процедур, которые биржи и финансовые организации применяют для предотвращения незаконных финансовых операций. На практике это выражается в мониторинге транзакций на подозрительную активность, лимитах на вывод средств и обязательной проверке личности (KYC) перед крупными операциями — требования обычно устанавливает регулятор той юрисдикции, где работает биржа.',
+      en: 'Anti-Money Laundering — a set of policies and procedures that exchanges and financial institutions use to prevent illicit financial activity. In practice, this means monitoring transactions for suspicious patterns, applying withdrawal limits, and requiring identity verification (KYC) before larger transactions — requirements are typically set by the regulator in the exchange\'s operating jurisdiction.',
     },
   },
   {
@@ -441,16 +441,16 @@ export const GLOSSARY: GlossaryTerm[] = [
     slug: 'rug-pull',
     term: { ru: 'Раг-пул', en: 'Rug pull' },
     definition: {
-      ru: 'Мошенническая схема, при которой создатели проекта резко выводят всю ликвидность или продают свои токены, обрушивая цену и оставляя инвесторов без средств.',
-      en: 'A scam in which a project\'s creators suddenly withdraw all liquidity or dump their tokens, crashing the price and leaving investors with worthless holdings.',
+      ru: 'Мошенническая схема, при которой создатели проекта резко выводят всю ликвидность или продают свои токены, обрушивая цену и оставляя инвесторов без средств. Чаще всего встречается среди новых токенов на децентрализованных биржах (DEX) и мем-коинов — тревожные признаки включают анонимную команду, незалоченную ликвидность и подозрительно быстрый рост цены сразу после запуска.',
+      en: 'A scam in which a project\'s creators suddenly withdraw all liquidity or dump their tokens, crashing the price and leaving investors with worthless holdings. It happens most often with new tokens on decentralized exchanges (DEXs) and meme coins — warning signs include an anonymous team, unlocked liquidity, and a suspiciously fast price pump right after launch.',
     },
   },
   {
     slug: 'p2p',
     term: { ru: 'P2P', en: 'P2P' },
     definition: {
-      ru: 'Peer-to-peer («равный равному») — прямой обмен криптовалютой между двумя пользователями, часто за фиатные деньги, без участия централизованного посредника в самой сделке.',
-      en: 'Peer-to-peer — a direct cryptocurrency exchange between two users, often for fiat money, without a centralized intermediary handling the trade itself.',
+      ru: 'Peer-to-peer («равный равному») — прямой обмен криптовалютой между двумя пользователями, часто за фиатные деньги, без участия централизованного посредника в самой сделке. Такие площадки, как Binance P2P, обычно используют эскроу: продавец блокирует крипту на время сделки, и она автоматически переходит покупателю только после подтверждения оплаты — это снижает риск мошенничества с обеих сторон.',
+      en: 'Peer-to-peer — a direct cryptocurrency exchange between two users, often for fiat money, without a centralized intermediary handling the trade itself. Platforms like Binance P2P typically use escrow: the seller\'s crypto is locked for the duration of the trade and only released to the buyer once payment is confirmed, which reduces the risk of fraud on either side.',
     },
   },
   {
