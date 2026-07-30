@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/pulse`, title, description, locale, image: `${BASE}/${locale}/pulse/opengraph-image` }),
     alternates: {
       canonical: `${BASE}/${locale}/pulse`,
-      languages: { ru: `${BASE}/ru/pulse`, en: `${BASE}/en/pulse` },
+      languages: { ru: `${BASE}/ru/pulse`, en: `${BASE}/en/pulse`, 'x-default': `${BASE}/en/pulse` },
     },
   };
 }

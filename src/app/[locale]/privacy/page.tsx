@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
     alternates: {
       canonical: `https://cryptopulse.media/${locale}/privacy`,
-      languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy' },
+      languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy', 'x-default': 'https://cryptopulse.media/en/privacy' },
     },
   };
 }

@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/assets/ltc`,
         en: `${BASE}/en/assets/ltc`,
+        'x-default': `${BASE}/en/assets/ltc`,
       },
     },
   };

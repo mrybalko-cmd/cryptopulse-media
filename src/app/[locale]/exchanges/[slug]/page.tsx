@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // locale pages are noindexed together — never emit hreflang between
       // them in that case (see the pagination routes for the full reasoning).
       ...(!exchange.seo?.noIndex && {
-        languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}`, en: `${BASE}/en/exchanges/${exchange.slugEn}` },
+        languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}`, en: `${BASE}/en/exchanges/${exchange.slugEn}`, 'x-default': `${BASE}/en/exchanges/${exchange.slugEn}` },
       }),
     },
   };

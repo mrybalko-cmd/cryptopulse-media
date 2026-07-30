@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/exchanges/${slug}/news`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/exchanges/${slug}/news`,
-      languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}/news`, en: `${BASE}/en/exchanges/${exchange.slugEn}/news` },
+      languages: { ru: `${BASE}/ru/exchanges/${exchange.slugRu}/news`, en: `${BASE}/en/exchanges/${exchange.slugEn}/news`, 'x-default': `${BASE}/en/exchanges/${exchange.slugEn}/news` },
     },
   };
 }

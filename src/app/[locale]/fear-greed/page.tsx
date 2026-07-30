@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/fear-greed`,
         en: `${BASE}/en/fear-greed`,
+        'x-default': `${BASE}/en/fear-greed`,
       },
     },
   };

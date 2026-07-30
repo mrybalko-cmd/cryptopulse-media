@@ -58,6 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         languages: {
           ru: `${BASE}/ru/articles/topic/${topic}`,
           en: `${BASE}/en/articles/topic/${topic}`,
+          'x-default': `${BASE}/en/articles/topic/${topic}`,
         },
       }),
     },

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: {
       canonical: `${BASE}/${locale}/calculators/wealth`,
-      languages: { ru: `${BASE}/ru/calculators/wealth`, en: `${BASE}/en/calculators/wealth` },
+      languages: { ru: `${BASE}/ru/calculators/wealth`, en: `${BASE}/en/calculators/wealth`, 'x-default': `${BASE}/en/calculators/wealth` },
     },
     openGraph: {
       type: 'website',
@@ -31,8 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${BASE}/${locale}/calculators/wealth`,
       siteName: 'CryptoPulse.media',
       locale: isRu ? 'ru_RU' : 'en_US',
+      images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: [`${BASE}/${locale}/opengraph-image`] },
   };
 }
 

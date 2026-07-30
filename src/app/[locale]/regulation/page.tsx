@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/regulation`,
         en: `${BASE}/en/regulation`,
+        'x-default': `${BASE}/en/regulation`,
       },
     },
     openGraph: {
@@ -35,8 +36,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${BASE}/${locale}/regulation`,
       siteName: 'CryptoPulse.media',
       locale: isRu ? 'ru_RU' : 'en_US',
+      images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: [`${BASE}/${locale}/opengraph-image`] },
   };
 }
 

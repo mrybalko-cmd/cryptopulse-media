@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/altcoin-season`, title, description, locale }),
     alternates: {
       canonical: `${BASE}/${locale}/altcoin-season`,
-      languages: { ru: `${BASE}/ru/altcoin-season`, en: `${BASE}/en/altcoin-season` },
+      languages: { ru: `${BASE}/ru/altcoin-season`, en: `${BASE}/en/altcoin-season`, 'x-default': `${BASE}/en/altcoin-season` },
     },
   };
 }

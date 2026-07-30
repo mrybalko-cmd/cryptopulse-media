@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         ru: `${BASE}/ru/assets/solana`,
         en: `${BASE}/en/assets/solana`,
+        'x-default': `${BASE}/en/assets/solana`,
       },
     },
   };

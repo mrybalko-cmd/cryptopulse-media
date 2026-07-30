@@ -68,22 +68,24 @@ export function truncateTitle(text: string, max = 60, suffixLen = 20): string {
 }
 
 /**
- * Builds the hreflang languages map without x-default duplication.
+ * Builds the hreflang languages map, defaulting x-default to the English URL.
  *
- * x-default is omitted because for a bilingual EN/RU site it always equals the
- * 'en' entry, causing Ahrefs to flag "more than one page per language in hreflang".
- * The 'en' tag already signals Google to serve English as the fallback.
+ * Google recommends every hreflang set include an x-default annotation, and
+ * Ahrefs flags its absence ("Missing x-default") site-wide otherwise. x-default
+ * is a distinct annotation, not a language subtag, so pointing it at the same
+ * URL as 'en' does NOT create "more than one page per language" — it's the
+ * textbook pattern (en, ru, x-default=en).
  *
- * Pass an explicit xDefault only when it differs from every language-specific URL
- * (e.g. a language-selector page). In all other cases it is dropped automatically.
+ * Pass an explicit xDefault to override; otherwise the 'en' entry is reused.
  */
 export function buildLanguages(
   langs: Record<string, string>,
   xDefault?: string,
 ): Record<string, string> {
   const result = { ...langs };
-  if (xDefault && !Object.values(result).includes(xDefault)) {
-    result['x-default'] = xDefault;
+  const fallback = xDefault ?? langs.en;
+  if (fallback) {
+    result['x-default'] = fallback;
   }
   return result;
 }

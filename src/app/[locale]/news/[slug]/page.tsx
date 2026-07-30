@@ -60,6 +60,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ...(translationLang && translationSlug
           ? { [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}` }
           : {}),
+        // x-default points at the English version when we can resolve it —
+        // either this page is EN, or its translation is the EN one. Omitted
+        // when no EN counterpart exists so it never targets a missing URL.
+        ...(locale === 'en'
+          ? { 'x-default': `https://cryptopulse.media/en/news/${slug}` }
+          : translationLang === 'en' && translationSlug
+            ? { 'x-default': `https://cryptopulse.media/en/news/${translationSlug}` }
+            : {}),
       },
     },
     openGraph: {
