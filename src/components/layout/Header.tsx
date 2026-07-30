@@ -108,7 +108,7 @@ export default function Header() {
         aria-label={locale === 'ru' ? 'Главная навигация' : 'Main navigation'}
         className="hidden md:block border-t border-border bg-card"
       >
-        <ul className="max-w-7xl mx-auto px-4 sm:px-6 flex items-stretch h-11 list-none gap-0">
+        <ul className="max-w-7xl mx-auto px-4 sm:px-6 flex items-stretch justify-center h-11 list-none gap-0">
           {navLinks.map(link => (
             <li key={link.href} className="flex items-stretch">
               <Link

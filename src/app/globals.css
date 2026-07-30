@@ -32,6 +32,10 @@
   --article-accent-tint: #2b1411;
   --article-link: #3092ed;
   --share-hover-bg: #48484a;
+
+  /* Cool-gray fill behind the "Тема дня" text block on the homepage —
+     slightly cooler than --card so the copy separates from the cover. */
+  --tema-fill: #1b1e26;
 }
 
 html.light {
@@ -57,6 +61,8 @@ html.light {
   --article-accent-tint: #fef3f2;
   --article-link: #3092ed;
   --share-hover-bg: #cfd2d7;
+
+  --tema-fill: #f1f4f8;
 }
 
 @theme inline {

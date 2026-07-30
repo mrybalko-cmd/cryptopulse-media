@@ -48,11 +48,11 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
           />
         </div>
       )}
-      <div className="flex flex-col p-4">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-article-accent mb-2">
+      <div className="flex flex-col p-4" style={{ backgroundColor: 'var(--tema-fill)' }}>
+        <span className="text-[11px] font-black uppercase tracking-[0.12em] text-article-accent mb-2">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="font-semibold text-foreground leading-snug group-hover:text-accent transition-colors text-base line-clamp-2">
+        <h3 className="font-semibold text-foreground leading-snug group-hover:text-accent transition-colors text-[17.5px] line-clamp-2">
           {article.title}
         </h3>
         {article.excerpt && (

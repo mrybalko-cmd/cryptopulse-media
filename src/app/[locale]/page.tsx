@@ -2,7 +2,6 @@ export const revalidate = 300;
 
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import NewsListItem from '@/components/ui/NewsListItem';
 import ArticleCard from '@/components/ui/ArticleCard';
 import ArticleRowCard from '@/components/ui/ArticleRowCard';
@@ -157,16 +156,13 @@ export default async function HomePage({ params }: Props) {
         {/* News */}
         {homeSettings.showNews && (
         <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-center mb-5">
             <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
               <Link href={`/${locale}/news`} className="hover:text-accent transition-colors">
                 {t('latestNews')}
               </Link>
             </h2>
-            <Link href={`/${locale}/news`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
-              {t('viewAll')} <ArrowRight size={12} />
-            </Link>
           </div>
           {newsItems.length > 0 ? (
             <div>
@@ -198,17 +194,6 @@ export default async function HomePage({ params }: Props) {
         {/* Articles */}
         {homeSettings.showArticles && (
         <section className={homeSettings.showNews ? 'lg:col-span-3' : ''}>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-              <Link href={`/${locale}/articles`} className="hover:text-accent transition-colors">
-                {t('featuredArticles')}
-              </Link>
-            </h2>
-            <Link href={`/${locale}/articles`} className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors">
-              {t('viewAll')} <ArrowRight size={12} />
-            </Link>
-          </div>
           {articleItems.length > 0 ? (
             <div className="flex flex-col gap-6">
               {/* Row 1 (hero x2 + Popular) + Row 2 (compact x3 + price widget) —
