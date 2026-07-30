@@ -34,7 +34,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
   return (
     <Link
       href={`/${locale}/articles/${article.slug.current}`}
-      className="group flex flex-col h-full w-full max-w-[460px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="group flex flex-col h-full w-full max-w-[640px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
     >
       {article.coverImage && (
         <div className="relative flex-1 min-h-0 overflow-hidden">

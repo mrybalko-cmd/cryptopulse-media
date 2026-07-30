@@ -54,7 +54,7 @@ export default async function HomePage({ params }: Props) {
     .slice(0, 10);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div className="max-w-[100rem] mx-auto px-4 sm:px-6 py-6">
       <h1 className="sr-only">{t('hero')}</h1>
 
       {/* Mobile-only homepage flow (approved mockup): hero -> two small cards ->
