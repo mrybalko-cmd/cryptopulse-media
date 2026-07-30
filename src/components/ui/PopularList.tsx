@@ -13,6 +13,12 @@ import type { PopularItem } from '@/lib/sanity';
 // heading tags in BOTH copies still show up as literal duplicate headings
 // to crawlers/SEO auditors, so the non-canonical (mobile) copy should pass
 // asHeadings={false} to render the identical markup as plain tags instead.
+//
+// Layout (variant "C2"): the #1 story is featured with a coral accent bar and
+// a larger title (no rank number / no extra label — the single flame in the
+// header already says "hot"), a hairline divider, then a ranked list 2..N. On
+// the homepage the card stretches to the "Тема дня" height, so on lg+ the list
+// spreads to fill it; on mobile it stays naturally spaced.
 export default function PopularList({
   items,
   locale,
@@ -28,6 +34,10 @@ export default function PopularList({
   const isRu = locale === 'ru';
   const TitleTag = asHeadings ? 'h2' : 'p';
   const ItemTag = asHeadings ? 'h3' : 'p';
+  const viewsLabel = isRu ? 'просмотров' : 'views';
+  const hrefFor = (it: PopularItem) => `/${locale}/${it._type === 'article' ? 'articles' : 'news'}/${it.slug}`;
+
+  const [first, ...rest] = items;
 
   const content = (
     <>
@@ -35,25 +45,37 @@ export default function PopularList({
         <Flame size={21} className="text-red-600" fill="currentColor" />
         {isRu ? 'Популярное' : 'Most read'}
       </TitleTag>
-      <div className="flex flex-col gap-3">
-        {items.map((item, i) => (
-          <Link
-            key={item._id}
-            href={`/${locale}/${item._type === 'article' ? 'articles' : 'news'}/${item.slug}`}
-            className="group flex items-start gap-2.5"
-          >
-            <span className="text-lg font-extrabold text-accent/30 leading-none shrink-0">{i + 1}</span>
-            <div className="min-w-0">
-              <ItemTag className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-[var(--title-hover)] transition-colors">
-                {item.title}
-              </ItemTag>
-              <p className="flex items-center gap-1 text-[11px] text-muted mt-1">
-                <Eye size={10} />
-                {item.views} {isRu ? 'просмотров' : 'views'}
-              </p>
-            </div>
-          </Link>
-        ))}
+
+      <div className="flex flex-col lg:flex-1">
+        {/* #1 — featured with a coral accent bar and a bigger title (no rank). */}
+        <Link href={hrefFor(first)} className="group block border-l-[3px] border-article-accent pl-3.5">
+          <ItemTag className="text-base font-bold text-foreground leading-snug line-clamp-3 group-hover:text-[var(--title-hover)] transition-colors">
+            {first.title}
+          </ItemTag>
+          <p className="flex items-center gap-1.5 text-[11px] text-muted mt-2">
+            <Eye size={11} />
+            {first.views} {viewsLabel}
+          </p>
+        </Link>
+
+        <div className="h-px bg-border my-4" />
+
+        <div className="flex flex-col gap-3 lg:flex-1 lg:justify-between">
+          {rest.map((item, i) => (
+            <Link key={item._id} href={hrefFor(item)} className="group flex items-start gap-2.5">
+              <span className="text-base font-extrabold text-accent/40 leading-none shrink-0 w-4 text-center">{i + 2}</span>
+              <div className="min-w-0">
+                <ItemTag className="text-xs font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-[var(--title-hover)] transition-colors">
+                  {item.title}
+                </ItemTag>
+                <p className="flex items-center gap-1 text-[11px] text-muted mt-1">
+                  <Eye size={10} />
+                  {item.views} {viewsLabel}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </>
   );

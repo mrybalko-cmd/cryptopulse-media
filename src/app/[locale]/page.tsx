@@ -118,6 +118,11 @@ export default async function HomePage({ params }: Props) {
           </div>
         )}
 
+        {/* asHeadings={false}: the desktop copy already renders the real
+            headings, so this mobile copy uses plain tags to avoid duplicate
+            <h2>/<h3> in the DOM for crawlers. */}
+        {hasPopular && <PopularList items={popularItems} locale={locale} asHeadings={false} />}
+
         {homeSettings.showAuthorColumns && authorItems.length > 0 && (
           <AuthorColumns authors={authorItems} locale={locale} variant="stack" />
         )}
