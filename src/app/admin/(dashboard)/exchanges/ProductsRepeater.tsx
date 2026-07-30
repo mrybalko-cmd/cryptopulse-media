@@ -40,7 +40,7 @@ export default function ProductsRepeater({ existing }: { existing: ExchangeProdu
               <textarea name={`product_longRu_${i}`} defaultValue={p?.longRu} placeholder="Полное описание, RU" rows={2} className={smallInputCls} />
               <textarea name={`product_longEn_${i}`} defaultValue={p?.longEn} placeholder="Полное описание, EN" rows={2} className={smallInputCls} />
             </div>
-            <ImageField name={`product_image_${i}`} label="Картинка продукта (~1600×800)" currentUrl={p?.image} size={72} />
+            <ImageField name={`product_image_${i}`} label="Картинка продукта" currentUrl={p?.image} size={72} hint="Рекомендуется ~1600×800 px (2:1), JPG или WebP, до ~1 МБ." />
           </div>
         );
       })}

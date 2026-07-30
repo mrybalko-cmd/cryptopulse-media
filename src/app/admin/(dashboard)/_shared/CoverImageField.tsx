@@ -29,6 +29,7 @@ export default function CoverImageField({
   return (
     <div>
       <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2">Обложка (как будет выглядеть на сайте)</div>
+      <p className="text-[11px] text-[var(--admin-text-dim)] mb-2 max-w-[340px]">Рекомендуется 1200×675 px (16:9), JPG или WebP, до ~1 МБ.</p>
       <div className="relative w-full max-w-[340px] h-[176px] rounded-lg overflow-hidden bg-[var(--admin-input)] border border-[var(--admin-border)] mb-3">
         {displayUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

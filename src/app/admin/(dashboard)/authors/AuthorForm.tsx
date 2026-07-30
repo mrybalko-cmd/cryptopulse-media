@@ -16,7 +16,7 @@ export default function AuthorForm({
   return (
     <form action={action} className="max-w-2xl">
       <div className="grid grid-cols-[120px_1fr] gap-5 mb-5">
-        <ImageField name="photo" label="Фото" currentUrl={author?.photo} size={120} />
+        <ImageField name="photo" label="Фото" currentUrl={author?.photo} size={120} hint="Квадрат 1:1, рекомендуется 400×400 px, JPG или WebP." />
         <div className="grid grid-cols-2 gap-4 content-start">
           <div className="col-span-2">
             <label className={labelCls}>Имя и фамилия</label>

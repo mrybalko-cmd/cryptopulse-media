@@ -149,6 +149,7 @@ export const newsType = defineType({
         { type: 'quoteBlock' },
         { type: 'youtubeEmbed' },
         { type: 'tweetEmbed' },
+        { type: 'facebookEmbed' },
       ],
     }),
     defineField({

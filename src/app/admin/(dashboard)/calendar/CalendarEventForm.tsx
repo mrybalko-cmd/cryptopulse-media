@@ -80,7 +80,7 @@ export default function CalendarEventForm({
           <label className={labelCls}>Ссылка на источник (необязательно)</label>
           <input name="sourceUrl" type="url" defaultValue={event?.sourceUrl} className={inputCls} />
         </div>
-        <ImageField name="icon" label="Свой значок (необязательно — иначе эмодзи категории)" currentUrl={event?.icon} size={72} />
+        <ImageField name="icon" label="Свой значок (необязательно — иначе эмодзи категории)" currentUrl={event?.icon} size={72} hint="Квадрат 1:1, рекомендуется 128×128 px, PNG или SVG с прозрачным фоном." />
       </div>
 
       {event && (

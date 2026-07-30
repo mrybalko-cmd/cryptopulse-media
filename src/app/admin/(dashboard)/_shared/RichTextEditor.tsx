@@ -1,7 +1,26 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { urlFor } from '@/lib/sanityImage';
 import { textToBlocks, blocksToText, type PortableTextBlock } from '@/lib/admin/portableText';
+
+// Recommended dimensions/format shown on the inline-image picker — kept in one
+// place so the toolbar prompt and the "Картинки в тексте" panel say the same.
+const INLINE_IMAGE_HINT = 'Рекомендуется: ширина ≥ 1200 px, JPG или WebP, до ~1 МБ.';
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /youtube\.com\/watch\?v=([\w-]{11})/,
+    /youtu\.be\/([\w-]{11})/,
+    /youtube\.com\/embed\/([\w-]{11})/,
+    /youtube\.com\/shorts\/([\w-]{11})/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return m[1];
+  }
+  return null;
+}
 
 // The textarea stays an uncontrolled DOM node (only `defaultValue` + a plain
 // `onInput` listener for the preview) specifically so these helpers can just
@@ -90,8 +109,11 @@ function QuotePreview({ block }: { block: PortableTextBlock }) {
   const accent = style === 'accent';
   return (
     <div
-      className="my-3 pl-3.5 border-l-[3px] italic text-[var(--admin-text-secondary)]"
-      style={{ borderColor: accent ? 'var(--admin-accent, #06b6d4)' : 'var(--admin-border)' }}
+      className={`my-3 pl-3.5 py-2 border-l-[3px] italic text-[var(--admin-text-secondary)] ${accent ? 'rounded-r-lg' : ''}`}
+      style={{
+        borderColor: accent ? 'var(--admin-focus, #06b6d4)' : 'var(--admin-border)',
+        background: accent ? 'color-mix(in srgb, var(--admin-focus, #06b6d4) 10%, transparent)' : 'transparent',
+      }}
     >
       “{text}”
       {(author || source) && (
@@ -99,6 +121,76 @@ function QuotePreview({ block }: { block: PortableTextBlock }) {
           — {[author, source].filter(Boolean).join(', ')}
         </div>
       )}
+    </div>
+  );
+}
+
+// Preview card for an embedded image (both freshly-picked and pre-existing) —
+// shows the real picture, mirroring how quotes/embeds already render, so the
+// editor's preview matches what the article page will show.
+function ImagePreview({ block }: { block: PortableTextBlock }) {
+  const alt = block.alt ? String(block.alt) : '';
+  const previewUrl = block._previewUrl; // string = picked, null = awaiting file, undefined = existing
+  let src: string | null = null;
+  if (typeof previewUrl === 'string') src = previewUrl;
+  else if ((block.asset as { _ref?: string } | undefined)?._ref) {
+    try { src = urlFor(block as { asset?: { _ref?: string } }).width(680).url(); } catch { src = null; }
+  }
+  return (
+    <figure className="my-3">
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} className="w-full max-h-80 object-contain rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)]" />
+      ) : (
+        <div className="h-28 rounded-lg border border-dashed border-[var(--admin-border)] bg-[var(--admin-input)] flex items-center justify-center text-[11px] text-[var(--admin-text-dim)] px-3 text-center">
+          Файл ещё не выбран — картинка появится здесь после выбора
+        </div>
+      )}
+      {alt ? (
+        <figcaption className="text-[11px] text-[var(--admin-text-muted)] text-center mt-1 italic">{alt}</figcaption>
+      ) : (
+        <figcaption className="text-[11px] text-amber-500 text-center mt-1">⚠ alt-текст не задан (важно для SEO и доступности)</figcaption>
+      )}
+    </figure>
+  );
+}
+
+function EmbedPreview({ block }: { block: PortableTextBlock }) {
+  const url = String(block.url ?? '');
+  if (block._type === 'youtubeEmbed') {
+    const id = extractYouTubeId(url);
+    return (
+      <div className="my-3 rounded-lg overflow-hidden border border-[var(--admin-border)]">
+        <div className="relative aspect-video bg-black">
+          {id && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <span className="flex items-center justify-center w-12 h-12 rounded-full bg-red-600 shadow-lg">
+              <span className="text-white text-[18px] ml-0.5">▶</span>
+            </span>
+          </span>
+        </div>
+        <div className="px-3 py-1.5 text-[10.5px] text-[var(--admin-text-muted)] truncate">Видео YouTube · {url}</div>
+      </div>
+    );
+  }
+  const isFacebook = block._type === 'facebookEmbed';
+  return (
+    <div className="my-3 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-input)] p-3">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span
+          className="flex items-center justify-center w-7 h-7 rounded-full text-white text-[13px] font-bold shrink-0"
+          style={{ background: isFacebook ? '#1877F2' : '#0f172a' }}
+        >
+          {isFacebook ? 'f' : 'X'}
+        </span>
+        <span className="text-[11px] text-[var(--admin-text-muted)] font-semibold">
+          {isFacebook ? 'Пост Facebook' : 'Пост X / Twitter'}
+        </span>
+      </div>
+      <div className="text-[11px] text-[var(--admin-text-dim)] truncate">{url}</div>
     </div>
   );
 }
@@ -131,25 +223,9 @@ function PreviewBlocks({ blocks }: { blocks: PortableTextBlock[] }) {
     if (block._type !== 'block') {
       flushList(`list-${i}`);
       if (block._type === 'image') {
-        const alt = block.alt ? String(block.alt) : null;
-        nodes.push(
-          <div key={i} className="my-3 h-28 rounded-lg bg-gradient-to-br from-[var(--admin-input)] to-[var(--admin-border)] flex flex-col items-center justify-center gap-1 text-[11px] text-[var(--admin-text-muted)] px-3 text-center">
-            <span>🖼️ изображение</span>
-            {alt ? <span className="text-[10px] italic truncate max-w-full">alt: {alt}</span> : <span className="text-[10px] text-red-400/80">alt-текст не задан</span>}
-          </div>
-        );
-      } else if (block._type === 'youtubeEmbed') {
-        nodes.push(
-          <div key={i} className="my-3 h-28 rounded-lg bg-[var(--admin-input)] border border-[var(--admin-border)] flex items-center justify-center text-[11px] text-[var(--admin-text-muted)]">
-            ▶️ YouTube: {String(block.url ?? '')}
-          </div>
-        );
-      } else if (block._type === 'tweetEmbed') {
-        nodes.push(
-          <div key={i} className="my-3 p-3 rounded-lg bg-[var(--admin-input)] border border-[var(--admin-border)] text-[11px] text-[var(--admin-text-muted)]">
-            🐦 Твит: {String(block.url ?? '')}
-          </div>
-        );
+        nodes.push(<ImagePreview key={i} block={block} />);
+      } else if (block._type === 'youtubeEmbed' || block._type === 'tweetEmbed' || block._type === 'facebookEmbed') {
+        nodes.push(<EmbedPreview key={i} block={block} />);
       } else if (block._type === 'quoteBlock') {
         nodes.push(<QuotePreview key={i} block={block} />);
       } else {
@@ -196,6 +272,30 @@ function describeUnknown(block: PortableTextBlock): string {
   return String(block._type);
 }
 
+interface ImageMarker {
+  pos: number;
+  kind: 'new' | 'existing';
+  slot: number;
+  alt: string;
+  raw: string;
+}
+
+// Every image marker in the body, in document order, so the manager panel can
+// list them with thumbnails and act on the exact marker in the textarea.
+function collectImageMarkers(text: string): ImageMarker[] {
+  const items: ImageMarker[] = [];
+  let m: RegExpExecArray | null;
+  const reNew = /\[\[img:(\d+)(?:\|([\s\S]*?))?\]\]/g;
+  while ((m = reNew.exec(text)) !== null) {
+    items.push({ pos: m.index, kind: 'new', slot: Number(m[1]), alt: m[2] ?? '', raw: m[0] });
+  }
+  const reOld = /⟦(\d+):image:([\s\S]*?)⟧/g;
+  while ((m = reOld.exec(text)) !== null) {
+    items.push({ pos: m.index, kind: 'existing', slot: Number(m[1]), alt: m[2] ?? '', raw: m[0] });
+  }
+  return items.sort((a, b) => a.pos - b.pos);
+}
+
 export default function RichTextEditor({
   name,
   originalBlocks,
@@ -216,9 +316,17 @@ export default function RichTextEditor({
   const ref = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(() => blocksToText(originalBlocks));
   const [imageSlots, setImageSlots] = useState<number[]>([]);
+  // slot index -> object URL of the picked file, so both the live preview and
+  // the manager panel can show the real picture before it's uploaded on save.
+  const [imageFiles, setImageFiles] = useState<Record<number, string>>({});
   const nextImageIndex = useRef(0);
+  const objectUrls = useRef<string[]>([]);
 
-  const previewBlocks = textToBlocks(text, originalBlocks);
+  // Free every object URL we ever created when the editor unmounts.
+  useEffect(() => () => { objectUrls.current.forEach(URL.revokeObjectURL); }, []);
+
+  const previewBlocks = textToBlocks(text, originalBlocks, undefined, imageFiles);
+  const markers = collectImageMarkers(text);
 
   function addImageSlot() {
     const idx = nextImageIndex.current++;
@@ -233,6 +341,65 @@ export default function RichTextEditor({
 
   function sync() {
     if (ref.current) setText(ref.current.value);
+  }
+
+  // Panel/textarea live in sync: the textarea is uncontrolled, so writes go to
+  // the DOM node first, then state re-renders the preview + panel from it.
+  function applyText(next: string) {
+    if (ref.current) ref.current.value = next;
+    setText(next);
+  }
+
+  function onPickFile(idx: number, file: File | null) {
+    setImageFiles(prev => {
+      const next = { ...prev };
+      if (file) {
+        const url = URL.createObjectURL(file);
+        objectUrls.current.push(url);
+        next[idx] = url;
+      } else {
+        delete next[idx];
+      }
+      return next;
+    });
+  }
+
+  function removeMarker(raw: string) {
+    const paras = text.split(/\n\s*\n/);
+    const idx = paras.findIndex(p => p.trim() === raw);
+    if (idx >= 0) {
+      paras.splice(idx, 1);
+      applyText(paras.join('\n\n'));
+    } else {
+      applyText(text.replace(raw, ''));
+    }
+  }
+
+  function moveMarker(raw: string, dir: -1 | 1) {
+    const paras = text.split(/\n\s*\n/);
+    const idx = paras.findIndex(p => p.trim() === raw);
+    const j = idx + dir;
+    if (idx >= 0 && j >= 0 && j < paras.length) {
+      [paras[idx], paras[j]] = [paras[j], paras[idx]];
+      applyText(paras.join('\n\n'));
+    }
+  }
+
+  function setMarkerAlt(marker: ImageMarker, newAlt: string) {
+    const replacement =
+      marker.kind === 'new'
+        ? `[[img:${marker.slot}${newAlt ? `|${newAlt}` : ''}]]`
+        : `⟦${marker.slot}:image:${newAlt}⟧`;
+    if (replacement !== marker.raw) applyText(text.replace(marker.raw, replacement));
+  }
+
+  function thumbFor(marker: ImageMarker): string | null {
+    if (marker.kind === 'new') return imageFiles[marker.slot] ?? null;
+    const original = originalBlocks?.[marker.slot] as { asset?: { _ref?: string } } | undefined;
+    if (original?.asset?._ref) {
+      try { return urlFor(original).width(160).height(160).url(); } catch { return null; }
+    }
+    return null;
   }
 
   return (
@@ -272,9 +439,9 @@ export default function RichTextEditor({
             <ToolbarButton title="Нумерованный список" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '1. '); sync(); } }}>1.</ToolbarButton>
             <Sep />
             <ToolbarButton
-              title="Вставить картинку"
+              title={`Вставить картинку. ${INLINE_IMAGE_HINT}`}
               onClick={() => {
-                const alt = window.prompt('Alt-текст картинки (для доступности и SEO, можно оставить пустым):') || '';
+                const alt = window.prompt(`Alt-текст картинки (для доступности и SEO, можно оставить пустым).\n\n${INLINE_IMAGE_HINT}`) || '';
                 const idx = addImageSlot();
                 if (ref.current) { insertAtCursor(ref.current, `[[img:${idx}${alt ? `|${alt}` : ''}]]`); sync(); }
               }}
@@ -297,7 +464,16 @@ export default function RichTextEditor({
                 if (url && ref.current) { insertAtCursor(ref.current, `[[tweet:${url.trim()}]]`); sync(); }
               }}
             >
-              🐦
+              𝕏
+            </ToolbarButton>
+            <ToolbarButton
+              title="Вставить пост Facebook"
+              onClick={() => {
+                const url = window.prompt('Ссылка на пост Facebook:');
+                if (url && ref.current) { insertAtCursor(ref.current, `[[facebook:${url.trim()}]]`); sync(); }
+              }}
+            >
+              f
             </ToolbarButton>
             <ToolbarButton
               title="Вставить карточку-цитату (текст + автор + источник)"
@@ -350,8 +526,65 @@ export default function RichTextEditor({
       />
 
       {imageSlots.map(idx => (
-        <input key={idx} type="file" accept="image/*" name={`${name}_image_${idx}`} className="hidden" onChange={sync} />
+        <input
+          key={idx}
+          type="file"
+          accept="image/*"
+          name={`${name}_image_${idx}`}
+          className="hidden"
+          onChange={e => { onPickFile(idx, e.target.files?.[0] ?? null); sync(); }}
+        />
       ))}
+
+      {!simple && markers.length > 0 && (
+        <div className="mt-3">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-1.5">
+            Картинки в тексте ({markers.length})
+          </div>
+          <div className="text-[11px] text-[var(--admin-text-dim)] mb-2">{INLINE_IMAGE_HINT}</div>
+          <div className="flex flex-col gap-2">
+            {markers.map((marker, mi) => {
+              const thumb = thumbFor(marker);
+              return (
+                <div
+                  key={`${marker.kind}-${marker.slot}`}
+                  className="flex items-center gap-3 border border-[var(--admin-border)] rounded-lg p-2 bg-[var(--admin-input)]"
+                >
+                  <div className="w-14 h-14 rounded-md overflow-hidden bg-[var(--admin-border)] shrink-0 flex items-center justify-center text-[10px] text-[var(--admin-text-dim)]">
+                    {thumb ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={thumb} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      'нет файла'
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--admin-border)] text-[var(--admin-text-muted)]">
+                        {marker.kind === 'new' ? 'новая' : 'из статьи'}
+                      </span>
+                      {!marker.alt && <span className="text-[10px] text-amber-500">⚠ нет alt</span>}
+                    </div>
+                    <input
+                      key={`${marker.kind}-${marker.slot}-alt-${marker.alt}`}
+                      defaultValue={marker.alt}
+                      placeholder="alt-текст (описание картинки)"
+                      onBlur={e => setMarkerAlt(marker, e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); (e.target as HTMLInputElement).blur(); } }}
+                      className="w-full bg-[var(--admin-bg,transparent)] border border-[var(--admin-border)] rounded px-2 py-1 text-[12px]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <button type="button" title="Выше" disabled={mi === 0} onClick={() => moveMarker(marker.raw, -1)} className="px-2 py-0.5 rounded border border-[var(--admin-border)] text-[11px] disabled:opacity-30 hover:border-cyan-500/50">↑</button>
+                    <button type="button" title="Ниже" disabled={mi === markers.length - 1} onClick={() => moveMarker(marker.raw, 1)} className="px-2 py-0.5 rounded border border-[var(--admin-border)] text-[11px] disabled:opacity-30 hover:border-cyan-500/50">↓</button>
+                  </div>
+                  <button type="button" title="Удалить картинку" onClick={() => removeMarker(marker.raw)} className="px-2 py-1 rounded border border-[var(--admin-border)] text-[11px] text-red-400 hover:border-red-500/50 shrink-0">✕</button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {!hidePreview && (
         <div className="mt-3">

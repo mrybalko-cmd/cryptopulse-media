@@ -4,6 +4,7 @@ import { urlFor } from '@/lib/sanityImage';
 import { BASE } from '@/lib/metadata';
 import YouTubeEmbed from './YouTubeEmbed';
 import TweetEmbed from './TweetEmbed';
+import FacebookEmbed from './FacebookEmbed';
 
 // Shared Portable Text renderer for both article and news detail pages —
 // they used to duplicate this whole block; now the shared surface (image,
@@ -49,6 +50,14 @@ export default function RichText({
           url={value.url}
           authorName={value.authorName}
           authorHandle={value.authorHandle}
+          text={value.text}
+          locale={locale}
+        />
+      ),
+      facebookEmbed: ({ value }: { value: any }) => (
+        <FacebookEmbed
+          url={value.url}
+          authorName={value.authorName}
           text={value.text}
           locale={locale}
         />

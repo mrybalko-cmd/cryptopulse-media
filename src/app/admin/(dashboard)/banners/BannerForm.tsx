@@ -21,7 +21,8 @@ export default function BannerForm({
       </div>
 
       <div className="mb-5">
-        <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Картинка (квадрат 1:1, мин. 600×600)</div>
+        <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Картинка баннера</div>
+        <p className="text-[11px] text-[var(--admin-text-dim)] mb-2">Квадрат 1:1, мин. 600×600 px, JPG или PNG, до ~500 КБ.</p>
         {banner?.image && (
           <img src={`${banner.image}?w=320&h=320&fit=crop`} alt="" className="w-40 h-40 rounded-lg object-cover mb-2 border border-[var(--admin-border)]" />
         )}

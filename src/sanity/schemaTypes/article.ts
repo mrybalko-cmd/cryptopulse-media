@@ -239,6 +239,7 @@ export const articleType = defineType({
         { type: 'quoteBlock' },
         { type: 'youtubeEmbed' },
         { type: 'tweetEmbed' },
+        { type: 'facebookEmbed' },
       ],
     }),
     defineField({

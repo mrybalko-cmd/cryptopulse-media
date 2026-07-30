@@ -27,7 +27,7 @@ export default function ExchangeForm({
       </div>
 
       <div className="mb-5 grid grid-cols-2 gap-4">
-        <ImageField name="logo" label="Логотип" currentUrl={exchange?.logo} size={100} />
+        <ImageField name="logo" label="Логотип" currentUrl={exchange?.logo} size={100} hint="Квадрат 1:1, рекомендуется 200×200 px, PNG с прозрачным фоном." />
         <div>
           <label className={labelCls}>Цвет подложки логотипа (HEX)</label>
           <input name="logoBg" defaultValue={exchange?.logoBg ?? '#3b82f6'} className={inputCls} />

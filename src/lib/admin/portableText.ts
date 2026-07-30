@@ -17,7 +17,7 @@
 //   [text](url)            -> dofollow link (default)
 //   [text](url "nofollow") -> nofollow link
 //   [[quote:author|source|style|text]] -> quoteBlock (author/source/style may be empty)
-//   [[youtube:URL]] / [[tweet:URL]]    -> embeds
+//   [[youtube:URL]] / [[tweet:URL]] / [[facebook:URL]] -> embeds
 //   [[img:N]]               -> newly-uploaded image (N = file input slot index)
 //   ⟦N: description⟧        -> pre-existing image, preserved untouched
 
@@ -103,6 +103,7 @@ export function blocksToText(blocks: PortableTextBlock[] | undefined): string {
       if (block._type === 'quoteBlock') return quoteBlockToText(block);
       if (block._type === 'youtubeEmbed') return `[[youtube:${block.url ?? ''}]]`;
       if (block._type === 'tweetEmbed') return `[[tweet:${block.url ?? ''}]]`;
+      if (block._type === 'facebookEmbed') return `[[facebook:${block.url ?? ''}]]`;
       // Image asset/crop can't be re-authored from plain text, but the alt
       // text can — the marker carries it so editing the line updates just
       // that field on save while the original asset reference is preserved.
@@ -227,7 +228,14 @@ const QUOTE_STYLES = ['plain', 'accent', 'attributed'];
 export function textToBlocks(
   text: string,
   originalBlocks: PortableTextBlock[] | undefined,
-  newImageAssetIds?: Record<number, string>
+  newImageAssetIds?: Record<number, string>,
+  // Live-preview only: object URLs of freshly-picked (not-yet-uploaded) files,
+  // keyed by the same file-input slot index the `[[img:N]]` marker carries.
+  // When supplied, an unresolved `[[img:N]]` becomes a throwaway image block
+  // with a `_previewUrl` (string = pick shown, null = still awaiting a file) so
+  // the editor can render the real picture. Never passed on the save path, so
+  // `_previewUrl` never reaches Sanity.
+  previewImageUrls?: Record<number, string>
 ): PortableTextBlock[] {
   // Trim only surrounding newlines/trailing whitespace here, not leading
   // spaces — those encode list-nesting level and must survive into
@@ -252,9 +260,11 @@ export function textToBlocks(
     }
     const imageMatch = para.match(/^\[\[img:(\d+)(?:\|([\s\S]*))?\]\]$/);
     if (imageMatch) {
-      const assetId = newImageAssetIds?.[Number(imageMatch[1])];
+      const slot = Number(imageMatch[1]);
+      const assetId = newImageAssetIds?.[slot];
       const alt = imageMatch[2];
       if (assetId) result.push({ _key: randomKey(), ...imageField(assetId), ...(alt ? { alt } : {}) });
+      else if (previewImageUrls) result.push({ _type: 'image', _key: randomKey(), _previewUrl: previewImageUrls[slot] ?? null, ...(alt ? { alt } : {}) });
       continue;
     }
     const youtubeMatch = para.match(/^\[\[youtube:(.+)\]\]$/);
@@ -265,6 +275,11 @@ export function textToBlocks(
     const tweetMatch = para.match(/^\[\[tweet:(.+)\]\]$/);
     if (tweetMatch) {
       result.push({ _type: 'tweetEmbed', _key: randomKey(), url: tweetMatch[1].trim() });
+      continue;
+    }
+    const facebookMatch = para.match(/^\[\[facebook:(.+)\]\]$/);
+    if (facebookMatch) {
+      result.push({ _type: 'facebookEmbed', _key: randomKey(), url: facebookMatch[1].trim() });
       continue;
     }
     const quoteMatch = para.match(/^\[\[quote:([^|]*)\|([^|]*)\|([^|]*)\|([\s\S]*)\]\]$/);
