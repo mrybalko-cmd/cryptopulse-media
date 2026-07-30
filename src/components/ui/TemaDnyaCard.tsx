@@ -37,7 +37,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
       className="group flex flex-col h-full w-full max-w-[460px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
     >
       {article.coverImage && (
-        <div className="relative flex-1 min-h-[110px] overflow-hidden">
+        <div className="relative flex-1 min-h-0 overflow-hidden">
           <Image
             src={sanityImageTransform(article.coverImage, { width: 900 })!}
             alt={article.coverImageAlt || article.title}
@@ -48,19 +48,20 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
           />
         </div>
       )}
-      <div className="flex flex-col p-4" style={{ backgroundColor: 'var(--tema-fill)' }}>
-        <span className="text-[11px] font-black uppercase tracking-[0.12em] text-article-accent mb-2">
+      {/* Text zone is a fixed 30% of the card height (cover fills the other
+          70%). No excerpt — just the kicker, a two-line title (tightened
+          leading/spacing so both lines always fit in the band) and meta. */}
+      <div
+        className="flex flex-col justify-center overflow-hidden basis-[30%] grow-0 shrink-0 px-4"
+        style={{ backgroundColor: 'var(--tema-fill)' }}
+      >
+        <span className="text-[10.5px] font-black uppercase tracking-[0.12em] text-article-accent mb-1">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="font-semibold text-foreground leading-snug group-hover:text-accent transition-colors text-[17.5px] line-clamp-2">
+        <h3 className="font-semibold text-foreground leading-[1.18] group-hover:text-accent transition-colors text-[17px] line-clamp-2">
           {article.title}
         </h3>
-        {article.excerpt && (
-          // Slightly smaller than the usual card excerpt (text-xs) so two full
-          // lines fit within this height-capped card.
-          <p className="text-muted text-[11px] mt-1.5 leading-relaxed line-clamp-2">{article.excerpt}</p>
-        )}
-        <div className="flex items-center justify-between pt-3">
+        <div className="flex items-center justify-between mt-1.5">
           <div className="flex items-center gap-2 text-muted text-xs">
             <span>{date}</span>
             {article.readingTime && (

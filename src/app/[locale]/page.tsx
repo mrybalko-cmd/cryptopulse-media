@@ -204,7 +204,7 @@ export default async function HomePage({ params }: Props) {
                   widget's cell is always exactly as tall as row 2's compact
                   cards, since PopularList/TopAssetsWidget fill their cell
                   height (h-full) rather than sizing to their own content. */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-6">
                 {/* «Тема дня» — один ведущий материал вместо двух геройских
                     карточек, отцентрирован в своих двух колонках (равные
                     отступы). Popular (кол. 3, ряд 1) и Пульс (кол. 3, ряд 2)
