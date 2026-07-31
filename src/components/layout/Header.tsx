@@ -78,7 +78,19 @@ export default function Header() {
         </div>
 
         {/* Logo */}
-        <Link href={`/${locale}`} className="flex items-center gap-2 sm:gap-2.5 group">
+        <Link
+          href={`/${locale}`}
+          onClick={(e) => {
+            setMenuOpen(false);
+            // Already on the homepage: a Link to the current route is a no-op
+            // for Next, so scroll back to the top ourselves (mobile + desktop).
+            if (pathname === `/${locale}`) {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="flex items-center gap-2 sm:gap-2.5 group"
+        >
           <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
             <Image src="/logo-mark.png" alt="CryptoPulse.media" width={36} height={36} className="w-full h-full object-cover" priority />
           </div>
