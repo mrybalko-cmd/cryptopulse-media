@@ -8,6 +8,7 @@ import ArticleRowCard from '@/components/ui/ArticleRowCard';
 import ArticleCarousel from '@/components/ui/ArticleCarousel';
 import AuthorColumns from '@/components/ui/AuthorColumns';
 import TemaDnyaCard from '@/components/ui/TemaDnyaCard';
+import OverlayArticleCard from '@/components/ui/OverlayArticleCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
@@ -221,22 +222,21 @@ export default async function HomePage({ params }: Props) {
                 )}
                 {hasPopular && <PopularList items={popularItems} locale={locale} />}
                 {row2Articles.length > 0 && (
-                  <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2 flex justify-center">
-                    {/* Same max-width + centering as the "Тема дня" card above,
-                        so the second row sits exactly under it with identical
-                        side margins. */}
-                    <div className="grid grid-cols-3 gap-2.5 w-full max-w-[620px]">
+                  <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2 flex justify-center items-stretch">
+                    {/* Overlay cards matching "Тема дня"; same max-width (560) so
+                        they sit exactly under it, and the grid stretches so the
+                        three cards fill this row's height — level with the Pulse
+                        widget beside them. */}
+                    <div className="grid grid-cols-3 gap-3 w-full max-w-[560px]">
                       {row2Articles.map((article: any) => (
-                        <ArticleCard
+                        <OverlayArticleCard
                           key={article._id}
                           title={article.title}
-                          excerpt={article.excerpt}
                           slug={article.slug.current}
                           coverImage={article.coverImage}
+                          coverImageAlt={article.coverImageAlt}
                           publishedAt={article.publishedAt}
                           locale={locale}
-                          compact
-                          titleLines={3}
                         />
                       ))}
                     </div>

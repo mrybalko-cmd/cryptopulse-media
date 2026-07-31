@@ -1,14 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, ArrowRight, Eye, Heart } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { sanityImageTransform } from '@/lib/sanityImage';
 
-// Homepage "Тема дня" — a single featured article shown instead of the old
-// two hero cards. One unified card (cover on top, text below), centered in its
-// two-column slot with equal side margins. Its height is driven by the
-// Popular list beside it: the cover is `flex-1` so it fills whatever height
-// remains after the (compact) text block, which keeps this card exactly as
-// tall as "Популярное" (never taller). Same hover behavior as ArticleCard.
+// Homepage "Тема дня" — the single featured article. Overlay hero: a 16:9 cover
+// with the copy laid over a bottom gradient (bold red "Тема дня" kicker, a
+// two-line white title and meta). Kept at a fixed 16:9 so it stays compact; the
+// Popular list beside it stretches to this height.
 interface TemaDnyaCardProps {
   article: {
     title: string;
@@ -34,50 +32,32 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
   return (
     <Link
       href={`/${locale}/articles/${article.slug.current}`}
-      className="group flex flex-col w-full max-w-[620px] bg-card border border-border/70 rounded-xl overflow-hidden shadow-sm hover:border-accent/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="group relative block w-full max-w-[560px] aspect-[16/9] rounded-xl overflow-hidden border border-border/70 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
     >
-      {/* Image-forward hero (incrypted-style): the cover keeps a natural 16:9
-          ratio so it isn't cropped top/bottom; the card grows to its own
-          height (the Popular list beside it stretches to match). */}
       {article.coverImage && (
-        <div className="relative w-full aspect-[16/9] overflow-hidden">
-          <Image
-            src={sanityImageTransform(article.coverImage, { width: 960 })!}
-            alt={article.coverImageAlt || article.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            priority
-            unoptimized
-          />
-        </div>
+        <Image
+          src={sanityImageTransform(article.coverImage, { width: 960 })!}
+          alt={article.coverImageAlt || article.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          priority
+          unoptimized
+        />
       )}
-      <div className="p-4" style={{ backgroundColor: 'var(--tema-fill)' }}>
-        <span className="block text-[10.5px] font-black uppercase tracking-[0.12em] text-article-accent mb-1.5">
+      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.4)_42%,transparent_68%)]" />
+      <div className="absolute inset-x-0 bottom-0 p-[17px]">
+        <span className="block text-[14px] font-black uppercase tracking-[0.12em] text-[#ff5252] mb-1.5 [text-shadow:0_1px_5px_rgba(0,0,0,0.6)]">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="font-semibold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors text-[18px] line-clamp-2">
+        <h3 className="text-white font-extrabold text-[20px] leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]">
           {article.title}
         </h3>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-2 text-muted text-xs">
-            <span>{date}</span>
-            {article.readingTime && (
-              <>
-                <span className="text-border">·</span>
-                <Clock size={10} />
-                <span>{article.readingTime} {minRead}</span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted">
-            {typeof article.views === 'number' && (
-              <span className="flex items-center gap-1"><Eye size={11} />{article.views}</span>
-            )}
-            {typeof article.likes === 'number' && article.likes > 0 && (
-              <span className="flex items-center gap-1"><Heart size={11} />{article.likes}</span>
-            )}
-            <ArrowRight size={14} className="group-hover:text-[var(--title-hover)] group-hover:translate-x-0.5 transition-all" />
-          </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/85 mt-2.5">
+          <span>{date}</span>
+          {article.readingTime && <span>{article.readingTime} {minRead}</span>}
+          {typeof article.views === 'number' && (
+            <span className="inline-flex items-center gap-1"><Eye size={11} />{article.views}</span>
+          )}
         </div>
       </div>
     </Link>
