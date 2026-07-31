@@ -94,9 +94,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <head>
+        {/* Only preconnect to the image CDN (the LCP hero cover). GA/GTM and
+            Subscribe-with-Google load lazily (below), so preconnecting to them
+            up front is premature — it just trips PageSpeed's ">4 preconnects /
+            unused preconnect" warning without helping. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="alternate" type="application/rss+xml" title="CryptoPulse.media" href="/rss.xml" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
         {process.env.GOOGLE_PUBLISHER_CENTER_TOKEN && (
@@ -115,8 +117,8 @@ export default async function LocaleLayout({ children, params }: Props) {
             configured as open-access (no paywall). Gives Google a structured
             signal about content access for News/Discover; same snippet
             works across every page, only `lang` varies by locale. */}
-        <Script async src="https://news.google.com/swg/js/v1/swg-basic.js" strategy="afterInteractive" />
-        <Script id="swg-basic-init" strategy="afterInteractive">
+        <Script async src="https://news.google.com/swg/js/v1/swg-basic.js" strategy="lazyOnload" />
+        <Script id="swg-basic-init" strategy="lazyOnload">
           {`(self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
             basicSubscriptions.init({
               type: "NewsArticle",
