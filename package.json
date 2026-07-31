@@ -16,7 +16,6 @@
     "@sanity/ui": "^3.3.0",
     "@sanity/vision": "^6.1.0",
     "@tailwindcss/typography": "^0.5.20",
-    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "jose": "^6.2.4",

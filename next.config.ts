@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://vitals.vercel-insights.com https://news.google.com",
+      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://news.google.com",
       "frame-src https://www.youtube.com https://news.google.com",
       "object-src 'none'",
       "base-uri 'self'",
