@@ -49,7 +49,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
         <span className="block text-[14px] font-black uppercase tracking-[0.12em] text-[#ff5252] mb-1.5 [text-shadow:0_1px_5px_rgba(0,0,0,0.6)]">
           {isRu ? 'Тема дня' : 'Top story'}
         </span>
-        <h3 className="text-white font-extrabold text-[20px] leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]">
+        <h3 className="text-white font-extrabold text-[20px] leading-snug line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.4)] group-hover:text-[var(--title-hover)] transition-colors">
           {article.title}
         </h3>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/85 mt-2.5">
