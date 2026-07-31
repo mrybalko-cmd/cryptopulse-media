@@ -216,7 +216,7 @@ export default async function HomePage({ params }: Props) {
                     отступы). Popular (кол. 3, ряд 1) и Пульс (кол. 3, ряд 2)
                     остаются той же ширины и выровнены — их не трогаем. */}
                 {heroArticles[0] && (
-                  <div className="lg:col-span-2 flex justify-center items-start">
+                  <div className="lg:col-span-2 flex justify-center items-stretch">
                     <TemaDnyaCard article={heroArticles[0]} locale={locale} />
                   </div>
                 )}

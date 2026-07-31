@@ -32,7 +32,7 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
   return (
     <Link
       href={`/${locale}/articles/${article.slug.current}`}
-      className="group relative block w-full max-w-[560px] aspect-[16/9] rounded-xl overflow-hidden border border-border/70 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="group relative block w-full max-w-[560px] h-full min-h-[240px] rounded-xl overflow-hidden border border-border/70 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
     >
       {article.coverImage && (
         <Image
