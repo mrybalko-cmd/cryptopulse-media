@@ -64,21 +64,9 @@ export default async function HomePage({ params }: Props) {
           branch, so both variants exist in the same SSR markup — no
           hydration mismatch, and it's just responsive design, not cloaking. */}
       <div className="lg:hidden flex flex-col gap-6 mb-8">
+        {/* Mobile "Тема дня" — same overlay hero as desktop (16:9 here). */}
         {homeSettings.showArticles && heroArticles[0] && (
-          <ArticleCard
-            key={heroArticles[0]._id}
-            title={heroArticles[0].title}
-            excerpt={heroArticles[0].excerpt}
-            slug={heroArticles[0].slug.current}
-            coverImage={heroArticles[0].coverImage}
-            publishedAt={heroArticles[0].publishedAt}
-            readingTime={heroArticles[0].readingTime}
-            badge={heroArticles[0].badge}
-            views={heroArticles[0].views}
-            likes={heroArticles[0].likes}
-            locale={locale}
-            priority
-          />
+          <TemaDnyaCard article={heroArticles[0]} locale={locale} />
         )}
 
         {homeSettings.showArticles && row2Articles.length > 0 && (
