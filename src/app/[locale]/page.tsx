@@ -43,12 +43,24 @@ export default async function HomePage({ params }: Props) {
     : { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
   const authorItems = homeSettings.featuredAuthors;
   const hasPopular = popularItems.length > 0;
+  // Mobile flow slices (kept as-is): hero[0] = Тема дня, hero[1] = second hero,
+  // row2Articles.slice(0,2) = two small cards, row4Articles.slice(0,4) = carousel.
   const heroArticles = articleItems.slice(0, 2);
   const row2Articles = articleItems.slice(2, 5);
   const row4Articles = articleItems.slice(5, 10);
-  const row5Articles = articleItems.slice(10, 15);
-  const row6Articles = articleItems.slice(15, 20);
-  const row7Articles = articleItems.slice(20, 25);
+
+  // Desktop-only contiguous slices — the article cascade must have NO gap:
+  // Тема дня (0) → second row (1,2,3) → rows under the authors block
+  // (4–8, 9–13, 14–18, 19–23), moving left→right then down. The slices above
+  // stay for the mobile flow (which has its own separate "second hero" slot,
+  // so it must not reuse index 1 here or it would duplicate).
+  const desktopRow2 = articleItems.slice(1, 4);
+  const desktopRows = [
+    articleItems.slice(4, 9),
+    articleItems.slice(9, 14),
+    articleItems.slice(14, 19),
+    articleItems.slice(19, 24),
+  ];
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcomingEvents = (calendarEvents.status === 'fulfilled' ? calendarEvents.value : [])
     .filter((e) => e.date >= todayISO)
@@ -209,14 +221,14 @@ export default async function HomePage({ params }: Props) {
                   </div>
                 )}
                 {hasPopular && <PopularList items={popularItems} locale={locale} />}
-                {row2Articles.length > 0 && (
+                {desktopRow2.length > 0 && (
                   <div className="sm:col-span-2 lg:col-span-2 lg:row-start-2 flex justify-center items-stretch">
                     {/* Overlay cards matching "Тема дня"; same max-width (560) so
                         they sit exactly under it, and the grid stretches so the
                         three cards fill this row's height — level with the Pulse
                         widget beside them. */}
                     <div className="grid grid-cols-3 gap-3 w-full max-w-[560px]">
-                      {row2Articles.map((article: any) => (
+                      {desktopRow2.map((article: any) => (
                         <OverlayArticleCard
                           key={article._id}
                           title={article.title}
@@ -247,7 +259,7 @@ export default async function HomePage({ params }: Props) {
 
               {/* Rows 4-7 — same bare-grid treatment as row 2 (no card/border
                   wrapper), just 5 across instead of 3, each its own block. */}
-              {[row4Articles, row5Articles, row6Articles, row7Articles].map((rowArticles, rowIndex) =>
+              {desktopRows.map((rowArticles, rowIndex) =>
                 rowArticles.length > 0 ? (
                   <div key={rowIndex} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                     {rowArticles.map((article: any) => (
