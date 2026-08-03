@@ -139,6 +139,9 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             {isRu ? 'Объём торгов обновляется раз в сутки' : 'Trading volume refreshed once a day'}
           </div>
 
+          <h2 className="text-lg font-bold text-foreground mb-4">
+            {isRu ? 'Рейтинг криптобирж' : 'Exchange ranking'}
+          </h2>
           <ExchangeToolbar sp={sp} locale={locale} />
 
           {ranked.length === 0 ? (

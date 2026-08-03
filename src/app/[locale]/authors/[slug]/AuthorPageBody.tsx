@@ -121,6 +121,9 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
         )}
       </div>
 
+      <h2 className="text-lg font-bold text-foreground mb-4">
+        {isRu ? 'Публикации автора' : 'Author’s publications'}
+      </h2>
       {/* Unified chronological feed — articles and news mixed, visually tagged */}
       {items.length > 0 ? (
         <>

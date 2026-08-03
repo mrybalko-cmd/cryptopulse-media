@@ -114,6 +114,9 @@ export default function AIPageBody({ locale, items, total, page, pageSize }: Pro
       </div>
 
       {/* Feed — articles and news mixed in one chronological, paginated list */}
+      <h2 className="text-lg font-bold text-foreground mb-4">
+        {isRu ? 'Последние материалы об ИИ' : 'Latest AI coverage'}
+      </h2>
       {items.length > 0 ? (
         <>
           <div className="flex flex-col mb-4">

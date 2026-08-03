@@ -156,6 +156,9 @@ export default async function TopicPage({ params }: Props) {
         </p>
       </div>
 
+      <h2 className="text-lg font-bold text-foreground mb-4">
+        {isRu ? 'Статьи по теме' : 'Articles in this topic'}
+      </h2>
       {articles.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {articles.map((article: any, i: number) => (

@@ -80,6 +80,9 @@ export default async function AssetsPage({ params }: Props) {
               : 'In-depth guides to major cryptocurrencies: creation history, key events, price growth and interactive investment calculators.'}
           </p>
 
+          <h2 className="text-lg font-bold text-foreground mb-4">
+            {isRu ? 'Гиды по криптоактивам' : 'Asset guides'}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {COINS.map(asset => {
               const snapshot = prices[asset.coingeckoId];
