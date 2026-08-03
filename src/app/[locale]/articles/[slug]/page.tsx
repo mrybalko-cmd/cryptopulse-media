@@ -109,14 +109,15 @@ export default async function ArticlePage({ params }: Props) {
     .slice(0, 7);
   const banners = await fetchActiveBanners(locale);
 
-  const date = new Date(article.publishedAt).toLocaleDateString(
-    locale === 'ru' ? 'ru-RU' : 'en-US',
-    { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Prague' }
-  );
-  const time = new Date(article.publishedAt).toLocaleTimeString(
-    locale === 'ru' ? 'ru-RU' : 'en-US',
-    { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }
-  );
+  // Unified with the homepage feed: 24-hour time and dot-separated DD.MM.YYYY,
+  // formatted locale-independently (en-GB, h23) so RU and EN render identically.
+  const dtParts = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    timeZone: 'Europe/Prague',
+  }).formatToParts(new Date(article.publishedAt)).reduce((acc, p) => { acc[p.type] = p.value; return acc; }, {} as Record<string, string>);
+  const time = `${dtParts.hour}:${dtParts.minute}`;
+  const date = `${dtParts.day}.${dtParts.month}.${dtParts.year}`;
 
   const wordCount = countBodyWords(article.body);
 
@@ -217,7 +218,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <Calendar size={12} />
-            <span>{date} · {time}</span>
+            <span className="tabular-nums">{time} · {date}</span>
           </div>
           {article.readingTime && (
             <div className="flex items-center gap-1.5 text-xs text-muted">

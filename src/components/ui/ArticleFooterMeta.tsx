@@ -16,8 +16,8 @@ export default function ArticleFooterMeta({
   const isRu = locale === 'ru';
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap mt-8 py-4 border-t border-b border-border">
-      <span className="text-sm text-muted">
-        {isRu ? 'Опубликовано' : 'Published'}: {date} · {time}
+      <span className="text-sm text-muted tabular-nums">
+        {isRu ? 'Опубликовано' : 'Published'}: {time} · {date}
       </span>
       <ShareButtons url={url} title={title} locale={locale} vertical={false} />
     </div>
