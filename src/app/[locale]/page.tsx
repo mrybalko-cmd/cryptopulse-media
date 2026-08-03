@@ -189,6 +189,7 @@ export default async function HomePage({ params }: Props) {
                   views={item.views}
                   likes={item.likes}
                   aiTopic={item.topic === 'ai'}
+                  topic={item.topic}
                 />
               ))}
             </div>
