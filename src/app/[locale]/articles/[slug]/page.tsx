@@ -178,7 +178,7 @@ export default async function ArticlePage({ params }: Props) {
           <div className="rounded-[20px] overflow-hidden mb-8">
             <Image
               src={sanityImageTransform(article.coverImage, { width: 1536 })!}
-              alt={article.coverImageAlt || article.title}
+              alt={article.coverImageAlt || (locale === 'ru' ? `Обложка статьи: ${article.title}` : `Article cover: ${article.title}`)}
               width={dims.width}
               height={dims.height}
               className="w-full h-auto"

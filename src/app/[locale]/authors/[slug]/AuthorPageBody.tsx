@@ -47,7 +47,7 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
       <div className="flex flex-col sm:flex-row gap-6 bg-card border border-border rounded-2xl p-6 sm:p-8 mb-10">
         {author.photo ? (
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shrink-0 border-2 border-border self-center sm:self-start">
-            <Image src={author.photo} alt={author.name} width={128} height={128} className="w-full h-full object-cover" />
+            <Image src={author.photo} alt={isRu ? `Фото автора ${author.name}` : `Photo of ${author.name}`} width={128} height={128} className="w-full h-full object-cover" />
           </div>
         ) : (
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shrink-0 bg-accent/10 border-2 border-border flex items-center justify-center self-center sm:self-start">
