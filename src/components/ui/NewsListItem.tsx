@@ -62,8 +62,8 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         {title}
       </h3>
       <div className="flex items-center justify-between gap-x-3 gap-y-1 mt-1.5 flex-wrap">
-        <span className="text-xs text-muted whitespace-nowrap">
-          {dateStr} <span className="text-muted/60">•</span> {timeStr}
+        <span className="text-xs text-muted whitespace-nowrap tabular-nums">
+          {timeStr} <span className="text-muted/50">·</span> {dateStr}
         </span>
         <div className="flex items-center gap-2 shrink-0">
           {!external && typeof views === 'number' && views > 0 && (
