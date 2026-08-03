@@ -27,6 +27,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const STATIC_DATE = new Date('2026-06-01');
 
+  // Freshest published item — used as lastmod for content listings so they only
+  // advance when real content ships, not on every deploy. Previously every
+  // non-article URL used a build-time `new Date()`, so each redeploy stamped
+  // hundreds of pages as "changed just now"; with frequent deploys that trains
+  // Google to distrust the sitemap's freshness and wastes crawl budget that
+  // should go toward indexing genuinely new pages.
+  const publishedTimes = [...newsRu, ...newsEn, ...articlesRu, ...articlesEn]
+    .map((x: any) => new Date(x.publishedAt).getTime())
+    .filter((t) => !Number.isNaN(t));
+  const latestContentDate = publishedTimes.length ? new Date(Math.max(...publishedTimes)) : STATIC_DATE;
+
   // Listing pages: new content daily
   const listingPaths = ['', '/news', '/articles', '/articles/popular', '/news/popular', '/ai', '/ai/glossary', '/authors', '/exchanges'];
   // Tool/asset pages: content changes but template doesn't
@@ -39,12 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages = [
     ...listingPaths.flatMap(path => [
-      { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
-      { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
+      { url: `${BASE}/ru${path}`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
+      { url: `${BASE}/en${path}`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
     ]),
     ...toolPaths.flatMap(path => [
-      { url: `${BASE}/ru${path}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
-      { url: `${BASE}/en${path}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+      { url: `${BASE}/ru${path}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.7 },
+      { url: `${BASE}/en${path}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.7 },
     ]),
     ...infoPaths.flatMap(path => [
       { url: `${BASE}/ru${path}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.5 },
@@ -83,18 +94,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const glossaryTermPages = GLOSSARY.flatMap(term => [
-    { url: `${BASE}/ru/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: `${BASE}/en/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/ru/glossary/${term.slug}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/en/glossary/${term.slug}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.6 },
   ]);
 
   const aiGlossaryTermPages = AI_GLOSSARY.flatMap(term => [
-    { url: `${BASE}/ru/ai/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: `${BASE}/en/ai/glossary/${term.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/ru/ai/glossary/${term.slug}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/en/ai/glossary/${term.slug}`, lastModified: STATIC_DATE, changeFrequency: 'monthly' as const, priority: 0.6 },
   ]);
 
   const authorPages = (authors as any[]).flatMap((a: any) => [
-    { url: `${BASE}/ru/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
-    { url: `${BASE}/en/authors/${a.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE}/ru/authors/${a.slug}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE}/en/authors/${a.slug}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.7 },
   ]);
 
   // Topic listing pages are secondary filter/navigation views over content
@@ -105,23 +116,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // page itself (see isThin in page.tsx) — mirror that threshold here so
   // a thin topic never ends up noindex'd yet still listed in the sitemap.
   const topicPages = TOPIC_SLUGS.flatMap(topic => [
-    ...((articleTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
-    ...((articleTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/articles/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((articleTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/articles/topic/${topic}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((articleTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/articles/topic/${topic}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
   ]);
 
   const newsTopicPages = NEWS_TOPIC_SLUGS.flatMap(topic => [
-    ...((newsTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
-    ...((newsTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/news/topic/${topic}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((newsTopicCountsRu[topic] ?? 0) >= 3 ? [{ url: `${BASE}/ru/news/topic/${topic}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
+    ...((newsTopicCountsEn[topic] ?? 0) >= 3 ? [{ url: `${BASE}/en/news/topic/${topic}`, lastModified: STATIC_DATE, changeFrequency: 'weekly' as const, priority: 0.4 }] : []),
   ]);
 
   const exchangePages = (exchangeSlugs as { slugRu: string; slugEn: string }[]).flatMap(e => [
-    { url: `${BASE}/ru/exchanges/${e.slugRu}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
-    { url: `${BASE}/en/exchanges/${e.slugEn}`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
+    { url: `${BASE}/ru/exchanges/${e.slugRu}`, lastModified: STATIC_DATE, changeFrequency: 'daily' as const, priority: 0.7 },
+    { url: `${BASE}/en/exchanges/${e.slugEn}`, lastModified: STATIC_DATE, changeFrequency: 'daily' as const, priority: 0.7 },
   ]);
 
   const exchangeNewsPages = (exchangeSlugs as { slugRu: string; slugEn: string }[]).flatMap(e => [
-    { url: `${BASE}/ru/exchanges/${e.slugRu}/news`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.5 },
-    { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.5 },
+    { url: `${BASE}/ru/exchanges/${e.slugRu}/news`, lastModified: STATIC_DATE, changeFrequency: 'daily' as const, priority: 0.5 },
+    { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: STATIC_DATE, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
   return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
