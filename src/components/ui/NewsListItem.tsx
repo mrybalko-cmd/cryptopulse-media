@@ -21,12 +21,16 @@ interface NewsListItemProps {
 
 export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = false, badge, views, likes, aiTopic }: NewsListItemProps) {
   const date = new Date(publishedAt * 1000);
-  const dateStr = date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Prague',
-  });
-  const timeStr = date.toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague',
-  });
+  // Locale-independent timestamp so RU and EN render identically to the
+  // approved design: 24-hour time (no AM/PM) and a dot-separated DD.MM.YYYY
+  // date (not the US M/D/Y with slashes that en-US would produce).
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    timeZone: 'Europe/Prague',
+  }).formatToParts(date).reduce((acc, p) => { acc[p.type] = p.value; return acc; }, {} as Record<string, string>);
+  const timeStr = `${parts.hour}:${parts.minute}`;
+  const dateStr = `${parts.day}.${parts.month}.${parts.year}`;
 
   const className = "group block py-3 px-3 -mx-3 rounded-lg border-b border-border last:border-b-0 hover:bg-foreground/5 hover:shadow-lg hover:shadow-black/10 hover:scale-[1.01] transition-all duration-200";
 
