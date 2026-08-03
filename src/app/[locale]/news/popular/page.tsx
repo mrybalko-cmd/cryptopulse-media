@@ -111,6 +111,7 @@ export default async function PopularNewsPage({ params }: Props) {
               badge={item.badge}
               views={item.views}
               likes={item.likes}
+              topic={item.topic}
             />
           ))}
         </div>

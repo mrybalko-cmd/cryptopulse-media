@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Zap, Pin, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
+import { TOPIC_TAG } from '@/lib/topics';
 
 interface NewsListItemProps {
   title: string;
@@ -17,9 +18,11 @@ interface NewsListItemProps {
   views?: number;
   likes?: number;
   aiTopic?: boolean;
+  topic?: string;
 }
 
-export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = false, badge, views, likes, aiTopic }: NewsListItemProps) {
+export default function NewsListItem({ title, href, external, publishedAt, category, locale, pinned, breaking, ownBadge = false, badge, views, likes, aiTopic, topic }: NewsListItemProps) {
+  const topicTag = topic ? TOPIC_TAG[topic] : undefined;
   const date = new Date(publishedAt * 1000);
   // Locale-independent timestamp so RU and EN render identically to the
   // approved design: 24-hour time (no AM/PM) and a dot-separated DD.MM.YYYY
@@ -66,8 +69,16 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
         {title}
       </h3>
       <div className="flex items-center justify-between gap-x-3 gap-y-1 mt-1.5 flex-wrap">
-        <span className="text-xs text-muted whitespace-nowrap tabular-nums">
-          {timeStr} <span className="text-muted/50">·</span> {dateStr}
+        <span className="flex items-center gap-x-2.5 gap-y-1 flex-wrap min-w-0">
+          <span className="text-xs text-muted whitespace-nowrap tabular-nums">
+            {timeStr} <span className="text-muted/50">·</span> {dateStr}
+          </span>
+          {topicTag && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: topicTag.color }} />
+              {locale === 'ru' ? topicTag.ru : topicTag.en}
+            </span>
+          )}
         </span>
         <div className="flex items-center gap-2 shrink-0">
           {!external && typeof views === 'number' && views > 0 && (

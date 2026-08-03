@@ -703,7 +703,7 @@ export const fetchTopLikedNews = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc, views desc, publishedAt desc) [0...$limit] {
-          _id, title, slug, publishedAt, views, likes, breaking, ownBadge, badge,
+          _id, title, slug, publishedAt, views, likes, breaking, ownBadge, badge, topic,
           "coverImage": coverImage.asset->url
         }`,
         { locale, limit }
