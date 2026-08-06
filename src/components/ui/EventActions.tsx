@@ -75,53 +75,49 @@ export default function EventActions({ event, locale, pageUrl }: Props) {
   };
 
   const btnClass =
-    'w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted hover:text-accent hover:border-accent/40 transition-colors';
+    'w-[26px] h-[26px] rounded-lg border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent/45 hover:bg-accent/10 transition-colors';
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => vote('like')}
-          aria-label={isRu ? 'Нравится' : 'Like'}
-          className={`flex items-center gap-1 px-2 py-1 rounded-full border text-xs transition-colors ${
-            myVote === 'like' ? 'border-positive text-positive bg-positive/10' : 'border-border text-muted hover:text-foreground'
-          }`}
-        >
-          <ThumbsUp size={12} />
-          {likes}
-        </button>
-        <button
-          onClick={() => vote('dislike')}
-          aria-label={isRu ? 'Не нравится' : 'Dislike'}
-          className={`flex items-center gap-1 px-2 py-1 rounded-full border text-xs transition-colors ${
-            myVote === 'dislike' ? 'border-negative text-negative bg-negative/10' : 'border-border text-muted hover:text-foreground'
-          }`}
-        >
-          <ThumbsDown size={12} />
-          {dislikes}
-        </button>
-      </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <button
+        onClick={() => vote('like')}
+        aria-label={isRu ? 'Нравится' : 'Like'}
+        className={`flex items-center gap-1 px-2.5 py-[3px] rounded-full border text-[10.5px] font-semibold tabular-nums transition-colors ${
+          myVote === 'like' ? 'border-positive text-positive bg-positive/10' : 'border-border text-muted hover:text-positive hover:border-positive/50'
+        }`}
+      >
+        <ThumbsUp size={12} />
+        {likes}
+      </button>
+      <button
+        onClick={() => vote('dislike')}
+        aria-label={isRu ? 'Не нравится' : 'Dislike'}
+        className={`flex items-center gap-1 px-2.5 py-[3px] rounded-full border text-[10.5px] font-semibold tabular-nums transition-colors ${
+          myVote === 'dislike' ? 'border-negative text-negative bg-negative/10' : 'border-border text-muted hover:text-negative hover:border-negative/50'
+        }`}
+      >
+        <ThumbsDown size={12} />
+        {dislikes}
+      </button>
 
-      <div className="flex items-center gap-1.5">
-        <button onClick={copyLink} className={btnClass} aria-label={isRu ? 'Скопировать ссылку' : 'Copy link'} title={isRu ? 'Скопировать ссылку' : 'Copy link'}>
-          {copied ? <Check size={13} className="text-positive" /> : <Link2 size={13} />}
+      <button onClick={copyLink} className={btnClass} aria-label={isRu ? 'Скопировать ссылку' : 'Copy link'} title={isRu ? 'Скопировать ссылку' : 'Copy link'}>
+        {copied ? <Check size={13} className="text-positive" /> : <Link2 size={13} />}
+      </button>
+      {canShare && (
+        <button onClick={share} className={btnClass} aria-label={isRu ? 'Отправить' : 'Share'} title={isRu ? 'Отправить' : 'Share'}>
+          <Share2 size={13} />
         </button>
-        {canShare && (
-          <button onClick={share} className={btnClass} aria-label={isRu ? 'Отправить' : 'Share'} title={isRu ? 'Отправить' : 'Share'}>
-            <Share2 size={13} />
-          </button>
-        )}
-        <a
-          href={getGoogleCalendarUrl(title, description, event.date, event.sourceUrl)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={btnClass}
-          aria-label={isRu ? 'Добавить в Google Calendar' : 'Add to Google Calendar'}
-          title={isRu ? 'Добавить в Google Calendar' : 'Add to Google Calendar'}
-        >
-          <CalendarPlus size={13} />
-        </a>
-      </div>
+      )}
+
+      <a
+        href={getGoogleCalendarUrl(title, description, event.date, event.sourceUrl)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ml-auto inline-flex items-center gap-1.5 text-[10.5px] font-bold px-2.5 py-1 rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 transition-colors whitespace-nowrap"
+      >
+        <CalendarPlus size={12} />
+        {isRu ? 'В Google Календарь' : 'Add to Google Calendar'}
+      </a>
     </div>
   );
 }

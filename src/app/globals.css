@@ -40,6 +40,11 @@
   /* Hover color for card titles/links — a muted dark red instead of the
      bright cyan accent (per user preference). */
   --title-hover: #cf4842;
+
+  /* Calendar "medium importance" pill. Amber needs to darken in light mode to
+     stay readable on white — high/low reuse --negative/--muted, which already
+     have per-theme values. */
+  --importance-medium: #eab308;
 }
 
 html.light {
@@ -68,6 +73,8 @@ html.light {
 
   --tema-fill: #f1f4f8;
   --title-hover: #b5362c;
+
+  --importance-medium: #b57400;
 }
 
 @theme inline {
@@ -83,6 +90,7 @@ html.light {
   --color-article-accent-tint: var(--article-accent-tint);
   --color-article-link: var(--article-link);
   --color-share-hover: var(--share-hover-bg);
+  --color-importance-medium: var(--importance-medium);
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
