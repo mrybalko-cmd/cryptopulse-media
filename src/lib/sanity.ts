@@ -453,6 +453,10 @@ export interface PopularItem {
   title: string;
   slug: string;
   views: number;
+  /** Both optional: the widget degrades to a text-only row when a material
+      has no cover or no topic assigned. */
+  topic?: string;
+  coverImage?: string;
 }
 
 // ── Authors ──────────────────────────────────────────────────────────────────
@@ -648,7 +652,8 @@ export const fetchPopularContent = unstable_cache(
     try {
       return await client.fetch(
         `*[(_type == "article" || _type == "news") && language == $locale && publishedAt <= now()] | order(coalesce(views, 0) desc, publishedAt desc) [0...$limit] {
-          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0)
+          _type, _id, title, "slug": slug.current, "views": coalesce(views, 0),
+          topic, "coverImage": coverImage.asset->url
         }`,
         { locale, limit }
       );

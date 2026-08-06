@@ -45,6 +45,16 @@
      stay readable on white — high/low reuse --negative/--muted, which already
      have per-theme values. */
   --importance-medium: #eab308;
+
+  /* "Most read" widget — a layered-glass surface of its own. Kept as tokens
+     rather than Tailwind classes because the panel is a gradient and the rows
+     are translucent, and both need different values per theme. */
+  --popular-panel: linear-gradient(168deg, #212127 0%, #1b1b1f 55%, #191a1e 100%);
+  --popular-glass: rgba(255, 255, 255, 0.045);
+  --popular-glass-line: rgba(255, 255, 255, 0.11);
+  --popular-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  --popular-row-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  --popular-lead-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
 }
 
 html.light {
@@ -75,6 +85,13 @@ html.light {
   --title-hover: #b5362c;
 
   --importance-medium: #b57400;
+
+  --popular-panel: linear-gradient(168deg, #ffffff 0%, #fafbfd 60%, #f6f7fa 100%);
+  --popular-glass: rgba(255, 255, 255, 0.72);
+  --popular-glass-line: rgba(0, 0, 0, 0.07);
+  --popular-shadow: 0 14px 32px rgba(20, 24, 40, 0.09);
+  --popular-row-shadow: 0 4px 10px rgba(20, 24, 40, 0.06);
+  --popular-lead-shadow: 0 10px 22px rgba(20, 24, 40, 0.13);
 }
 
 @theme inline {
