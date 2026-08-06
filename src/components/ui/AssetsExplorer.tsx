@@ -280,7 +280,8 @@ export default function AssetsExplorer({ assets, locale }: { assets: AssetRow[];
   const [query, setQuery] = useState('');
   const [sector, setSector] = useState<AssetSector | 'all'>('all');
   const [sort, setSort] = useState<SortKey>('mcap');
-  const [view, setView] = useState<View>('cards');
+  // Table first: it fits more assets per screen and the numbers line up.
+  const [view, setView] = useState<View>('table');
 
   const sectorCounts = useMemo(() => {
     const counts = {} as Record<AssetSector, number>;
