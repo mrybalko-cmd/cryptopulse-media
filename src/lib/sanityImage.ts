@@ -41,6 +41,24 @@ export function sanityImageTransform(
 }
 
 /**
+ * Builds a 1x/2x `srcSet` for retina screens from a single source asset.
+ * Requests double the width for the 2x entry — no separate upload needed,
+ * as long as the source was uploaded at (at least) 2x the base `width`.
+ * Used on plain `<img>` tags, since Next's `<Image unoptimized>` strips any
+ * manually-provided `srcSet` (see sanityImageTransform's format-negotiation
+ * note above for why `unoptimized` is used here in the first place).
+ */
+export function sanityImageSrcSet(
+  url: string | undefined | null,
+  { width, format = 'webp', quality = 75 }: { width: number; format?: 'webp' | 'jpg'; quality?: number }
+): string | undefined {
+  const src1x = sanityImageTransform(url, { width, format, quality });
+  const src2x = sanityImageTransform(url, { width: width * 2, format, quality });
+  if (!src1x || !src2x) return undefined;
+  return `${src1x} 1x, ${src2x} 2x`;
+}
+
+/**
  * Sanity CDN filenames encode the asset's real pixel dimensions
  * (`<assetId>-1200x630.png`), so the true aspect ratio can be read straight
  * off a resolved `coverImage.asset->url` without a separate metadata query.

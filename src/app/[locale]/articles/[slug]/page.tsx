@@ -3,7 +3,6 @@ export const revalidate = 300;
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import ViewTracker from '@/components/ui/ViewTracker';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
@@ -21,7 +20,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
-import { sanityImageTransform, sanityImageDimensions } from '@/lib/sanityImage';
+import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -177,14 +176,15 @@ export default async function ArticlePage({ params }: Props) {
         const dims = sanityImageDimensions(article.coverImage) ?? { width: 1200, height: 630 };
         return (
           <div className="rounded-[20px] overflow-hidden mb-8">
-            <Image
+            <img
               src={sanityImageTransform(article.coverImage, { width: 1536 })!}
+              srcSet={sanityImageSrcSet(article.coverImage, { width: 1536 })}
               alt={article.coverImageAlt || (locale === 'ru' ? `Обложка статьи: ${article.title}` : `Article cover: ${article.title}`)}
               width={dims.width}
               height={dims.height}
               className="w-full h-auto"
-              priority
-              unoptimized
+              loading="eager"
+              fetchPriority="high"
             />
           </div>
         );

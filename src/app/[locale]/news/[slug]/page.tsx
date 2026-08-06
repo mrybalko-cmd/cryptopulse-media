@@ -3,7 +3,6 @@ export const revalidate = 300;
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import ViewTracker from '@/components/ui/ViewTracker';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
@@ -22,7 +21,7 @@ import SidebarBanner from '@/components/ui/SidebarBanner';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
-import { sanityImageTransform, sanityImageDimensions } from '@/lib/sanityImage';
+import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -178,14 +177,15 @@ export default async function NewsDetailPage({ params }: Props) {
         const dims = sanityImageDimensions(news.coverImage) ?? { width: 1200, height: 630 };
         return (
           <div className="rounded-[20px] overflow-hidden mb-8">
-            <Image
+            <img
               src={sanityImageTransform(news.coverImage, { width: 1536 })!}
+              srcSet={sanityImageSrcSet(news.coverImage, { width: 1536 })}
               alt={news.coverImageAlt || (locale === 'ru' ? `Обложка новости: ${news.title}` : `News cover: ${news.title}`)}
               width={dims.width}
               height={dims.height}
               className="w-full h-auto"
-              priority
-              unoptimized
+              loading="eager"
+              fetchPriority="high"
             />
           </div>
         );
