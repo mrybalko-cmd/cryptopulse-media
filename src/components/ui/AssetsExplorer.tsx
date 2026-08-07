@@ -362,7 +362,9 @@ export default function AssetsExplorer({ assets, locale }: { assets: AssetRow[];
       )}
 
       {/* Search, sort, view */}
-      <div className="flex items-center gap-2.5 flex-wrap py-3 border-b border-border sticky top-14 md:top-[7.5rem] bg-background z-10">
+      {/* Sticks flush to the header: --header-h is the header's measured
+          height, so no strip of scrolling table shows between the two. */}
+      <div className="flex items-center gap-2.5 flex-wrap py-3 border-b border-border sticky top-[var(--header-h)] bg-background z-10">
         <label className="flex-1 min-w-[230px] flex items-center gap-2.5 border border-border bg-card rounded-[11px] px-3.5 py-2.5">
           <Search size={15} className="text-muted shrink-0" />
           <input

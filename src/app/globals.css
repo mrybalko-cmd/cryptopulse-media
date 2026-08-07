@@ -46,6 +46,13 @@
      have per-theme values. */
   --importance-medium: #eab308;
 
+  /* Real rendered height of the sticky <header> (logo row + nav row). Any
+     sticky bar further down the page must offset by exactly this, or the
+     content scrolls through the gap between them — which is what happened on
+     /assets, where a hard-coded 7.5rem sat 18px below a 102px header.
+     Measured, not guessed: keep in sync if Header's padding changes. */
+  --header-h: 57px;
+
   /* "Most read" widget — a layered-glass surface of its own. Kept as tokens
      rather than Tailwind classes because the panel is a gradient and the rows
      are translucent, and both need different values per theme. */
@@ -124,6 +131,13 @@ html {
      that while leaving vertical scroll and the sticky header intact. */
   overflow-x: clip;
   max-width: 100%;
+}
+
+/* The nav row only appears from md up, so the header is taller there. */
+@media (min-width: 768px) {
+  :root {
+    --header-h: 102px;
+  }
 }
 
 body {

@@ -46,7 +46,11 @@ export default function PulseWidget({
     : `Today's Market Pulse: ${data.score} — ${verdict}`;
 
   return (
-    <div className={`bg-card border border-border rounded-lg p-4 flex flex-col relative overflow-hidden ${className}`}>
+    /* Glass surface only — the widget's own design (ECG line, mono score,
+       segments, share row) is deliberately untouched. */
+    <div
+      className={`rounded-[18px] border border-[var(--popular-glass-line)] bg-[var(--popular-glass)] shadow-[inset_0_1px_0_var(--popular-glass-line),var(--popular-shadow)] p-4 flex flex-col relative overflow-hidden ${className}`}
+    >
       {/* layered glow — mirrors the approved share-card treatment, toned down for a small on-site card */}
       <div
         className="absolute -top-10 -left-10 w-32 h-32 rounded-full blur-2xl opacity-20 pointer-events-none"
@@ -62,7 +66,9 @@ export default function PulseWidget({
       {/* Whole info area is one big click target to /pulse — only the share
           icons below get their own separate action, since <a> can't nest
           interactive children. */}
-      <Link href={pulseHref} className="flex flex-col flex-1">
+      {/* justify-center so the ECG block sits centred when the grid stretches
+          this card to match taller neighbours, instead of leaving a gap. */}
+      <Link href={pulseHref} className="flex flex-col flex-1 justify-center">
         <TitleTag className="flex items-center gap-2 text-sm font-bold text-foreground mb-3 relative">
           <span className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse motion-reduce:animate-none" style={{ background: GRAD.b, boxShadow: `0 0 6px ${GRAD.b}` }} aria-hidden="true" />
           {isRu ? 'Пульс рынка' : 'Market Pulse'}

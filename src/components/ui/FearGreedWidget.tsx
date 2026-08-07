@@ -1,12 +1,12 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import GaugeArc from './GaugeArc';
 
 interface Props {
   value: number;
   classification: string;
   locale: string;
+  /** Bigger on the calculators hub, compact in the page headers. */
+  width?: number;
 }
 
 const LABELS: Record<string, { ru: string; en: string }> = {
@@ -25,99 +25,22 @@ function sentimentColor(v: number) {
   return '#2EA043';
 }
 
-function drawArc(canvas: HTMLCanvasElement, value: number) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  const W = canvas.width, H = canvas.height;
-  const cx = W / 2;
-  const cy = H - 4;
-  const r = W / 2 - 7;
-  const pct = value / 100;
-  const color = sentimentColor(value);
+// Fear on the left, greed on the right — the same run of colour the canvas
+// version stepped through, now handed to one SVG gradient.
+const SCALE = ['#E5534B', '#F0883E', '#D29922', '#3FB950', '#2EA043'];
 
-  ctx.clearRect(0, 0, W, H);
-
-  // track (background arc)
-  const isDark = !document.documentElement.classList.contains('light') &&
-    (document.documentElement.classList.contains('dark') ||
-     window.matchMedia('(prefers-color-scheme: dark)').matches);
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, Math.PI, 0);
-  ctx.strokeStyle = isDark ? '#21262D' : '#E2E8F0';
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.stroke();
-
-  // colored segments from left (fear) to right (greed)
-  const segs = 40;
-  for (let i = 0; i < segs; i++) {
-    if (i / segs >= pct) break;
-    const a0 = Math.PI + (i / segs) * Math.PI;
-    const a1 = Math.PI + ((i + 1) / segs) * Math.PI;
-    const t = i / (segs - 1);
-    // interpolate: red→orange→yellow→green
-    const segColors = ['#E5534B','#F0883E','#D29922','#3FB950','#2EA043'];
-    const idx = Math.min(Math.floor(t * (segColors.length - 1)), segColors.length - 2);
-    const frac = t * (segColors.length - 1) - idx;
-    const c0 = hexToRgb(segColors[idx]);
-    const c1 = hexToRgb(segColors[idx + 1]);
-    const r2 = Math.round(c0[0] + (c1[0] - c0[0]) * frac);
-    const g2 = Math.round(c0[1] + (c1[1] - c0[1]) * frac);
-    const b2 = Math.round(c0[2] + (c1[2] - c0[2]) * frac);
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, a0, a1);
-    ctx.strokeStyle = `rgb(${r2},${g2},${b2})`;
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'butt';
-    ctx.stroke();
-  }
-
-  // glow + needle dot
-  const needleAngle = Math.PI + pct * Math.PI;
-  const nx = cx + r * Math.cos(needleAngle);
-  const ny = cy + r * Math.sin(needleAngle);
-
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 10;
-  ctx.beginPath();
-  ctx.arc(nx, ny, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#fff';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(nx, ny, 3.5, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.shadowBlur = 0;
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-export default function FearGreedWidget({ value, classification, locale }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function FearGreedWidget({ value, classification, locale, width = 96 }: Props) {
   const color = sentimentColor(value);
   const label = LABELS[classification]?.[locale === 'ru' ? 'ru' : 'en'] ?? classification;
   const href = `/${locale}/fear-greed`;
   const indexLabel = locale === 'ru' ? 'Индекс страха' : 'Fear & Greed';
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    drawArc(canvasRef.current, value);
-  }, [value]);
 
   return (
     <Link href={href} className="group outline-none focus-visible:ring-2 focus-visible:ring-accent/50 rounded-sm">
       {/* Desktop: full arc widget */}
       <div className="hidden sm:flex flex-col items-center gap-0">
-        <canvas
-          ref={canvasRef}
-          width={96}
-          height={56}
-          className="block"
-          aria-hidden="true"
-        />
+        <GaugeArc value={value} color={color} width={width} gradient={SCALE} id={`fng-${value}-${width}`} />
         <div className="flex items-baseline gap-1.5 -mt-1">
           <span
             className="font-mono text-xl font-bold tabular-nums leading-none"
