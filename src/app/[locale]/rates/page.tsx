@@ -3,7 +3,7 @@ export const revalidate = 120;
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
-import { ArrowLeft } from 'lucide-react';
+import { Lock, MessageCircle, Star } from 'lucide-react';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchEurRates } from '@/lib/eurRates';
 import EurCalculator from '@/components/ui/EurCalculator';
@@ -34,6 +34,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+
+const SAFETY_TIPS = [
+  {
+    key: 'escrow',
+    icon: Lock,
+    color: '#22c55e',
+    title: { ru: 'Только эскроу', en: 'Escrow only' },
+    text: {
+      ru: 'Работайте на площадках, где крипта продавца блокируется до вашего подтверждения оплаты. Нет эскроу — нет сделки.',
+      en: 'Use platforms that lock the seller’s crypto until you confirm payment — no escrow, no deal.',
+    },
+  },
+  {
+    key: 'seller',
+    icon: Star,
+    color: '#f59e0b',
+    title: { ru: 'Проверьте продавца', en: 'Read the seller' },
+    text: {
+      ru: 'Посмотрите рейтинг и число закрытых сделок до первой сделки именно с этим контрагентом.',
+      en: 'Check the rating and how many trades they have closed before your first deal with them.',
+    },
+  },
+  {
+    key: 'chat',
+    icon: MessageCircle,
+    color: '#06b6d4',
+    title: { ru: 'Не выходите из чата', en: 'Stay in the chat' },
+    text: {
+      ru: 'Оплата и подтверждение — только во встроенном чате площадки: это единственная запись, которую примет арбитраж.',
+      en: 'Keep payment and confirmation inside the platform’s own chat — that is the only record a dispute accepts.',
+    },
+  },
+];
 
 const FAQ_RU = [
   { q: 'Как часто обновляются курсы?', a: 'Автоматически, каждые пару минут в течение торгового дня — данные берутся напрямую из публичных API Binance P2P, OKX P2P, Bitstamp, Kraken и Coinbase Exchange.' },
@@ -66,13 +99,51 @@ export default async function RatesPage({ params }: Props) {
 
   const rates = await fetchEurRates();
   const faq = isRu ? FAQ_RU : FAQ_EN;
+  const loc = (isRu ? 'ru' : 'en') as 'ru' | 'en';
+
+  // Numbers for the summary strip: the best quote, who offers it, and how far
+  // the worst venue sits from it — the spread is the reason to compare at all.
+  const bestRate = rates.length ? Math.max(...rates.map((r) => r.rate)) : 0;
+  const worstRate = rates.length ? Math.min(...rates.map((r) => r.rate)) : 0;
+  const bestSource = rates.find((r) => r.rate === bestRate)?.source ?? '';
+  const spreadPct = worstRate ? (((bestRate - worstRate) / worstRate) * 100).toFixed(1) : '0.0';
+
+  /* Was a lone WebPage. The page is a comparison of venues, so it now also
+     declares breadcrumbs and an ItemList — each entry pointing at our own
+     review page for that exchange rather than only off-site. */
+  const pageUrl = `${BASE}/${locale}/rates`;
+  const listedVenues = rates.filter(
+    (r, i, all) => all.findIndex((x) => x.source === r.source) === i
+  );
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: isRu ? 'Курс USDT и USDC к евро' : 'USDT & USDC to EUR rate',
-    url: `${BASE}/${locale}/rates`,
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: isRu ? 'Курс USDT и USDC к евро' : 'USDT & USDC to EUR rate',
+        url: pageUrl,
+        publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: isRu ? 'Главная' : 'Home', item: `${BASE}/${locale}` },
+          { '@type': 'ListItem', position: 2, name: isRu ? 'Курсы' : 'Rates', item: pageUrl },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        name: isRu ? 'Площадки для обмена USDT и USDC на евро' : 'Venues for selling USDT and USDC to euro',
+        numberOfItems: listedVenues.length,
+        itemListElement: listedVenues.map((r, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: r.source,
+          url: r.exchangeSlug ? `${BASE}/${locale}/exchanges/${r.exchangeSlug}` : r.url,
+        })),
+      },
+    ],
   };
   const faqLd = {
     '@context': 'https://schema.org',
@@ -88,37 +159,78 @@ export default async function RatesPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
       <div>
 
-      <Link href={`/${locale}`} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent transition-colors mb-8">
-        <ArrowLeft size={14} />
-        {isRu ? 'На главную' : 'Home'}
-      </Link>
+      {/* Summary strip — the answer before the table: what the best rate is,
+          how far apart the venues sit, and how fresh the numbers are. */}
+      {rates.length > 0 && (
+        <div className="flex items-stretch overflow-x-auto scrollbar-none border-y border-border -mx-4 sm:mx-0 mb-6">
+          <span className="flex items-baseline gap-2 px-4 sm:px-5 py-2.5 border-r border-border whitespace-nowrap">
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-muted">
+              {isRu ? 'Лучший курс' : 'Best rate'}
+            </span>
+            <span className="text-[13px] font-extrabold text-foreground tabular-nums">€{bestRate.toFixed(4)}</span>
+            <span className="text-[11px] font-bold text-positive">{bestSource}</span>
+          </span>
+          <span className="flex items-baseline gap-2 px-4 sm:px-5 py-2.5 border-r border-border whitespace-nowrap">
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-muted">
+              {isRu ? 'Разброс' : 'Spread'}
+            </span>
+            <span className="text-[13px] font-extrabold text-foreground tabular-nums">{spreadPct}%</span>
+          </span>
+          <span className="flex items-baseline gap-2 px-4 sm:px-5 py-2.5 border-r border-border whitespace-nowrap">
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-muted">
+              {isRu ? 'Источников' : 'Sources'}
+            </span>
+            <span className="text-[13px] font-extrabold text-foreground tabular-nums">{rates.length}</span>
+          </span>
+          <span className="flex items-center px-4 sm:px-5 py-2.5 whitespace-nowrap">
+            <span className="text-[10px] text-muted">
+              {isRu ? 'обновляется каждые пару минут' : 'updated every couple of minutes'}
+            </span>
+          </span>
+        </div>
+      )}
 
-      {/* Hero — short and full-width, not squeezed beside the calculator */}
-      <p className="text-xs font-bold uppercase tracking-widest text-accent mb-2">
-        {isRu ? 'Обновляется каждые пару минут' : 'Updated every couple of minutes'}
-      </p>
-      <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight text-balance mb-3">
-        {isRu ? 'Курс USDT и USDC к евро' : 'USDT & USDC to EUR rate'}
+      <nav className="flex items-center gap-1.5 text-xs text-muted mb-4">
+        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
+        <span>›</span>
+        <span className="text-foreground">{isRu ? 'Курсы' : 'Rates'}</span>
+      </nav>
+
+      <h1 className="text-3xl sm:text-[38px] font-extrabold text-foreground leading-[1.08] tracking-tight mb-3 text-balance">
+        {isRu ? (
+          <>Продайте стейблкоины по <span className="text-accent">лучшему курсу</span></>
+        ) : (
+          <>Sell your stablecoins at the <span className="text-accent">best rate today</span></>
+        )}
       </h1>
-      <p className="text-muted text-sm leading-relaxed max-w-xl mb-8">
+      <p className="text-muted text-sm leading-relaxed max-w-2xl mb-7">
         {isRu
-          ? 'Сравниваем реальные курсы P2P и бирж, чтобы вы находили выгодный курс до сделки, а не после.'
-          : 'Comparing live P2P and exchange rates so you find the best deal before you trade, not after.'}
+          ? 'Курсы P2P и бирж для USDT и USDC к евро рядом друг с другом — чтобы найти выгодный вариант до сделки, а не после.'
+          : 'Live P2P and exchange quotes for USDT and USDC to euro, side by side — so you find the better deal before the trade, not after.'}
       </p>
 
-      {/* Calculator — full width, matching the table below it */}
-      <div className="mb-3">
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <h2 className="text-[12.5px] font-extrabold uppercase tracking-wider text-foreground">
+          {isRu ? 'Конвертер' : 'Convert'}
+        </h2>
+        <span className="text-[11px] text-muted">
+          {isRu ? 'курс из таблицы ниже' : 'rate from the table below'}
+        </span>
+      </div>
+      <div className="mb-10">
         <EurCalculator rates={rates} locale={locale} />
       </div>
-      <p className="text-xs text-muted mb-10">
-        {isRu ? 'Курс подтягивается из таблицы ниже — при смене актива результат обновится сразу.' : 'The rate is pulled straight from the table below — it updates as soon as you change the asset.'}
-      </p>
 
       {/* Table */}
       <section className="mb-10">
-        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">
-          {isRu ? 'Курсы сейчас' : 'Current rates'}
-        </h2>
+        <div className="flex items-baseline justify-between gap-3 mb-3">
+          <h2 className="text-[12.5px] font-extrabold uppercase tracking-wider text-foreground">
+            {isRu ? 'Курсы сейчас' : 'Current rates'}
+          </h2>
+          <span className="text-[11px] text-muted">
+            {isRu ? 'обновляется каждые пару минут' : 'updated every couple of minutes'}
+          </span>
+        </div>
         {rates.length > 0 ? (
           <EurRatesTable rates={rates} locale={locale} />
         ) : (
@@ -153,29 +265,31 @@ export default async function RatesPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Safety tips */}
+      {/* Safety tips — icons and two-word titles instead of 01/02/03: these are
+          three equal rules, not steps, so numbering added nothing. */}
       <section className="mb-10">
-        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">
+        <h2 className="text-[12.5px] font-extrabold uppercase tracking-wider text-foreground mb-3">
           {isRu ? 'Как торговать безопаснее' : 'How to trade more safely'}
         </h2>
-        <div className="flex flex-col gap-2">
-          {(isRu
-            ? [
-                'Используйте только площадки со встроенным эскроу — крипта продавца блокируется до вашего подтверждения оплаты.',
-                'Проверяйте рейтинг и количество завершённых сделок продавца перед первой сделкой.',
-                'Никогда не переводите деньги и не подтверждайте оплату вне встроенного чата платформы.',
-              ]
-            : [
-                'Only use platforms with built-in escrow — the seller’s crypto is locked until you confirm payment.',
-                'Check the seller’s rating and completed trade count before your first deal.',
-                'Never send money or confirm payment outside the platform’s own chat.',
-              ]
-          ).map((tip, i) => (
-            <div key={i} className="flex items-start gap-3 text-sm text-muted leading-relaxed">
-              <span className="font-mono text-xs font-bold text-accent shrink-0 mt-0.5">0{i + 1}</span>
-              {tip}
-            </div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {SAFETY_TIPS.map((tip) => {
+            const Icon = tip.icon;
+            return (
+              <div
+                key={tip.key}
+                className="relative overflow-hidden rounded-2xl border border-[var(--popular-glass-line)] bg-[var(--popular-glass)] shadow-[inset_0_1px_0_var(--popular-glass-line),var(--popular-shadow)] p-4"
+              >
+                <span
+                  className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: `${tip.color}29`, color: tip.color, border: `1px solid ${tip.color}4d` }}
+                >
+                  <Icon size={18} />
+                </span>
+                <h3 className="text-[13.5px] font-extrabold text-foreground -tracking-[0.01em] mt-3">{tip.title[loc]}</h3>
+                <p className="text-[11.5px] text-muted leading-relaxed mt-1.5">{tip.text[loc]}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 

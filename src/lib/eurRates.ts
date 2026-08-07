@@ -5,7 +5,12 @@ export interface EurRate {
   rate: number;
   feePct: number;
   type: 'p2p' | 'cex';
+  /** Where to trade — the venue's own site. */
   url: string;
+  /** Our own review page for this venue, when we have one: every source here
+      already exists in /exchanges, so the name links inward and only the
+      "Trade" button leaves the site. */
+  exchangeSlug?: string;
 }
 
 // Rates for selling USDT/USDC into EUR — "you have stablecoins, you want
@@ -30,6 +35,7 @@ async function fetchBinanceP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> 
     return {
       source: 'Binance P2P',
       logo: '/logos/binance.svg',
+      exchangeSlug: 'binance',
       asset,
       rate: Number(price),
       feePct: 0,
@@ -66,6 +72,7 @@ async function fetchOkxP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
     return {
       source: 'OKX P2P',
       logo: '/logos/okx.svg',
+      exchangeSlug: 'okx',
       asset,
       rate: Number(price),
       feePct: 0,
@@ -88,6 +95,7 @@ async function fetchBitstamp(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
     return {
       source: 'Bitstamp',
       logo: '/logos/bitstamp.svg',
+      exchangeSlug: 'bitstamp',
       asset,
       rate: Number(price),
       feePct: 0.3,
@@ -111,6 +119,7 @@ async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
     return {
       source: 'Kraken',
       logo: '/logos/kraken.svg',
+      exchangeSlug: 'kraken',
       asset,
       rate: Number(price),
       feePct: 0.25,
@@ -135,6 +144,7 @@ async function fetchCoinbase(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
     return {
       source: 'Coinbase Exchange',
       logo: '/logos/coinbase.svg',
+      exchangeSlug: 'coinbase',
       asset,
       rate: Number(price),
       feePct: 0.4,

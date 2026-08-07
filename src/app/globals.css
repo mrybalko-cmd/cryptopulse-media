@@ -62,6 +62,13 @@
   --popular-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
   --popular-row-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
   --popular-lead-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+
+  /* Rates page: violet is this section's own accent — the cyan brand colour
+     already means "link" everywhere else, and the converter needed a hue that
+     reads as its own tool rather than as navigation. */
+  --rates-violet: #8b5cf6;
+  --rates-violet-2: #c084fc;
+  --rates-inset: rgba(0, 0, 0, 0.28);
 }
 
 html.light {
@@ -99,6 +106,10 @@ html.light {
   --popular-shadow: 0 14px 32px rgba(20, 24, 40, 0.09);
   --popular-row-shadow: 0 4px 10px rgba(20, 24, 40, 0.06);
   --popular-lead-shadow: 0 10px 22px rgba(20, 24, 40, 0.13);
+
+  --rates-violet: #7c3aed;
+  --rates-violet-2: #a855f7;
+  --rates-inset: rgba(15, 20, 30, 0.05);
 }
 
 @theme inline {
