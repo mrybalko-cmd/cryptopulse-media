@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowRightLeft, Scale } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
+import Sparkline from './Sparkline';
 
 /**
  * A calculator entry that shows its own output instead of describing it. The
@@ -51,10 +52,12 @@ function Shell({
 
       <p className="relative text-[11.5px] text-muted leading-relaxed mb-3">{description}</p>
 
-      <div className="relative rounded-[13px] border border-border bg-card-hover/40 px-[13px] py-3">{children}</div>
+      <div className="relative rounded-[13px] border border-border bg-card-hover/40 px-[13px] py-3 mb-3">{children}</div>
 
       <span
-        className="relative mt-3 self-start inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[12.5px] font-extrabold text-foreground border border-border bg-card transition-colors group-hover:border-[var(--c)]"
+        // mt-auto, not mt-3: the two cards carry different amounts of content,
+        // and the buttons should still line up along the bottom.
+        className="relative mt-auto self-start inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[12.5px] font-extrabold text-foreground border border-border bg-card transition-colors group-hover:border-[var(--c)]"
       >
         {cta}
         <ArrowRight size={13} style={{ color }} />
@@ -72,38 +75,46 @@ function Label({ children }: { children: ReactNode }) {
 export function ConverterCard({
   locale,
   btcPrice,
+  btcSparkline,
+  btcChange7d,
 }: {
   locale: string;
   /** Live BTC/USD, already fetched for the page — no extra request. */
   btcPrice?: number;
+  /** Same response as the price: the week's shape, thinned server-side. */
+  btcSparkline?: number[];
+  btcChange7d?: number;
 }) {
   const isRu = locale === 'ru';
-  const amount = 1000;
-  const converted = btcPrice ? (amount / btcPrice).toFixed(5) : null;
 
   return (
     <Shell
       href={`/${locale}/calculators/converter`}
+      // Cyan stays the converter's own colour on this page — wealth already
+      // owns violet, and two violet cards side by side stop being telling
+      // apart. The violet gradient lives on the figure inside instead.
       color="#06b6d4"
       icon={<ArrowRightLeft size={17} />}
       title={isRu ? 'Конвертер валют' : 'Currency Converter'}
       description={
         isRu
-          ? 'Любая из 20 основных валют в биткоин и другие топовые монеты — по курсу, который стоит прямо сейчас.'
-          : 'Any of 20 major currencies into Bitcoin and other top coins, at the rate showing right now.'
+          ? '15 монет и 20 валют в любом сочетании — включая крипту в крипту. Курс живой, готовые суммы посчитаны.'
+          : '15 coins and 20 currencies in any combination — crypto to crypto included. Live rate, common amounts precomputed.'
       }
       cta={isRu ? 'Открыть конвертер' : 'Open converter'}
     >
-      <Label>{isRu ? 'Актуальный курс' : 'Live rate'}</Label>
-      <span className="flex items-center gap-2 flex-wrap">
-        <span className="rounded-[9px] border border-border bg-card px-2.5 py-[7px] text-[12.5px] text-foreground tabular-nums">
-          1 000
+      <span className="flex items-center gap-3">
+        <span className="min-w-0">
+          <Label>1 BTC</Label>
+          <span className="block text-[19px] font-black tabular-nums -tracking-[0.035em] bg-[linear-gradient(90deg,var(--violet),var(--violet-2))] bg-clip-text text-transparent">
+            {btcPrice ? `$${btcPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : '—'}
+          </span>
         </span>
-        <span className="rounded-[9px] border border-border bg-card px-2.5 py-[7px] text-[12.5px] text-foreground">USD</span>
-        <span className="text-muted text-[13px]">=</span>
-        <span className="font-mono text-[17px] font-extrabold tabular-nums -tracking-[0.02em]" style={{ color: '#06b6d4' }}>
-          {converted ? `${converted} BTC` : '— BTC'}
-        </span>
+        {btcSparkline && btcSparkline.length > 1 && (
+          <span className="ml-auto w-[74px] shrink-0">
+            <Sparkline points={btcSparkline} positive={(btcChange7d ?? 0) >= 0} height={34} />
+          </span>
+        )}
       </span>
     </Shell>
   );

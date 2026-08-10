@@ -66,7 +66,9 @@ export default async function CalculatorsHubPage({ params }: Props) {
 
   // Bitcoin's price feeds the converter card's live example. Same cached call
   // the homepage widgets already make, so this costs nothing extra.
-  const btcPrice = (await fetchTopAssetPrices(['bitcoin']).catch(() => null))?.bitcoin?.current_price;
+  const btcSnapshot = (await fetchTopAssetPrices(['bitcoin']).catch(() => null))?.bitcoin;
+  const btcPrice = btcSnapshot?.current_price;
+  const btcSparkline = btcSnapshot?.sparkline_in_7d?.price.filter((_, i) => i % 4 === 0);
 
   // Years to match each fortune on a reference salary — the same arithmetic
   // the full calculator does, shown here as a preview.
@@ -292,7 +294,12 @@ export default async function CalculatorsHubPage({ params }: Props) {
             {isRu ? 'Калькуляторы' : 'Calculators'}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <ConverterCard locale={locale} btcPrice={btcPrice} />
+            <ConverterCard
+              locale={locale}
+              btcPrice={btcPrice}
+              btcSparkline={btcSparkline}
+              btcChange7d={btcSnapshot?.price_change_percentage_7d_in_currency}
+            />
             <WealthCard locale={locale} people={wealthRows} />
           </div>
 

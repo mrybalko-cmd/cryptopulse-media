@@ -52,3 +52,26 @@ export const CRYPTO_CURRENCIES: CryptoCurrency[] = [
   { id: 'chainlink', symbol: 'LINK', name: { ru: 'Chainlink', en: 'Chainlink' } },
   { id: 'matic-network', symbol: 'MATIC', name: { ru: 'Polygon', en: 'Polygon' } },
 ];
+
+export type ConverterPriceMap = Record<string, Record<string, number>>;
+
+/**
+ * Server-side first paint for the converter. Rendering the pair, the table and
+ * the currency matrix with real numbers matters twice over: no flash of "—",
+ * and the figures are in the HTML where a crawler can actually read them. The
+ * client still refreshes every minute on top of this.
+ */
+export async function fetchConverterPrices(): Promise<ConverterPriceMap> {
+  const ids = CRYPTO_CURRENCIES.map(c => c.id).join(',');
+  const vs = FIAT_CURRENCIES.map(c => c.code).join(',');
+  try {
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=${vs}&include_24hr_change=true`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return {};
+    return await res.json();
+  } catch {
+    return {};
+  }
+}
