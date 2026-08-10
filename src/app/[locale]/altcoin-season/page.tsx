@@ -328,7 +328,7 @@ export default async function AltcoinSeasonPage({ params }: Props) {
           </li>
           <li>
             {isRu ? 'Оригинальная концепция индекса: ' : 'Original index concept: '}
-            <a href="https://www.blockchaincenter.net/en/altcoin-season-index/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            <a href="https://www.blockchaincenter.net/altcoin-season-index/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
               BlockchainCenter.net — Altcoin Season Index
             </a>
           </li>
