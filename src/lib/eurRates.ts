@@ -1,3 +1,7 @@
+
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
 export interface EurRate {
   source: string;
   logo: string;
@@ -22,7 +26,7 @@ export interface EurRate {
 // and other neobanks have no public API for consumer FX rates at all.
 async function fetchBinanceP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
-    const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+    const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ asset, fiat: 'EUR', tradeType: 'SELL', page: 1, rows: 1, payTypes: [] }),
@@ -64,7 +68,7 @@ async function fetchOkxP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
       quoteCurrency: 'EUR',
       baseCurrency: asset.toLowerCase(),
     });
-    const res = await fetch(`https://www.okx.com/v3/c2c/tradingOrders/books?${params}`, { next: { revalidate: 120 } });
+    const res = await fetch(`https://www.okx.com/v3/c2c/tradingOrders/books?${params}`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 120 } });
     if (!res.ok) return null;
     const data = await res.json();
     const price = data?.data?.sell?.[0]?.price;
@@ -87,7 +91,7 @@ async function fetchOkxP2P(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
 async function fetchBitstamp(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
     const pair = `${asset.toLowerCase()}eur`;
-    const res = await fetch(`https://www.bitstamp.net/api/v2/ticker/${pair}/`, { next: { revalidate: 120 } });
+    const res = await fetch(`https://www.bitstamp.net/api/v2/ticker/${pair}/`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 120 } });
     if (!res.ok) return null;
     const data = await res.json();
     const price = data?.last;
@@ -110,7 +114,7 @@ async function fetchBitstamp(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
 async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
     const pair = `${asset}EUR`;
-    const res = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pair}`, { next: { revalidate: 120 } });
+    const res = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pair}`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 120 } });
     if (!res.ok) return null;
     const data = await res.json();
     const result = data?.result?.[Object.keys(data?.result ?? {})[0]];
@@ -133,7 +137,7 @@ async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
 
 async function fetchCoinbase(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
-    const res = await fetch(`https://api.exchange.coinbase.com/products/${asset}-EUR/ticker`, {
+    const res = await fetch(`https://api.exchange.coinbase.com/products/${asset}-EUR/ticker`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       headers: { 'User-Agent': 'CryptoPulse.media rate comparison' },
       next: { revalidate: 120 },
     });

@@ -6,7 +6,7 @@ import ViewTracker from '@/components/ui/ViewTracker';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
-import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
@@ -25,8 +25,11 @@ import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-export function generateStaticParams() {
-  return [];
+// The newest articles prerender; everything older renders on demand and is
+// then cached by ISR. Returning [] meant every single URL was a cold
+// server render on its first request.
+export async function generateStaticParams() {
+  return fetchRecentSlugsForPrerender('article', 60);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

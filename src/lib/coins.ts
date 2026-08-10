@@ -1,3 +1,8 @@
+
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
+
 // Shared coin metadata — single source of truth for /assets, the homepage
 // price widgets, and anywhere else that needs a coin's CoinGecko id, symbol,
 // or display icon. `available` marks whether a full guide page exists at
@@ -187,7 +192,10 @@ export async function fetchTopAssetPrices(coingeckoIds: string[]): Promise<Recor
   if (coingeckoIds.length === 0) return {};
   try {
     const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coingeckoIds.join(',')}&order=market_cap_desc&per_page=${coingeckoIds.length}&page=1&sparkline=true&price_change_percentage=24h,7d`;
-    const res = await fetch(url, { next: { revalidate: ASSET_PRICE_REVALIDATE } });
+    const res = await fetch(url, {
+      next: { revalidate: ASSET_PRICE_REVALIDATE },
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });
     if (!res.ok) return {};
     const data: CoinPriceSnapshot[] = await res.json();
     return Object.fromEntries(data.map(c => [c.id, c]));

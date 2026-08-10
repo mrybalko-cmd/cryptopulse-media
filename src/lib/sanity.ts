@@ -887,6 +887,31 @@ export const fetchExchangeBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['exchanges'] }
 );
 
+/**
+ * Slugs for the newest materials, so the pages a crawler or a reader is most
+ * likely to land on ship as static HTML instead of rendering on first hit.
+ * Older material stays on-demand + ISR — prerendering all of it would grow
+ * the build without helping anything that gets traffic.
+ */
+export async function fetchRecentSlugsForPrerender(
+  type: 'news' | 'article',
+  limit: number
+): Promise<{ locale: string; slug: string }[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    const rows: { language?: string; slug?: string }[] = await client.fetch(
+      `*[_type == $type && defined(slug.current) && defined(publishedAt) && publishedAt <= now()]
+        | order(publishedAt desc)[0...$limit]{ language, "slug": slug.current }`,
+      { type, limit }
+    );
+    return rows
+      .filter(r => r.slug && (r.language === 'ru' || r.language === 'en'))
+      .map(r => ({ locale: r.language as string, slug: r.slug as string }));
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string }[]> {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {

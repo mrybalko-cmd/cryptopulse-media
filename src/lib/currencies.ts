@@ -1,3 +1,8 @@
+
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
+
 export interface FiatCurrency {
   code: string;
   flag: string;
@@ -67,7 +72,7 @@ export async function fetchConverterPrices(): Promise<ConverterPriceMap> {
   try {
     const res = await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=${vs}&include_24hr_change=true`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 }, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) }
     );
     if (!res.ok) return {};
     return await res.json();

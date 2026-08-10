@@ -9,7 +9,7 @@ import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
-import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import LikeButton from '@/components/ui/LikeButton';
@@ -26,8 +26,11 @@ import { truncateDesc, truncateTitle } from '@/lib/metadata';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-export function generateStaticParams() {
-  return [];
+// The newest news prerender; everything older renders on demand and is
+// then cached by ISR. Returning [] meant every single URL was a cold
+// server render on its first request.
+export async function generateStaticParams() {
+  return fetchRecentSlugsForPrerender('news', 80);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

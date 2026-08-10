@@ -2,6 +2,10 @@ import { fetchFearGreedIndex } from './feargreed';
 import { fetchAltcoinSeasonIndex } from './altcoinSeason';
 import { fetchRecentMarketSnapshots, saveMarketSnapshot } from './sanity';
 
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
+
 // Our own composite index — the site's name literally is the metric.
 // 40% Fear & Greed (sentiment) + 30% Altcoin Season (capital rotation risk
 // appetite) + 30% 24h volume momentum (actual trading activity, not just
@@ -42,7 +46,7 @@ function volumeMomentumScore(changePct: number): number {
 
 async function fetchGlobalVolume(): Promise<number | null> {
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/global', { next: { revalidate: 3600 } });
+    const res = await fetch('https://api.coingecko.com/api/v3/global', { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 3600 } });
     if (!res.ok) return null;
     const data = await res.json();
     const vol = data?.data?.total_volume?.usd;

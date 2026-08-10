@@ -1,3 +1,8 @@
+
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
+
 // Our own Altcoin Season Index — no free public API exists for CoinMarketCap's
 // or blockchaincenter.net's version (both require a paid key or scraping a
 // client-rendered page), so this is computed independently from CoinGecko's
@@ -56,7 +61,10 @@ function classify(index: number): AltcoinSeasonData['classification'] {
 export async function fetchAltcoinSeasonIndex(): Promise<AltcoinSeasonData | null> {
   try {
     const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=150&page=1&sparkline=false&price_change_percentage=30d';
-    const res = await fetch(url, { next: { revalidate: 28800 } }); // ~3x/day
+    const res = await fetch(url, {
+      next: { revalidate: 28800 }, // ~3x/day
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });
     if (!res.ok) return null;
     const raw = await res.json();
     if (!Array.isArray(raw)) return null;

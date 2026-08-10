@@ -7,6 +7,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import {
   fetchExchangeBySlug,
+  fetchExchangeSlugsForSitemap,
   fetchExchanges,
   fetchExchangeMentions,
   fetchExchangeReviews,
@@ -20,6 +21,22 @@ import ExchangeRegions from '@/components/ui/ExchangeRegions';
 import ExchangeReviewSection from '@/components/ui/ExchangeReviewSection';
 import ExchangeNewsSection from '@/components/ui/ExchangeNewsSection';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+
+// Every exchange page was rendering on demand on every request — no static
+// params, no revalidate — which made it the slowest page on the site (1.1s
+// TTFB) and the one a crawler is most likely to give up on. There are only a
+// few dozen of them, so all of them prerender.
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const slugs = await fetchExchangeSlugsForSitemap();
+  return slugs.flatMap(s =>
+    [
+      s.slugEn ? { locale: 'en', slug: s.slugEn } : null,
+      s.slugRu ? { locale: 'ru', slug: s.slugRu } : null,
+    ].filter((x): x is { locale: string; slug: string } => x !== null)
+  );
+}
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 

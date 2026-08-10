@@ -1,5 +1,9 @@
 import { fetchExchangesWithCoingeckoIds, updateExchangeVolume } from './sanity';
 
+// Server renders wait on these. A third-party API that stalls must not be
+// able to hold a page open indefinitely, so every call carries a deadline.
+const UPSTREAM_TIMEOUT_MS = 8000;
+
 interface CoinGeckoExchange {
   id: string;
   trade_volume_24h_btc: number;
@@ -7,7 +11,7 @@ interface CoinGeckoExchange {
 
 async function fetchBtcUsdPrice(): Promise<number | null> {
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', { cache: 'no-store' });
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), cache: 'no-store' });
     if (!res.ok) return null;
     const data = await res.json();
     const price = data?.bitcoin?.usd;
@@ -25,7 +29,7 @@ async function fetchExchangeVolumesByCoingeckoId(): Promise<Map<string, number>>
   try {
     const pages = await Promise.all(
       [1, 2].map(page =>
-        fetch(`https://api.coingecko.com/api/v3/exchanges?per_page=100&page=${page}`, { cache: 'no-store' })
+        fetch(`https://api.coingecko.com/api/v3/exchanges?per_page=100&page=${page}`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), cache: 'no-store' })
           .then(res => (res.ok ? res.json() : []))
           .catch(() => [])
       )
