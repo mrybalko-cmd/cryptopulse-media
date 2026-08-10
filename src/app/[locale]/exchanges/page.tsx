@@ -3,9 +3,11 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchExchanges, fetchPopularContent, fetchActiveBanners, type ExchangeRaw } from '@/lib/sanity';
-import { rankExchanges } from '@/lib/exchangeRanking';
+import { splitPinned } from '@/lib/exchangeRanking';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from '@/lib/exchangeFilters';
-import ExchangeCard from '@/components/ui/ExchangeCard';
+import ExchangeTable from '@/components/ui/ExchangeTable';
+import ExchangeFeatured from '@/components/ui/ExchangeFeatured';
+import { formatVolume, slugFor } from '@/components/ui/exchangePresentation';
 import ExchangeToolbar, { type ExchangeSearchParams } from '@/components/ui/ExchangeToolbar';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import PopularList from '@/components/ui/PopularList';
@@ -15,7 +17,6 @@ type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Exchan
 
 const TYPES = ['CEX', 'DEX', 'P2P'];
 const PRODUCT_VALUES = PRODUCT_CATEGORIES.map(p => p.value);
-const VISIBLE = 10;
 
 function toArray(v?: string | string[]): string[] {
   return Array.isArray(v) ? v : v ? [v] : [];
@@ -83,16 +84,22 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
     return true;
   });
 
-  let ranked: (ExchangeRaw & { rank: number })[];
-  if (sortBy === 'year') {
-    ranked = [...filtered].sort((a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999)).map((e, i) => ({ ...e, rank: i + 1 }));
-  } else if (sortBy === 'alpha') {
-    ranked = [...filtered].sort((a, b) => a.name.localeCompare(b.name)).map((e, i) => ({ ...e, rank: i + 1 }));
-  } else {
-    ranked = rankExchanges(filtered);
-  }
-  const visible = ranked.slice(0, VISIBLE);
-  const rest = ranked.slice(VISIBLE);
+  // Paid placements are lifted above the ranking, not sorted into it, so the
+  // numbered list below is always honestly ordered by whatever it says.
+  const { featured, rest: organic } = splitPinned(filtered);
+
+  const sorted =
+    sortBy === 'year'
+      ? [...organic].sort((a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999))
+      : sortBy === 'alpha'
+        ? [...organic].sort((a, b) => a.name.localeCompare(b.name))
+        : [...organic].sort((a, b) => (b.volume24h ?? 0) - (a.volume24h ?? 0));
+  const ranked: (ExchangeRaw & { rank: number })[] = sorted.map((e, i) => ({ ...e, rank: i + 1 }));
+
+  const shown = [...featured, ...ranked];
+  const totalVolume = shown.reduce((sum, e) => sum + (e.volume24h ?? 0), 0);
+  const licensedCount = shown.filter(exchangeHasLicense).length;
+  const maxVolume = Math.max(0, ...shown.map(e => e.volume24h ?? 0));
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -102,6 +109,19 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
       ? 'Рейтинг крупнейших криптобирж по объёму торгов.'
       : 'Ranking of the largest crypto exchanges by trading volume.',
     url: `${BASE}/${locale}/exchanges`,
+  };
+
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: isRu ? 'Рейтинг криптобирж по объёму торгов' : 'Crypto exchanges ranked by trading volume',
+    numberOfItems: shown.length,
+    itemListElement: shown.map((e, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: e.name,
+      url: `${BASE}/${locale}/exchanges/${slugFor(e, locale)}`,
+    })),
   };
 
   const breadcrumbLd = {
@@ -117,6 +137,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
     <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div>
@@ -126,25 +147,45 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             <span className="text-foreground">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</span>
           </nav>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-3">
-            {isRu ? 'Криптобиржи' : 'Crypto Exchanges'}
+          <h1 className="text-[26px] sm:text-[30px] font-extrabold text-foreground leading-[1.08] -tracking-[0.035em] mb-2">
+            {isRu ? 'Криптобиржи — ' : 'Crypto exchanges — '}
+            <span className="text-accent">{isRu ? 'рейтинг по объёму' : 'ranked by volume'}</span>
           </h1>
-          <p className="text-muted text-sm sm:text-base leading-relaxed max-w-2xl mb-2">
+          <p className="text-muted text-sm leading-relaxed max-w-[60ch] mb-4">
             {isRu
-              ? 'Рейтинг по объёму торгов за 24 часа, обновляется автоматически. Продукты, статус лицензий и материалы CryptoPulse по каждой бирже.'
-              : 'Ranked by 24h trading volume, updated automatically. Products, licensing status and CryptoPulse coverage for each exchange.'}
+              ? 'Обновляется автоматически раз в сутки. Продукты, лицензии и материалы CryptoPulse по каждой площадке.'
+              : 'Updated automatically once a day. Products, licensing and CryptoPulse coverage for every venue.'}
           </p>
-          <div className="flex items-center gap-1.5 text-xs text-muted mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-positive shrink-0" />
-            {isRu ? 'Объём торгов обновляется раз в сутки' : 'Trading volume refreshed once a day'}
-          </div>
 
-          <h2 className="text-lg font-bold text-foreground mb-4">
-            {isRu ? 'Рейтинг криптобирж' : 'Exchange ranking'}
-          </h2>
+          {/* Desktop: a summary strip. Mobile: one quiet line — it is a
+              reference figure, not what people come to the page for. */}
+          <div className="hidden sm:flex flex-wrap rounded-[14px] overflow-hidden border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi)] mb-5">
+            {[
+              [isRu ? 'Оборот 24ч' : '24h turnover', formatVolume(totalVolume)],
+              [isRu ? 'Площадок' : 'Venues', String(shown.length)],
+              [isRu ? 'С лицензией' : 'Licensed', String(licensedCount)],
+            ].map(([label, value]) => (
+              <span key={label} className="flex items-baseline gap-2 px-4 py-3 border-r border-[var(--glass-line)]">
+                <span className="text-[9.5px] font-extrabold uppercase tracking-[0.09em] text-muted">{label}</span>
+                <span className="text-[15.5px] font-extrabold tabular-nums -tracking-[0.025em] text-foreground">{value}</span>
+              </span>
+            ))}
+            <span className="flex items-center px-4 py-3 text-[11.5px] text-muted">
+              {isRu ? 'объём обновляется раз в сутки' : 'volume refreshed once a day'}
+            </span>
+          </div>
+          <p className="sm:hidden flex items-center gap-1.5 flex-wrap rounded-xl border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi)] px-3 py-2 text-[11px] text-muted mb-3.5">
+            {isRu ? 'Оборот 24ч' : '24h turnover'} <b className="text-foreground font-extrabold tabular-nums">{formatVolume(totalVolume)}</b>
+            <span className="opacity-40">·</span>
+            <b className="text-foreground font-extrabold tabular-nums">{shown.length}</b> {isRu ? 'площадок' : 'venues'}
+            <span className="opacity-40">·</span>
+            <b className="text-foreground font-extrabold tabular-nums">{licensedCount}</b> {isRu ? 'с лицензией' : 'licensed'}
+          </p>
+
+          <h2 className="sr-only">{isRu ? 'Рейтинг криптобирж' : 'Exchange ranking'}</h2>
           <ExchangeToolbar sp={sp} locale={locale} />
 
-          {ranked.length === 0 ? (
+          {shown.length === 0 ? (
             <p className="text-sm text-muted">
               {all.length === 0
                 ? (isRu ? 'Пока нет добавленных бирж.' : 'No exchanges added yet.')
@@ -152,24 +193,15 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             </p>
           ) : (
             <>
-              <div className="flex flex-col gap-3">
-                {visible.map(exchange => (
-                  <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
-                ))}
-              </div>
-
-              {rest.length > 0 && (
-                <details className="mt-3">
-                  <summary className="cursor-pointer select-none text-center text-sm font-semibold text-accent border border-dashed border-border rounded-lg py-3 list-none">
-                    {isRu ? `Показать ещё ${rest.length} →` : `Show ${rest.length} more →`}
-                  </summary>
-                  <div className="flex flex-col gap-3 mt-3">
-                    {rest.map(exchange => (
-                      <ExchangeCard key={exchange._id} exchange={exchange} locale={locale} />
-                    ))}
-                  </div>
-                </details>
-              )}
+              {featured.map(exchange => (
+                <ExchangeFeatured key={exchange._id} exchange={exchange} locale={locale} />
+              ))}
+              {ranked.length > 0 && <ExchangeTable items={ranked} locale={locale} maxVolume={maxVolume} />}
+              <p className="text-[11px] text-muted mt-2.5">
+                {isRu
+                  ? 'Нажмите на строку, чтобы открыть обзор биржи на CryptoPulse. «Торговать» открывается в новой вкладке.'
+                  : 'Tap a row to open our review of that exchange. “Trade” opens in a new tab.'}
+              </p>
             </>
           )}
 

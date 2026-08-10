@@ -189,6 +189,14 @@ export const articleType = defineType({
       description: 'Ссылка на эту же статью на другом языке — нужна, чтобы переключатель языка вёл на правильный перевод, а не на список статей.',
     }),
     defineField({
+      name: 'unpublishedFrom',
+      title: 'Published at, before it was taken off the site',
+      type: 'datetime',
+      readOnly: true,
+      hidden: true,
+      description: 'Set by the admin panel when a material is taken off the site: the site filters on publishedAt <= now(), so hiding it means clearing publishedAt, and the original date would otherwise be lost. Putting it back restores this exact timestamp.',
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',

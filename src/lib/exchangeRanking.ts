@@ -10,6 +10,24 @@ export interface Rankable {
 // whole merged list (1, 2, 3, 4…), it never restarts after the pinned
 // slots. A pin past its `pinUntil` date is treated as expired and falls
 // back into the organic pool rather than silently staying stuck at #1.
+function isPinActive<T extends Rankable>(item: T, now: number): boolean {
+  return Boolean(item.pinned) && !(item.pinUntil && new Date(item.pinUntil).getTime() < now);
+}
+
+/**
+ * Paid placements are lifted out of the ranking entirely rather than sorted to
+ * the top of it: a pinned exchange with $976M sitting above one with $4.1B
+ * reads as a broken sort. `featured` is rendered as its own slot above the
+ * table, `rest` is numbered purely by whatever the list is sorted on.
+ */
+export function splitPinned<T extends Rankable>(items: T[]): { featured: T[]; rest: T[] } {
+  const now = Date.now();
+  return {
+    featured: items.filter(i => isPinActive(i, now)).sort((a, b) => (a.pinPosition ?? 99) - (b.pinPosition ?? 99)),
+    rest: items.filter(i => !isPinActive(i, now)),
+  };
+}
+
 export function rankExchanges<T extends Rankable>(items: T[]): (T & { rank: number })[] {
   const now = Date.now();
   const isPinActive = (item: T) => item.pinned && !(item.pinUntil && new Date(item.pinUntil).getTime() < now);

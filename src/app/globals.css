@@ -63,12 +63,26 @@
   --popular-row-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
   --popular-lead-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
 
-  /* Rates page: violet is this section's own accent — the cyan brand colour
-     already means "link" everywhere else, and the converter needed a hue that
-     reads as its own tool rather than as navigation. */
-  --rates-violet: #8b5cf6;
-  --rates-violet-2: #c084fc;
+  /* Violet is the secondary accent for data surfaces — the cyan brand colour
+     already means "link" everywhere else, so tools and figures that must read
+     as their own thing (the EUR converter, exchange volumes, partner slots)
+     borrow this instead. Sourced once here; sections alias it. */
+  --violet: #8b5cf6;
+  --violet-2: #c084fc;
+  --rates-violet: var(--violet);
+  --rates-violet-2: var(--violet-2);
   --rates-inset: rgba(0, 0, 0, 0.28);
+
+  /* Glass surface with a lit top edge, per the approved references: a panel
+     tint that darkens downward, a bright hairline along the top, and a colour
+     halo bleeding out from behind the top corners. */
+  --glass-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018));
+  --glass-line: rgba(255, 255, 255, 0.12);
+  --glass-hi: rgba(255, 255, 255, 0.16);
+  --glass-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
+  --glass-hover: rgba(255, 255, 255, 0.055);
+  --halo-violet: color-mix(in srgb, #8b5cf6 62%, transparent);
+  --halo-cyan: color-mix(in srgb, #06b6d4 48%, transparent);
 }
 
 html.light {
@@ -107,9 +121,17 @@ html.light {
   --popular-row-shadow: 0 4px 10px rgba(20, 24, 40, 0.06);
   --popular-lead-shadow: 0 10px 22px rgba(20, 24, 40, 0.13);
 
-  --rates-violet: #7c3aed;
-  --rates-violet-2: #a855f7;
+  --violet: #7c3aed;
+  --violet-2: #a855f7;
   --rates-inset: rgba(15, 20, 30, 0.05);
+
+  --glass-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62));
+  --glass-line: rgba(15, 20, 30, 0.09);
+  --glass-hi: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 18px 40px rgba(20, 24, 40, 0.10);
+  --glass-hover: rgba(15, 20, 30, 0.035);
+  --halo-violet: color-mix(in srgb, #7c3aed 30%, transparent);
+  --halo-cyan: color-mix(in srgb, #0891b2 24%, transparent);
 }
 
 @theme inline {

@@ -5,7 +5,13 @@ import { fetchAdminNewsListPage, ADMIN_LIST_PAGE_SIZE, type AdminListStatusFilte
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { formatDateTime } from '../_shared/formatDateTime';
 import ListSearchBar from '../_shared/ListSearchBar';
-import { duplicateNewsAction } from './actions';
+import ListRow from '../_shared/ListRow';
+import {
+  duplicateNewsAction,
+  unpublishNewsAction,
+  republishNewsAction,
+  deleteNewsFromListAction,
+} from './actions';
 
 function statusOf(n: { publishTiming: string; publishedAt?: string }) {
   if (n.publishTiming === 'draft') return { color: '#8b8d94', label: 'Черновик' };
@@ -75,7 +81,16 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
           {news.map(n => {
             const status = statusOf(n);
             return (
-              <div key={n._id} className="flex items-center gap-2">
+              <ListRow
+                key={n._id}
+                id={n._id}
+                title={n.title}
+                isPublished={n.publishTiming !== 'draft'}
+                duplicateAction={duplicateNewsAction}
+                unpublishAction={unpublishNewsAction}
+                republishAction={republishNewsAction}
+                deleteAction={deleteNewsFromListAction}
+              >
                 <Link
                   href={`/admin/news/${n._id}`}
                   className="flex-1 min-w-0 flex items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
@@ -94,17 +109,7 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
                     {status.label}{status.label !== 'Черновик' ? ` · ${formatDateTime(n.publishedAt)}` : ''}
                   </span>
                 </Link>
-                <form action={duplicateNewsAction}>
-                  <input type="hidden" name="id" value={n._id} />
-                  <button
-                    type="submit"
-                    title="Дублировать как черновик"
-                    className="w-10 h-10 shrink-0 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[15px] hover:border-cyan-500/40 transition-colors"
-                  >
-                    ⧉
-                  </button>
-                </form>
-              </div>
+              </ListRow>
             );
           })}
         </div>

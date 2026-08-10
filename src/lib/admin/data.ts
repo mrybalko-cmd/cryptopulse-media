@@ -574,6 +574,38 @@ export async function deleteNews(id: string) {
   await writeClient.delete(id);
 }
 
+// ---------------- Taking material off the site (news + articles) ----------------
+// Every public query filters on `publishedAt <= now()` and never looks at
+// publishTiming, so the only thing that actually hides a material is clearing
+// publishedAt. That would lose the original date, so it is parked in
+// `unpublishedFrom` and put back verbatim when the material returns — a
+// restored article keeps its real publication date instead of jumping to today.
+
+export async function unpublishDocument(id: string): Promise<void> {
+  const current = await client.fetch<{ publishedAt?: string } | null>(
+    `*[_id == $id][0]{ publishedAt }`,
+    { id }
+  );
+  const patch = writeClient.patch(id).set({ publishTiming: 'draft' }).unset(['publishedAt']);
+  if (current?.publishedAt) patch.set({ unpublishedFrom: current.publishedAt });
+  await patch.commit();
+}
+
+export async function republishDocument(id: string): Promise<void> {
+  const current = await client.fetch<{ unpublishedFrom?: string } | null>(
+    `*[_id == $id][0]{ unpublishedFrom }`,
+    { id }
+  );
+  // No parked date means it never had one (a draft that was never live), so it
+  // goes out now — publishTiming 'now' must never be left without a real
+  // timestamp or the material is invisible to every listing query.
+  await writeClient
+    .patch(id)
+    .set({ publishTiming: 'now', publishedAt: current?.unpublishedFrom ?? new Date().toISOString() })
+    .unset(['unpublishedFrom'])
+    .commit();
+}
+
 // Clones the raw document as-is (keeps images/body/SEO intact) rather than
 // routing through NewsInput/newsSetFields — that pipeline is built for
 // form submissions, not for cloning a document Sanity already has in full.

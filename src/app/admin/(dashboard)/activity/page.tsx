@@ -4,6 +4,8 @@ import { formatPragueDateTime } from '@/lib/admin/timezone';
 
 const ACTION_LABEL: Record<string, { icon: string; label: string; color: string }> = {
   delete: { icon: '✕', label: 'удалил(а)', color: '#ef4444' },
+  unpublish: { icon: '↓', label: 'снял(а) с сайта', color: '#f2a93b' },
+  republish: { icon: '↑', label: 'вернул(а) на сайт', color: '#22c55e' },
   permissions_changed: { icon: '⚙', label: 'изменил(а) права', color: '#06b6d4' },
   user_created: { icon: '+', label: 'добавил(а) сотрудника', color: '#22c55e' },
 };

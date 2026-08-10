@@ -3,6 +3,7 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminNewsById, fetchAuthorOptions, fetchTranslationCandidates } from '@/lib/admin/data';
 import { updateNewsAction, deleteNewsAction } from '../actions';
 import NewsForm from '../NewsForm';
+import { Eye } from 'lucide-react';
 import DeleteButton from '../../_shared/DeleteButton';
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,9 +36,10 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
             href={`/admin/preview/news/${id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[12.5px] font-bold text-[var(--admin-text-secondary)] border border-[var(--admin-border)] rounded-lg px-3.5 py-2 hover:border-cyan-500/40 hover:text-cyan-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[var(--admin-text-secondary)] border border-[var(--admin-border)] rounded-lg px-3.5 py-2 hover:border-cyan-500/40 hover:text-cyan-400 transition-colors"
           >
-            👁 Предпросмотр
+            <Eye size={14} />
+            Предпросмотр
           </a>
           <DeleteButton action={boundDelete} confirmMessage={`Удалить новость «${news.title}» безвозвратно? Это действие нельзя отменить.`} />
         </div>

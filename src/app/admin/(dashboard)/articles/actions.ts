@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createArticle, updateArticle, deleteArticle, duplicateArticle, fetchAdminArticleById, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
+import { createArticle, updateArticle, deleteArticle, duplicateArticle, unpublishDocument, republishDocument, fetchAdminArticleById, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 import { logActivity } from '@/lib/admin/activityLog';
@@ -91,6 +91,39 @@ export async function deleteArticleAction(id: string) {
   await logActivity(session, { action: 'delete', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
   revalidateTag('articles', { expire: 0 });
   redirect('/admin/articles');
+}
+
+// List-row variants: the edit page binds the id into a closure, but a row in a
+// list posts it, so these read it from the form and stay on the list instead of
+// redirecting into the material.
+export async function deleteArticleFromListAction(formData: FormData) {
+  const session = await requireAdminPermission('articles');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminArticleById(id);
+  await deleteArticle(id);
+  await logActivity(session, { action: 'delete', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('articles', { expire: 0 });
+  revalidatePath('/admin/articles');
+}
+
+export async function unpublishArticleAction(formData: FormData) {
+  const session = await requireAdminPermission('articles');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminArticleById(id);
+  await unpublishDocument(id);
+  await logActivity(session, { action: 'unpublish', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('articles', { expire: 0 });
+  revalidatePath('/admin/articles');
+}
+
+export async function republishArticleAction(formData: FormData) {
+  const session = await requireAdminPermission('articles');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminArticleById(id);
+  await republishDocument(id);
+  await logActivity(session, { action: 'republish', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('articles', { expire: 0 });
+  revalidatePath('/admin/articles');
 }
 
 export async function getArticleHistoryAction(id: string) {

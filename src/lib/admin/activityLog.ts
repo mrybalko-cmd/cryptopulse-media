@@ -2,7 +2,7 @@ import { client, writeClient } from '@/lib/sanity';
 import type { AdminSession } from './permissions';
 
 export interface ActivityLogEntry {
-  action: 'delete' | 'permissions_changed' | 'user_created';
+  action: 'delete' | 'unpublish' | 'republish' | 'permissions_changed' | 'user_created';
   entityType: string;
   entityTitle: string;
   entityId?: string;

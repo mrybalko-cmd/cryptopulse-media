@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createNews, updateNews, deleteNews, duplicateNews, fetchAdminNewsById, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
+import { createNews, updateNews, deleteNews, duplicateNews, unpublishDocument, republishDocument, fetchAdminNewsById, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { fetchDocumentHistory, restoreRevision } from '@/lib/admin/history';
 import { logActivity } from '@/lib/admin/activityLog';
@@ -93,6 +93,39 @@ export async function deleteNewsAction(id: string) {
   await logActivity(session, { action: 'delete', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
   revalidateTag('news', { expire: 0 });
   redirect('/admin/news');
+}
+
+// List-row variants: the edit page binds the id into a closure, but a row in a
+// list posts it, so these read it from the form and stay on the list instead of
+// redirecting into the material.
+export async function deleteNewsFromListAction(formData: FormData) {
+  const session = await requireAdminPermission('news');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminNewsById(id);
+  await deleteNews(id);
+  await logActivity(session, { action: 'delete', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('news', { expire: 0 });
+  revalidatePath('/admin/news');
+}
+
+export async function unpublishNewsAction(formData: FormData) {
+  const session = await requireAdminPermission('news');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminNewsById(id);
+  await unpublishDocument(id);
+  await logActivity(session, { action: 'unpublish', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('news', { expire: 0 });
+  revalidatePath('/admin/news');
+}
+
+export async function republishNewsAction(formData: FormData) {
+  const session = await requireAdminPermission('news');
+  const id = String(formData.get('id'));
+  const doc = await fetchAdminNewsById(id);
+  await republishDocument(id);
+  await logActivity(session, { action: 'republish', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
+  revalidateTag('news', { expire: 0 });
+  revalidatePath('/admin/news');
 }
 
 export async function getNewsHistoryAction(id: string) {
