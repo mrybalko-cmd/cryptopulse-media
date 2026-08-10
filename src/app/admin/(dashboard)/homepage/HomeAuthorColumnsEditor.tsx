@@ -159,59 +159,74 @@ export default function HomeAuthorColumnsEditor({
         {previewAuthors.length === 0 ? (
           <p className="text-[12px] text-[var(--admin-text-muted)]">Выберите автора и материалы хотя бы для одной строки, чтобы увидеть предпросмотр.</p>
         ) : (
-          <section
-            className="rounded-xl p-5 sm:p-6"
-            style={{ background: 'linear-gradient(135deg, var(--author-bg-1), var(--author-bg-2))', border: '1px solid var(--author-border)' }}
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="flex items-center gap-2.5 text-base font-bold" style={{ color: 'var(--author-text)' }}>
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'color-mix(in srgb, var(--author-accent) 20%, transparent)' }}>
-                  ✎
+          <div className="relative">
+            {/* Same clear-glass treatment as the live widget: the colour sits
+                behind the pane, and the pane is transparent enough to show it. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -left-[4%] -top-[40px] h-[160px] w-[360px] rounded-full blur-[48px]"
+              style={{ background: 'radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, #8b5cf6 42%, transparent), transparent 70%)' }}
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-[3%] -top-[30px] h-[150px] w-[300px] rounded-full blur-[48px]"
+              style={{ background: 'radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, #06b6d4 34%, transparent), transparent 70%)' }}
+            />
+            <section
+              className="relative rounded-[18px] p-5 border border-white/[0.16] backdrop-blur-[22px]"
+              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012))', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.34)' }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="flex items-center gap-2.5 text-base font-extrabold text-white">
+                  <span className="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 border border-white/[0.16] text-[#c084fc]"
+                    style={{ background: 'linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.04))' }}>
+                    ✎
+                  </span>
+                  {previewLocale === 'ru' ? 'Авторские колонки' : 'From our authors'}
+                </h3>
+                <span className="text-xs font-bold text-[var(--admin-text-muted)]">
+                  {previewLocale === 'ru' ? 'Все авторы →' : 'All authors →'}
                 </span>
-                {previewLocale === 'ru' ? 'Авторские колонки' : 'From our authors'}
-              </h3>
-              <span className="text-xs font-medium" style={{ color: 'var(--author-accent)' }}>
-                {previewLocale === 'ru' ? 'Все авторы →' : 'All authors →'}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-6">
-              {previewAuthors.map(({ author, material }, i) => (
-                <div
-                  key={author._id + i}
-                  className={i > 0 ? 'border-t lg:border-t-0 lg:border-l pt-5 lg:pt-0 lg:pl-5' : ''}
-                  style={i > 0 ? { borderColor: 'var(--author-border)' } : undefined}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    {author.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={`${author.photo}?w=112&h=112&fit=crop`}
-                        alt=""
-                        className="w-14 h-14 rounded-full object-cover border-2 shrink-0"
-                        style={{ borderColor: 'color-mix(in srgb, var(--author-accent) 33%, transparent)' }}
-                      />
-                    ) : (
-                      <div
-                        className="w-14 h-14 rounded-full border-2 flex items-center justify-center shrink-0"
-                        style={{ background: 'color-mix(in srgb, var(--author-accent) 10%, transparent)', borderColor: 'color-mix(in srgb, var(--author-accent) 33%, transparent)' }}
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4">
+                {previewAuthors.map(({ author, material }, i) => (
+                  <div
+                    key={author._id + i}
+                    className={`relative min-w-0 px-4 first:pl-0 last:pr-0 ${
+                      i > 0
+                        ? 'before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-[linear-gradient(180deg,transparent,rgba(255,255,255,.16)_20%,rgba(255,255,255,.16)_80%,transparent)]'
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-[11px] mb-3.5">
+                      <span
+                        className="relative block shrink-0 rounded-full p-[2px] w-[50px] h-[50px]"
+                        style={{ background: 'linear-gradient(140deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 45%, rgba(255,255,255,.16))' }}
                       >
-                        <span className="text-base font-bold" style={{ color: 'var(--author-accent)' }}>{author.name.charAt(0)}</span>
+                        {author.photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={`${author.photo}?w=112&h=112&fit=crop`} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center rounded-full bg-[var(--admin-input)] text-sm font-bold text-[var(--admin-text-muted)]">
+                            {author.name.charAt(0)}
+                          </span>
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-extrabold uppercase tracking-[0.05em] truncate text-white">{author.name}</p>
+                        {(previewLocale === 'ru' ? author.roleRu : author.roleEn) && (
+                          <p className="text-[11px] truncate text-[var(--admin-text-muted)]">{previewLocale === 'ru' ? author.roleRu : author.roleEn}</p>
+                        )}
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-wide truncate" style={{ color: 'var(--author-text)' }}>{author.name}</p>
-                      {(previewLocale === 'ru' ? author.roleRu : author.roleEn) && (
-                        <p className="text-[11px] truncate" style={{ color: 'var(--author-muted)' }}>{previewLocale === 'ru' ? author.roleRu : author.roleEn}</p>
-                      )}
                     </div>
+                    <p className="block text-[12.5px] font-bold leading-[1.35] line-clamp-2 min-h-[37px] text-white">
+                      {material.title}
+                    </p>
                   </div>
-                  <p className="block text-xs font-semibold leading-snug line-clamp-2" style={{ color: 'var(--author-link)' }}>
-                    {material.title}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          </div>
         )}
       </div>
     </>

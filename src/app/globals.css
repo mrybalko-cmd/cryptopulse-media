@@ -12,17 +12,6 @@
   --negative: #ef4444;
   --card-hover: #313135;
 
-  /* Homepage "author columns" block — approved as its own fixed pair
-     (graphite in dark mode, silver in light mode), independent of the
-     --card/--accent tokens above so it doesn't just look like every
-     other card on the page. */
-  --author-bg-1: #2a2d33;
-  --author-bg-2: #1e2126;
-  --author-border: #3a3e46;
-  --author-text: #e8e9eb;
-  --author-muted: #9ca1ab;
-  --author-accent: #94a3b8;
-  --author-link: #b7c1d1;
 
   /* Article-reading accent — deliberately separate from --accent (the
      site's cyan brand color used by nav/buttons/widgets). Sourced from
@@ -83,6 +72,17 @@
   --glass-hover: rgba(255, 255, 255, 0.055);
   --halo-violet: color-mix(in srgb, #8b5cf6 62%, transparent);
   --halo-cyan: color-mix(in srgb, #06b6d4 48%, transparent);
+  --halo-pink: color-mix(in srgb, #ec4899 26%, transparent);
+
+  /* Clear glass — a second, far more transparent tier than --glass-fill above.
+     Used where the panel is meant to be seen *through* rather than read as a
+     surface: it carries almost no fill of its own and relies on backdrop-blur
+     plus a colour halo placed behind it. Without something behind, a pane this
+     transparent is indistinguishable from an opaque one. */
+  --glass-clear: rgba(255, 255, 255, 0.035);
+  --glass-clear-2: rgba(255, 255, 255, 0.012);
+  --glass-edge: rgba(255, 255, 255, 0.16);
+  --glass-edge-lit: rgba(255, 255, 255, 0.34);
 }
 
 html.light {
@@ -96,13 +96,6 @@ html.light {
   --negative: #dc2626;
   --card-hover: #f5f5f6;
 
-  --author-bg-1: #f2f3f5;
-  --author-bg-2: #e3e5e8;
-  --author-border: #d3d6da;
-  --author-text: #2b2e33;
-  --author-muted: #6b707a;
-  --author-accent: #64748b;
-  --author-link: #475569;
 
   --article-accent: #eb5643;
   --article-accent-tint: #fef3f2;
@@ -132,6 +125,14 @@ html.light {
   --glass-hover: rgba(15, 20, 30, 0.035);
   --halo-violet: color-mix(in srgb, #7c3aed 30%, transparent);
   --halo-cyan: color-mix(in srgb, #0891b2 24%, transparent);
+  --halo-pink: color-mix(in srgb, #db2777 14%, transparent);
+
+  /* On white the pane sits *lighter* than the page rather than darker, so the
+     clear tier inverts: more fill, a white edge, and much softer halos. */
+  --glass-clear: rgba(255, 255, 255, 0.55);
+  --glass-clear-2: rgba(255, 255, 255, 0.30);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  --glass-edge-lit: #ffffff;
 }
 
 @theme inline {

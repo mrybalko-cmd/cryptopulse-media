@@ -548,7 +548,13 @@ export interface AuthorWithLatest {
   roleRu?: string;
   roleEn?: string;
   photo?: string;
-  latest: { _type: 'article' | 'news'; title: string; slug: string } | null;
+  latest: {
+    _type: 'article' | 'news';
+    title: string;
+    slug: string;
+    publishedAt?: string;
+    views?: number;
+  } | null;
 }
 
 export interface HomeSettings {
@@ -580,7 +586,7 @@ export const fetchHomeSettings = unstable_cache(
             "roleRu": author->roleRu,
             "roleEn": author->roleEn,
             "photo": author->photo.asset->url,
-            "latest": ${materialField}-> { _type, title, "slug": slug.current }
+            "latest": ${materialField}-> { _type, title, "slug": slug.current, publishedAt, views }
           }
         }`,
         { locale }
