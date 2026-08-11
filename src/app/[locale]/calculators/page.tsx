@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Калькуляторы и показатели — CryptoPulse.media' : 'Calculators & Metrics — CryptoPulse.media';
+  const title = isRu ? 'Калькуляторы и показатели' : 'Calculators & Metrics';
   const description = isRu
     ? 'Индекс страха и жадности, индекс альткоин-сезона, конвертер валют и сравнение богатства — всё в одном месте.'
     : 'Fear & Greed Index, Altcoin Season Index, currency converter, wealth comparison — all in one place.';

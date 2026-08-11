@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Индекс альткоин-сезона — CryptoPulse.media'
-    : 'Altcoin Season Index — CryptoPulse.media';
+    ? 'Индекс альткоин-сезона'
+    : 'Altcoin Season Index';
   const description = isRu
     ? 'Наш собственный индекс альткоин-сезона: сколько из топ-100 криптовалют обгоняют Bitcoin за 30 дней, прямо сейчас, с рейтингом лидеров и аутсайдеров.'
     : 'Our own Altcoin Season Index: what share of the top 100 cryptocurrencies are beating Bitcoin over the last 30 days, right now, with live leaderboards.';

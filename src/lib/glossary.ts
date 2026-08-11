@@ -2,6 +2,12 @@ export interface GlossaryTerm {
   slug: string;
   term: { ru: string; en: string };
   definition: { ru: string; en: string };
+  /** ISO date (YYYY-MM-DD) this term's own text was last rewritten. Set it when
+   *  you edit a single term; the sitemap falls back to the file's commit date
+   *  for terms that don't carry one, so a term is never stamped fresher than it
+   *  is. Terms are being expanded from one-line definitions in batches, and
+   *  each batch should stamp the ones it touches. */
+  updated?: string;
 }
 
 export const GLOSSARY: GlossaryTerm[] = [

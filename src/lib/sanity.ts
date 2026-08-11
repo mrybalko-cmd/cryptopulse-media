@@ -112,7 +112,7 @@ export async function fetchArticles({ limit = 10, locale = 'ru', offset = 0 }: F
   try {
     return await client.fetch(
       `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
+        _id, title, excerpt, slug, publishedAt, updatedAt, topic, readingTime, badge, views, likes,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,
@@ -151,7 +151,7 @@ export async function fetchSanityNews({ limit = 10, locale = 'ru', offset = 0 }:
   try {
     return await client.fetch(
       `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, pinnedUntil, breaking, ownBadge, badge, topic, views, likes,
+        _id, title, excerpt, slug, publishedAt, updatedAt, pinnedUntil, breaking, ownBadge, badge, topic, views, likes,
         "coverImage": coverImage.asset->url
       }`,
       { locale, offset, end: offset + limit }
@@ -467,7 +467,7 @@ export const fetchAuthors = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "author"] | order(name asc) {
-          _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          _id, _updatedAt, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
           "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter
         }`
       );
@@ -632,23 +632,34 @@ export const fetchArticlesByTopic = unstable_cache(
 // the "thin topic" noindex threshold used by the topic pages themselves
 // (see isThin in articles/topic/[topic] and news/topic/[topic] page.tsx)
 // instead of unconditionally listing every topic slug.
-export const fetchTopicCounts = unstable_cache(
-  async (type: 'article' | 'news', locale: string): Promise<Record<string, number>> => {
+export interface TopicStat {
+  count: number;
+  /** publishedAt of the newest item in the topic — the topic listing's real
+   *  lastmod, since that's the only thing that changes its contents. */
+  latest: string | null;
+}
+
+export const fetchTopicStats = unstable_cache(
+  async (type: 'article' | 'news', locale: string): Promise<Record<string, TopicStat>> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return {};
     try {
-      const topics: string[] = await client.fetch(
-        `*[_type == $type && language == $locale && publishedAt <= now() && defined(topic)].topic`,
+      const rows: { topic: string; publishedAt: string }[] = await client.fetch(
+        `*[_type == $type && language == $locale && publishedAt <= now() && defined(topic)]{ topic, publishedAt }`,
         { type, locale }
       );
-      return topics.reduce((acc: Record<string, number>, t: string) => {
-        acc[t] = (acc[t] ?? 0) + 1;
+      return rows.reduce((acc: Record<string, TopicStat>, r) => {
+        const prev = acc[r.topic];
+        acc[r.topic] = {
+          count: (prev?.count ?? 0) + 1,
+          latest: !prev?.latest || r.publishedAt > prev.latest ? r.publishedAt : prev.latest,
+        };
         return acc;
       }, {});
     } catch {
       return {};
     }
   },
-  ['fetchTopicCounts'],
+  ['fetchTopicStats'],
   { revalidate: READ_CACHE_SECONDS }
 );
 
@@ -912,10 +923,16 @@ export async function fetchRecentSlugsForPrerender(
   }
 }
 
-export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string }[]> {
+export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string; _updatedAt: string }[]> {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {
-    return await client.fetch(`*[_type == "exchange"]{ "slugRu": slugRu.current, "slugEn": slugEn.current }`);
+    // _updatedAt is a trustworthy content signal here, unlike on articles and
+    // news, where incrementViews() patches the document on every page view. An
+    // exchange document is written by an editor or by the daily
+    // /api/cron/exchange-volumes job (00:15 UTC) — and a refreshed 24h volume
+    // genuinely is what changed on a page that ranks venues by volume, so a
+    // date that moves daily is accurate rather than inflated.
+    return await client.fetch(`*[_type == "exchange"]{ "slugRu": slugRu.current, "slugEn": slugEn.current, _updatedAt }`);
   } catch {
     return [];
   }

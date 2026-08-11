@@ -1,8 +1,10 @@
 import { createClient } from '@sanity/client';
+// Shared so the address the feed publishes and the one the publisher schema
+// declares can't drift apart.
+import { CONTACT_EMAIL } from '@/lib/organizationSchema';
 
 const BASE = 'https://cryptopulse.media';
 const SITE_NAME = 'CryptoPulse.media';
-const CONTACT_EMAIL = 'info@cryptopulse.media';
 
 export const revalidate = 1800;
 

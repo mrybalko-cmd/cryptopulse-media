@@ -8,6 +8,7 @@ import { routing } from '@/i18n/routing';
 import PriceTicker from '@/components/layout/PriceTicker';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { organizationSchema, ORGANIZATION_ID } from '@/lib/organizationSchema';
 import '../globals.css';
 
 const BASE = 'https://cryptopulse.media';
@@ -73,18 +74,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': `${BASE}/#organization`,
-        name: 'CryptoPulse.media',
-        url: BASE,
-      },
+      organizationSchema(locale),
       {
         '@type': 'WebSite',
         '@id': `${BASE}/#website`,
         name: 'CryptoPulse.media',
         url: BASE,
-        publisher: { '@id': `${BASE}/#organization` },
+        publisher: { '@id': ORGANIZATION_ID },
         inLanguage: locale,
       },
     ],

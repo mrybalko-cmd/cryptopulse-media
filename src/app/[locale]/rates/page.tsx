@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Курс USDT и USDC к евро — сравнение P2P и бирж — CryptoPulse.media'
-    : 'USDT & USDC to EUR rate — P2P and exchange comparison — CryptoPulse.media';
+    ? 'Курс USDT и USDC к евро — сравнение P2P и бирж'
+    : 'USDT & USDC to EUR rate — P2P and exchange comparison';
   const description = isRu
     ? 'Сравниваем курс обмена USDT и USDC на евро в реальном времени — Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase. Находите выгодный курс до сделки.'
     : 'Compare live USDT and USDC to EUR rates — Binance P2P, OKX P2P, Bitstamp, Kraken, Coinbase. Find the best rate before you trade.';

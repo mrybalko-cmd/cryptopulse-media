@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Самые залайканные новости — CryptoPulse.media'
-    : 'Most liked news — CryptoPulse.media';
+    ? 'Самые залайканные новости'
+    : 'Most liked news';
   const description = isRu
     ? 'Новости CryptoPulse.media, которые читатели отметили лайком чаще всего.'
     : 'CryptoPulse.media news stories readers have liked the most.';

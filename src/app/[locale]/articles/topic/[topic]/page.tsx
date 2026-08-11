@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const topicName = isRu ? topicData.ru : topicData.en;
   const title = isRu
-    ? `Статьи по теме: ${topicName} — CryptoPulse.media`
-    : `Articles: ${topicName} — CryptoPulse.media`;
+    ? `Статьи по теме: ${topicName}`
+    : `Articles: ${topicName}`;
   const description = isRu
     ? `Читайте аналитические статьи CryptoPulse.media по теме «${topicName}»: разборы, тренды и экспертные мнения.`
     : `Explore CryptoPulse.media analysis and in-depth articles on ${topicName}: trends, breakdowns, and expert takes.`;

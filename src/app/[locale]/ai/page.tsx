@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'AI & Искусственный интеллект в крипто — CryptoPulse.media'
-    : 'AI & Artificial Intelligence in Crypto — CryptoPulse.media';
+    ? 'AI & Искусственный интеллект в крипто'
+    : 'AI & Artificial Intelligence in Crypto';
   const description = isRu
     ? 'Новости и аналитика об искусственном интеллекте в мире криптовалют и блокчейна. ChatGPT, нейросети, AI-трейдинг, генеративные модели и их влияние на рынок.'
     : 'News and analysis on artificial intelligence in the crypto and blockchain world. ChatGPT, neural networks, AI trading, generative models and their market impact.';

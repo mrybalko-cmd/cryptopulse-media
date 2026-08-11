@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const exchange = await fetchExchangeBySlug(slug, locale);
   if (!exchange) return {};
 
-  const title = isRu ? `Новости ${exchange.name} — CryptoPulse.media` : `${exchange.name} News — CryptoPulse.media`;
+  const title = isRu ? `Новости ${exchange.name}` : `${exchange.name} News`;
   const description = isRu
     ? `Все статьи и новости CryptoPulse, упоминающие ${exchange.name}.`
     : `All CryptoPulse articles and news mentioning ${exchange.name}.`;

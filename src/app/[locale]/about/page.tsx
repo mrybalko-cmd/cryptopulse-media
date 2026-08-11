@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'О нас — CryptoPulse.media' : 'About Us — CryptoPulse.media';
+  const title = isRu ? 'О нас' : 'About Us';
   const description = isRu
     ? 'CryptoPulse.media — независимое крипто-медиа для русскоязычной и европейской аудитории. Новости, аналитика и образовательные материалы без лишнего шума.'
     : 'CryptoPulse.media is an independent crypto media outlet for Russian-speaking and European audiences. News, analysis and educational content without the noise.';
