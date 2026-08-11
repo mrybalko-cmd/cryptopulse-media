@@ -9,6 +9,7 @@ import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } fr
 import ExchangeTable from '@/components/ui/ExchangeTable';
 import ExchangeFeatured from '@/components/ui/ExchangeFeatured';
 import ExchangeRankingNotes from '@/components/ui/ExchangeRankingNotes';
+import ExchangePicks from '@/components/ui/ExchangePicks';
 import { formatVolume, slugFor } from '@/components/ui/exchangePresentation';
 import ExchangeToolbar, { type ExchangeSearchParams } from '@/components/ui/ExchangeToolbar';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -233,6 +234,11 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
                   of chrome, so there was nothing on it to quote even though the
                   figures are real. The lead sentence is generated from the same
                   numbers the table shows, so it cannot drift from them. */}
+              {/* Built from the unfiltered set on purpose: this is a guide to the
+                  whole ranking, so the answers should not shift when a visitor
+                  narrows the table. Each one links to its own filtered view. */}
+              <ExchangePicks exchanges={all} locale={locale} />
+
               <ExchangeRankingNotes
                 isRu={isRu}
                 venueCount={shown.length}
