@@ -43,28 +43,48 @@ export function slugFor(exchange: ExchangeRaw, locale: string): string {
   return locale === 'ru' ? exchange.slugRu : exchange.slugEn;
 }
 
+/**
+ * Size comes from CSS custom properties rather than inline width/height, so a
+ * caller can ask for a different size per breakpoint with `sizeMobile` instead
+ * of rendering the logo twice and hiding one.
+ *
+ * That matters beyond tidiness: this element used to carry an inline
+ * `display: inline-block`, and an inline declaration beats any `md:hidden`
+ * class, so a caller that rendered two sizes got both of them on screen.
+ */
 export function ExchangeLogo({
   exchange,
   size,
+  sizeMobile,
   className = '',
 }: {
   exchange: ExchangeRaw;
   size: number;
+  sizeMobile?: number;
   className?: string;
 }) {
-  const shared = `rounded-[10px] overflow-hidden shrink-0 border border-[var(--glass-line)] shadow-[0_3px_10px_rgba(0,0,0,0.18)] ${className}`;
+  const vars = {
+    '--logo-sm': `${sizeMobile ?? size}px`,
+    '--logo-lg': `${size}px`,
+  } as React.CSSProperties;
+
+  const shared =
+    'rounded-[10px] overflow-hidden shrink-0 border border-[var(--glass-line)] shadow-[0_3px_10px_rgba(0,0,0,0.18)] ' +
+    'w-[var(--logo-sm)] h-[var(--logo-sm)] md:w-[var(--logo-lg)] md:h-[var(--logo-lg)] ' +
+    className;
+
   if (!exchange.logo) {
     return (
       <span
-        className={`${shared} flex items-center justify-center text-white font-black`}
-        style={{ width: size, height: size, background: exchange.logoBg || '#3b82f6', fontSize: size * 0.36 }}
+        className={`${shared} flex items-center justify-center text-white font-black text-[calc(var(--logo-sm)*0.36)] md:text-[calc(var(--logo-lg)*0.36)]`}
+        style={{ ...vars, background: exchange.logoBg || '#3b82f6' }}
       >
         {exchange.name.slice(0, 2).toUpperCase()}
       </span>
     );
   }
   return (
-    <span className={shared} style={{ width: size, height: size, display: 'inline-block' }}>
+    <span className={`${shared} inline-block`} style={vars}>
       <Image
         src={sanityImageTransform(exchange.logo, { width: size * 2 })!}
         alt=""

@@ -126,8 +126,7 @@ export default function ExchangeTable({
 
                   <td className="px-2 md:px-3 py-3 align-middle min-w-0">
                     <span className="flex items-center gap-2.5 md:gap-3 min-w-0">
-                      <ExchangeLogo exchange={exchange} size={30} className="md:hidden rounded-[9px]" />
-                      <ExchangeLogo exchange={exchange} size={34} className="hidden md:block" />
+                      <ExchangeLogo exchange={exchange} size={34} sizeMobile={30} />
                       <span className="min-w-0 flex-1">
                         <span className="block text-[13px] md:text-[13.5px] font-extrabold text-foreground truncate group-hover:text-accent transition-colors">
                           {exchange.name}
