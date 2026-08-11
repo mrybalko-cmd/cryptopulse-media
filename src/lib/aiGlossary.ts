@@ -715,9 +715,88 @@ export const AI_GLOSSARY: GlossaryTerm[] = [
     slug: 'inference',
     term: { ru: 'Инференс', en: 'Inference' },
     definition: {
-      ru: 'Процесс использования уже обученной модели для получения ответа на новый запрос — в отличие от обучения (training), когда модель настраивает свои параметры. Именно инференс происходит каждый раз, когда вы отправляете сообщение чат-боту.',
-      en: 'The process of using an already-trained model to generate a response to a new input — as opposed to training, when the model adjusts its parameters. Inference is what happens every time you send a message to a chatbot.',
+      "ru": "Инференс — работа уже обученной модели: она получает запрос и выдаёт ответ. В отличие от обучения, веса при этом не меняются, и именно за инференс вы платите, пользуясь ИИ-сервисом.",
+      "en": "Inference is a trained model doing its job: it takes a request and produces an answer. Unlike training, the weights do not change, and inference is what you pay for when using an AI service."
     },
+    updated: '2026-08-11',
+    related: [
+      "llm",
+      "model-weights",
+      "token-ai",
+      "context-window",
+      "neural-network",
+      "ai-agent"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Запрос превращается в токены, проходит через все слои модели, и на выходе получается распределение вероятностей для следующего токена. Из него выбирается один, добавляется к тексту, и всё повторяется — токен за токеном, пока ответ не закончится.",
+            "en": "A request becomes tokens, passes through every layer, and out comes a probability distribution for the next token. One is chosen, appended to the text, and the whole thing repeats, token by token, until the answer ends."
+          },
+          {
+            "ru": "Поэтому ответ и печатается постепенно: он в буквальном смысле создаётся по кусочку. И поэтому длинный ответ стоит дороже короткого — работа выполняется заново для каждого токена.",
+            "en": "That is why an answer appears gradually: it is literally being produced piece by piece. And why a long answer costs more than a short one: the work is redone for every token."
+          },
+          {
+            "ru": "Настройка «температуры» управляет выбором из распределения. Ниже — модель чаще берёт самый вероятный вариант и отвечает предсказуемо; выше — допускает менее вероятные, что даёт разнообразие вместе с большим риском ошибки.",
+            "en": "A temperature setting controls how the choice is made. Lower means the model more often takes the likeliest option and answers predictably; higher admits less likely ones, which brings variety along with more risk of error."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что влияет на цену и скорость",
+          "en": "What drives cost and speed"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Считаются вход и выход",
+              "en": "Input and output both count"
+            },
+            "text": {
+              "ru": "Платите и за отправленный контекст, и за сгенерированный ответ, обычно по разным ставкам.",
+              "en": "You pay for the context sent and for the answer generated, usually at different rates."
+            }
+          },
+          {
+            "title": {
+              "ru": "Длинная переписка дорожает",
+              "en": "A long thread gets expensive"
+            },
+            "text": {
+              "ru": "Вся история отправляется заново с каждым сообщением, поэтому стоимость растёт по ходу разговора.",
+              "en": "The whole history is resent with every message, so cost climbs as the conversation goes on."
+            }
+          },
+          {
+            "title": {
+              "ru": "Размер модели решает",
+              "en": "Model size decides"
+            },
+            "text": {
+              "ru": "Модель поменьше отвечает быстрее и дешевле. Для простых задач крупная — это переплата без выигрыша.",
+              "en": "A smaller model answers faster and cheaper. For simple tasks a large one is overpayment with no gain."
+            }
+          },
+          {
+            "title": {
+              "ru": "Кэширование контекста",
+              "en": "Context caching"
+            },
+            "text": {
+              "ru": "Многие провайдеры дешевле считают повторно отправляемую неизменную часть запроса. На длинных промптах экономия заметная.",
+              "en": "Many providers charge less for an unchanged part of a request that is resent. On long prompts the saving is significant."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'embedding',
@@ -897,65 +976,677 @@ export const AI_GLOSSARY: GlossaryTerm[] = [
     slug: 'multimodal-ai',
     term: { ru: 'Мультимодальный ИИ', en: 'Multimodal AI' },
     definition: {
-      ru: 'Модель, способная одновременно понимать и/или генерировать разные типы данных — текст, изображения, аудио и видео — а не только текст. Например, может проанализировать фото и ответить на вопрос о нём текстом.',
-      en: 'A model that can understand and/or generate multiple types of data at once — text, images, audio, and video — rather than just text. For example, it can analyze a photo and answer a question about it in text.',
+      "ru": "Мультимодальная модель работает не только с текстом, но и с изображениями, звуком или видео — в одном и том же механизме. Можно показать ей график и спросить о нём словами, получив текстовый ответ.",
+      "en": "A multimodal model works not only with text but with images, audio or video, inside the same mechanism. You can show it a chart, ask about it in words and get a written answer."
     },
+    updated: '2026-08-11',
+    related: [
+      "llm",
+      "embedding",
+      "transformer",
+      "diffusion-model",
+      "foundation-model",
+      "inference"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Разные типы данных приводятся к общему виду — векторам. Картинка нарезается на фрагменты, каждый превращается в набор чисел, и дальше модель обрабатывает их тем же механизмом внимания, что и слова. Для неё это одна последовательность, а не два разных мира.",
+            "en": "Different data types are brought to a common form: vectors. An image is cut into patches, each becomes a set of numbers, and the model then processes them with the same attention mechanism it uses for words. To it this is one sequence, not two separate worlds."
+          },
+          {
+            "ru": "Отсюда возможность связывать модальности. Модель отвечает на вопрос о содержимом фотографии, читает текст со скриншота, описывает график или находит несоответствие между таблицей и подписью к ней.",
+            "en": "Which is what lets modalities be linked. The model answers a question about a photograph's contents, reads text from a screenshot, describes a chart, or spots a mismatch between a table and its caption."
+          },
+          {
+            "ru": "Изображения дороже текста: одна картинка занимает сотни или тысячи токенов в зависимости от разрешения. При работе с документами это заметно влияет и на стоимость, и на то, сколько поместится в контекст.",
+            "en": "Images cost more than text: a single picture takes hundreds or thousands of tokens depending on resolution. Working with documents, that noticeably affects both the bill and how much fits in the context."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Где это применяют",
+          "en": "Where it is used"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Разбор документов и скриншотов",
+              "en": "Reading documents and screenshots"
+            },
+            "text": {
+              "ru": "Извлечь данные из счёта, таблицы или снимка экрана — самое частое практическое применение.",
+              "en": "Pulling data out of an invoice, a table or a screen capture is the most common practical use."
+            }
+          },
+          {
+            "title": {
+              "ru": "Проверка графиков и схем",
+              "en": "Checking charts and diagrams"
+            },
+            "text": {
+              "ru": "Модель находит расхождение между цифрами в тексте и тем, что показано на изображении.",
+              "en": "The model spots a discrepancy between figures in the text and what an image shows."
+            }
+          },
+          {
+            "title": {
+              "ru": "Доступность",
+              "en": "Accessibility"
+            },
+            "text": {
+              "ru": "Описание изображений словами и распознавание речи закрывают задачи, которые раньше требовали отдельных систем.",
+              "en": "Describing images in words and transcribing speech cover tasks that used to need separate systems."
+            }
+          },
+          {
+            "title": {
+              "ru": "Мелкий текст всё ещё проблема",
+              "en": "Fine print remains a problem"
+            },
+            "text": {
+              "ru": "На плотных таблицах и низком разрешении ошибки чтения обычны. Важные цифры стоит перепроверять.",
+              "en": "On dense tables and low resolution, reading errors are common. Important numbers deserve rechecking."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'rlhf',
     term: { ru: 'RLHF (обучение с подкреплением на основе обратной связи людей)', en: 'RLHF (Reinforcement Learning from Human Feedback)' },
     definition: {
-      ru: 'Метод дообучения модели, при котором люди оценивают качество её ответов, а модель корректируется так, чтобы чаще выдавать ответы, которые люди оценивают выше. Ключевой этап в том, чтобы сделать ИИ-модель полезной и безопасной, а не только технически рабочей.',
-      en: 'A fine-tuning method where humans rate the quality of a model\'s responses, and the model is adjusted to more often produce answers that humans rate highly. It\'s a key step in making an AI model helpful and safe, not just technically functional.',
+      "ru": "RLHF — дообучение модели на человеческих оценках: люди сравнивают варианты ответов, на этих сравнениях учится отдельная модель-судья, и по её оценкам настраивается основная. Так модель учат быть полезной, а не просто правдоподобной.",
+      "en": "RLHF trains a model on human preferences: people compare candidate answers, a separate judge model learns from those comparisons, and the main model is tuned against its scores. It is how a model is taught to be useful rather than merely plausible."
     },
+    updated: '2026-08-11',
+    related: [
+      "fine-tuning",
+      "llm",
+      "foundation-model",
+      "model-weights",
+      "hallucination",
+      "neural-network"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Зачем это нужно",
+          "en": "Why it is needed"
+        },
+        "paragraphs": [
+          {
+            "ru": "После предобучения модель умеет продолжать текст, но не отвечать на вопросы. На «как испечь хлеб» она может выдать список похожих вопросов — потому что в интернете именно так и выглядят страницы. Это правдоподобное продолжение, но бесполезный ответ.",
+            "en": "After pre-training a model can continue text but not answer questions. Asked how to bake bread it might produce a list of similar questions, because that is what such pages look like online. A plausible continuation and a useless answer."
+          },
+          {
+            "ru": "RLHF закрывает этот разрыв. Людям показывают несколько вариантов ответа, они выбирают лучший, и модель настраивается выдавать то, что люди предпочитают. Отсюда привычный формат диалога, отказ от вредных запросов и признание незнания.",
+            "en": "RLHF closes that gap. People are shown several candidate answers, they pick the better one, and the model is tuned toward what people prefer. Hence the familiar conversational format, refusals on harmful requests and admissions of not knowing."
+          },
+          {
+            "ru": "Побочные эффекты тоже отсюда. Склонность соглашаться с собеседником, многословие и осторожные оговорки — это то, что оценщики систематически предпочитали, а модель добросовестно усвоила.",
+            "en": "The side effects come from the same place. A tendency to agree with the user, verbosity and hedged caveats are what raters systematically preferred, and the model dutifully learned it."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Оценки — это чьи-то оценки",
+              "en": "Preferences belong to someone"
+            },
+            "text": {
+              "ru": "Поведение модели отражает вкусы конкретной группы разметчиков и заданные им инструкции.",
+              "en": "A model's manner reflects the tastes of a specific group of raters and the instructions they were given."
+            }
+          },
+          {
+            "title": {
+              "ru": "Полезность и правдивость — разные цели",
+              "en": "Helpful and truthful are different targets"
+            },
+            "text": {
+              "ru": "Уверенный ответ нравится людям больше осторожного, поэтому обучение на предпочтениях само по себе не убирает выдумки.",
+              "en": "People prefer a confident answer to a cautious one, so preference training by itself does not remove invention."
+            }
+          },
+          {
+            "title": {
+              "ru": "Соглашательство — известная проблема",
+              "en": "Sycophancy is a known failure"
+            },
+            "text": {
+              "ru": "Если настаивать на неверном утверждении, модель склонна согласиться. Это прямое следствие обучения на одобрении.",
+              "en": "Push a wrong claim and a model tends to agree. That is a direct consequence of training on approval."
+            }
+          },
+          {
+            "title": {
+              "ru": "Есть более дешёвые варианты",
+              "en": "Cheaper variants exist"
+            },
+            "text": {
+              "ru": "Подходы вроде обучения по прямым предпочтениям дают похожий результат без отдельной модели-судьи.",
+              "en": "Approaches such as direct preference optimisation reach a similar result without a separate judge model."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'diffusion-model',
     term: { ru: 'Диффузионная модель', en: 'Diffusion Model' },
     definition: {
-      ru: 'Тип генеративной модели, которая учится создавать изображения (или другой контент), постепенно «очищая» случайный шум до тех пор, пока не получится осмысленная картинка. Лежит в основе большинства генераторов изображений — Midjourney, Stable Diffusion, DALL-E.',
-      en: 'A type of generative model that learns to create images (or other content) by gradually "cleaning up" random noise until a coherent picture emerges. It underlies most image generators, including Midjourney, Stable Diffusion, and DALL-E.',
+      "ru": "Диффузионная модель создаёт изображение, постепенно убирая шум: начинает со случайных пикселей и за десятки шагов превращает их в картинку, соответствующую запросу. На этом принципе работает большинство генераторов изображений.",
+      "en": "A diffusion model creates an image by gradually removing noise: it starts from random pixels and over dozens of steps turns them into a picture matching the request. Most image generators work this way."
     },
+    updated: '2026-08-11',
+    related: [
+      "neural-network",
+      "multimodal-ai",
+      "embedding",
+      "inference",
+      "model-weights",
+      "foundation-model"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "При обучении к настоящим изображениям пошагово добавляют шум, пока не останется случайность, и модель учится обращать этот процесс — предсказывать, как выглядел кадр на шаг раньше. Научившись этому, она умеет идти от чистого шума к изображению.",
+            "en": "In training, noise is added to real images step by step until only randomness remains, and the model learns to reverse the process, predicting what the frame looked like one step earlier. Having learned that, it can walk from pure noise to an image."
+          },
+          {
+            "ru": "Текстовый запрос направляет этот путь. Описание превращается в вектор, и на каждом шаге очистки модель сдвигает результат в сторону соответствия ему. Поэтому одна и та же формулировка при разном начальном шуме даёт разные картинки.",
+            "en": "A text prompt steers the path. The description becomes a vector, and at every denoising step the model nudges the result toward matching it. Which is why the same wording with different starting noise yields different pictures."
+          },
+          {
+            "ru": "Число шагов определяет компромисс между качеством и скоростью: меньше шагов — быстрее и грубее, больше — дольше и детальнее.",
+            "en": "The number of steps sets the trade-off between quality and speed: fewer steps are faster and rougher, more are slower and finer."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Модель не копирует картинки",
+              "en": "It does not copy pictures"
+            },
+            "text": {
+              "ru": "Она усвоила закономерности, а не хранит исходные изображения. Хотя при переобучении отдельные фрагменты воспроизводятся почти дословно.",
+              "en": "It absorbed patterns rather than storing source images, though overfitting can reproduce individual fragments almost verbatim."
+            }
+          },
+          {
+            "title": {
+              "ru": "Текст на изображениях даётся тяжело",
+              "en": "Text inside images is hard"
+            },
+            "text": {
+              "ru": "Буквы для такой модели — та же текстура, что и всё остальное, поэтому надписи часто выходят искажёнными.",
+              "en": "Letters are just another texture to such a model, which is why captions often come out garbled."
+            }
+          },
+          {
+            "title": {
+              "ru": "Права на результат неочевидны",
+              "en": "Rights to the output are unsettled"
+            },
+            "text": {
+              "ru": "Правовой статус сгенерированных изображений и обучающих данных различается по юрисдикциям и продолжает меняться.",
+              "en": "The legal status of generated images and of training data differs by jurisdiction and keeps changing."
+            }
+          },
+          {
+            "title": {
+              "ru": "Одинаковый запрос — разный результат",
+              "en": "The same prompt, different results"
+            },
+            "text": {
+              "ru": "Повторяемость обеспечивается фиксацией начального шума, а не текстом запроса.",
+              "en": "Reproducibility comes from fixing the starting noise, not from the wording of the prompt."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'foundation-model',
     term: { ru: 'Foundation model (базовая модель)', en: 'Foundation Model' },
     definition: {
-      ru: 'Крупная модель, обученная на широком массиве данных, которая служит основой для множества более узких приложений через дообучение или промптинг — вместо того чтобы обучать отдельную модель под каждую задачу с нуля.',
-      en: 'A large model trained on a broad dataset that serves as the base for many narrower applications through fine-tuning or prompting — instead of training a separate model from scratch for every task.',
+      "ru": "Базовая модель — крупная модель, обученная на широких данных и предназначенная не для одной задачи, а как основа для многих. Её адаптируют промптами, дообучением или инструментами вместо того, чтобы обучать новую с нуля.",
+      "en": "A foundation model is a large model trained on broad data and intended not for one task but as a base for many. It is adapted with prompts, fine-tuning or tools instead of training something new from scratch."
     },
+    updated: '2026-08-11',
+    related: [
+      "llm",
+      "fine-tuning",
+      "model-weights",
+      "rlhf",
+      "multimodal-ai",
+      "neural-network"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Что изменил этот подход",
+          "en": "What the approach changed"
+        },
+        "paragraphs": [
+          {
+            "ru": "Раньше под каждую задачу обучали отдельную модель на размеченных данных: одна для тональности отзывов, другая для классификации писем, третья для перевода. Каждая требовала своего набора данных и своей команды.",
+            "en": "Previously each task got its own model trained on labelled data: one for review sentiment, another for email classification, a third for translation. Each needed its own dataset and its own team."
+          },
+          {
+            "ru": "Базовая модель обучается один раз на огромном общем корпусе, а дальше применяется ко всем этим задачам без переобучения. Стоимость входа для прикладной задачи упала с месяцев работы до нескольких строк запроса.",
+            "en": "A foundation model is trained once on a huge general corpus and then applied to all those tasks without retraining. The cost of entry for an applied problem fell from months of work to a few lines of prompt."
+          },
+          {
+            "ru": "Оборотная сторона — концентрация. Обучение таких моделей по силам единицам компаний, и остальные строят на чужом фундаменте, наследуя его ограничения и смещения.",
+            "en": "The flip side is concentration. Training such models is within reach of a handful of companies, and everyone else builds on someone else's foundation, inheriting its limits and biases."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как их адаптируют",
+          "en": "How they are adapted"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Промпт",
+              "en": "Prompting"
+            },
+            "text": {
+              "ru": "Самый дешёвый способ: задача описывается словами и примерами прямо в запросе. Ничего не меняется в модели.",
+              "en": "The cheapest route: the task is described in words and examples inside the request. Nothing in the model changes."
+            }
+          },
+          {
+            "title": {
+              "ru": "RAG",
+              "en": "RAG"
+            },
+            "text": {
+              "ru": "Добавляет знания, которых у модели не было: свежие или закрытые данные подставляются в контекст.",
+              "en": "Adds knowledge the model lacked: fresh or private data is placed into the context."
+            }
+          },
+          {
+            "title": {
+              "ru": "Дообучение",
+              "en": "Fine-tuning"
+            },
+            "text": {
+              "ru": "Меняет поведение: стиль, формат, узкую специализацию. Дороже промпта, но устойчивее.",
+              "en": "Changes behaviour: style, format, a narrow specialisation. Costlier than prompting and more consistent."
+            }
+          },
+          {
+            "title": {
+              "ru": "Инструменты",
+              "en": "Tools"
+            },
+            "text": {
+              "ru": "Доступ к поиску, коду и внешним системам расширяет возможности, не трогая саму модель.",
+              "en": "Access to search, code and external systems extends what it can do without touching the model."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'chain-of-thought',
     term: { ru: 'Chain-of-thought (цепочка рассуждений)', en: 'Chain-of-Thought' },
     definition: {
-      ru: 'Техника, при которой модель «рассуждает вслух» пошагово перед тем, как дать финальный ответ, вместо того чтобы сразу выдавать результат. Заметно повышает точность на задачах, требующих логики или математики.',
-      en: 'A technique where the model "thinks out loud" step by step before giving its final answer, instead of producing a result immediately. It noticeably improves accuracy on tasks that require logic or math.',
+      "ru": "Цепочка рассуждений — приём, при котором модель проговаривает промежуточные шаги перед ответом. На задачах со счётом и логикой это заметно повышает точность по сравнению с ответом сразу.",
+      "en": "Chain-of-thought is the technique of having a model work through intermediate steps before answering. On counting and logic tasks it measurably improves accuracy compared with answering straight away."
     },
+    updated: '2026-08-11',
+    related: [
+      "prompt-engineering",
+      "llm",
+      "hallucination",
+      "few-shot-learning",
+      "inference",
+      "ai-agent"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Почему это работает",
+          "en": "Why it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Модель тратит примерно одинаковые вычисления на каждый токен. Отвечая сразу, она обязана уместить всю задачу в один шаг. Проговаривая рассуждение, она получает больше шагов на ту же задачу — и каждый следующий опирается на записанный предыдущий.",
+            "en": "A model spends roughly the same computation on every token. Answering immediately forces the whole problem into a single step. Writing out the reasoning gives it more steps for the same problem, each building on the previous one now written down."
+          },
+          {
+            "ru": "Промежуточные шаги играют роль внешней памяти. Модель не держит вычисление «в уме» — она видит его в тексте перед собой, и это заметно снижает число арифметических и логических промахов.",
+            "en": "The intermediate steps act as external memory. The model does not hold the calculation \"in its head\"; it sees it in the text in front of it, which cuts arithmetic and logic slips noticeably."
+          },
+          {
+            "ru": "Побочная польза — проверяемость. Видя ход рассуждения, вы находите, где именно оно свернуло не туда, вместо того чтобы гадать по одному итоговому числу.",
+            "en": "A side benefit is checkability. Seeing the reasoning, you can find where it went wrong instead of guessing from a single final number."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как применять",
+          "en": "How to use it"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Просите шаги до вывода",
+              "en": "Ask for steps before the conclusion"
+            },
+            "text": {
+              "ru": "Формулировка «сначала разбери по шагам, потом дай ответ» работает и на самых простых моделях.",
+              "en": "\"Work through it step by step, then give the answer\" works even on simple models."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не для всех задач",
+              "en": "Not for every task"
+            },
+            "text": {
+              "ru": "На переводе, пересказе и стилистической правке рассуждение только удлиняет ответ и увеличивает счёт.",
+              "en": "On translation, summarising and copy-editing, reasoning only lengthens the answer and raises the bill."
+            }
+          },
+          {
+            "title": {
+              "ru": "Рассуждение можно скрыть",
+              "en": "The reasoning can be hidden"
+            },
+            "text": {
+              "ru": "Попросите изложить ход мысли, а затем выдать только итог — качество останется, а ответ будет коротким.",
+              "en": "Ask it to reason and then output only the conclusion: the quality stays and the answer is short."
+            }
+          },
+          {
+            "title": {
+              "ru": "Правдоподобное рассуждение бывает ложным",
+              "en": "Plausible reasoning can still be wrong"
+            },
+            "text": {
+              "ru": "Записанные шаги не гарантируют верность. Они лишь дают возможность проверить, а не заменяют проверку.",
+              "en": "Written-out steps do not guarantee correctness. They make checking possible; they do not replace it."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'neural-network',
     term: { ru: 'Нейронная сеть', en: 'Neural Network' },
     definition: {
-      ru: 'Математическая модель, устроенная по образцу связей нейронов в мозге: множество слоёв простых вычислительных узлов, которые вместе учатся находить сложные закономерности в данных. Основа практически всех современных систем ИИ.',
-      en: 'A mathematical model loosely inspired by the connections between neurons in the brain: many layers of simple computational units that together learn to find complex patterns in data. It\'s the foundation of nearly all modern AI systems.',
+      "ru": "Нейросеть — вычислительная модель из слоёв простых элементов, связанных числовыми весами. Она ничего не программируется вручную: нужное поведение получается настройкой этих весов на примерах.",
+      "en": "A neural network is a computational model built from layers of simple units connected by numeric weights. Nothing in it is programmed by hand: the behaviour comes from tuning those weights on examples."
     },
+    updated: '2026-08-11',
+    related: [
+      "model-weights",
+      "transformer",
+      "llm",
+      "inference",
+      "fine-tuning",
+      "diffusion-model"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Входные данные проходят через слои. В каждом слое числа умножаются на веса, складываются и пропускаются через простую нелинейную функцию. Ни один элемент по отдельности ничего не «понимает» — поведение возникает из их сочетания.",
+            "en": "Input passes through layers. In each layer numbers are multiplied by weights, summed and pushed through a simple non-linear function. No single unit \"understands\" anything; the behaviour emerges from the combination."
+          },
+          {
+            "ru": "Обучение — это подбор весов. Модели показывают пример, сравнивают её ответ с правильным, вычисляют ошибку и слегка сдвигают все веса в сторону её уменьшения. Повторив это миллионы раз, получают работающую сеть.",
+            "en": "Training is weight-fitting. The model is shown an example, its answer is compared with the correct one, the error is computed and every weight is nudged to reduce it. Repeat that millions of times and you have a working network."
+          },
+          {
+            "ru": "Отсюда главное следствие: объяснить, почему сеть ответила именно так, обычно невозможно. Знание не лежит в конкретном месте, оно размазано по миллиардам чисел.",
+            "en": "Hence the key consequence: explaining why a network gave a particular answer is usually impossible. The knowledge sits nowhere specific; it is spread across billions of numbers."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Данные важнее архитектуры",
+              "en": "Data matters more than architecture"
+            },
+            "text": {
+              "ru": "Качество и состав обучающего набора определяют результат сильнее, чем устройство самой сети.",
+              "en": "The quality and composition of the training set drive the result more than the network's design."
+            }
+          },
+          {
+            "title": {
+              "ru": "Смещения наследуются",
+              "en": "Bias is inherited"
+            },
+            "text": {
+              "ru": "Всё, что систематически встречалось в данных, воспроизведётся в ответах, включая нежелательное.",
+              "en": "Whatever appeared systematically in the data reappears in the answers, including what nobody wanted."
+            }
+          },
+          {
+            "title": {
+              "ru": "Обучение и работа — разные вещи",
+              "en": "Training and running differ"
+            },
+            "text": {
+              "ru": "Обучение стоит дорого и делается однажды. Использование готовой модели на порядки дешевле.",
+              "en": "Training is expensive and happens once. Running a finished model costs orders of magnitude less."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'model-weights',
     term: { ru: 'Веса модели', en: 'Model Weights' },
     definition: {
-      ru: 'Числовые параметры внутри нейросети, которые настраиваются в процессе обучения и определяют, как модель обрабатывает входные данные. «Открытые веса» (open-weight) означает, что эти параметры можно скачать и запускать модель самостоятельно.',
-      en: 'The numeric parameters inside a neural network that are adjusted during training and determine how the model processes input. "Open-weight" means these parameters can be downloaded so anyone can run the model themselves.',
+      "ru": "Веса модели — те самые миллиарды чисел, которые получились в результате обучения. Это и есть модель: архитектура без весов бесполезна, а веса без неё — просто файл.",
+      "en": "Model weights are the billions of numbers that training produced. They are the model: an architecture without weights is useless, and weights without it are just a file."
     },
+    updated: '2026-08-11',
+    related: [
+      "neural-network",
+      "fine-tuning",
+      "foundation-model",
+      "inference",
+      "llm",
+      "transformer"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Открытые и закрытые веса",
+          "en": "Open and closed weights"
+        },
+        "paragraphs": [
+          {
+            "ru": "Часть разработчиков публикует веса: модель можно скачать, запустить у себя, дообучить и изучить. Другая часть держит их у себя, давая доступ только через API. От этого зависит, кому принадлежат ваши данные и что будет, если поставщик изменит условия.",
+            "en": "Some developers publish their weights: the model can be downloaded, run locally, fine-tuned and inspected. Others keep them in-house and give access only through an API. That choice decides who holds your data and what happens if the provider changes terms."
+          },
+          {
+            "ru": "«Открытые веса» — не то же самое, что открытый исходный код. Обучающие данные и сам процесс обучения почти никогда не публикуются, а лицензии часто ограничивают коммерческое использование. Воспроизвести модель с нуля по одним весам нельзя.",
+            "en": "\"Open weights\" is not the same as open source. The training data and the training process are almost never published, and licences often restrict commercial use. Weights alone do not let anyone reproduce the model."
+          },
+          {
+            "ru": "Размер файла весов задаёт требования к железу. Модели поменьше запускаются на обычном ноутбуке, крупные требуют серверных видеокарт — и именно поэтому большинство пользуется API, а не своим сервером.",
+            "en": "The size of the weights file sets the hardware requirement. Smaller models run on an ordinary laptop; large ones need server-grade GPUs, which is why most people use an API rather than their own machine."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что из этого следует",
+          "en": "What follows from it"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Свои веса — свои данные",
+              "en": "Your weights, your data"
+            },
+            "text": {
+              "ru": "Локальный запуск означает, что запросы не покидают вашу инфраструктуру. Для чувствительных данных это часто решающий аргумент.",
+              "en": "Running locally means requests never leave your infrastructure. For sensitive data that is often the deciding argument."
+            }
+          },
+          {
+            "title": {
+              "ru": "Закрытая модель может измениться",
+              "en": "A closed model can change"
+            },
+            "text": {
+              "ru": "Поставщик обновляет модель на своей стороне, и поведение меняется без вашего участия. Скачанные веса — нет.",
+              "en": "A provider updates the model on their side and behaviour shifts without your involvement. Downloaded weights do not."
+            }
+          },
+          {
+            "title": {
+              "ru": "Проверяйте лицензию",
+              "en": "Read the licence"
+            },
+            "text": {
+              "ru": "Доступность скачивания не равна праву на коммерческое использование. Условия у разных моделей расходятся сильно.",
+              "en": "Being downloadable is not the same as being licensed for commercial use. Terms differ substantially between models."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'few-shot-learning',
     term: { ru: 'Few-shot / zero-shot обучение', en: 'Few-shot / Zero-shot Learning' },
     definition: {
-      ru: 'Способность модели выполнять новую задачу, увидев всего несколько примеров (few-shot) или вообще без примеров, только по текстовому описанию задачи (zero-shot) — без дополнительного дообучения на новых данных.',
-      en: 'A model\'s ability to perform a new task after seeing just a few examples (few-shot) or with no examples at all, based purely on a text description of the task (zero-shot) — without any additional training on new data.',
+      "ru": "Few-shot — приём, при котором в запрос кладут несколько примеров нужного ответа, и модель повторяет их формат. Zero-shot — тот же запрос без примеров, только с инструкцией.",
+      "en": "Few-shot means putting a handful of example answers into the request so the model copies their format. Zero-shot is the same request with instructions only and no examples."
     },
+    updated: '2026-08-11',
+    related: [
+      "prompt-engineering",
+      "llm",
+      "fine-tuning",
+      "context-window",
+      "chain-of-thought",
+      "inference"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Модель ничему не учится в процессе — веса не меняются. Примеры просто оказываются в контексте, и продолжение текста естественным образом наследует их структуру. Формально это не обучение, а очень точное указание формата.",
+            "en": "The model learns nothing in the process; the weights do not change. The examples simply sit in the context, and the continuation naturally inherits their structure. Strictly it is not learning but a very precise statement of the format."
+          },
+          {
+            "ru": "Поэтому пара образцов работает лучше абзаца объяснений. Показать, как должен выглядеть ответ, почти всегда короче и надёжнее, чем описать это словами.",
+            "en": "Which is why a couple of samples beat a paragraph of explanation. Showing what an answer should look like is almost always shorter and more reliable than describing it."
+          },
+          {
+            "ru": "Обратная сторона: модель копирует и то, чего вы не имели в виду. Если во всех примерах ответ начинается с глагола или уложен в две строки, она сочтёт это частью задания.",
+            "en": "The flip side: the model copies what you did not intend as well. If every example starts with a verb or fits two lines, it will treat that as part of the brief."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как составлять примеры",
+          "en": "How to choose examples"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Два-три достаточно",
+              "en": "Two or three is enough"
+            },
+            "text": {
+              "ru": "Больше примеров занимают контекст и редко улучшают результат после третьего.",
+              "en": "More examples consume context and rarely improve the result past the third."
+            }
+          },
+          {
+            "title": {
+              "ru": "Включите сложный случай",
+              "en": "Include a hard case"
+            },
+            "text": {
+              "ru": "Пример с исключением объясняет границы задачи лучше, чем три одинаково простых.",
+              "en": "One example containing an exception conveys the task's boundaries better than three easy ones."
+            }
+          },
+          {
+            "title": {
+              "ru": "Следите за случайными закономерностями",
+              "en": "Watch for accidental patterns"
+            },
+            "text": {
+              "ru": "Одинаковая длина, порядок или тон во всех примерах будут воспроизведены как требование.",
+              "en": "Matching length, order or tone across all examples will be reproduced as a requirement."
+            }
+          },
+          {
+            "title": {
+              "ru": "Если примеров нужно много — это дообучение",
+              "en": "If you need many, that is fine-tuning"
+            },
+            "text": {
+              "ru": "Десятки примеров в каждом запросе стоят денег и места. Устойчивое поведение дешевле зашить дообучением.",
+              "en": "Dozens of examples in every request cost money and space. Persistent behaviour is cheaper to bake in by fine-tuning."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'agi',
@@ -1048,9 +1739,88 @@ export const AI_GLOSSARY: GlossaryTerm[] = [
     slug: 'vector-database',
     term: { ru: 'Векторная база данных', en: 'Vector Database' },
     definition: {
-      ru: 'База данных, оптимизированная для хранения и быстрого поиска эмбеддингов (векторов) по смысловой близости, а не по точному текстовому совпадению. Ключевой компонент систем RAG и семантического поиска.',
-      en: 'A database optimized for storing and quickly searching embeddings (vectors) by semantic similarity rather than exact text matches. It\'s a key component of RAG systems and semantic search.',
+      "ru": "Векторная база — хранилище эмбеддингов, умеющее быстро находить ближайшие по смыслу записи. Это техническая основа RAG: именно она отвечает на вопрос, какие фрагменты подставить модели в контекст.",
+      "en": "A vector database stores embeddings and finds the closest ones by meaning, fast. It is the technical basis of RAG: it answers the question of which fragments to place into the model's context."
     },
+    updated: '2026-08-11',
+    related: [
+      "embedding",
+      "rag",
+      "llm",
+      "ai-agent",
+      "inference",
+      "context-window"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Обычная база ищет точные совпадения: строку, число, диапазон. Векторная ищет ближайших соседей в пространстве из сотен измерений — то есть записи, похожие по смыслу, а не по написанию.",
+            "en": "An ordinary database looks for exact matches: a string, a number, a range. A vector database looks for nearest neighbours in a space of hundreds of dimensions, meaning records similar in meaning rather than in spelling."
+          },
+          {
+            "ru": "Точный перебор всех векторов при миллионах записей слишком медленный, поэтому используется приближённый поиск: он жертвует небольшой долей точности ради ответа за миллисекунды. Этот компромисс настраивается.",
+            "en": "Exhaustive comparison across millions of records is too slow, so approximate search is used: it gives up a small share of accuracy for an answer in milliseconds. That trade-off is configurable."
+          },
+          {
+            "ru": "Отдельная база нужна не всегда. При небольших объёмах расширения к обычным СУБД справляются, и заводить отдельную систему стоит, когда счёт идёт на сотни тысяч фрагментов.",
+            "en": "A dedicated database is not always necessary. At modest volumes, extensions to ordinary relational systems cope, and a separate one earns its place when fragments run into the hundreds of thousands."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что решает качество",
+          "en": "What decides quality"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Нарезка документов",
+              "en": "How documents are chunked"
+            },
+            "text": {
+              "ru": "Слишком мелкие фрагменты теряют контекст, слишком крупные размывают поиск. Это главная настройка всей схемы.",
+              "en": "Chunks too small lose context, chunks too large blur retrieval. This is the main knob in the design."
+            }
+          },
+          {
+            "title": {
+              "ru": "Одна модель эмбеддингов",
+              "en": "One embedding model"
+            },
+            "text": {
+              "ru": "Индексация и поиск должны идти одной моделью. Сменили её — базу нужно строить заново.",
+              "en": "Indexing and querying must use the same model. Change it and the store has to be rebuilt."
+            }
+          },
+          {
+            "title": {
+              "ru": "Фильтры по метаданным",
+              "en": "Metadata filters"
+            },
+            "text": {
+              "ru": "Дата, автор, раздел рядом с вектором позволяют сузить поиск до актуального, а не искать по всему архиву.",
+              "en": "A date, an author or a section stored alongside the vector narrows retrieval to what is current instead of the whole archive."
+            }
+          },
+          {
+            "title": {
+              "ru": "Гибридный поиск обычно лучше",
+              "en": "Hybrid search usually wins"
+            },
+            "text": {
+              "ru": "Сочетание векторного поиска с обычным по ключевым словам находит и смысл, и точные термины вроде артикулов.",
+              "en": "Combining vector search with plain keyword search catches both meaning and exact terms like part numbers."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'mcp',
