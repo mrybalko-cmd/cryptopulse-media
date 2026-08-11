@@ -85,18 +85,282 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'basics',
     term: { ru: 'Биткоин', en: 'Bitcoin' },
     definition: {
-      ru: 'Первая и самая известная криптовалюта, созданная в 2009 году анонимным автором (или группой) под псевдонимом Сатоши Накамото. Работает без центрального банка или посредников — все транзакции записываются в общедоступный блокчейн.',
-      en: 'The first and most well-known cryptocurrency, created in 2009 by an anonymous author (or group) under the pseudonym Satoshi Nakamoto. It works without a central bank or intermediaries — every transaction is recorded on a public blockchain.',
+      "ru": "Биткоин — первая криптовалюта, запущенная в 2009 году автором под псевдонимом Сатоши Накамото. Работает без банка и посредников: транзакции проверяет сеть независимых компьютеров, а всего монет будет не больше 21 миллиона.",
+      "en": "Bitcoin is the first cryptocurrency, launched in 2009 by an author writing as Satoshi Nakamoto. It runs without a bank or intermediaries: a network of independent computers verifies transactions, and there will never be more than 21 million coins."
     },
+    updated: '2026-08-11',
+    related: [
+      "blockchain",
+      "mining",
+      "halving",
+      "proof-of-work",
+      "satoshi",
+      "genesis-block"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Все переводы записываются в общий журнал — блокчейн, копии которого хранят тысячи узлов по миру. Новые записи собираются в блоки примерно каждые десять минут, и каждый блок ссылается на предыдущий, поэтому переписать прошлое незаметно невозможно.",
+            "en": "Every transfer is written into a shared ledger, the blockchain, copies of which are kept by thousands of nodes worldwide. New entries are gathered into blocks roughly every ten minutes, and each block references the one before it, so rewriting the past cannot go unnoticed."
+          },
+          {
+            "ru": "Право записать очередной блок разыгрывается майнингом: компьютеры перебирают варианты, пока не найдут подходящий, и тратят на это электричество. Победитель получает награду новыми монетами — именно так они и появляются.",
+            "en": "The right to write the next block is contested through mining: computers grind through candidates until one fits, spending electricity to do it. The winner is paid in new coins, which is the only way coins come into existence."
+          },
+          {
+            "ru": "Владение сводится к ключам. Монеты не лежат в кошельке — в блокчейне записано, какому адресу они принадлежат, а приватный ключ доказывает право ими распорядиться. Потерянный ключ означает потерянные монеты, вернуть их некому.",
+            "en": "Ownership comes down to keys. Coins do not sit in a wallet; the blockchain records which address they belong to, and a private key proves the right to move them. A lost key means lost coins, with nobody to appeal to."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Сколько всего монет",
+          "en": "How many coins there are"
+        },
+        "example": {
+          "setup": {
+            "ru": "Эмиссия задана кодом и сокращается вдвое примерно каждые четыре года.",
+            "en": "Issuance is set in code and halves roughly every four years."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Предел выпуска",
+                "en": "Hard cap"
+              },
+              "value": {
+                "ru": "21 000 000 BTC",
+                "en": "21,000,000 BTC"
+              }
+            },
+            {
+              "label": {
+                "ru": "Награда за блок с 2024 года",
+                "en": "Block reward since 2024"
+              },
+              "value": {
+                "ru": "3,125 BTC",
+                "en": "3.125 BTC"
+              }
+            },
+            {
+              "label": {
+                "ru": "Блоков в сутки",
+                "en": "Blocks per day"
+              },
+              "value": {
+                "ru": "≈ 144",
+                "en": "≈ 144"
+              }
+            }
+          ],
+          "total": {
+            "label": {
+              "ru": "Новых монет в сутки",
+              "en": "New coins per day"
+            },
+            "value": {
+              "ru": "≈ 450 BTC",
+              "en": "≈ 450 BTC"
+            }
+          },
+          "outcome": {
+            "ru": "Последняя монета будет добыта около 2140 года. Дробится биткоин до одной стомиллионной — эта доля называется сатоши, и расчёты в сети идут именно в ней.",
+            "en": "The last coin will be mined around 2140. Bitcoin divides down to one hundred-millionth of a coin, a unit called a satoshi, and the network actually counts in those."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Анонимности нет",
+              "en": "It is not anonymous"
+            },
+            "text": {
+              "ru": "Адреса не содержат имени, но вся история переводов публична навсегда. Связав адрес с личностью один раз, аналитик видит и всё остальное.",
+              "en": "Addresses carry no name, but the full transfer history is public forever. Tie an address to a person once and an analyst sees everything else too."
+            }
+          },
+          {
+            "title": {
+              "ru": "Перевод необратим",
+              "en": "Transfers are final"
+            },
+            "text": {
+              "ru": "Отправив монеты не на тот адрес, отменить операцию нельзя: в сети нет стороны, которая могла бы это сделать.",
+              "en": "Send to the wrong address and there is no undo: the network has no party able to perform one."
+            }
+          },
+          {
+            "title": {
+              "ru": "Волатильность — норма",
+              "en": "Volatility is the baseline"
+            },
+            "text": {
+              "ru": "Движения по 5–10% за сутки для биткоина обычны, а просадки на 70% от пика случались в каждом рыночном цикле.",
+              "en": "Daily moves of 5–10% are ordinary, and drawdowns of 70% from a peak have happened in every market cycle."
+            }
+          },
+          {
+            "title": {
+              "ru": "Комиссия не зависит от суммы",
+              "en": "The fee ignores the amount"
+            },
+            "text": {
+              "ru": "Платят за место в блоке, а не за размер перевода: отправка $50 и $5 млн стоит примерно одинаково.",
+              "en": "You pay for space in a block, not for the size of the transfer: sending $50 and $5m costs about the same."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'blockchain',
     category: 'tech',
     term: { ru: 'Блокчейн', en: 'Blockchain' },
     definition: {
-      ru: 'Распределённая база данных, состоящая из цепочки блоков с информацией о транзакциях. Каждый новый блок ссылается на предыдущий, что делает изменение прошлых записей практически невозможным без согласия всей сети.',
-      en: 'A distributed database made up of a chain of blocks containing transaction data. Each new block references the previous one, which makes altering past records nearly impossible without the agreement of the entire network.',
+      "ru": "Блокчейн — общая база данных, которую одновременно хранят тысячи независимых компьютеров. Записи собираются в блоки, каждый блок ссылается на предыдущий, и изменить старую запись нельзя, не сломав всю цепочку после неё.",
+      "en": "A blockchain is a shared database held simultaneously by thousands of independent computers. Records are gathered into blocks, each block references the one before it, and an old record cannot be altered without breaking the whole chain after it."
     },
+    updated: '2026-08-11',
+    related: [
+      "hash",
+      "node",
+      "transaction",
+      "consensus-mechanism",
+      "smart-contract",
+      "block-explorer"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Каждый блок содержит список транзакций и хеш предыдущего блока — короткий отпечаток его содержимого. Поменяв хоть один символ в старом блоке, вы меняете его хеш, а значит и ссылку в следующем блоке, и так далее до самого конца цепочки.",
+            "en": "Each block holds a list of transactions and the hash of the block before it, a short fingerprint of that block's contents. Change a single character in an old block and its hash changes, which breaks the reference in the next block, and so on to the end of the chain."
+          },
+          {
+            "ru": "Поэтому подделка требует пересчитать всю цепочку заново и сделать это быстрее, чем её продолжает вся остальная сеть. В крупных сетях это экономически невозможно.",
+            "en": "Forgery therefore means recomputing the entire chain and doing it faster than the rest of the network extends it. On large networks that is economically out of reach."
+          },
+          {
+            "ru": "Кто именно добавляет следующий блок, решает механизм консенсуса: в одних сетях это вычислительная работа, в других — заблокированные монеты. Общее одно: узлы должны согласиться, что новый блок корректен, иначе его просто не примут.",
+            "en": "Which participant adds the next block is settled by a consensus mechanism: computational work in some networks, locked-up coins in others. The common part is that nodes must agree the new block is valid, or it is simply not accepted."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Чем блокчейны отличаются",
+          "en": "How blockchains differ"
+        },
+        "example": {
+          "setup": {
+            "ru": "Скорость и стоимость записи различаются на порядки — это и определяет, для чего сеть годится.",
+            "en": "Speed and cost of writing differ by orders of magnitude, and that decides what a network is good for."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Биткоин: новый блок",
+                "en": "Bitcoin: new block"
+              },
+              "value": {
+                "ru": "≈ 10 минут",
+                "en": "≈ 10 minutes"
+              }
+            },
+            {
+              "label": {
+                "ru": "Ethereum: новый блок",
+                "en": "Ethereum: new block"
+              },
+              "value": {
+                "ru": "≈ 12 секунд",
+                "en": "≈ 12 seconds"
+              }
+            },
+            {
+              "label": {
+                "ru": "Сети Layer 2",
+                "en": "Layer 2 networks"
+              },
+              "value": {
+                "ru": "< 1 секунды",
+                "en": "< 1 second"
+              }
+            }
+          ],
+          "outcome": {
+            "ru": "Медленная сеть не хуже быстрой: биткоин намеренно жертвует скоростью ради простоты и устойчивости, а Ethereum платит сложностью за возможность исполнять программы прямо в блокчейне.",
+            "en": "A slow network is not a worse one: bitcoin trades speed for simplicity and resilience on purpose, while Ethereum pays in complexity for the ability to run programs on-chain."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Чего блокчейн не делает",
+          "en": "What a blockchain does not do"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Не проверяет правду",
+              "en": "It does not verify truth"
+            },
+            "text": {
+              "ru": "Сеть гарантирует, что запись не изменится, но не что она верна. Записанная ложь останется в блокчейне навсегда — уже как неизменяемая ложь.",
+              "en": "The network guarantees a record will not change, not that it is correct. A lie written to a blockchain stays there forever, now as an immutable lie."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не хранит файлы",
+              "en": "It does not store files"
+            },
+            "text": {
+              "ru": "Место в блоке дорого, поэтому картинки и документы лежат снаружи, а в цепочку пишется только ссылка или хеш.",
+              "en": "Block space is expensive, so images and documents live elsewhere and only a link or a hash goes on-chain."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не делает систему честной сам по себе",
+              "en": "It does not make a system honest by itself"
+            },
+            "text": {
+              "ru": "Если ключи от контракта у одной команды, децентрализация записи ничего не меняет: решения по-прежнему принимает эта команда.",
+              "en": "If one team holds the contract keys, decentralised record-keeping changes nothing: that team still makes the decisions."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не скрывает участников",
+              "en": "It does not hide participants"
+            },
+            "text": {
+              "ru": "Публичный блокчейн виден каждому. Приватность требует отдельных решений, а не следует из технологии.",
+              "en": "A public blockchain is visible to everyone. Privacy takes deliberate work; it does not come with the technology."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'hash',
@@ -121,18 +385,272 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'wallets',
     term: { ru: 'Кошелёк', en: 'Wallet' },
     definition: {
-      ru: 'Программа или устройство для хранения приватных ключей, которые дают доступ к криптовалюте на блокчейне. Сама криптовалюта физически не «лежит» в кошельке — он лишь хранит ключи для управления ею.',
-      en: 'Software or a device for storing the private keys that give access to cryptocurrency on the blockchain. The coins themselves are not physically "stored" in the wallet — it only holds the keys needed to control them.',
+      "ru": "Кошелёк — программа или устройство, которое хранит ваши приватные ключи и подписывает ими транзакции. Монеты остаются в блокчейне, а кошелёк даёт право ими распоряжаться — поэтому потеря кошелька без резервной копии равна потере денег.",
+      "en": "A wallet is software or a device that stores your private keys and signs transactions with them. The coins stay on the blockchain; the wallet holds the right to move them, which is why losing a wallet with no backup means losing the money."
     },
+    updated: '2026-08-11',
+    related: [
+      "private-key",
+      "seed-phrase",
+      "cold-wallet",
+      "hot-wallet",
+      "custodial-wallet",
+      "non-custodial-wallet"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Кошелёк создаёт пару ключей: публичный, из которого получается адрес для приёма, и приватный, которым подписываются переводы. Подпись доказывает сети, что распоряжение исходит от владельца, при этом сам ключ никуда не отправляется.",
+            "en": "A wallet creates a key pair: a public one, from which a receiving address is derived, and a private one used to sign transfers. The signature proves to the network that the instruction came from the owner, while the key itself never leaves the device."
+          },
+          {
+            "ru": "Все ключи выводятся из сид-фразы — набора из 12 или 24 слов. Поэтому кошелёк можно восстановить на другом устройстве и в другом приложении: важна фраза, а не программа.",
+            "en": "Every key derives from a seed phrase, a set of 12 or 24 words. That is why a wallet can be restored on another device in another app: the phrase matters, the software does not."
+          },
+          {
+            "ru": "Главное различие проходит по тому, у кого ключи. В некастодиальном кошельке они только у вас. В кастодиальном — у биржи или сервиса, и тогда вы владеете не монетами, а обязательством компании их выдать.",
+            "en": "The dividing line is who holds the keys. In a non-custodial wallet only you do. In a custodial one an exchange or service does, and what you own is not coins but the company's promise to hand them over."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Какие бывают",
+          "en": "The main kinds"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Аппаратный",
+              "en": "Hardware"
+            },
+            "text": {
+              "ru": "Отдельное устройство, которое хранит ключ офлайн и подписывает операции внутри себя. Ключ не попадает на компьютер даже в момент подписи. Для крупных сумм это разумный минимум.",
+              "en": "A separate device that keeps the key offline and signs inside itself. The key never reaches the computer, not even while signing. For meaningful amounts this is the sensible minimum."
+            }
+          },
+          {
+            "title": {
+              "ru": "Программный",
+              "en": "Software"
+            },
+            "text": {
+              "ru": "Приложение на телефоне или расширение в браузере. Удобно для повседневных сумм, но ключ живёт на устройстве, подключённом к интернету.",
+              "en": "An app on a phone or an extension in a browser. Convenient for everyday amounts, but the key lives on a device that is online."
+            }
+          },
+          {
+            "title": {
+              "ru": "Биржевой",
+              "en": "Exchange-held"
+            },
+            "text": {
+              "ru": "Ключей у вас нет вообще. Удобно для торговли и бессмысленно для хранения: банкротство или блокировка счёта решаются не вами.",
+              "en": "You hold no keys at all. Fine for trading, pointless for storage: a bankruptcy or a frozen account is not yours to resolve."
+            }
+          },
+          {
+            "title": {
+              "ru": "Мультиподпись",
+              "en": "Multisig"
+            },
+            "text": {
+              "ru": "Для перевода нужны несколько ключей из набора, например два из трёх. Убирает единственную точку отказа, но усложняет ежедневное пользование.",
+              "en": "A transfer needs several keys out of a set, two of three for instance. It removes the single point of failure at the cost of everyday convenience."
+            }
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Правила, которые экономят деньги",
+          "en": "Rules that save money"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Проверьте сеть перед отправкой",
+              "en": "Check the network first"
+            },
+            "text": {
+              "ru": "Один и тот же USDT существует в разных сетях. Отправка не в ту сеть — самая частая безвозвратная потеря у новичков.",
+              "en": "The same USDT exists on several networks. Sending to the wrong one is the most common unrecoverable loss beginners make."
+            }
+          },
+          {
+            "title": {
+              "ru": "Сначала пробный перевод",
+              "en": "Send a test amount first"
+            },
+            "text": {
+              "ru": "На новый адрес отправьте небольшую сумму и дождитесь зачисления. Комиссия за это дешевле любой ошибки.",
+              "en": "Send a small amount to a new address and wait for it to arrive. That fee is cheaper than any mistake."
+            }
+          },
+          {
+            "title": {
+              "ru": "Разделяйте кошельки",
+              "en": "Separate your wallets"
+            },
+            "text": {
+              "ru": "Один для долгого хранения, второй для сделок и подключения к сайтам. Взлом второго не должен стоить вам первого.",
+              "en": "One for long-term holding, one for trading and connecting to sites. A compromise of the second must not cost you the first."
+            }
+          },
+          {
+            "title": {
+              "ru": "Отзывайте разрешения",
+              "en": "Revoke approvals"
+            },
+            "text": {
+              "ru": "Подключаясь к DeFi-сервису, вы выдаёте контракту право тратить ваши токены. Разрешение остаётся действующим, пока его не отозвать.",
+              "en": "Connecting to a DeFi service grants a contract the right to spend your tokens. That approval stays live until you revoke it."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'private-key',
     category: 'wallets',
     term: { ru: 'Приватный ключ', en: 'Private key' },
     definition: {
-      ru: 'Секретный код, который доказывает право собственности на криптовалюту и позволяет подписывать транзакции. Тот, кто знает приватный ключ, полностью контролирует средства — его нельзя никому передавать.',
-      en: 'A secret code that proves ownership of cryptocurrency and allows you to sign transactions. Whoever knows the private key has full control over the funds — it should never be shared with anyone.',
+      "ru": "Приватный ключ — секретное число, которым подписываются переводы с вашего адреса. Он и есть право собственности: кто знает ключ, тот распоряжается монетами, и отменить это нельзя ни сменой пароля, ни обращением в поддержку.",
+      "en": "A private key is the secret number that signs transfers from your address. It is ownership itself: whoever knows the key controls the coins, and no password change or support ticket can undo that."
     },
+    updated: '2026-08-11',
+    related: [
+      "public-key",
+      "seed-phrase",
+      "wallet",
+      "cold-wallet",
+      "non-custodial-wallet",
+      "transaction"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Из приватного ключа математически выводится публичный, а из него — адрес. Обратный путь невозможен: зная адрес, вычислить ключ нельзя. Поэтому адрес можно публиковать где угодно.",
+            "en": "A public key derives mathematically from the private one, and an address from that. The reverse does not work: an address cannot be turned back into a key. That is why an address can be published anywhere."
+          },
+          {
+            "ru": "Отправляя монеты, кошелёк подписывает транзакцию ключом. Сеть проверяет подпись публичным ключом и убеждается, что распоряжение подлинное, — при этом сам приватный ключ она никогда не видит.",
+            "en": "When you send coins, the wallet signs the transaction with the key. The network checks that signature against the public key and confirms the instruction is genuine, without ever seeing the private key."
+          },
+          {
+            "ru": "На практике ключей у вас много: кошелёк выводит их из сид-фразы, по отдельному ключу на каждый адрес. Резервная копия делается с фразы, а не с каждого ключа по отдельности.",
+            "en": "In practice you have many keys: the wallet derives them from a seed phrase, one per address. The backup you keep is the phrase, not each individual key."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Почему ключ не подбирают",
+          "en": "Why keys are not guessed"
+        },
+        "example": {
+          "setup": {
+            "ru": "Приватный ключ биткоина — случайное 256-битное число.",
+            "en": "A bitcoin private key is a random 256-bit number."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Всего вариантов",
+                "en": "Possible values"
+              },
+              "value": {
+                "ru": "2 в степени 256",
+                "en": "2 to the 256"
+              }
+            },
+            {
+              "label": {
+                "ru": "Это примерно",
+                "en": "Which is about"
+              },
+              "value": {
+                "ru": "10 в степени 77",
+                "en": "10 to the 77"
+              }
+            },
+            {
+              "label": {
+                "ru": "Атомов в наблюдаемой Вселенной",
+                "en": "Atoms in the observable universe"
+              },
+              "value": {
+                "ru": "10 в степени 80",
+                "en": "10 to the 80"
+              }
+            }
+          ],
+          "outcome": {
+            "ru": "Перебор невозможен ни при какой вычислительной мощности. Поэтому ключи не взламывают, а забирают у владельца: через фишинг, вредоносное расширение, скриншот в облаке или поддельную страницу восстановления.",
+            "en": "Brute force is out of the question at any scale of computing. So keys are not cracked, they are taken from the owner: phishing, a malicious extension, a screenshot in the cloud, a fake recovery page."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Как не потерять контроль",
+          "en": "How to keep control"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Ключ не вводят на сайтах",
+              "en": "Never type it into a site"
+            },
+            "text": {
+              "ru": "Ни один настоящий сервис не просит приватный ключ или сид-фразу. Запрос — это и есть атака.",
+              "en": "No legitimate service asks for a private key or seed phrase. The request is the attack."
+            }
+          },
+          {
+            "title": {
+              "ru": "Подписывайте на устройстве",
+              "en": "Sign on a device"
+            },
+            "text": {
+              "ru": "Аппаратный кошелёк подписывает внутри себя, поэтому ключ не появляется на заражённом компьютере даже на секунду.",
+              "en": "A hardware wallet signs internally, so the key never appears on an infected computer, not even for a moment."
+            }
+          },
+          {
+            "title": {
+              "ru": "Читайте, что подписываете",
+              "en": "Read what you sign"
+            },
+            "text": {
+              "ru": "Подпись — это не только перевод. Ею выдают контракту право тратить ваши токены, и выглядит это в интерфейсе почти так же.",
+              "en": "A signature is not only a transfer. It can grant a contract the right to spend your tokens, and in the interface the two look nearly identical."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не храните всё под одним ключом",
+              "en": "Do not keep everything under one key"
+            },
+            "text": {
+              "ru": "Разделение по кошелькам ограничивает ущерб: одна ошибка тогда стоит части средств, а не всех сразу.",
+              "en": "Splitting across wallets caps the damage: one mistake then costs part of the money rather than all of it."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'public-key',
@@ -285,9 +803,136 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'tech',
     term: { ru: 'Майнинг', en: 'Mining' },
     definition: {
-      ru: 'Процесс подтверждения транзакций и создания новых блоков в сетях с механизмом Proof-of-Work, например в Bitcoin. Майнеры решают сложные вычислительные задачи и получают вознаграждение в криптовалюте.',
-      en: 'The process of verifying transactions and creating new blocks in Proof-of-Work networks, such as Bitcoin. Miners solve complex computational puzzles and are rewarded with cryptocurrency.',
+      "ru": "Майнинг — процесс, в котором компьютеры соревнуются за право записать очередной блок и получают за это новые монеты. Победитель определяется перебором вариантов, то есть затратами электричества, а не голосованием.",
+      "en": "Mining is the process where computers compete for the right to write the next block and are paid in new coins for it. The winner is decided by grinding through candidates, meaning by electricity spent, not by a vote."
     },
+    updated: '2026-08-11',
+    related: [
+      "proof-of-work",
+      "halving",
+      "bitcoin",
+      "node",
+      "hash",
+      "blockchain"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Майнер собирает транзакции в блок и подбирает число, при котором хеш блока окажется меньше заданного порога. Угадать нельзя, можно только перебирать — миллиарды вариантов в секунду. Нашедший объявляет решение сети, остальные мгновенно проверяют его одной операцией.",
+            "en": "A miner gathers transactions into a block and searches for a number that makes the block's hash fall below a target. It cannot be reasoned out, only tried, billions of attempts a second. Whoever finds it announces the solution, and everyone else verifies it instantly in a single operation."
+          },
+          {
+            "ru": "Сложность подстраивается каждые 2016 блоков, примерно раз в две недели, чтобы блоки продолжали находиться раз в десять минут независимо от того, сколько мощности пришло в сеть или ушло из неё.",
+            "en": "Difficulty readjusts every 2,016 blocks, roughly once a fortnight, so blocks keep arriving every ten minutes no matter how much hashpower has joined the network or left it."
+          },
+          {
+            "ru": "В этом и смысл затрат: переписать историю можно, только повторив всю проделанную работу быстрее, чем её продолжает остальная сеть. Защита биткоина — это не запрет, а цена атаки.",
+            "en": "That expense is the point: rewriting history means redoing all that work faster than the rest of the network extends it. Bitcoin's security is not a prohibition but a price on attacking it."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Экономика майнера",
+          "en": "A miner's economics"
+        },
+        "example": {
+          "setup": {
+            "ru": "Установка на 200 TH/s потребляет 3,5 кВт. Электричество по $0,08 за кВт·ч.",
+            "en": "A 200 TH/s rig draws 3.5 kW. Electricity costs $0.08 per kWh."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Расход в сутки",
+                "en": "Draw per day"
+              },
+              "value": {
+                "ru": "3,5 × 24 = 84 кВт·ч",
+                "en": "3.5 × 24 = 84 kWh"
+              }
+            },
+            {
+              "label": {
+                "ru": "Стоимость электричества",
+                "en": "Electricity cost"
+              },
+              "value": {
+                "ru": "84 × $0,08",
+                "en": "84 × $0.08"
+              }
+            }
+          ],
+          "total": {
+            "label": {
+              "ru": "Затраты в сутки",
+              "en": "Cost per day"
+            },
+            "value": {
+              "ru": "$6,72",
+              "en": "$6.72"
+            }
+          },
+          "outcome": {
+            "ru": "Майнинг прибылен ровно до тех пор, пока намайненное за сутки стоит дороже этих $6,72 плюс амортизация оборудования. Поэтому при падении цены первыми выключаются те, у кого электричество дороже, а сложность потом снижается и возвращает остальным маржу.",
+            "en": "Mining pays only while a day's output is worth more than that $6.72 plus wear on the hardware. So when the price falls, the miners with the dearest electricity switch off first, difficulty then drops, and margin returns for the rest."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "В одиночку блок не найти",
+              "en": "Solo mining does not find blocks"
+            },
+            "text": {
+              "ru": "Одна установка против всей сети находит блок раз в десятки лет. Поэтому майнят в пулах, где награда делится по вкладу.",
+              "en": "One rig against the whole network finds a block once in decades. That is why miners join pools, where the reward is split by contribution."
+            }
+          },
+          {
+            "title": {
+              "ru": "Домашний майнинг биткоина мёртв",
+              "en": "Home bitcoin mining is over"
+            },
+            "text": {
+              "ru": "Конкурировать с промышленными площадками на дешёвой энергии видеокартой или домашним ASIC невозможно уже много лет.",
+              "en": "Competing with industrial sites on cheap power, using a graphics card or a home ASIC, stopped being possible years ago."
+            }
+          },
+          {
+            "title": {
+              "ru": "Оборудование стареет",
+              "en": "Hardware ages"
+            },
+            "text": {
+              "ru": "Новые модели эффективнее, и старые вытесняются, даже если ещё работают. Это не разовая покупка, а бизнес с амортизацией.",
+              "en": "Newer models are more efficient and push older ones out even while they still run. This is a business with depreciation, not a one-off purchase."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не все сети майнятся",
+              "en": "Not every network is mined"
+            },
+            "text": {
+              "ru": "Ethereum перешёл на Proof-of-Stake в 2022 году: там блоки создают не майнеры, а валидаторы с заблокированными монетами.",
+              "en": "Ethereum moved to Proof-of-Stake in 2022: there blocks come from validators with locked coins, not from miners."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'node',
@@ -303,9 +948,136 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'tech',
     term: { ru: 'Смарт-контракт', en: 'Smart contract' },
     definition: {
-      ru: 'Программа, которая автоматически выполняется на блокчейне при выполнении заданных условий, без участия посредников. Лежит в основе большинства приложений DeFi, NFT и DAO.',
-      en: 'A program that automatically executes on the blockchain once predefined conditions are met, without intermediaries. It powers most DeFi, NFT, and DAO applications.',
+      "ru": "Смарт-контракт — программа, которая живёт в блокчейне и исполняется автоматически при заданных условиях. Её код виден всем, менять его после публикации обычно нельзя, и остановить исполнение никто не может.",
+      "en": "A smart contract is a program that lives on a blockchain and executes automatically when its conditions are met. Its code is public, it usually cannot be changed after deployment, and nobody can halt its execution."
     },
+    updated: '2026-08-11',
+    related: [
+      "defi",
+      "gas-fee",
+      "erc-20",
+      "dex",
+      "dao",
+      "blockchain"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Контракт публикуется в сеть один раз и получает собственный адрес. Дальше любой может вызвать его функции, отправив транзакцию, а сеть исполнит код одинаково на всех узлах и запишет результат в блокчейн.",
+            "en": "A contract is published to the network once and gets its own address. After that anyone can call its functions by sending a transaction, and the network executes the code identically on every node and writes the result to the chain."
+          },
+          {
+            "ru": "За вычисления платит вызывающий — комиссией за газ. Чем сложнее операция, тем дороже, и если газа не хватило, изменения откатываются, а потраченная комиссия не возвращается.",
+            "en": "The caller pays for the computation through a gas fee. The more complex the operation the more it costs, and if the gas runs out the changes revert while the fee spent does not come back."
+          },
+          {
+            "ru": "Именно неизменность делает контракты полезными и опасными одновременно. Продавцу не нужно доверять, потому что правила исполнит код, — но и ошибку в этом коде чаще всего нельзя починить.",
+            "en": "Immutability is what makes contracts both useful and dangerous. You need not trust a counterparty, because code enforces the terms; equally, a flaw in that code usually cannot be patched."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что ими делают",
+          "en": "What they are used for"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Выпуск токенов",
+              "en": "Issuing tokens"
+            },
+            "text": {
+              "ru": "Почти все токены, включая USDT и USDC, — это контракты, которые ведут учёт, у кого сколько на балансе.",
+              "en": "Almost every token, USDT and USDC included, is a contract keeping a ledger of who holds what."
+            }
+          },
+          {
+            "title": {
+              "ru": "Обмен без посредника",
+              "en": "Swapping without a middleman"
+            },
+            "text": {
+              "ru": "DEX — это контракт, который держит пул из двух активов и меняет один на другой по формуле, без биржи и без счёта.",
+              "en": "A DEX is a contract holding a pool of two assets and swapping one for the other by formula, with no exchange and no account."
+            }
+          },
+          {
+            "title": {
+              "ru": "Займы под залог",
+              "en": "Collateralised lending"
+            },
+            "text": {
+              "ru": "Контракт принимает залог, выдаёт заём и сам продаёт залог, если его цена опустилась ниже порога.",
+              "en": "A contract takes collateral, issues a loan, and sells that collateral itself when its price falls below a threshold."
+            }
+          },
+          {
+            "title": {
+              "ru": "Управление проектом",
+              "en": "Running a project"
+            },
+            "text": {
+              "ru": "DAO голосует токенами, и принятое решение исполняется контрактом, а не менеджером.",
+              "en": "A DAO votes with tokens, and the decision is carried out by a contract rather than by a manager."
+            }
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "На что смотреть",
+          "en": "What to weigh"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Кто может его изменить",
+              "en": "Who can change it"
+            },
+            "text": {
+              "ru": "Многие контракты обновляемые, и тогда у кого-то есть ключ от обновления. Это удобно для разработки и опасно для вас.",
+              "en": "Many contracts are upgradeable, which means somebody holds the upgrade key. Convenient for development, risky for you."
+            }
+          },
+          {
+            "title": {
+              "ru": "Есть ли аудит и чей",
+              "en": "Whose audit it has"
+            },
+            "text": {
+              "ru": "Отчёт должен открываться, называть аудитора и относиться к тому же адресу контракта, а не к «версии проекта».",
+              "en": "The report has to open, name the auditor, and cover the same contract address rather than some \"project version\"."
+            }
+          },
+          {
+            "title": {
+              "ru": "Сколько в нём средств и как долго",
+              "en": "How much it holds, and for how long"
+            },
+            "text": {
+              "ru": "Контракт с крупной суммой, проживший годы без взлома, — сам по себе довод, хотя и не гарантия.",
+              "en": "A contract holding a lot of money that has run for years unbroken is an argument in itself, though not a guarantee."
+            }
+          },
+          {
+            "title": {
+              "ru": "Что вы ему разрешили",
+              "en": "What you have approved"
+            },
+            "text": {
+              "ru": "Разрешение на трату токенов остаётся бессрочным, пока его не отозвать вручную. Проверяйте выданные доступы.",
+              "en": "A spending approval lasts indefinitely until you revoke it by hand. Review the ones you have granted."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'gas-fee',
@@ -458,9 +1230,136 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'tokens',
     term: { ru: 'Альткоин', en: 'Altcoin' },
     definition: {
-      ru: 'Любая криптовалюта, отличная от биткоина. Термин объединяет тысячи проектов — от Ethereum и Solana до небольших нишевых токенов.',
-      en: 'Any cryptocurrency other than Bitcoin. The term covers thousands of projects — from Ethereum and Solana to small niche tokens.',
+      "ru": "Альткоин — любая криптовалюта, кроме биткоина. Термин объединяет всё подряд: и вторую по размеру сеть Ethereum, и токен, выпущенный вчера ради шутки, — поэтому сам по себе он ничего не говорит о качестве.",
+      "en": "An altcoin is any cryptocurrency other than bitcoin. The word lumps everything together, from Ethereum, the second largest network, to a token minted yesterday as a joke, so on its own it says nothing about quality."
     },
+    updated: '2026-08-11',
+    related: [
+      "bitcoin",
+      "market-cap",
+      "tokenomics",
+      "stablecoin",
+      "nft",
+      "exchange"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Часть альткоинов — это собственные блокчейны со своей экономикой и защитой: Ethereum, Solana, Cardano. Другая часть — токены, живущие внутри чужой сети: их выпуск не требует ни майнеров, ни валидаторов, достаточно опубликовать смарт-контракт.",
+            "en": "Some altcoins are their own blockchains with their own economics and security: Ethereum, Solana, Cardano. Others are tokens living inside someone else's network, which need no miners or validators at all, just a deployed smart contract."
+          },
+          {
+            "ru": "Разница принципиальна для рисков. У самостоятельной сети есть узлы, разработчики и стоимость атаки. У токена за плечами только его контракт и команда, а выпустить такой токен стоит несколько долларов.",
+            "en": "That difference drives the risk. A standalone network has nodes, developers and a cost of attacking it. A token has only its contract and its team behind it, and issuing one costs a few dollars."
+          },
+          {
+            "ru": "Цена альткоинов сильно связана с биткоином: на его падениях они обычно падают глубже, а на росте отстают, пока капитал не начнёт переходить в них. Отсюда и разговоры про «альткоин-сезон».",
+            "en": "Altcoin prices track bitcoin closely: they usually fall harder on its declines and lag on its rallies until capital starts rotating into them. Hence the talk of an \"altcoin season\"."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как распределён рынок",
+          "en": "How the market is split"
+        },
+        "example": {
+          "setup": {
+            "ru": "Порядок величин, который стоит держать в голове при сравнении проектов.",
+            "en": "The orders of magnitude worth holding in mind when comparing projects."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Доля биткоина в капитализации рынка",
+                "en": "Bitcoin's share of market cap"
+              },
+              "value": {
+                "ru": "≈ 50–60%",
+                "en": "≈ 50–60%"
+              }
+            },
+            {
+              "label": {
+                "ru": "Доля Ethereum",
+                "en": "Ethereum's share"
+              },
+              "value": {
+                "ru": "≈ 10–15%",
+                "en": "≈ 10–15%"
+              }
+            },
+            {
+              "label": {
+                "ru": "Всё остальное",
+                "en": "Everything else"
+              },
+              "value": {
+                "ru": "≈ 25–40%",
+                "en": "≈ 25–40%"
+              }
+            }
+          ],
+          "outcome": {
+            "ru": "Эти проценты делятся между десятками тысяч монет, и подавляющее большинство из них не имеет ни оборота, ни пользователей. «Тысячи проектов» на практике означают несколько десятков живых и очень длинный хвост.",
+            "en": "Those last percent are split across tens of thousands of coins, the vast majority with neither volume nor users. \"Thousands of projects\" in practice means a few dozen live ones and a very long tail."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Как отличать",
+          "en": "How to tell them apart"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Своя сеть или токен",
+              "en": "Own network or token"
+            },
+            "text": {
+              "ru": "Первый вопрос к любому проекту. Токен в чужой сети наследует её безопасность, но не имеет собственной.",
+              "en": "The first question about any project. A token inherits its host network's security and has none of its own."
+            }
+          },
+          {
+            "title": {
+              "ru": "Оборот, а не капитализация",
+              "en": "Volume, not market cap"
+            },
+            "text": {
+              "ru": "Капитализация в сотни миллионов при обороте в десятки тысяч означает, что выйти по этой цене нельзя.",
+              "en": "A cap in the hundreds of millions on volume in the tens of thousands means nobody exits at that price."
+            }
+          },
+          {
+            "title": {
+              "ru": "Кто держит запас",
+              "en": "Who holds the supply"
+            },
+            "text": {
+              "ru": "Несколько кошельков с половиной всех монет — это не инвестиция, а ставка на их поведение.",
+              "en": "A handful of wallets holding half the supply is not an investment, it is a bet on how they behave."
+            }
+          },
+          {
+            "title": {
+              "ru": "Что проект делает сегодня",
+              "en": "What the project does today"
+            },
+            "text": {
+              "ru": "Дорожная карта описывает намерения. Работающий продукт и живые пользователи описывают факт.",
+              "en": "A roadmap describes intentions. A working product with real users describes facts."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'stablecoin',
@@ -892,18 +1791,292 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'defi',
     term: { ru: 'DEX (децентрализованная биржа)', en: 'DEX (decentralized exchange)' },
     definition: {
-      ru: 'Биржа, на которой сделки проходят напрямую между пользователями через смарт-контракты, без центральной компании-оператора и без передачи средств на хранение третьей стороне.',
-      en: 'An exchange where trades happen directly between users via smart contracts, without a central operating company and without depositing funds with a third party.',
+      "ru": "DEX — обменник, работающий на смарт-контрактах: у него нет счетов, регистрации и хранения ваших средств. Вы меняете токены прямо из своего кошелька, а цену задаёт не стакан заявок, а пул ликвидности.",
+      "en": "A DEX is an exchange built on smart contracts: no accounts, no registration, no custody of your funds. You swap tokens straight from your own wallet, and the price comes from a liquidity pool rather than an order book."
     },
+    updated: '2026-08-11',
+    related: [
+      "liquidity-pool",
+      "smart-contract",
+      "slippage",
+      "cex",
+      "defi",
+      "gas-fee"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "В пуле лежат два актива, внесённые другими пользователями. Контракт держит их произведение постоянным: покупая один токен, вы забираете его из пула и добавляете второй, и соотношение сдвигается — это и есть новая цена.",
+            "en": "A pool holds two assets, deposited by other users. The contract keeps their product constant: buying one token takes it out of the pool and puts the other in, the ratio shifts, and that shift is the new price."
+          },
+          {
+            "ru": "Поэтому цена зависит от размера сделки относительно пула. В глубоком пуле обмен на тысячу долларов почти не двигает курс, в мелком та же тысяча уводит его на проценты.",
+            "en": "So the price depends on trade size relative to the pool. In a deep pool a thousand-dollar swap barely moves the rate; in a shallow one the same thousand moves it by whole percent."
+          },
+          {
+            "ru": "Средства всё время остаются у вас: контракт получает право взять токены ровно на эту операцию. Ни заморозить счёт, ни отказать в выводе некому — как и некому помочь при ошибке.",
+            "en": "Your funds stay yours throughout: the contract is granted the right to take tokens for exactly this operation. Nobody can freeze an account or refuse a withdrawal, and equally nobody can help when you get something wrong."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "DEX или биржа",
+          "en": "DEX or exchange"
+        },
+        "example": {
+          "setup": {
+            "ru": "Что различается на практике при обмене одной и той же суммы.",
+            "en": "What actually differs when swapping the same amount."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Хранение средств",
+                "en": "Custody"
+              },
+              "value": {
+                "ru": "у вас / у биржи",
+                "en": "yours / the exchange's"
+              }
+            },
+            {
+              "label": {
+                "ru": "Проверка личности",
+                "en": "Identity check"
+              },
+              "value": {
+                "ru": "нет / KYC",
+                "en": "none / KYC"
+              }
+            },
+            {
+              "label": {
+                "ru": "Комиссия за обмен",
+                "en": "Swap fee"
+              },
+              "value": {
+                "ru": "0,05–1% + газ",
+                "en": "0.05–1% + gas"
+              }
+            },
+            {
+              "label": {
+                "ru": "Новые токены",
+                "en": "New tokens"
+              },
+              "value": {
+                "ru": "сразу / после листинга",
+                "en": "immediately / after listing"
+              }
+            }
+          ],
+          "outcome": {
+            "ru": "На крупных парах биржа обычно дешевле из-за газа, а DEX выигрывает там, где токена ещё нет в листингах или где важно не отдавать средства на хранение.",
+            "en": "On major pairs an exchange is usually cheaper once gas is counted; a DEX wins where a token is not listed yet, or where not handing over custody matters."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Чем рискуете",
+          "en": "Where the risk sits"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Токены-двойники",
+              "en": "Impostor tokens"
+            },
+            "text": {
+              "ru": "Создать токен с любым названием и логотипом ничего не стоит. Сверяйте адрес контракта, а не имя в списке.",
+              "en": "Creating a token with any name and logo costs nothing. Verify the contract address, not the name in a list."
+            }
+          },
+          {
+            "title": {
+              "ru": "Проскальзывание на тонком пуле",
+              "en": "Slippage in a thin pool"
+            },
+            "text": {
+              "ru": "Крупная сделка в мелком пуле исполняется заметно хуже экрана. Ограничивайте допуск, а не поднимайте его.",
+              "en": "A large trade in a small pool fills well below the screen price. Cap your tolerance instead of raising it."
+            }
+          },
+          {
+            "title": {
+              "ru": "Сэндвич-атаки",
+              "en": "Sandwich attacks"
+            },
+            "text": {
+              "ru": "Боты видят вашу сделку до исполнения и зарабатывают на ней, если допуск по проскальзыванию выставлен большим.",
+              "en": "Bots see your trade before it executes and profit from it whenever your slippage tolerance is set wide."
+            }
+          },
+          {
+            "title": {
+              "ru": "Ошибка в контракте",
+              "en": "A contract bug"
+            },
+            "text": {
+              "ru": "Средства в пуле защищены только кодом. Взлом контракта не страхуется и не отменяется.",
+              "en": "Money in a pool is protected by code alone. A contract exploit is neither insured nor reversible."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'cex',
     category: 'trading',
     term: { ru: 'CEX (централизованная биржа)', en: 'CEX (centralized exchange)' },
     definition: {
-      ru: 'Биржа, управляемая компанией, которая хранит средства пользователей на своих кошельках и обеспечивает ликвидность и сопоставление ордеров (например, Binance, Coinbase).',
-      en: 'An exchange run by a company that holds user funds in its own wallets and provides liquidity and order matching (for example, Binance, Coinbase).',
+      "ru": "CEX — централизованная биржа: компания, которая хранит ваши средства, ведёт счета и сводит заявки покупателей и продавцов в стакане. Быстро и удобно, но ключи от монет находятся у неё, а не у вас.",
+      "en": "A CEX is a centralised exchange: a company that holds your funds, runs the accounts, and matches buy and sell orders in an order book. Fast and convenient, but it holds the keys to the coins, not you."
     },
+    updated: '2026-08-11',
+    related: [
+      "exchange",
+      "dex",
+      "order-book",
+      "kyc",
+      "custodial-wallet",
+      "liquidation"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Пополняя счёт, вы переводите монеты на адрес биржи. Дальше сделки идут в её внутренней базе, а не в блокчейне: поэтому они мгновенные и без комиссии сети. В блокчейн операция возвращается только при выводе.",
+            "en": "Depositing sends coins to the exchange's own address. From there trades happen in its internal database rather than on-chain, which is why they are instant and carry no network fee. The blockchain sees the money again only on withdrawal."
+          },
+          {
+            "ru": "Цену определяет стакан заявок. Рыночный ордер исполняется сразу по лучшим доступным ценам, лимитный ждёт своей. Чем больше заявок стоит рядом с текущей ценой, тем меньше вы теряете на крупной сделке.",
+            "en": "Price comes from the order book. A market order fills immediately against the best available offers, a limit order waits for its price. The more orders sit near the current price, the less a large trade costs you."
+          },
+          {
+            "ru": "Биржа берёт комиссию с каждой сделки, обычно 0,1–0,2%, и часто разную для того, кто добавляет ликвидность, и того, кто её забирает. К этому добавляется комиссия за вывод — иногда заметно выше сетевой.",
+            "en": "The exchange charges on every trade, usually 0.1–0.2%, and often at different rates for adding liquidity and taking it. On top comes a withdrawal fee, sometimes noticeably above the network's own."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Из чего складывается цена сделки",
+          "en": "What a trade really costs"
+        },
+        "example": {
+          "setup": {
+            "ru": "Покупка на $1 000 и последующий вывод монет на свой кошелёк.",
+            "en": "A $1,000 purchase followed by a withdrawal to your own wallet."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Комиссия за сделку, 0,1%",
+                "en": "Trading fee, 0.1%"
+              },
+              "value": {
+                "ru": "$1,00",
+                "en": "$1.00"
+              }
+            },
+            {
+              "label": {
+                "ru": "Спред на ликвидной паре",
+                "en": "Spread on a liquid pair"
+              },
+              "value": {
+                "ru": "≈ $0,20",
+                "en": "≈ $0.20"
+              }
+            },
+            {
+              "label": {
+                "ru": "Вывод в сети",
+                "en": "Network withdrawal"
+              },
+              "value": {
+                "ru": "$1–5",
+                "en": "$1–5"
+              }
+            }
+          ],
+          "total": {
+            "label": {
+              "ru": "Итого",
+              "en": "Total"
+            },
+            "value": {
+              "ru": "≈ $2–6",
+              "en": "≈ $2–6"
+            }
+          },
+          "outcome": {
+            "ru": "На ликвидной паре главные расходы — вывод, а не торговля. На тонкой паре всё наоборот: спред и проскальзывание легко превышают комиссию в несколько раз.",
+            "en": "On a liquid pair the withdrawal dominates, not the trading. On a thin pair it inverts: spread and slippage easily run several times the fee."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "На что смотреть при выборе",
+          "en": "What to weigh when choosing"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Лицензия в вашей юрисдикции",
+              "en": "A licence where you live"
+            },
+            "text": {
+              "ru": "В ЕС это регистрация по MiCA. Она не гарантирует сохранность, но даёт понятный порядок в спорной ситуации.",
+              "en": "In the EU that means MiCA registration. It guarantees nothing about solvency, but it gives a defined process when something goes wrong."
+            }
+          },
+          {
+            "title": {
+              "ru": "Реальный оборот пары",
+              "en": "The pair's real volume"
+            },
+            "text": {
+              "ru": "Крупная биржа с тонкой парой хуже мелкой с глубокой: значение имеет ликвидность именно в том, чем вы торгуете.",
+              "en": "A big exchange with a thin pair is worse than a small one with a deep pair: what matters is liquidity in the thing you actually trade."
+            }
+          },
+          {
+            "title": {
+              "ru": "Условия вывода",
+              "en": "Withdrawal terms"
+            },
+            "text": {
+              "ru": "Смотрите лимиты, сроки и фиксированные комиссии заранее — на этапе вывода менять площадку поздно.",
+              "en": "Check limits, timings and flat fees up front; the withdrawal step is a bad moment to discover them."
+            }
+          },
+          {
+            "title": {
+              "ru": "Не биржа для хранения",
+              "en": "Not a place to store"
+            },
+            "text": {
+              "ru": "Счёт на бирже — это обязательство компании, а не ваши монеты. То, что не торгуется прямо сейчас, лучше держать в своём кошельке.",
+              "en": "An exchange balance is the company's obligation, not your coins. Whatever you are not actively trading belongs in your own wallet."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'staking',
@@ -1479,9 +2652,88 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'compliance',
     term: { ru: 'KYC', en: 'KYC' },
     definition: {
-      ru: 'Know Your Customer («знай своего клиента») — процедура проверки личности пользователя, которую проходят на регулируемых биржах для соответствия законодательству.',
-      en: 'Know Your Customer — an identity-verification procedure that users complete on regulated exchanges to comply with the law.',
+      "ru": "KYC — обязательная проверка личности клиента: паспорт, селфи, иногда подтверждение адреса и источника средств. Без неё регулируемая площадка не имеет права открыть вам счёт и провести операцию с фиатом.",
+      "en": "KYC is the mandatory identity check a service runs on a customer: passport, selfie, sometimes proof of address and source of funds. Without it a regulated venue is not allowed to open your account or move fiat for you."
     },
+    updated: '2026-08-11',
+    related: [
+      "aml",
+      "cex",
+      "exchange",
+      "p2p",
+      "fiat",
+      "custodial-wallet"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Площадка обязана знать, кто её клиент, по закону о противодействии отмыванию. Базовый уровень — документ и селфи, дальше по мере роста оборота запрашивают адрес проживания и происхождение денег.",
+            "en": "A venue is legally required to know who its customer is under anti-money-laundering rules. The base level is a document and a selfie; as turnover grows they ask for a residential address and the origin of the money."
+          },
+          {
+            "ru": "Лимиты обычно привязаны к уровню проверки: без неё доступен только просмотр или очень небольшие суммы, с полной — вывод фиата и высокие лимиты. Поэтому проходить её лучше заранее, а не в момент, когда деньги нужно вывести.",
+            "en": "Limits are usually tied to the level of verification: without it you get read-only access or very small amounts; with it, fiat withdrawals and high limits. Which is why it is better done in advance than at the moment you need the money out."
+          },
+          {
+            "ru": "В ЕС требования единые для всех лицензированных площадок по MiCA и связанным нормам. Отсутствие KYC у сервиса, работающего с евро, — это не преимущество, а признак того, что он вне регулирования.",
+            "en": "In the EU the requirements are uniform across licensed venues under MiCA and related rules. A euro-handling service with no KYC is not offering you an advantage; it is telling you it operates outside regulation."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Что стоит понимать",
+          "en": "What to keep in mind"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Проверка занимает время",
+              "en": "It takes time"
+            },
+            "text": {
+              "ru": "Обычно от минут до пары дней, а при загрузке площадки дольше. Начинать вывод средств с прохождения KYC — плохая идея.",
+              "en": "Usually minutes to a couple of days, longer when a venue is busy. Starting a withdrawal by beginning KYC is a poor plan."
+            }
+          },
+          {
+            "title": {
+              "ru": "Данные остаются у компании",
+              "en": "The data stays with the company"
+            },
+            "text": {
+              "ru": "Копии документов хранятся годами по требованию регулятора. Утечки таких баз случались, и это реальный риск, а не гипотетический.",
+              "en": "Copies of documents are retained for years by regulation. Databases like these have leaked before; the risk is real, not hypothetical."
+            }
+          },
+          {
+            "title": {
+              "ru": "Имя плательщика должно совпадать",
+              "en": "The payer's name must match"
+            },
+            "text": {
+              "ru": "Перевод с чужой карты или счёта — типичная причина блокировки: для комплаенса это признак дробления и подставных лиц.",
+              "en": "Paying from someone else's card or account is a standard cause of a freeze: to compliance it reads as layering through third parties."
+            }
+          },
+          {
+            "title": {
+              "ru": "Источник средств спрашивают всерьёз",
+              "en": "Source of funds is asked in earnest"
+            },
+            "text": {
+              "ru": "На крупных суммах попросят подтвердить происхождение денег. Заранее сохранённые выписки и договоры экономят недели.",
+              "en": "On larger amounts you will be asked to evidence where the money came from. Statements and contracts kept in advance save weeks."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'aml',
@@ -1497,9 +2749,136 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'tokens',
     term: { ru: 'Airdrop (раздача токенов)', en: 'Airdrop' },
     definition: {
-      ru: 'Бесплатная раздача токенов проектом, обычно в рамках маркетинга или вознаграждения ранних пользователей. Будьте осторожны: под видом airdrop часто маскируют фишинговые схемы.',
-      en: 'A free distribution of tokens by a project, usually for marketing purposes or to reward early users. Be cautious: phishing schemes are often disguised as airdrops.',
+      "ru": "Эйрдроп — бесплатная раздача токенов пользователям, обычно за прошлую активность в проекте или для привлечения внимания к запуску. Часть раздач приносит реальные деньги, но именно под них маскируется большинство схем с кражей кошельков.",
+      "en": "An airdrop is a free distribution of tokens to users, usually for past activity in a project or to draw attention to a launch. Some are genuinely valuable, and they are also the disguise most wallet-draining scams choose."
     },
+    updated: '2026-08-11',
+    related: [
+      "tokenomics",
+      "wallet",
+      "rug-pull",
+      "smart-contract",
+      "nft",
+      "ico"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "Проект фиксирует состояние сети на определённом блоке и определяет, какие адреса подходят под условия: пользовались продуктом, держали токен, предоставляли ликвидность. Дальше токены либо приходят сами, либо их нужно забрать вручную на сайте проекта.",
+            "en": "A project takes a snapshot of the network at a chosen block and decides which addresses qualify: used the product, held a token, provided liquidity. The tokens then either arrive on their own or must be claimed by hand on the project's site."
+          },
+          {
+            "ru": "Смысл для проекта прост: раздать долю в управлении тем, кто уже пользовался, и получить сразу много держателей к моменту листинга. Смысл для пользователя — компенсация за ранний риск и потраченные на комиссии деньги.",
+            "en": "The logic for the project is straightforward: hand a share of governance to people who already use it, and arrive at listing with many holders at once. For the user it is compensation for early risk and the fees already spent."
+          },
+          {
+            "ru": "Ровно эта механика делает эйрдропы идеальной приманкой. Человек и так ждёт неожиданных токенов и подписи на сайте — поэтому фальшивая страница получения выглядит для него совершенно естественно.",
+            "en": "That same mechanic makes airdrops ideal bait. The user is already expecting unexpected tokens and a signature on a website, so a fake claim page looks entirely natural to them."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как выглядит кража",
+          "en": "What the theft looks like"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Токен, пришедший сам",
+              "en": "A token that arrived by itself"
+            },
+            "text": {
+              "ru": "В кошельке появляется незнакомый токен с крупной «стоимостью». Попытка продать его ведёт на сайт, где просят подпись, — и подпись отдаёт доступ к настоящим активам.",
+              "en": "An unknown token with an impressive \"value\" shows up in the wallet. Trying to sell it leads to a site asking for a signature, and that signature hands over access to the real assets."
+            }
+          },
+          {
+            "title": {
+              "ru": "Страница получения по ссылке из личных сообщений",
+              "en": "A claim page from a direct message"
+            },
+            "text": {
+              "ru": "Настоящие проекты объявляют раздачу в своих официальных каналах. Ссылка, пришедшая лично и срочно, — почти всегда подделка.",
+              "en": "Real projects announce distributions in their own official channels. A link that arrives privately and urgently is nearly always fake."
+            }
+          },
+          {
+            "title": {
+              "ru": "Просьба «разблокировать» или заплатить",
+              "en": "A request to \"unlock\" or pay"
+            },
+            "text": {
+              "ru": "За получение бесплатных токенов не платят. Любая комиссия «за разблокировку» — это конец истории.",
+              "en": "Nobody pays to receive free tokens. Any \"unlock fee\" is where the story ends."
+            }
+          },
+          {
+            "title": {
+              "ru": "Подпись, которую не читают",
+              "en": "A signature nobody reads"
+            },
+            "text": {
+              "ru": "Опасна не сама раздача, а разрешение, которое вы подписываете. Смотрите, что именно запрашивает сайт, до подтверждения.",
+              "en": "The danger is not the distribution but the approval you sign. Read what the site is actually requesting before confirming."
+            }
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Как участвовать разумно",
+          "en": "How to take part sensibly"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Отдельный кошелёк",
+              "en": "A separate wallet"
+            },
+            "text": {
+              "ru": "Для всех раздач и подключений к незнакомым сайтам держите кошелёк, на котором нет ничего ценного.",
+              "en": "Keep a wallet with nothing valuable in it for every airdrop and every connection to an unfamiliar site."
+            }
+          },
+          {
+            "title": {
+              "ru": "Только официальные источники",
+              "en": "Official sources only"
+            },
+            "text": {
+              "ru": "Адрес страницы получения берите с сайта проекта или из его закреплённого поста, а не из поиска и не из чата.",
+              "en": "Take the claim URL from the project's own site or pinned post, not from search results and not from a chat."
+            }
+          },
+          {
+            "title": {
+              "ru": "Считайте затраты",
+              "en": "Count what it costs"
+            },
+            "text": {
+              "ru": "Активность ради будущей раздачи стоит комиссий. Нередко потраченный газ превышает всё, что раздадут.",
+              "en": "Farming activity for a future drop costs gas fees. Often the gas spent exceeds anything the drop pays out."
+            }
+          },
+          {
+            "title": {
+              "ru": "Раздачи не гарантированы",
+              "en": "Nothing is promised"
+            },
+            "text": {
+              "ru": "Проект ничего не обещает и вправе изменить условия или не раздавать вовсе. Это лотерея, а не заработок.",
+              "en": "A project promises nothing and may change the terms or skip the drop entirely. It is a lottery, not an income."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'ico',
@@ -1658,9 +3037,146 @@ export const GLOSSARY: GlossaryTerm[] = [
     category: 'trading',
     term: { ru: 'Кредитное плечо', en: 'Leverage' },
     definition: {
-      ru: 'Использование заёмных средств для увеличения размера позиции. Плечо умножает не только потенциальную прибыль, но и потенциальные убытки — высокорискованный инструмент.',
-      en: 'The use of borrowed funds to increase the size of a trading position. Leverage multiplies both potential profit and potential losses — a high-risk tool.',
+      "ru": "Плечо — торговля на сумму больше собственной: биржа добавляет недостающее, а вы вносите маржу как обеспечение. Прибыль и убыток считаются от всей позиции, поэтому небольшое движение цены даёт крупный результат в обе стороны.",
+      "en": "Leverage means trading a position larger than your own money: the exchange supplies the rest and you post margin as security. Profit and loss are calculated on the whole position, so a small price move produces a large result in either direction."
     },
+    updated: '2026-08-11',
+    related: [
+      "liquidation",
+      "order-book",
+      "limit-order",
+      "market-order",
+      "cex",
+      "slippage"
+    ],
+    sections: [
+      {
+        "heading": {
+          "ru": "Как это работает",
+          "en": "How it works"
+        },
+        "paragraphs": [
+          {
+            "ru": "При плече 10× вы вносите десятую часть суммы, а торгуете целой. Каждый процент движения цены превращается в десять процентов вашей маржи — и в прибыли, и в убытке.",
+            "en": "At 10× you post a tenth of the position and trade the whole of it. Every percent the price moves becomes ten percent of your margin, gains and losses alike."
+          },
+          {
+            "ru": "Убыток списывается только с вашей части, а не с денег биржи. Как только собственных средств остаётся меньше поддерживающего минимума, позицию закрывают принудительно — это ликвидация, и происходит она без вашего участия.",
+            "en": "Losses come only out of your share, never the exchange's. The moment your own funds fall below the maintenance minimum the position is force-closed. That is liquidation, and it happens without you."
+          },
+          {
+            "ru": "На бессрочных контрактах добавляется ставка финансирования: каждые несколько часов одна сторона рынка платит другой. Держа позицию долго, вы платите за это отдельно, даже если цена стоит на месте.",
+            "en": "Perpetual contracts add a funding rate: every few hours one side of the market pays the other. Holding a position for long means paying that separately, even when the price has not moved."
+          }
+        ]
+      },
+      {
+        "heading": {
+          "ru": "Сколько нужно ошибиться",
+          "en": "How wrong you can afford to be"
+        },
+        "example": {
+          "setup": {
+            "ru": "Насколько цена должна пойти против вас, чтобы маржа кончилась. Поддерживающая маржа 0,5%.",
+            "en": "How far the price must move against you before the margin is gone. Maintenance margin 0.5%."
+          },
+          "rows": [
+            {
+              "label": {
+                "ru": "Плечо 5×",
+                "en": "5× leverage"
+              },
+              "value": {
+                "ru": "≈ 19,5%",
+                "en": "≈ 19.5%"
+              }
+            },
+            {
+              "label": {
+                "ru": "Плечо 10×",
+                "en": "10× leverage"
+              },
+              "value": {
+                "ru": "≈ 9,5%",
+                "en": "≈ 9.5%"
+              }
+            },
+            {
+              "label": {
+                "ru": "Плечо 20×",
+                "en": "20× leverage"
+              },
+              "value": {
+                "ru": "≈ 4,5%",
+                "en": "≈ 4.5%"
+              }
+            },
+            {
+              "label": {
+                "ru": "Плечо 50×",
+                "en": "50× leverage"
+              },
+              "value": {
+                "ru": "≈ 1,5%",
+                "en": "≈ 1.5%"
+              }
+            }
+          ],
+          "outcome": {
+            "ru": "Биткоин проходит 1,5% за минуты, а 9,5% — за часы обычного дня. Поэтому высокое плечо превращает сделку не в инвестицию, а в ставку на короткий отрезок времени.",
+            "en": "Bitcoin covers 1.5% in minutes and 9.5% within hours of an ordinary day. High leverage therefore turns a trade into a bet on a short window rather than an investment."
+          }
+        }
+      },
+      {
+        "heading": {
+          "ru": "Как этим пользоваться",
+          "en": "How to handle it"
+        },
+        "bullets": [
+          {
+            "title": {
+              "ru": "Считайте цену ликвидации до входа",
+              "en": "Know the liquidation price first"
+            },
+            "text": {
+              "ru": "Биржа показывает её сразу. Если она внутри обычного дневного диапазона, плечо выбрано слишком большое.",
+              "en": "The exchange shows it immediately. If it falls inside a normal daily range, the leverage is too high."
+            }
+          },
+          {
+            "title": {
+              "ru": "Изолированная маржа",
+              "en": "Isolated margin"
+            },
+            "text": {
+              "ru": "Ограничивает потерю одной позицией. При кросс-марже под ударом весь баланс счёта.",
+              "en": "It caps the loss at one position. Cross margin puts the entire account balance at risk."
+            }
+          },
+          {
+            "title": {
+              "ru": "Стоп-лосс выше ликвидации",
+              "en": "A stop above liquidation"
+            },
+            "text": {
+              "ru": "Стоп закрывает по вашей цене и оставляет часть маржи. Ликвидация не оставляет ничего.",
+              "en": "A stop closes at your price and leaves part of the margin. Liquidation leaves nothing."
+            }
+          },
+          {
+            "title": {
+              "ru": "Плечо не заменяет размер позиции",
+              "en": "Leverage is not position sizing"
+            },
+            "text": {
+              "ru": "Взять 10× на десятую часть депозита и 1× на весь депозит — разные вещи по риску, хотя сумма позиции одна.",
+              "en": "Taking 10× on a tenth of your capital and 1× on all of it carry different risk, even though the position size matches."
+            }
+          }
+        ]
+      }
+    ],
   },
   {
     slug: 'liquidation',
