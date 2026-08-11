@@ -8,6 +8,7 @@ import { splitPinned } from '@/lib/exchangeRanking';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from '@/lib/exchangeFilters';
 import ExchangeTable from '@/components/ui/ExchangeTable';
 import ExchangeFeatured from '@/components/ui/ExchangeFeatured';
+import ExchangeRankingNotes from '@/components/ui/ExchangeRankingNotes';
 import { formatVolume, slugFor } from '@/components/ui/exchangePresentation';
 import ExchangeToolbar, { type ExchangeSearchParams } from '@/components/ui/ExchangeToolbar';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -123,12 +124,17 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
     ...(lastDataChange ? { dateModified: toIso(lastDataChange) } : {}),
   };
 
+  // The neutral ranking only. Paid placements sit above the table and are
+  // labelled, but merging them in here told Google the order was
+  // Binance -> WhiteBIT -> OKX when WhiteBIT is eighth by volume — a page whose
+  // H1 promises a ranking by volume was declaring a different one in its
+  // structured data.
   const itemListLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: isRu ? 'Рейтинг криптобирж по объёму торгов' : 'Crypto exchanges ranked by trading volume',
-    numberOfItems: shown.length,
-    itemListElement: shown.map((e, i) => ({
+    numberOfItems: ranked.length,
+    itemListElement: ranked.map((e, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       name: e.name,
@@ -222,6 +228,19 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
                   ? 'Нажмите на строку, чтобы открыть обзор биржи на CryptoPulse. «Торговать» открывается в новой вкладке.'
                   : 'Tap a row to open our review of that exchange. “Trade” opens in a new tab.'}
               </p>
+
+              {/* The page carried no prose at all: extraction returned ~53 words
+                  of chrome, so there was nothing on it to quote even though the
+                  figures are real. The lead sentence is generated from the same
+                  numbers the table shows, so it cannot drift from them. */}
+              <ExchangeRankingNotes
+                isRu={isRu}
+                venueCount={shown.length}
+                totalVolume={totalVolume}
+                licensedCount={licensedCount}
+                leader={shown[0]}
+                runnerUp={ranked[0]}
+              />
             </>
           )}
 
