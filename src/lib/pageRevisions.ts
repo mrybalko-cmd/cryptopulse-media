@@ -4,7 +4,7 @@
 //   node scripts/gen-page-revisions.mjs
 
 export const PAGE_REVISIONS: Record<string, string> = {
-  '/calculators': '2026-08-10',
+  '/calculators': '2026-08-11',
   '/calculators/wealth': '2026-07-30',
   '/calculators/converter': '2026-08-10',
   '/privacy': '2026-07-30',
@@ -14,8 +14,6 @@ export const PAGE_REVISIONS: Record<string, string> = {
   '/faq': '2026-07-30',
   '/security': '2026-07-30',
   '/editorial-policy': '2026-07-30',
-  '/about': '2026-07-30',
+  '/about': '2026-08-11',
   '/regulation': '2026-07-30',
-  'glossary': '2026-07-30',
-  'aiGlossary': '2026-07-14',
 };

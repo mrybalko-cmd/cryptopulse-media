@@ -3,7 +3,9 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import { GLOSSARY } from '@/lib/glossary';
+import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
+import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -53,12 +55,9 @@ export default async function GlossaryTermPage({ params }: Props) {
   const name = term.term[loc];
   const definition = term.definition[loc];
 
-  // Adjacent terms for "See also"
-  const idx = GLOSSARY.findIndex(t => t.slug === slug);
-  const related = [
-    ...GLOSSARY.slice(Math.max(0, idx - 3), idx),
-    ...GLOSSARY.slice(idx + 1, idx + 4),
-  ].slice(0, 6);
+  // The set's baseline is the honest floor for when this text first existed;
+  // a term rewritten since then carries its own date.
+  const published = GLOSSARY_BASELINE;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -79,8 +78,12 @@ export default async function GlossaryTermPage({ params }: Props) {
     headline: isRu ? `${name}: что это такое в криптовалютах` : `${name}: What It Means in Crypto`,
     description: definition,
     inLanguage: locale,
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    // Reference the sitewide publisher entity rather than restating it, so the
+    // organization is described once and every page points at the same node.
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
+    ...(published ? { datePublished: published } : {}),
+    ...(term.updated ? { dateModified: term.updated } : {}),
     mainEntityOfPage: `${BASE}/${locale}/glossary/${slug}`,
   };
 
@@ -113,50 +116,7 @@ export default async function GlossaryTermPage({ params }: Props) {
         <span className="text-foreground">{name}</span>
       </nav>
 
-      {/* Term */}
-      <div className="mb-10">
-        <div className="inline-block text-xs font-bold uppercase tracking-widest text-accent mb-3">
-          {isRu ? 'Термин' : 'Term'}
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-6 leading-tight">{name}</h1>
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <p className="text-foreground text-base leading-relaxed">{definition}</p>
-        </div>
-      </div>
-
-      {/* Back link */}
-      <Link
-        href={`/${locale}/glossary`}
-        className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline mb-10"
-      >
-        ← {isRu ? 'Все термины глоссария' : 'All glossary terms'}
-      </Link>
-
-      {/* Related terms */}
-      {related.length > 0 && (
-        <section>
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted mb-4">
-            {isRu ? 'Смотрите также' : 'See also'}
-          </h2>
-          <div className="flex flex-col gap-2">
-            {related.map(t => (
-              <Link
-                key={t.slug}
-                href={`/${locale}/glossary/${t.slug}`}
-                className="group flex items-start gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:border-accent/40 transition-colors"
-              >
-                <span className="text-accent mt-0.5 shrink-0">→</span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
-                    {t.term[loc]}
-                  </p>
-                  <p className="text-xs text-muted mt-0.5 line-clamp-1">{t.definition[loc]}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <GlossaryTermBody term={term} all={GLOSSARY} locale={locale} base="glossary" />
     </div>
   );
 }

@@ -1,5 +1,9 @@
 import type { GlossaryTerm } from './glossary';
 
+/** See GLOSSARY_BASELINE in ./glossary — same reasoning, this file's own
+ *  commit date would re-stamp all 22 AI terms whenever one is edited. */
+export const AI_GLOSSARY_BASELINE = '2026-07-14';
+
 export const AI_GLOSSARY: GlossaryTerm[] = [
   {
     slug: 'llm',

@@ -58,12 +58,6 @@ for (const p of paths) {
   entries.push([p, date]);
 }
 
-// Data files that back generated pages but aren't routes themselves.
-for (const [key, file] of [['glossary', 'src/lib/glossary.ts'], ['aiGlossary', 'src/lib/aiGlossary.ts']]) {
-  const date = lastCommitDate(file);
-  if (date) entries.push([key, date]);
-  else missing.push(`${key} (no commit touching ${file})`);
-}
 
 const body = entries.map(([k, v]) => `  '${k}': '${v}',`).join('\n');
 writeFileSync(

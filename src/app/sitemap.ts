@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
-import { GLOSSARY } from '@/lib/glossary';
-import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
+import { AI_GLOSSARY, AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
 import { COINS } from '@/lib/coins';
 import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/sitemapRoutes';
@@ -55,7 +55,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   //   Hand-authored      their source file's commit date, from pageRevisions.ts
   //                      (regenerate: node scripts/gen-page-revisions.mjs).
   //   Glossary terms     the term's own `updated` if it carries one, else the
-  //                      glossary file's commit date.
+  //                      set's frozen baseline (not the file's commit date, or
+  //                      one rewritten term would re-date all 65).
   //
   // This replaces a single hardcoded 2026-06-01 that covered 364 of 1668 URLs —
   // all of the glossary and assets, 97% of exchanges, 92% of the AI section —
@@ -149,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  const glossaryDate = revisionOf('glossary');
+  const glossaryDate = toDate(GLOSSARY_BASELINE) ?? todayUtc;
   const glossaryTermPages = GLOSSARY.flatMap(term => {
     const d = toDate(term.updated) ?? glossaryDate;
     return [
@@ -158,7 +159,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
 
-  const aiGlossaryDate = revisionOf('aiGlossary');
+  const aiGlossaryDate = toDate(AI_GLOSSARY_BASELINE) ?? todayUtc;
   const aiGlossaryTermPages = AI_GLOSSARY.flatMap(term => {
     const d = toDate(term.updated) ?? aiGlossaryDate;
     return [
