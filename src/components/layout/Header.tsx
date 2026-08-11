@@ -66,7 +66,7 @@ export default function Header() {
             spacer on desktop where the theme toggle lives on the right. */}
         <div className="flex items-center gap-1.5">
           <button
-            className="md:hidden p-2 rounded-lg border border-border text-foreground hover:border-accent transition-colors"
+            className="tap-target md:hidden p-2 rounded-lg border border-border text-foreground hover:border-accent transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={menuOpen}
@@ -74,7 +74,7 @@ export default function Header() {
           >
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-          <ThemeToggle className="md:hidden p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
+          <ThemeToggle className="tap-target md:hidden p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
         </div>
 
         {/* Logo */}
@@ -102,12 +102,12 @@ export default function Header() {
         {/* Right controls — burger moved to the left, so language switcher + search now have room to breathe */}
         <div className="flex items-center justify-end gap-1.5">
           {/* Theme toggle — desktop only */}
-          <ThemeToggle className="hidden md:flex p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
+          <ThemeToggle className="tap-target hidden md:flex p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors" />
 
           {/* Language switcher — always visible, including mobile (was reachable only via the burger menu before) */}
           <Link
             href={switchPath}
-            className="flex px-2 sm:px-3 py-1.5 text-xs font-semibold border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors"
+            className="tap-target flex items-center px-2 sm:px-3 py-1.5 text-xs font-semibold border border-border rounded-lg text-muted hover:text-foreground hover:border-accent/40 transition-colors"
             hrefLang={otherLocale}
           >
             {t('switchLang')}

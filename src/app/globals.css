@@ -199,6 +199,24 @@ h1, h2, h3, h4, h5, h6, p, li, a {
   }
 }
 
+/* Brings a small control up to the ~44px minimum touch target without changing
+   what it looks like or how much room it takes in the layout. The site's icon
+   buttons are drawn at 34-36px, which is right visually and too small for a
+   thumb; growing the box would have meant redrawing the header. The overlay is
+   centred, so it only ever reaches into the gap around the control. */
+.tap-target {
+  position: relative;
+}
+.tap-target::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--background); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

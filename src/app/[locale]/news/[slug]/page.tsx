@@ -23,6 +23,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import { SITE_NAME } from '@/lib/constants';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import SwgBasic from '@/components/layout/SwgBasic';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -157,6 +158,7 @@ export default async function NewsDetailPage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <ViewTracker id={news._id} />
+      <SwgBasic locale={locale} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">

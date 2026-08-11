@@ -6,6 +6,8 @@ import { setRequestLocale } from 'next-intl/server';
 import { Lock, MessageCircle, Star } from 'lucide-react';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchEurRates } from '@/lib/eurRates';
+import { formatTimestamp, toIso } from '@/lib/formatTimestamp';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import EurCalculator from '@/components/ui/EurCalculator';
 import EurRatesTable from '@/components/ui/EurRatesTable';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -98,6 +100,12 @@ export default async function RatesPage({ params }: Props) {
   const isRu = locale === 'ru';
 
   const rates = await fetchEurRates();
+  // Quotes are pulled live from the venues' public APIs on every render, and
+  // the page revalidates every 120s, so the moment of this fetch IS the age of
+  // the data. Previously the page claimed to update "every couple of minutes"
+  // while emitting no date at all, which left crawlers to guess one.
+  const fetchedAt = new Date();
+  const fetchedStamp = formatTimestamp(fetchedAt);
   const faq = isRu ? FAQ_RU : FAQ_EN;
   const loc = (isRu ? 'ru' : 'en') as 'ru' | 'en';
 
@@ -123,7 +131,8 @@ export default async function RatesPage({ params }: Props) {
         '@type': 'WebPage',
         name: isRu ? 'Курс USDT и USDC к евро' : 'USDT & USDC to EUR rate',
         url: pageUrl,
-        publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+        publisher: { '@id': ORGANIZATION_ID },
+        dateModified: toIso(fetchedAt),
       },
       {
         '@type': 'BreadcrumbList',
@@ -184,7 +193,10 @@ export default async function RatesPage({ params }: Props) {
           </span>
           <span className="flex items-center px-4 sm:px-5 py-2.5 whitespace-nowrap">
             <span className="text-[10px] text-muted">
-              {isRu ? 'обновляется каждые пару минут' : 'updated every couple of minutes'}
+              {isRu ? 'обновлено ' : 'updated '}
+              <time dateTime={toIso(fetchedAt) ?? undefined} className="tabular-nums">
+                {fetchedStamp?.full}
+              </time>
             </span>
           </span>
         </div>
@@ -228,7 +240,10 @@ export default async function RatesPage({ params }: Props) {
             {isRu ? 'Курсы сейчас' : 'Current rates'}
           </h2>
           <span className="text-[11px] text-muted">
-            {isRu ? 'обновляется каждые пару минут' : 'updated every couple of minutes'}
+            {isRu ? 'обновлено ' : 'updated '}
+            <time dateTime={toIso(fetchedAt) ?? undefined} className="tabular-nums">
+              {fetchedStamp?.full}
+            </time>
           </span>
         </div>
         {rates.length > 0 ? (

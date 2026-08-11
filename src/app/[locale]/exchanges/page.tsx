@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchExchanges, fetchPopularContent, fetchActiveBanners, type ExchangeRaw } from '@/lib/sanity';
+import { formatTimestamp, toIso } from '@/lib/formatTimestamp';
 import { splitPinned } from '@/lib/exchangeRanking';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from '@/lib/exchangeFilters';
 import ExchangeTable from '@/components/ui/ExchangeTable';
@@ -101,6 +102,16 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
   const licensedCount = shown.filter(exchangeHasLicense).length;
   const maxVolume = Math.max(0, ...shown.map(e => e.volume24h ?? 0));
 
+  // The newest exchange document is when this ranking last actually changed:
+  // /api/cron/exchange-volumes rewrites the 24h figures daily. Claiming a
+  // freshness the data doesn't have is what the page did before, saying
+  // "updated once a day" while emitting no date at all for anything to read.
+  const lastDataChange = shown.reduce<string | null>(
+    (latest, e) => (e._updatedAt && (!latest || e._updatedAt > latest) ? e._updatedAt : latest),
+    null,
+  );
+  const updatedStamp = lastDataChange ? formatTimestamp(lastDataChange) : null;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -109,6 +120,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
       ? 'Рейтинг крупнейших криптобирж по объёму торгов.'
       : 'Ranking of the largest crypto exchanges by trading volume.',
     url: `${BASE}/${locale}/exchanges`,
+    ...(lastDataChange ? { dateModified: toIso(lastDataChange) } : {}),
   };
 
   const itemListLd = {
@@ -151,11 +163,19 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
             {isRu ? 'Криптобиржи — ' : 'Crypto exchanges — '}
             <span className="text-accent">{isRu ? 'рейтинг по объёму' : 'ranked by volume'}</span>
           </h1>
-          <p className="text-muted text-sm leading-relaxed max-w-[60ch] mb-4">
+          <p className="text-muted text-sm leading-relaxed max-w-[60ch] mb-2">
             {isRu
-              ? 'Обновляется автоматически раз в сутки. Продукты, лицензии и материалы CryptoPulse по каждой площадке.'
-              : 'Updated automatically once a day. Products, licensing and CryptoPulse coverage for every venue.'}
+              ? 'Продукты, лицензии и материалы CryptoPulse по каждой площадке.'
+              : 'Products, licensing and CryptoPulse coverage for every venue.'}
           </p>
+          {updatedStamp && (
+            <p className="text-muted text-xs mb-4">
+              {isRu ? 'Обороты обновлены ' : 'Volumes updated '}
+              <time dateTime={toIso(lastDataChange!) ?? undefined} className="tabular-nums">
+                {updatedStamp.full}
+              </time>
+            </p>
+          )}
 
           {/* Desktop: a summary strip. Mobile: one quiet line — it is a
               reference figure, not what people come to the page for. */}

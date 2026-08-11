@@ -89,10 +89,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <head>
-        {/* Only preconnect to the image CDN (the LCP hero cover). GA/GTM and
-            Subscribe-with-Google load lazily (below), so preconnecting to them
-            up front is premature — it just trips PageSpeed's ">4 preconnects /
-            unused preconnect" warning without helping. */}
+        {/* Only preconnect to the image CDN (the LCP hero cover). GA/GTM load
+            lazily below, and Subscribe-with-Google now loads only on article
+            and news pages, so preconnecting to either up front is premature —
+            it just trips PageSpeed's ">4 preconnects / unused preconnect"
+            warning without helping. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="alternate" type="application/rss+xml" title="CryptoPulse.media" href="/rss.xml" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
@@ -108,21 +109,6 @@ export default async function LocaleLayout({ children, params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Google Reader Revenue Manager — Subscribe with Google Basic,
-            configured as open-access (no paywall). Gives Google a structured
-            signal about content access for News/Discover; same snippet
-            works across every page, only `lang` varies by locale. */}
-        <Script async src="https://news.google.com/swg/js/v1/swg-basic.js" strategy="lazyOnload" />
-        <Script id="swg-basic-init" strategy="lazyOnload">
-          {`(self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
-            basicSubscriptions.init({
-              type: "NewsArticle",
-              isPartOfType: ["Product"],
-              isPartOfProductId: "CAow3cm3DA:openaccess",
-              clientOptions: { theme: "light", lang: "${locale}" },
-            });
-          });`}
-        </Script>
       </head>
       <body suppressHydrationWarning className="overflow-x-clip">
         <NextIntlClientProvider messages={messages}>

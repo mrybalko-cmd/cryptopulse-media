@@ -52,7 +52,7 @@ export default function SiteSearch({ locale, iconOnly }: { locale: string; iconO
         <button
           onClick={() => setOpen(true)}
           aria-label={locale === 'ru' ? 'Поиск по сайту' : 'Search'}
-          className="p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors"
+          className="tap-target p-2 rounded-lg border border-border text-muted hover:text-foreground hover:bg-card transition-colors"
         >
           <Search size={16} />
         </button>

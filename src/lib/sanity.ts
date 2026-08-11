@@ -813,6 +813,10 @@ export interface ExchangeProductRaw {
 
 export interface ExchangeRaw {
   _id: string;
+  /** Last write to the document. On exchanges this is a real content signal:
+   *  the daily volume cron rewrites the 24h figures, which is exactly what a
+   *  ranking by volume is showing. */
+  _updatedAt?: string;
   name: string;
   logo: string | null;
   logoBg?: string;
@@ -853,7 +857,7 @@ export interface ExchangeDetailRaw extends ExchangeRaw {
 }
 
 const EXCHANGE_LIST_PROJECTION = `
-  _id, name, "logo": logo.asset->url, logoBg,
+  _id, _updatedAt, name, "logo": logo.asset->url, logoBg,
   "slugRu": slugRu.current, "slugEn": slugEn.current,
   foundedYear, website, linkLabel, trackingUrl, tradeUrl, type, taglineRu, taglineEn,
   volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
