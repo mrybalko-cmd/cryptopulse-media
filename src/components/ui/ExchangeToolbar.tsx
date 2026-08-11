@@ -67,11 +67,11 @@ export default function ExchangeToolbar({ sp, locale }: { sp: ExchangeSearchPara
       </div>
 
       <div className="flex items-center gap-2">
-        <details className="relative">
+        <details className="relative z-40">
           <summary className="cursor-pointer select-none list-none flex items-center gap-1.5 text-xs font-semibold border border-border rounded-lg px-3 py-2 bg-card text-foreground whitespace-nowrap">
             {isRu ? activeSort.ru : activeSort.en} <span className="text-muted">▾</span>
           </summary>
-          <div className="absolute right-0 z-20 mt-1.5 w-56 bg-card border border-border rounded-lg shadow-xl py-1.5">
+          <div className="absolute right-0 z-40 mt-1.5 w-56 bg-card border border-border rounded-lg shadow-xl py-1.5">
             {SORTS.map(s => (
               <Link
                 key={s.value}
@@ -84,7 +84,7 @@ export default function ExchangeToolbar({ sp, locale }: { sp: ExchangeSearchPara
           </div>
         </details>
 
-        <details className="relative" open={activeFilterCount > 0 || undefined}>
+        <details className="relative z-40" open={activeFilterCount > 0 || undefined}>
           <summary className="cursor-pointer select-none list-none flex items-center gap-1.5 text-xs font-semibold border border-border rounded-lg px-3 py-2 bg-card text-foreground whitespace-nowrap">
             <span aria-hidden>⚙</span> {isRu ? 'Фильтры' : 'Filters'}
             {activeFilterCount > 0 && (
@@ -94,7 +94,7 @@ export default function ExchangeToolbar({ sp, locale }: { sp: ExchangeSearchPara
           </summary>
           <form
             action={base}
-            className="static sm:absolute sm:z-20 sm:right-0 mt-3 sm:mt-1.5 w-full sm:w-[600px] sm:max-w-[80vw] bg-card border border-border rounded-xl p-5 sm:shadow-xl"
+            className="static sm:absolute sm:z-40 sm:right-0 mt-3 sm:mt-1.5 w-full sm:w-[600px] sm:max-w-[80vw] bg-card border border-border rounded-xl p-5 sm:shadow-xl"
           >
             {activeType && <input type="hidden" name="type" value={activeType} />}
             {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}

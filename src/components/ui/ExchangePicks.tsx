@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { ExchangeRaw } from '@/lib/sanity';
 import { exchangeHasLicense, exchangeHasProductCategory } from '@/lib/exchangeFilters';
-import { ExchangeLogo } from './exchangePresentation';
+import { ExchangeLogo, slugFor } from './exchangePresentation';
 
 type Props = { exchanges: ExchangeRaw[]; locale: string };
 
@@ -139,24 +139,34 @@ export default function ExchangePicks({ exchanges, locale }: Props) {
           : 'The answers are computed from the ranking’s own data and move with it. We do not compare fees: we hold no fee data.'}
       </p>
 
+      {/* Two sibling links per row rather than one wrapping the whole thing: the
+          question leads to the filtered ranking, the venue leads to that venue's
+          own review. Nesting them is invalid HTML — the parser closes the outer
+          anchor and the inner one escapes its container. */}
       <div className="flex flex-col">
         {answered.map(({ pick, winner }) => (
-          <Link
+          <div
             key={pick.q}
-            href={`/${locale}/exchanges${pick.href}`}
-            className="group grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2 sm:gap-4 sm:items-center py-3.5 border-b border-border last:border-b-0"
+            className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2 sm:gap-4 sm:items-center py-3.5 border-b border-border last:border-b-0"
           >
-            <span>
+            <Link href={`/${locale}/exchanges${pick.href}`} className="group block">
               <span className="block text-[14.5px] font-bold text-foreground transition-colors group-hover:text-[var(--title-hover)]">
                 {pick.q}
               </span>
               <span className="block text-xs text-muted leading-[1.55] mt-1">{pick.a}</span>
-            </span>
-            <span className="flex items-center gap-2 shrink-0">
+            </Link>
+
+            <Link
+              href={`/${locale}/exchanges/${slugFor(winner, locale)}`}
+              className="group flex items-center gap-2 shrink-0 justify-self-start sm:justify-self-end"
+              aria-label={isRu ? `Обзор ${winner.name}` : `${winner.name} review`}
+            >
               <ExchangeLogo exchange={winner} size={26} />
-              <span className="text-[13.5px] font-extrabold text-foreground">{winner.name}</span>
-            </span>
-          </Link>
+              <span className="text-[13.5px] font-extrabold text-foreground transition-colors group-hover:text-[var(--title-hover)]">
+                {winner.name}
+              </span>
+            </Link>
+          </div>
         ))}
       </div>
 
