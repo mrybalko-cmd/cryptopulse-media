@@ -40,7 +40,14 @@ export default function TemaDnyaCard({ article, locale }: TemaDnyaCardProps) {
           alt={article.coverImageAlt || article.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          priority
+          // Next 16 deprecated `priority`: it now only injects a <link preload>
+          // and no longer marks the element itself, which is why this image —
+          // the measured LCP on the homepage — shipped with no priority hint at
+          // all. The docs also say not to preload when the LCP element depends
+          // on the viewport, and this card renders in both the mobile and the
+          // desktop branch, so the element-level hint is the correct one here.
+          loading="eager"
+          fetchPriority="high"
           unoptimized
         />
       )}

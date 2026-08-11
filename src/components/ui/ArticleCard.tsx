@@ -54,7 +54,9 @@ export default function ArticleCard({
             alt={coverImageAlt || title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            priority={priority}
+            // See TemaDnyaCard: `priority` no longer hints the element in Next 16.
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
             unoptimized
           />
           {imageFade && <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />}
