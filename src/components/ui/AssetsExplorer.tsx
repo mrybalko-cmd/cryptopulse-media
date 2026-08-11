@@ -476,7 +476,7 @@ export default function AssetsExplorer({ assets, locale }: { assets: AssetRow[];
           </h2>
           <span className="text-[11px] text-muted tabular-nums text-right">
             <span className="hidden md:inline">
-              {isRu ? 'график — 7 дней · цены 3× в сутки · ' : 'sparkline = 7 days · prices refresh 3× daily · '}
+              {isRu ? 'график — 7 дней · цены каждые 15 минут · ' : 'sparkline = 7 days · prices refresh every 15 minutes · '}
             </span>
             {visible.length} {isRu ? 'из' : 'of'} {assets.length}
           </span>

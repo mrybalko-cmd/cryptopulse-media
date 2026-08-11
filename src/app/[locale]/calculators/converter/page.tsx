@@ -1,3 +1,8 @@
+// Without this the route is fully static: prices are baked in at build time
+// and a failed upstream call during that build leaves the page blank until
+// somebody deploys again. Now it re-renders on its own every 15 minutes.
+export const revalidate = 900;
+
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';

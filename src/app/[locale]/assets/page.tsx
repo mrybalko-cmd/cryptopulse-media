@@ -1,3 +1,8 @@
+// Without this the route is fully static: prices are baked in at build time
+// and a failed upstream call during that build leaves the page blank until
+// somebody deploys again. Now it re-renders on its own every 15 minutes.
+export const revalidate = 900;
+
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
@@ -39,8 +44,8 @@ const ASSETS_FAQ = [
       en: 'How often do the prices on this page update?',
     },
     answer: {
-      ru: 'Цена, капитализация и график за 7 дней обновляются три раза в сутки по данным CoinGecko. Это справочный контекст рядом с редакционными материалами, а не биржевой терминал — для сделок сверяйтесь с биржей.',
-      en: 'Price, market cap and the 7-day chart refresh three times a day from CoinGecko. This is reference context next to editorial content, not a trading terminal — check an exchange before acting on a number.',
+      ru: 'Цена, капитализация и график за 7 дней обновляются каждые 15 минут по данным CoinGecko. Это справочный контекст рядом с редакционными материалами, а не биржевой терминал — для сделок сверяйтесь с биржей.',
+      en: 'Price, market cap and the 7-day chart refresh every 15 minutes from CoinGecko. This is reference context next to editorial content, not a trading terminal — check an exchange before acting on a number.',
     },
   },
   {

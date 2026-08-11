@@ -184,22 +184,40 @@ export interface CoinPriceSnapshot {
     context next to editorial content, not a trading screen — but a full day
     was too stale once /assets started showing market cap and weekly momentum
     as its own data layer. */
-export const ASSET_PRICE_REVALIDATE = 28_800;
+// 15 minutes, not the 8 hours this used to be. The window is not really a
+// freshness setting — it is how long a bad response stays cached. CoinGecko's
+// free tier rate-limits, `fetchTopAssetPrices` turns any failure into `{}`,
+// and at 8 hours one 429 during a deploy left /assets showing blanks for the
+// rest of the day.
+export const ASSET_PRICE_REVALIDATE = 900;
 
 // Server-side price fetch used by the homepage "Top assets" widgets and the
 // /assets listing page.
 export async function fetchTopAssetPrices(coingeckoIds: string[]): Promise<Record<string, CoinPriceSnapshot>> {
   if (coingeckoIds.length === 0) return {};
-  try {
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coingeckoIds.join(',')}&order=market_cap_desc&per_page=${coingeckoIds.length}&page=1&sparkline=true&price_change_percentage=24h,7d`;
-    const res = await fetch(url, {
-      next: { revalidate: ASSET_PRICE_REVALIDATE },
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-    });
-    if (!res.ok) return {};
-    const data: CoinPriceSnapshot[] = await res.json();
-    return Object.fromEntries(data.map(c => [c.id, c]));
-  } catch {
-    return {};
+
+  const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coingeckoIds.join(',')}&order=market_cap_desc&per_page=${coingeckoIds.length}&page=1&sparkline=true&price_change_percentage=24h,7d`;
+
+  // One retry, uncached. CoinGecko's free tier rate-limits, and a single 429
+  // during a build used to be enough to ship a page of blanks: the empty result
+  // is indistinguishable from "this coin has no data" by the time it reaches the
+  // template. The retry skips the cache so it cannot be answered by the same
+  // failed response that just came back.
+  for (const attempt of [0, 1]) {
+    try {
+      const res = await fetch(url, {
+        ...(attempt === 0
+          ? { next: { revalidate: ASSET_PRICE_REVALIDATE } }
+          : { cache: 'no-store' as const }),
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      });
+      if (!res.ok) continue;
+      const data: CoinPriceSnapshot[] = await res.json();
+      if (data.length === 0) continue;
+      return Object.fromEntries(data.map(c => [c.id, c]));
+    } catch {
+      // fall through to the retry, then to the empty result
+    }
   }
+  return {};
 }
