@@ -43,11 +43,18 @@ export interface CoinHistoryPoint {
 async function fetchAllMarkets(): Promise<Map<string, CoinMarket>> {
   const ids = [...new Set(Object.values(COIN_REGISTRY).map((m) => m.id))].join(',');
   const out = new Map<string, CoinMarket>();
+  const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&price_change_percentage=24h&per_page=250`;
   try {
-    const res = await fetch(
-      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&price_change_percentage=24h&per_page=250`,
-      { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 900 } }
-    );
+    // A build runs page workers in parallel and each one asks, so the burst
+    // still meets the rate limit even though the request itself is batched.
+    // Two seconds is enough for the window to clear and stays far inside the
+    // platform's per-page budget — the twenty-second backoff that replaced an
+    // earlier version of this failed the deployment outright.
+    let res = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 900 } });
+    if (res.status === 429) {
+      await new Promise((r) => setTimeout(r, 2_000));
+      res = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 900 } });
+    }
     if (!res.ok) return out;
     const rows = await res.json();
     if (!Array.isArray(rows)) return out;
