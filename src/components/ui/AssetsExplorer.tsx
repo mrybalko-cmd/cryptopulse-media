@@ -120,11 +120,6 @@ function SpotlightCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en'
             {asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}
           </p>
         </div>
-        {asset.rank && (
-          <span className="ml-auto text-[10px] font-extrabold text-muted border border-border rounded-md px-1.5 py-0.5 tabular-nums self-start">
-            #{asset.rank}
-          </span>
-        )}
       </div>
 
       {asset.price !== undefined && (
@@ -132,11 +127,23 @@ function SpotlightCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en'
           {formatPrice(asset.price)}
         </p>
       )}
-      <div className="flex items-center gap-2.5 mt-2.5">
+      {/* Wraps as whole phrases: three items no longer fit on one line on a
+          narrow phone, and without nowrap they broke mid-phrase — "$1.29T
+          капита-/лизация" across two lines in a card 289px wide. */}
+      <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1.5 mt-2.5">
         {asset.ch24 !== undefined && <ChangeChip value={asset.ch24} />}
         {asset.mcap !== undefined && (
-          <span className="text-[11px] text-muted tabular-nums">
+          <span className="text-[11px] text-muted tabular-nums whitespace-nowrap">
             {formatMoney(asset.mcap)} {isRu ? 'капитализация' : 'cap'}
+          </span>
+        )}
+        {/* The rank sits beside the market cap rather than in the top corner:
+            the two say the same thing in different units, and the corner is
+            the arrow's — they used to overlap on hover. "worldwide" is not
+            decoration; without it a bare #96 reads as 96th on this page. */}
+        {asset.rank && (
+          <span className="text-[11px] text-muted tabular-nums whitespace-nowrap border-l border-border pl-2.5">
+            #{asset.rank} {isRu ? 'в мире' : 'worldwide'}
           </span>
         )}
       </div>
@@ -162,7 +169,7 @@ function AssetCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en' }) 
         <div className="min-w-0">
           <p className="text-[13.5px] font-extrabold text-foreground leading-tight truncate">{asset.name}</p>
           <p className="text-[10.5px] text-muted font-semibold mt-px tabular-nums">
-            {asset.rank ? `#${asset.rank} · ` : ''}{asset.symbol}
+            {asset.symbol}{asset.rank ? ` · #${asset.rank}` : ''}
           </p>
         </div>
         {asset.price !== undefined && (
@@ -223,7 +230,10 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className={`${th} text-left`}>#</th>
+            {/* Not "#": the figure is CoinGecko's global market-cap rank, so
+                the gaps in it are coins we do not cover. A bare hash invited
+                the reading "Nth on this page", which it never was. */}
+            <th className={`${th} text-left`}>{isRu ? 'В мире' : 'Worldwide'}</th>
             <th className={`${th} text-left`}>{isRu ? 'Актив' : 'Asset'}</th>
             <th className={`${th} text-right`}>{isRu ? 'Цена' : 'Price'}</th>
             <th className={`${th} text-right`}>24{isRu ? 'ч' : 'h'}</th>
@@ -236,7 +246,7 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
         <tbody>
           {assets.map((asset) => (
             <tr key={asset.slug} className="hover:bg-card-hover transition-colors">
-              <td className={`${td} text-left text-muted text-[11px]`}>{asset.rank ?? '—'}</td>
+              <td className={`${td} text-left text-muted text-[11px]`}>{asset.rank ? `#${asset.rank}` : '—'}</td>
               <td className={`${td} text-left`}>
                 <Link href={`/${locale}/assets/${asset.slug}`} className="flex items-center gap-2.5 min-w-0">
                   <CoinLogo asset={asset} size={24} />
@@ -270,6 +280,23 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
         </tbody>
       </table>
     </div>
+  );
+}
+
+/**
+ * Why the numbering skips.
+ *
+ * Shown under both views, because both carry the rank. Readers counted the
+ * gaps and concluded the list was broken — it is not, the figure was simply
+ * never about this page.
+ */
+function RankNote({ locale }: { locale: 'ru' | 'en' }) {
+  return (
+    <p className="text-[11px] text-muted leading-relaxed mt-3 max-w-[68ch]">
+      {locale === 'ru'
+        ? 'Место — позиция монеты по капитализации среди всех криптовалют мира, а не в этом списке. Пропуски в нумерации — это стейблкоины и обёрточные токены, страницы по которым мы не ведём.'
+        : 'The rank is a coin’s place by market cap among all cryptocurrencies worldwide, not within this list. The gaps are stablecoins and wrapped tokens, which we do not cover.'}
+    </p>
   );
 }
 
@@ -489,13 +516,19 @@ export default function AssetsExplorer({ assets, locale }: { assets: AssetRow[];
               : `Nothing matches “${query}”. Try a ticker like BTC instead.`}
           </p>
         ) : view === 'table' ? (
-          <AssetTable assets={visible} locale={loc} />
+          <>
+            <AssetTable assets={visible} locale={loc} />
+            <RankNote locale={loc} />
+          </>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {visible.map((asset) => (
-              <AssetCard key={asset.slug} asset={asset} locale={loc} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {visible.map((asset) => (
+                <AssetCard key={asset.slug} asset={asset} locale={loc} />
+              ))}
+            </div>
+            <RankNote locale={loc} />
+          </>
         )}
       </section>
     </div>
