@@ -12,9 +12,19 @@
  * The raw inputs recorded per day (volume, Fear & Greed, Altcoin Season) are
  * never touched — only the derived fields are recomputed from them.
  *
+ * DO NOT run the full pass routinely. Weekday factors are re-estimated from
+ * the whole record, so every new day nudges them, and a full rewrite would
+ * move numbers that were already published. The live cron never does this:
+ * it writes only today's row using the factors known at that moment, and
+ * records the factor it used, so each row stays auditable.
+ *
+ * The full pass is for one-off transitions (a formula change). To repair a
+ * single day — e.g. a cron that fired on a stale deployment — use --only.
+ *
  * Usage:
- *   node --experimental-strip-types scripts/backfill-pulse.ts          # dry run
- *   node --experimental-strip-types scripts/backfill-pulse.ts --write  # apply
+ *   node --experimental-strip-types scripts/backfill-pulse.ts                      # dry run, all
+ *   node --experimental-strip-types scripts/backfill-pulse.ts --write              # apply, all
+ *   node --experimental-strip-types scripts/backfill-pulse.ts --only 2026-08-12    # dry run, one day
  */
 
 import { readFileSync } from 'node:fs';
@@ -44,6 +54,10 @@ const PROJECT = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 const TOKEN = process.env.SANITY_API_WRITE_TOKEN;
 const WRITE = process.argv.includes('--write');
+const ONLY = (() => {
+  const i = process.argv.indexOf('--only');
+  return i >= 0 ? process.argv[i + 1] : null;
+})();
 
 if (!PROJECT) {
   console.error('NEXT_PUBLIC_SANITY_PROJECT_ID не задан');
@@ -119,8 +133,18 @@ const oldRange = [Math.min(...rows.map((r) => r.pulseScore)), Math.max(...rows.m
 const newRange = [Math.min(...series), Math.max(...series)];
 console.log(`\nРазмах сырого балла: было ${oldRange[0]}–${oldRange[1]}, стало ${newRange[0]}–${newRange[1]}`);
 
+// --only still computes across the whole record (weekday factors and the
+// baseline window need it) but writes exactly one row, leaving every
+// already-published day alone.
+const toWrite = ONLY ? results.filter((r) => r.row.date === ONLY) : results;
+if (ONLY && toWrite.length === 0) {
+  console.error(`\nСнапшота за ${ONLY} нет.`);
+  process.exit(1);
+}
+
 const changed = results.filter((r) => r.score !== r.row.pulseScore).length;
-console.log(`Изменится значений: ${changed} из ${results.length}`);
+console.log(`Изменится значений при полном пересчёте: ${changed} из ${results.length}`);
+console.log(ONLY ? `Режим --only: будет записан только ${ONLY}` : 'Режим: полный пересчёт всех строк');
 
 if (!WRITE) {
   console.log('\nЭто пробный прогон. Чтобы записать, добавьте --write');
@@ -132,7 +156,7 @@ if (!TOKEN) {
 }
 
 await patch(
-  results.map((r) => ({
+  toWrite.map((r) => ({
     patch: {
       id: r.row._id,
       set: {
@@ -145,4 +169,4 @@ await patch(
     },
   }))
 );
-console.log(`\nЗаписано: ${results.length} снапшотов пересчитано.`);
+console.log(`\nЗаписано: ${toWrite.length} снапшот(ов) пересчитано.`);
