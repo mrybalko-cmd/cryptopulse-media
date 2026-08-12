@@ -1,28 +1,31 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import TonCalculator from '@/components/ui/TonCalculator';
-import { TON_QUOTES, TON_FAQ } from '@/lib/tonData';
+import { TON_QUOTES, TON_FAQ, TON_INVESTMENT_REFERENCE } from '@/lib/tonData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'ton';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Toncoin (TON) — История, цена и калькулятор инвестиций'
-    : 'Toncoin (TON) — History, Price & Investment Calculator';
+    ? 'Gram (GRAM), ранее Toncoin: цена и история'
+    : 'Gram (GRAM), formerly Toncoin: price and history';
   const description = isRu
-    ? 'История TON: блокчейн Telegram, заблокированный SEC, воскрешённый сообществом и принятый обратно Дуровым. Hamster Kombat, 900M пользователей и интеграция с Telegram. Калькулятор инвестиций.'
-    : 'TON history: the Telegram blockchain blocked by the SEC, resurrected by the community, and taken back by Durov. Hamster Kombat, 900M users and Telegram integration. Investment calculator.';
+    ? 'Gram (бывший Toncoin) — монета экосистемы Telegram: цена, история ребрендинга и калькулятор инвестиций.'
+    : 'Gram, formerly Toncoin — the coin of the Telegram ecosystem: price, the story of the rebrand, and an investment calculator.';
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
-      ? ['ton блокчейн', 'toncoin telegram', 'ton история', 'pavel durov криптовалюта', 'ton калькулятор']
-      : ['ton blockchain', 'toncoin telegram', 'ton history', 'pavel durov cryptocurrency', 'ton investment calculator'],
+      ? ['gram монета', 'toncoin gram', 'ton ребрендинг', 'gram цена', 'telegram криптовалюта']
+      : ['gram coin', 'toncoin gram', 'ton rebrand', 'gram price', 'telegram cryptocurrency'],
     openGraph: buildOg({ url: `${BASE}/${locale}/assets/ton`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/assets/ton`, title, description, locale }),
     alternates: {
@@ -36,10 +39,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год перезапуска', en: 'Relaunched' }, value: '2021' },
+    { label: { ru: 'Запас', en: 'Supply' }, value: { ru: 'Инфляционный', en: 'Inflationary' } },
+    { label: { ru: 'Основатели', en: 'Founders' }, value: 'П. и Н. Дуров' },
+    { label: { ru: 'Консенсус', en: 'Consensus' }, value: 'PoS (BFT)' },
+  ],
+  investmentReference: TON_INVESTMENT_REFERENCE,
+  faq: TON_FAQ,
+  glossaryTerms: [
+    { slug: 'smart-contract', label: { ru: 'Смарт-контракт', en: 'Smart Contract' } },
+    { slug: 'staking', label: { ru: 'Стейкинг', en: 'Staking' } },
+    { slug: 'ico', label: { ru: 'ICO', en: 'ICO' } },
+    { slug: 'wallet', label: { ru: 'Кошелёк', en: 'Wallet' } },
+    { slug: 'nft', label: { ru: 'NFT', en: 'NFT' } },
+  ],
+};
+
 export default async function TonPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -74,59 +96,9 @@ export default async function TonPage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">Toncoin (TON)</span>
-      </nav>
-
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl font-bold text-accent">💎</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Toncoin <span className="text-muted font-normal text-2xl">TON</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? 'Блокчейн братьев Дуров — от запрета SEC до официальной криптовалюты Telegram' : 'The Durov brothers\' blockchain — from SEC ban to Telegram\'s official cryptocurrency'}
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год перезапуска' : 'Relaunched', value: '2021' },
-            { label: isRu ? 'Запас' : 'Supply', value: isRu ? 'Инфляционный' : 'Inflationary' },
-            { label: isRu ? 'Основатели' : 'Founders', value: 'П. и Н. Дуров' },
-            { label: isRu ? 'Консенсус' : 'Consensus', value: 'PoS (BFT)' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-14">
-        <TonCalculator locale={locale} />
-      </div>
-
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История TON: от мечты Дурова до Telegram-экосистемы' : 'TON History: From Durov\'s Dream to the Telegram Ecosystem'}
-        </h2>
-        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-headings:font-semibold prose-p:text-muted prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:text-muted">
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2018: ICO на $1,7 млрд — и немедленный иск SEC</h3>
               <p>В 2018 году братья Дуров — Павел и Николай — провели одно из крупнейших ICO в истории: Telegram собрал <strong>$1,7 млрд</strong> от 175 аккредитованных инвесторов на разработку блокчейна TON (Telegram Open Network). Проект обещал скорость (млн транзакций в секунду), интеграцию с мессенджером на 400 млн пользователей и кошелёк прямо в Telegram.</p>
@@ -169,67 +141,23 @@ export default async function TonPage({ params }: Props) {
               <p>TON continues expanding: Getgems NFT marketplace, DeFi protocols, Telegram Ads advertising platform with TON payments. Critics point to high centralization (Telegram controls key infrastructure) and legal risks.</p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят о Toncoin' : 'What They Say About Toncoin'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {TON_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы о TON' : 'Frequently Asked Questions About TON'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {TON_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'smart-contract', label: isRu ? 'Смарт-контракт' : 'Smart Contract' },
-            { slug: 'staking', label: isRu ? 'Стейкинг' : 'Staking' },
-            { slug: 'ico', label: 'ICO' },
-            { slug: 'wallet', label: isRu ? 'Кошелёк' : 'Wallet' },
-            { slug: 'nft', label: 'NFT' },
-          ].map(t => (
-            <Link key={t.slug} href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors">
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? 'Блокчейн братьев Дуров — от запрета SEC до официальной криптовалюты Telegram' : 'The Durov brothers\' blockchain — from SEC ban to Telegram\'s official cryptocurrency'}
+        historyTitle={isRu ? 'История TON: от мечты Дурова до Telegram-экосистемы' : 'TON History: From Durov\'s Dream to the Telegram Ecosystem'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={TON_QUOTES}
+      />
+    </>
   );
 }

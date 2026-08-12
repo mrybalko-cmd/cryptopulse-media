@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Arbitrum (ARB) — История, цена и калькулятор инвестиций' : 'Arbitrum (ARB) — History, Price & Investment Calculator';
+  const title = isRu ? 'Arbitrum (ARB): цена, история, калькулятор' : 'Arbitrum (ARB): price, history, calculator';
   const description = isRu
     ? 'История Arbitrum: от исследовательского проекта Принстона до крупнейшего L2-решения для Ethereum и рекордной раздачи токенов. Калькулятор инвестиций в ARB.'
     : 'The history of Arbitrum: from a Princeton research project to the largest Ethereum L2 and a record-setting token airdrop. ARB investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['arbitrum история', 'arb токен', 'раздача arbitrum', 'arbitrum калькулятор', 'layer 2 ethereum']

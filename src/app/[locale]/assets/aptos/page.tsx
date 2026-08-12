@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Aptos (APT) — История, цена и калькулятор инвестиций' : 'Aptos (APT) — History, Price & Investment Calculator';
+  const title = isRu ? 'Aptos (APT): цена, история, калькулятор' : 'Aptos (APT): price, history, calculator';
   const description = isRu
     ? 'История Aptos: от закрытого проекта Meta Diem до независимого L1-блокчейна на языке Move. Калькулятор инвестиций в APT.'
     : "The history of Aptos: from Meta's shuttered Diem project to an independent Move-language L1. APT investment calculator.";
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['aptos история', 'apt токен', 'aptos калькулятор', 'meta diem', 'move язык программирования']

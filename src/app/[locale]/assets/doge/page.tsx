@@ -1,24 +1,25 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import DogeCalculator from '@/components/ui/DogeCalculator';
-import { DOGE_QUOTES, DOGE_FAQ } from '@/lib/dogeData';
+import { DOGE_QUOTES, DOGE_FAQ, DOGE_INVESTMENT_REFERENCE } from '@/lib/dogeData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'doge';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu
-    ? 'Dogecoin (DOGE) — История, цена и калькулятор инвестиций'
-    : 'Dogecoin (DOGE) — History, Price & Investment Calculator';
+  const title = isRu ? 'Dogecoin (DOGE): цена, история, калькулятор' : 'Dogecoin (DOGE): price, history, calculator';
   const description = isRu
     ? 'Полная история Dogecoin: от шутки за два дня до топ-10 криптовалют. Роль Илона Маска, NASCAR, ямайская бобслейная команда и DOGE-мания 2021. Калькулятор: что если бы вы купили DOGE 5 или 10 лет назад.'
     : 'Complete Dogecoin history: from a two-day joke to top-10 cryptocurrency. Elon Musk\'s role, NASCAR, the Jamaican bobsled team and 2021 DOGE mania. Calculator: what if you had bought DOGE 5 or 10 years ago.';
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['dogecoin история', 'doge илон маск', 'dogecoin мем', 'doge калькулятор', 'dogecoin цена']
@@ -36,10 +37,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год создания', en: 'Created' }, value: 'Дек. 2013' },
+    { label: { ru: 'Запас', en: 'Supply' }, value: { ru: 'Без лимита', en: 'Unlimited' } },
+    { label: { ru: 'Создатели', en: 'Creators' }, value: 'Markus & Palmer' },
+    { label: { ru: 'Алгоритм', en: 'Algorithm' }, value: 'Scrypt PoW' },
+  ],
+  investmentReference: DOGE_INVESTMENT_REFERENCE,
+  faq: DOGE_FAQ,
+  glossaryTerms: [
+    { slug: 'altcoin', label: { ru: 'Альткоин', en: 'Altcoin' } },
+    { slug: 'proof-of-work', label: { ru: 'Proof of Work', en: 'Proof of Work' } },
+    { slug: 'market-cap', label: { ru: 'Рыночная капитализация', en: 'Market Cap' } },
+    { slug: 'fomo', label: { ru: 'FOMO', en: 'FOMO' } },
+    { slug: 'whale', label: { ru: 'Кит', en: 'Whale' } },
+  ],
+};
+
 export default async function DogePage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -74,59 +94,9 @@ export default async function DogePage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">Dogecoin (DOGE)</span>
-      </nav>
-
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl font-bold text-accent">Ð</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Dogecoin <span className="text-muted font-normal text-2xl">DOGE</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? 'Мем-монета №1, ставшая «народной криптовалютой» благодаря Илону Маску' : 'The #1 meme coin that became the "people\'s crypto" thanks to Elon Musk'}
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год создания' : 'Created', value: 'Дек. 2013' },
-            { label: isRu ? 'Запас' : 'Supply', value: isRu ? 'Без лимита' : 'Unlimited' },
-            { label: isRu ? 'Создатели' : 'Creators', value: 'Markus & Palmer' },
-            { label: isRu ? 'Алгоритм' : 'Algorithm', value: 'Scrypt PoW' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-14">
-        <DogeCalculator locale={locale} />
-      </div>
-
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История Dogecoin: от шутки до топ-10 по капитализации' : 'Dogecoin History: From a Joke to Top 10 by Market Cap'}
-        </h2>
-        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-headings:font-semibold prose-p:text-muted prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:text-muted">
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2013: Рождение за два дня</h3>
               <p>В декабре 2013 года инженер Adobe Джексон Палмер увидел в Twitter шутку: «Imagine if there was a Dogecoin» с фотографией собаки сиба-ину (мем «Doge», популярный в 2013-м). Он зарегистрировал домен dogecoin.com. Инженер IBM Билли Маркус нашёл его, написал за два дня код на основе Litecoin — и Dogecoin был запущен 6 декабря 2013 года.</p>
@@ -180,67 +150,23 @@ export default async function DogePage({ params }: Props) {
               <p>Vitalik Buterin has repeatedly expressed willingness to help DOGE transition to Proof of Stake — which would radically reduce inflation. If this happens, Dogecoin would transform from a meme into a genuine asset with limited supply.</p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят о Dogecoin' : 'What They Say About Dogecoin'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {DOGE_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы о Dogecoin' : 'Frequently Asked Questions About Dogecoin'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {DOGE_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'altcoin', label: isRu ? 'Альткоин' : 'Altcoin' },
-            { slug: 'proof-of-work', label: 'Proof of Work' },
-            { slug: 'market-cap', label: isRu ? 'Рыночная капитализация' : 'Market Cap' },
-            { slug: 'fomo', label: 'FOMO' },
-            { slug: 'whale', label: isRu ? 'Кит' : 'Whale' },
-          ].map(t => (
-            <Link key={t.slug} href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors">
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? 'Мем-монета №1, ставшая «народной криптовалютой» благодаря Илону Маску' : 'The #1 meme coin that became the "people\'s crypto" thanks to Elon Musk'}
+        historyTitle={isRu ? 'История Dogecoin: от шутки до топ-10 по капитализации' : 'Dogecoin History: From a Joke to Top 10 by Market Cap'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={DOGE_QUOTES}
+      />
+    </>
   );
 }

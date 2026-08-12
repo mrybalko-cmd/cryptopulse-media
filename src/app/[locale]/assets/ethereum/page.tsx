@@ -1,25 +1,26 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import EthereumCalculator from '@/components/ui/EthereumCalculator';
-import { ETH_QUOTES, ETH_FAQ } from '@/lib/ethereumData';
+import { ETH_QUOTES, ETH_FAQ, ETH_INVESTMENT_REFERENCE } from '@/lib/ethereumData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'ethereum';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu
-    ? 'Ethereum (ETH) — История, смарт-контракты и калькулятор инвестиций'
-    : 'Ethereum (ETH) — History, Smart Contracts & Investment Calculator';
+  const title = isRu ? 'Ethereum (ETH): цена, история, калькулятор' : 'Ethereum (ETH): price, history, calculator';
   const description = isRu
     ? 'Полная история Ethereum: кто создал, как работают смарт-контракты, The Merge и переход на PoS. Калькулятор: сколько бы вы заработали, вложив $100–5000 в ETH 5 или 10 лет назад.'
     : 'Complete Ethereum history: who created it, how smart contracts work, The Merge and the shift to PoS. Calculator: how much would you have earned investing $100–5000 in ETH 5 or 10 years ago.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['эфириум история', 'что если бы купил эфириум', 'смарт-контракты ethereum', 'виталик бутерин', 'ethereum калькулятор', 'the merge ethereum']
@@ -37,10 +38,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год запуска', en: 'Launched' }, value: '2015' },
+    { label: { ru: 'Механизм', en: 'Consensus' }, value: 'Proof of Stake' },
+    { label: { ru: 'Создатель', en: 'Creator' }, value: 'Vitalik Buterin' },
+    { label: { ru: 'The Merge', en: 'The Merge' }, value: { ru: '15.09.2022', en: 'Sep 15, 2022' } },
+  ],
+  investmentReference: ETH_INVESTMENT_REFERENCE,
+  faq: ETH_FAQ,
+  glossaryTerms: [
+    { slug: 'smart-contract', label: { ru: 'Смарт-контракт', en: 'Smart Contract' } },
+    { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+    { slug: 'defi', label: { ru: 'DeFi', en: 'DeFi' } },
+    { slug: 'staking', label: { ru: 'Стейкинг', en: 'Staking' } },
+    { slug: 'gas', label: { ru: 'Газ (Gas)', en: 'Gas' } },
+    { slug: 'nft', label: { ru: 'NFT', en: 'NFT' } },
+    { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
+    { slug: 'layer-2', label: { ru: 'Layer 2', en: 'Layer 2' } },
+  ],
+};
+
 export default async function EthereumPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -79,72 +102,9 @@ export default async function EthereumPage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">Ethereum (ETH)</span>
-      </nav>
-
-      {/* Hero */}
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl">Ξ</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Ethereum <span className="text-muted font-normal text-2xl">ETH</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? 'Платформа смарт-контрактов и децентрализованных приложений №1' : 'The #1 smart contract and decentralized application platform'}
-            </p>
-          </div>
-        </div>
-
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год запуска' : 'Launched', value: '2015' },
-            { label: isRu ? 'Механизм' : 'Consensus', value: 'Proof of Stake' },
-            { label: isRu ? 'Создатель' : 'Creator', value: 'Vitalik Buterin' },
-            { label: isRu ? 'The Merge' : 'The Merge', value: isRu ? '15.09.2022' : 'Sep 15, 2022' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Calculator */}
-      <div className="mb-14">
-        <EthereumCalculator locale={locale} />
-      </div>
-
-      {/* History */}
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История Ethereum: от идеи 19-летнего гения до мирового компьютера' : 'Ethereum History: From a Teen\'s Idea to the World Computer'}
-        </h2>
-
-        <div className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-foreground prose-headings:font-semibold
-          prose-p:text-muted prose-p:leading-relaxed
-          prose-strong:text-foreground
-          prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-          prose-li:text-muted">
-
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2013: Идея, которую отвергли в Bitcoin</h3>
               <p>
@@ -449,76 +409,23 @@ export default async function EthereumPage({ params }: Props) {
               </p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      {/* Quotes */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят об Ethereum' : 'What They Say About Ethereum'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {ETH_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы об Ethereum' : 'Frequently Asked Questions About Ethereum'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {ETH_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* Related glossary links */}
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'smart-contract', label: isRu ? 'Смарт-контракт' : 'Smart Contract' },
-            { slug: 'blockchain', label: isRu ? 'Блокчейн' : 'Blockchain' },
-            { slug: 'defi', label: 'DeFi' },
-            { slug: 'staking', label: isRu ? 'Стейкинг' : 'Staking' },
-            { slug: 'gas', label: isRu ? 'Газ (Gas)' : 'Gas' },
-            { slug: 'nft', label: 'NFT' },
-            { slug: 'erc-20', label: 'ERC-20' },
-            { slug: 'layer-2', label: 'Layer 2' },
-          ].map(t => (
-            <Link
-              key={t.slug}
-              href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors"
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? 'Платформа смарт-контрактов и децентрализованных приложений №1' : 'The #1 smart contract and decentralized application platform'}
+        historyTitle={isRu ? 'История Ethereum: от идеи 19-летнего гения до мирового компьютера' : 'Ethereum History: From a Teen\'s Idea to the World Computer'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={ETH_QUOTES}
+      />
+    </>
   );
 }

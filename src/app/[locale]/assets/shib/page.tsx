@@ -1,24 +1,25 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import ShibCalculator from '@/components/ui/ShibCalculator';
-import { SHIB_QUOTES, SHIB_FAQ } from '@/lib/shibData';
+import { SHIB_QUOTES, SHIB_FAQ, SHIB_INVESTMENT_REFERENCE } from '@/lib/shibData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'shib';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu
-    ? 'Shiba Inu (SHIB) — История, цена и калькулятор инвестиций'
-    : 'Shiba Inu (SHIB) — History, Price & Investment Calculator';
+  const title = isRu ? 'Shiba Inu (SHIB): цена, история, калькулятор' : 'Shiba Inu (SHIB): price, history, calculator';
   const description = isRu
     ? 'Полная история Shiba Inu: анонимный создатель Ryoshi, как Виталик Бутерин сжёг 410 триллионов SHIB и отдал $1 млрд на COVID в Индии. Shibarium L2, экосистема и реализм про $0.01. Калькулятор инвестиций.'
     : 'Complete Shiba Inu history: anonymous creator Ryoshi, how Vitalik Buterin burned 410 trillion SHIB and donated $1B to India COVID relief. Shibarium L2, ecosystem and realistic talk about $0.01. Investment calculator.';
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['shiba inu shib история', 'ryoshi создатель shib', 'виталик бутерин shib', 'shibarium', 'shib калькулятор']
@@ -36,10 +37,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год запуска', en: 'Launched' }, value: 'Авг. 2020' },
+    { label: { ru: 'Запас', en: 'Supply' }, value: { ru: '~549T SHIB', en: '~549T SHIB' } },
+    { label: { ru: 'Создатель', en: 'Creator' }, value: 'Ryoshi (анон.)' },
+    { label: { ru: 'Стандарт', en: 'Standard' }, value: 'ERC-20' },
+  ],
+  investmentReference: SHIB_INVESTMENT_REFERENCE,
+  faq: SHIB_FAQ,
+  glossaryTerms: [
+    { slug: 'altcoin', label: { ru: 'Альткоин', en: 'Altcoin' } },
+    { slug: 'defi', label: { ru: 'DeFi', en: 'DeFi' } },
+    { slug: 'dex', label: { ru: 'DEX', en: 'DEX' } },
+    { slug: 'layer-2', label: { ru: 'Layer 2', en: 'Layer 2' } },
+    { slug: 'market-cap', label: { ru: 'Рыночная капитализация', en: 'Market Cap' } },
+  ],
+};
+
 export default async function ShibPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -74,59 +94,9 @@ export default async function ShibPage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">Shiba Inu (SHIB)</span>
-      </nav>
-
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl font-bold text-accent">🐕</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Shiba Inu <span className="text-muted font-normal text-2xl">SHIB</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? '«Убийца Dogecoin» с анонимным создателем, 410T сожжённых токенов и собственным L2 блокчейном' : '"DOGE killer" with an anonymous creator, 410T burned tokens, and its own L2 blockchain'}
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год запуска' : 'Launched', value: 'Авг. 2020' },
-            { label: isRu ? 'Запас' : 'Supply', value: isRu ? '~549T SHIB' : '~549T SHIB' },
-            { label: isRu ? 'Создатель' : 'Creator', value: 'Ryoshi (анон.)' },
-            { label: isRu ? 'Стандарт' : 'Standard', value: 'ERC-20' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-14">
-        <ShibCalculator locale={locale} />
-      </div>
-
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История Shiba Inu: мем с неожиданным поворотом' : 'Shiba Inu History: Meme with an Unexpected Turn'}
-        </h2>
-        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-headings:font-semibold prose-p:text-muted prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-li:text-muted">
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2020: Ryoshi и трюк с Бутериным</h3>
               <p>В августе 2020 года анонимный разработчик под псевдонимом <strong>Ryoshi</strong> запустил Shiba Inu как ERC-20 токен на Ethereum. Изначальный выпуск: <strong>1 квадриллион (1,000,000,000,000,000) SHIB</strong>.</p>
@@ -170,67 +140,23 @@ export default async function ShibPage({ params }: Props) {
               <p>SHIB Academy, plans for the Shib: The Metaverse gaming hub, AMM and NFT integrations — the ecosystem continues to expand. Reaching $0.01 is mathematically impossible at the current supply (requires $5.5T market cap — 5x the entire market), but the community continues to believe in "burning to a trillion."</p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят о Shiba Inu' : 'What They Say About Shiba Inu'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {SHIB_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы о Shiba Inu' : 'Frequently Asked Questions About Shiba Inu'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {SHIB_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'altcoin', label: isRu ? 'Альткоин' : 'Altcoin' },
-            { slug: 'defi', label: 'DeFi' },
-            { slug: 'dex', label: 'DEX' },
-            { slug: 'layer-2', label: 'Layer 2' },
-            { slug: 'market-cap', label: isRu ? 'Рыночная капитализация' : 'Market Cap' },
-          ].map(t => (
-            <Link key={t.slug} href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors">
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? '«Убийца Dogecoin» с анонимным создателем, 410T сожжённых токенов и собственным L2 блокчейном' : '"DOGE killer" with an anonymous creator, 410T burned tokens, and its own L2 blockchain'}
+        historyTitle={isRu ? 'История Shiba Inu: мем с неожиданным поворотом' : 'Shiba Inu History: Meme with an Unexpected Turn'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={SHIB_QUOTES}
+      />
+    </>
   );
 }

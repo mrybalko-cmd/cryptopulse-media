@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Stellar (XLM) — История, цена и калькулятор инвестиций' : 'Stellar (XLM) — History, Price & Investment Calculator';
+  const title = isRu ? 'Stellar (XLM): цена, история, калькулятор' : 'Stellar (XLM): price, history, calculator';
   const description = isRu
     ? 'История Stellar: от разрыва Джеда Маккалеба с Ripple до сети для дешёвых международных платежей и токенизации активов. Калькулятор инвестиций в XLM.'
     : 'The history of Stellar: from Jed McCaleb\'s split with Ripple to a network for cheap cross-border payments and asset tokenization. XLM investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['stellar история', 'xlm токен', 'jed mccaleb', 'stellar калькулятор', 'xlm vs xrp']

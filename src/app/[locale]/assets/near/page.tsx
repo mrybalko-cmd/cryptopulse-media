@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'NEAR Protocol (NEAR) — История, цена и калькулятор инвестиций' : 'NEAR Protocol (NEAR) — History, Price & Investment Calculator';
+  const title = isRu ? 'NEAR Protocol (NEAR): цена, история, калькулятор' : 'NEAR Protocol (NEAR): price, history, calculator';
   const description = isRu
     ? 'История NEAR Protocol: от исследований в области машинного обучения до шардированного блокчейна и разворота к теме ИИ. Калькулятор инвестиций в NEAR.'
     : 'The history of NEAR Protocol: from machine learning research to a sharded blockchain and its pivot toward AI. NEAR investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['near protocol история', 'near токен', 'near калькулятор', 'шардинг блокчейн', 'near ии']

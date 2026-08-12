@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Monero (XMR) — История, цена и калькулятор инвестиций' : 'Monero (XMR) — History, Price & Investment Calculator';
+  const title = isRu ? 'Monero (XMR): цена, история, калькулятор' : 'Monero (XMR): price, history, calculator';
   const description = isRu
     ? 'История Monero: от форка Bytecoin до главной приватной криптовалюты с кольцевыми подписями. Калькулятор инвестиций в XMR.'
     : 'The history of Monero: from a Bytecoin fork to the leading privacy coin built on ring signatures. XMR investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['monero история', 'xmr токен', 'приватная криптовалюта', 'monero калькулятор', 'кольцевые подписи']

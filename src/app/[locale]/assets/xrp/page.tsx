@@ -1,25 +1,26 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import XrpCalculator from '@/components/ui/XrpCalculator';
-import { XRP_QUOTES, XRP_FAQ } from '@/lib/xrpData';
+import { XRP_QUOTES, XRP_FAQ, XRP_INVESTMENT_REFERENCE } from '@/lib/xrpData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'xrp';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu
-    ? 'XRP (Ripple) — История, иск SEC и калькулятор инвестиций'
-    : 'XRP (Ripple) — History, SEC Lawsuit & Investment Calculator';
+  const title = isRu ? 'XRP: цена, история, калькулятор' : 'XRP: price, history, calculator';
   const description = isRu
     ? 'Полная история XRP: как создали Ripple, партнёрства с банками, иск SEC 2020 года и историческая победа в суде 2023-го. Калькулятор: сколько бы вы заработали, вложив $100–5000 в XRP 5 или 10 лет назад.'
     : 'Complete XRP history: how Ripple was created, bank partnerships, the 2020 SEC lawsuit and the landmark 2023 court victory. Calculator: how much would you have earned investing $100–5000 in XRP 5 or 10 years ago.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['xrp история', 'ripple иск sec', 'что если бы купил xrp', 'брэд гарлингхаус', 'ripplenet', 'xrp калькулятор']
@@ -37,10 +38,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год создания', en: 'Created' }, value: '2012' },
+    { label: { ru: 'Макс. запас', en: 'Max supply' }, value: '100 000 000 000' },
+    { label: { ru: 'Скорость', en: 'Speed' }, value: '3–5 сек' },
+    { label: { ru: 'Победа в суде', en: 'Court win' }, value: { ru: 'Июль 2023', en: 'Jul 2023' } },
+  ],
+  investmentReference: XRP_INVESTMENT_REFERENCE,
+  faq: XRP_FAQ,
+  glossaryTerms: [
+    { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+    { slug: 'stablecoin', label: { ru: 'Стейблкоин', en: 'Stablecoin' } },
+    { slug: 'cex', label: { ru: 'CEX', en: 'CEX' } },
+    { slug: 'kyc', label: { ru: 'KYC / AML', en: 'KYC / AML' } },
+    { slug: 'altcoin', label: { ru: 'Альткоин', en: 'Altcoin' } },
+    { slug: 'market-cap', label: { ru: 'Капитализация', en: 'Market Cap' } },
+    { slug: 'wallet', label: { ru: 'Кошелёк', en: 'Wallet' } },
+    { slug: 'ico', label: { ru: 'ICO / IDO', en: 'ICO / IDO' } },
+  ],
+};
+
 export default async function XrpPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -79,71 +102,9 @@ export default async function XrpPage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">XRP (Ripple)</span>
-      </nav>
-
-      {/* Hero */}
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl">✕</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              XRP <span className="text-muted font-normal text-2xl">Ripple</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? 'Цифровой мост для международных банковских платежей' : 'Digital bridge for international bank payments'}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год создания' : 'Created', value: '2012' },
-            { label: isRu ? 'Макс. запас' : 'Max supply', value: '100 000 000 000' },
-            { label: isRu ? 'Скорость' : 'Speed', value: '3–5 сек' },
-            { label: isRu ? 'Победа в суде' : 'Court win', value: isRu ? 'Июль 2023' : 'Jul 2023' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Calculator */}
-      <div className="mb-14">
-        <XrpCalculator locale={locale} />
-      </div>
-
-      {/* History */}
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История XRP: от платёжной сети до судебной битвы с SEC' : 'XRP History: From Payment Network to SEC Legal Battle'}
-        </h2>
-
-        <div className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-foreground prose-headings:font-semibold
-          prose-p:text-muted prose-p:leading-relaxed
-          prose-strong:text-foreground
-          prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-          prose-li:text-muted">
-
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2004–2011: Предтеча — оригинальный Ripple</h3>
               <p>
@@ -401,76 +362,23 @@ export default async function XrpPage({ params }: Props) {
               </p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      {/* Quotes */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят об XRP' : 'What They Say About XRP'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {XRP_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы об XRP' : 'Frequently Asked Questions About XRP'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {XRP_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* Glossary links */}
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'blockchain', label: isRu ? 'Блокчейн' : 'Blockchain' },
-            { slug: 'stablecoin', label: isRu ? 'Стейблкоин' : 'Stablecoin' },
-            { slug: 'cex', label: 'CEX' },
-            { slug: 'kyc', label: 'KYC / AML' },
-            { slug: 'altcoin', label: isRu ? 'Альткоин' : 'Altcoin' },
-            { slug: 'market-cap', label: isRu ? 'Капитализация' : 'Market Cap' },
-            { slug: 'wallet', label: isRu ? 'Кошелёк' : 'Wallet' },
-            { slug: 'ico', label: 'ICO / IDO' },
-          ].map(t => (
-            <Link
-              key={t.slug}
-              href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors"
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? 'Цифровой мост для международных банковских платежей' : 'Digital bridge for international bank payments'}
+        historyTitle={isRu ? 'История XRP: от платёжной сети до судебной битвы с SEC' : 'XRP History: From Payment Network to SEC Legal Battle'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={XRP_QUOTES}
+      />
+    </>
   );
 }

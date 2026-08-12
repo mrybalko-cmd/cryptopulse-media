@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Polygon (POL) — История, цена и калькулятор инвестиций' : 'Polygon (POL) — History, Price & Investment Calculator';
+  const title = isRu ? 'Polygon (POL): цена, история, калькулятор' : 'Polygon (POL): price, history, calculator';
   const description = isRu
     ? 'История Polygon: от Matic Network до ребрендинга в POL, рост экосистемы масштабирования Ethereum. Калькулятор инвестиций в POL/MATIC.'
     : 'The history of Polygon: from Matic Network to the POL rebrand, and the growth of its Ethereum scaling ecosystem. POL/MATIC investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['polygon история', 'matic что это', 'pol токен', 'polygon калькулятор']

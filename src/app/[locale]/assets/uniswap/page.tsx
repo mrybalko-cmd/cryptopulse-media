@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Uniswap (UNI) — История, цена и калькулятор инвестиций' : 'Uniswap (UNI) — History, Price & Investment Calculator';
+  const title = isRu ? 'Uniswap (UNI): цена, история, калькулятор' : 'Uniswap (UNI): price, history, calculator';
   const description = isRu
     ? 'История Uniswap: от идеи автоматического маркет-мейкера до крупнейшей децентрализованной биржи и легендарной раздачи токенов. Калькулятор инвестиций в UNI.'
     : 'The history of Uniswap: from an automated market maker idea to the largest decentralized exchange and its legendary token airdrop. UNI investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['uniswap история', 'uni токен', 'раздача uniswap', 'uniswap калькулятор', 'что такое dex']

@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Bitcoin Cash (BCH) — История, цена и калькулятор инвестиций' : 'Bitcoin Cash (BCH) — History, Price & Investment Calculator';
+  const title = isRu ? 'Bitcoin Cash (BCH): цена, история, калькулятор' : 'Bitcoin Cash (BCH): price, history, calculator';
   const description = isRu
     ? 'История Bitcoin Cash: спор о размере блока, форк от Bitcoin в 2017 году и дальнейший раскол на Bitcoin SV. Калькулятор инвестиций в BCH.'
     : 'The history of Bitcoin Cash: the block size debate, the 2017 fork from Bitcoin, and the later split into Bitcoin SV. BCH investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['bitcoin cash история', 'bch токен', 'форк биткоина', 'bitcoin cash калькулятор', 'roger ver']

@@ -1,4 +1,13 @@
-import type { InvestmentReference } from '@/components/ui/CoinCalculator';
+/** One curated entry point in a coin's past. Lives here, with the data, rather
+ *  than inside a component: the reference prices are content, and the component
+ *  that used to own this type is being replaced. */
+export interface InvestmentReference {
+  yearsAgo: number;
+  year: number;
+  price: number;
+  label: { ru: string; en: string };
+  note: { ru: string; en: string };
+}
 
 export interface CoinFaqItem {
   question: { ru: string; en: string };
@@ -7,7 +16,9 @@ export interface CoinFaqItem {
 
 export interface CoinStat {
   label: { ru: string; en: string };
-  value: string;
+  /** Bilingual where the fact itself differs by language — «Без лимита» and
+   *  «Unlimited» are the same fact stated twice, not a label. */
+  value: string | { ru: string; en: string };
 }
 
 export interface CoinGuideData {

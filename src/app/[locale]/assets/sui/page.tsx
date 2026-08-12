@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Sui (SUI) — История, цена и калькулятор инвестиций' : 'Sui (SUI) — History, Price & Investment Calculator';
+  const title = isRu ? 'Sui: цена, история, калькулятор' : 'Sui: price, history, calculator';
   const description = isRu
     ? 'История Sui: от закрытого проекта Meta Diem до высокоскоростного блокчейна на языке Move. Калькулятор инвестиций в SUI.'
     : "The history of Sui: from Meta's shuttered Diem project to a high-speed blockchain built on the Move language. SUI investment calculator.";
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['sui история', 'sui токен', 'mysten labs', 'sui калькулятор', 'move язык программирования']

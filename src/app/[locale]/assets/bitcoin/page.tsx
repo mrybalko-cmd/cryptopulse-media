@@ -1,25 +1,26 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import BitcoinCalculator from '@/components/ui/BitcoinCalculator';
-import { BTC_QUOTES, BTC_FAQ } from '@/lib/bitcoinData';
+import { BTC_QUOTES, BTC_FAQ, BTC_INVESTMENT_REFERENCE } from '@/lib/bitcoinData';
 
 type Props = { params: Promise<{ locale: string }> };
+const SLUG = 'bitcoin';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu
-    ? 'Bitcoin (BTC) — История, цена и калькулятор инвестиций'
-    : 'Bitcoin (BTC) — History, Price & Investment Calculator';
+  const title = isRu ? 'Bitcoin (BTC): цена, история, калькулятор' : 'Bitcoin (BTC): price, history, calculator';
   const description = isRu
     ? 'Полная история Bitcoin: кто создал, история с пиццей, рост цены за 15 лет, знаменитые цитаты. Калькулятор: сколько бы вы заработали, вложив $100–5000 в BTC 5, 10 или 15 лет назад.'
     : 'Complete Bitcoin history: who created it, the pizza story, 15 years of price growth, famous quotes. Calculator: how much would you have earned investing $100–5000 in BTC 5, 10, or 15 years ago.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['биткоин история', 'что если бы купил биткоин', 'биткоин пицца', 'сатоши накамото', 'биткоин калькулятор']
@@ -37,10 +38,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const GUIDE = {
+  stats: [
+    { label: { ru: 'Год создания', en: 'Created' }, value: '2009' },
+    { label: { ru: 'Макс. запас', en: 'Max supply' }, value: '21 000 000' },
+    { label: { ru: 'Создатель', en: 'Creator' }, value: 'Satoshi Nakamoto' },
+    { label: { ru: 'Халвингов', en: 'Halvings' }, value: '4 (2012–2024)' },
+  ],
+  investmentReference: BTC_INVESTMENT_REFERENCE,
+  faq: BTC_FAQ,
+  glossaryTerms: [
+    { slug: 'blockchain', label: { ru: 'blockchain', en: 'blockchain' } },
+    { slug: 'halving', label: { ru: 'first halving', en: 'first halving' } },
+    { slug: 'mining', label: { ru: 'mining', en: 'mining' } },
+  ],
+};
+
 export default async function BitcoinPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
+  const glossaryBase = `/${locale}/glossary`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -79,72 +97,9 @@ export default async function BitcoinPage({ params }: Props) {
     ],
   };
 
-  const glossaryBase = `/${locale}/glossary`;
-
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <Link href={`/${locale}/assets`} className="hover:text-accent transition-colors">{isRu ? 'Крипто-активы' : 'Crypto Assets'}</Link>
-        <span>›</span>
-        <span className="text-foreground">Bitcoin (BTC)</span>
-      </nav>
-
-      {/* Hero */}
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl">₿</span>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Bitcoin <span className="text-muted font-normal text-2xl">BTC</span>
-            </h1>
-            <p className="text-muted text-sm mt-1">
-              {isRu ? 'Первая и самая известная криптовалюта в мире' : 'The first and most recognized cryptocurrency in the world'}
-            </p>
-          </div>
-        </div>
-
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: isRu ? 'Год создания' : 'Created', value: '2009' },
-            { label: isRu ? 'Макс. запас' : 'Max supply', value: '21 000 000' },
-            { label: isRu ? 'Создатель' : 'Creator', value: 'Satoshi Nakamoto' },
-            { label: isRu ? 'Халвингов' : 'Halvings', value: '4 (2012–2024)' },
-          ].map(s => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className="text-sm font-semibold text-foreground">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Calculator */}
-      <div className="mb-14">
-        <BitcoinCalculator locale={locale} />
-      </div>
-
-      {/* History */}
-      <article className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-8">
-          {isRu ? 'История Bitcoin: от идеи до цифрового золота' : 'Bitcoin History: From Idea to Digital Gold'}
-        </h2>
-
-        <div className="prose prose-invert prose-sm max-w-none
-          prose-headings:text-foreground prose-headings:font-semibold
-          prose-p:text-muted prose-p:leading-relaxed
-          prose-strong:text-foreground
-          prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-          prose-li:text-muted">
-
-          {isRu ? (
+  const historyContent = (
+    <>
+      {isRu ? (
             <>
               <h3>2008: Рождение идеи на пике финансового кризиса</h3>
               <p>
@@ -414,76 +369,23 @@ export default async function BitcoinPage({ params }: Props) {
               </p>
             </>
           )}
-        </div>
-      </article>
+    </>
+  );
 
-      {/* Quotes */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Что говорят о Bitcoin' : 'What They Say About Bitcoin'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {BTC_QUOTES.map((q, i) => (
-            <blockquote key={i} className={`bg-card border rounded-xl p-4 ${
-              q.sentiment === 'bullish' ? 'border-positive/30' :
-              q.sentiment === 'bearish' ? 'border-negative/30' : 'border-border'
-            }`}>
-              <p className="text-sm text-foreground leading-relaxed mb-3 italic">{q.quote[loc]}</p>
-              <footer>
-                <p className="text-sm font-semibold text-foreground">{q.author}</p>
-                <p className="text-xs text-muted">{q.role[loc]}, {q.year}</p>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="mb-14">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          {isRu ? 'Часто задаваемые вопросы о Bitcoin' : 'Frequently Asked Questions About Bitcoin'}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {BTC_FAQ.map((item, i) => (
-            <details key={i} className="group bg-card border border-border rounded-xl overflow-hidden">
-              <summary className="flex items-center justify-between p-4 cursor-pointer select-none font-semibold text-sm text-foreground list-none">
-                {item.question[loc]}
-                <span className="text-muted group-open:rotate-180 transition-transform shrink-0 ml-3">▾</span>
-              </summary>
-              <div className="px-4 pb-4 pt-0 text-sm text-muted leading-relaxed border-t border-border">
-                <p className="pt-3">{item.answer[loc]}</p>
-              </div>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* Related glossary links */}
-      <section className="bg-card border border-border rounded-xl p-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">
-          {isRu ? 'Изучите термины в глоссарии' : 'Learn the terms in our glossary'}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { slug: 'blockchain', label: isRu ? 'Блокчейн' : 'Blockchain' },
-            { slug: 'mining', label: isRu ? 'Майнинг' : 'Mining' },
-            { slug: 'halving', label: isRu ? 'Халвинг' : 'Halving' },
-            { slug: 'wallet', label: isRu ? 'Кошелёк' : 'Wallet' },
-            { slug: 'private-key', label: isRu ? 'Приватный ключ' : 'Private Key' },
-            { slug: 'seed-phrase', label: isRu ? 'Seed-фраза' : 'Seed Phrase' },
-            { slug: 'defi', label: 'DeFi' },
-            { slug: 'altcoin', label: isRu ? 'Альткоин' : 'Altcoin' },
-          ].map(t => (
-            <Link
-              key={t.slug}
-              href={`${glossaryBase}#${t.slug}`}
-              className="text-xs px-3 py-1.5 rounded-full bg-background border border-border text-muted hover:text-accent hover:border-accent/40 transition-colors"
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <CoinGuideLayout
+        locale={locale}
+        slug={SLUG}
+        tagline={isRu ? 'Первая и самая известная криптовалюта в мире' : 'The first and most recognized cryptocurrency in the world'}
+        historyTitle={isRu ? 'История Bitcoin: от идеи до цифрового золота' : 'Bitcoin History: From Idea to Digital Gold'}
+        historyContent={historyContent}
+        guide={GUIDE}
+        quotes={BTC_QUOTES}
+      />
+    </>
   );
 }

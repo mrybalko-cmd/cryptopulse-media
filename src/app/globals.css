@@ -264,3 +264,59 @@ html.light .prose-invert {
   --tw-prose-th-borders: var(--border);
   --tw-prose-td-borders: var(--border);
 }
+
+/* ── Стеклянные панели страниц монет ─────────────────────────────────────────
+   Один класс на все 24 страницы. Свет за стеклом берёт цвет самой монеты через
+   переменную --coin, поэтому страницы читаются как родня, но не как копии.
+   Раньше вид был зашит в 24 отдельных файла и расходился при каждой правке. */
+.coin-page {
+  position: relative;
+  isolation: isolate;
+}
+.coin-page::before {
+  content: '';
+  position: absolute;
+  top: -240px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(860px, 130vw);
+  height: 520px;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.42;
+  background: radial-gradient(circle, var(--coin, #8b5cf6) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: -1;
+}
+.light .coin-page::before { opacity: 0.18; }
+
+.glass-panel {
+  position: relative;
+  border: 1px solid var(--popular-glass-line);
+  background: var(--popular-glass);
+  border-radius: 22px;
+  padding: 20px 22px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+  box-shadow: var(--popular-shadow);
+}
+/* Светлая кромка по верхнему краю — то, что отличает стекло от просто карточки */
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-hi, rgba(255,255,255,0.16)), transparent);
+}
+@media (max-width: 640px) {
+  .glass-panel { border-radius: 18px; padding: 15px 14px; }
+}
+/* Панели идут стопкой, поэтому промежуток задаётся здесь, а не у каждой */
+.glass-panel + .glass-panel { margin-top: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-page::before { display: none; }
+}

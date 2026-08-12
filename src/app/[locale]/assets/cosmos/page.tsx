@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Cosmos (ATOM) — История, цена и калькулятор инвестиций' : 'Cosmos (ATOM) — History, Price & Investment Calculator';
+  const title = isRu ? 'Cosmos Hub (ATOM): цена, история, калькулятор' : 'Cosmos Hub (ATOM): price, history, calculator';
   const description = isRu
     ? 'История Cosmos: от идеи «интернета блокчейнов» Джея Квона до сети независимых цепей, соединённых протоколом IBC. Калькулятор инвестиций в ATOM.'
     : 'The history of Cosmos: from Jae Kwon\'s "Internet of Blockchains" idea to a network of independent chains connected by the IBC protocol. ATOM investment calculator.';
 
   return {
-    title,
+    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // 20 characters and adds nothing here — the coin's name is already first.
+    title: { absolute: title },
     description,
     keywords: isRu
       ? ['cosmos история', 'atom токен', 'интернет блокчейнов', 'cosmos калькулятор', 'ibc протокол']
