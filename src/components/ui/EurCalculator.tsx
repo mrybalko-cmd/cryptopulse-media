@@ -129,7 +129,7 @@ export default function EurCalculator({ rates, locale }: { rates: EurRate[]; loc
           <Money value={bestValue} className="block text-[38px] sm:text-[46px] font-extrabold -tracking-[0.045em] text-foreground leading-[0.95]" />
           {best && (
             <span className="flex md:justify-end items-center gap-2 text-[11px] text-muted mt-2">
-              <Image src={best.logo} alt="" width={16} height={16} className="rounded-[5px]" unoptimized />
+              <Image src={best.logo} alt="" aria-hidden="true" width={16} height={16} className="rounded-[5px]" unoptimized />
               {isRu ? 'лучший курс — ' : 'best rate via '}
               <b className="text-foreground">{best.source}</b>
             </span>
@@ -147,7 +147,7 @@ export default function EurCalculator({ rates, locale }: { rates: EurRate[]; loc
             return (
               <span key={`${r.source}-${r.asset}`} className="grid grid-cols-[minmax(96px,168px)_minmax(0,1fr)_auto] gap-2.5 sm:gap-3 items-center">
                 <span className="flex items-center gap-2 min-w-0 text-[10.5px] sm:text-[11.5px] font-bold text-foreground">
-                  <Image src={r.logo} alt="" width={17} height={17} className="rounded-[5px] shrink-0" unoptimized />
+                  <Image src={r.logo} alt="" aria-hidden="true" width={17} height={17} className="rounded-[5px] shrink-0" unoptimized />
                   <span className="truncate">{r.source}</span>
                   {i === 0 && (
                     <span className="shrink-0 rounded-full px-1.5 py-0.5 text-[8.5px] font-black uppercase tracking-wider text-white bg-[linear-gradient(120deg,var(--rates-violet),var(--rates-violet-2))]">

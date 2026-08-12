@@ -57,14 +57,11 @@ export default async function AiGlossaryTermPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
+    '@id': `${BASE}/${locale}/ai/glossary/${slug}`,
     name,
     description: definition,
     url: `${BASE}/${locale}/ai/glossary/${slug}`,
-    inDefinedTermSet: {
-      '@type': 'DefinedTermSet',
-      name: isRu ? 'Глоссарий ИИ CryptoPulse.media' : 'CryptoPulse.media AI Glossary',
-      url: `${BASE}/${locale}/ai/glossary`,
-    },
+    inDefinedTermSet: { '@id': `${BASE}/${locale}/ai/glossary#dictionary` },
   };
 
   const articleLd = {

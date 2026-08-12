@@ -66,7 +66,7 @@ export function CalendarEventCarouselCard({ event, locale, daysAway }: Props) {
           style={{ color, background: tint(color, 0.14) }}
         >
           {event.iconUrl ? (
-            <Image src={event.iconUrl} alt="" width={30} height={30} className="w-full h-full object-cover" />
+            <Image src={event.iconUrl} alt="" aria-hidden="true" width={30} height={30} className="w-full h-full object-cover" />
           ) : (
             <Icon size={16} strokeWidth={2} />
           )}

@@ -52,7 +52,7 @@ function CoinLogo({ asset, size }: { asset: AssetRow; size: number }) {
     return (
       <Image
         src={asset.logo}
-        alt=""
+        alt="" aria-hidden="true"
         width={size}
         height={size}
         className="rounded-full shrink-0"

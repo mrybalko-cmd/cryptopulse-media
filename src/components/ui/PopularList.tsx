@@ -108,12 +108,15 @@ export default function PopularList({
       </TitleTag>
 
       <div className="flex flex-col lg:flex-1">
-        {/* #1 — cover with the headline on a blurred plate over its lower edge */}
+        {/* #1 — cover with the headline on a blurred plate over its lower edge.
+            The cover is decorative and marked so: the headline sits inside the
+            same link, so alt text would have a screen reader read the story
+            title twice. */}
         <Link href={hrefFor(first)} className="group relative block rounded-[15px] overflow-hidden">
           {first.coverImage ? (
             <Image
               src={sized(first.coverImage, 640, 350)}
-              alt=""
+              alt="" aria-hidden="true"
               width={320}
               height={175}
               sizes="256px"
@@ -150,7 +153,7 @@ export default function PopularList({
                   {item.coverImage ? (
                     <Image
                       src={sized(item.coverImage, 96, 96)}
-                      alt=""
+                      alt="" aria-hidden="true"
                       width={80}
                       height={80}
                       sizes="40px"

@@ -33,16 +33,24 @@ export default async function GlossaryPage({ params }: Props) {
   const isRu = locale === 'ru';
   const loc = (isRu ? 'ru' : 'en') as 'ru' | 'en';
 
+  // The set carries a stable @id so a term page can reference it instead of
+  // embedding a second copy of its name and url. Each term is identified by
+  // its own page, not by an anchor on this listing: every term now has a full
+  // page of its own, and without a shared @id the same term appeared as two
+  // unrelated entities across the two documents.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
+    '@id': `${BASE}/${locale}/glossary#dictionary`,
     name: isRu ? 'Глоссарий криптовалют CryptoPulse.media' : 'CryptoPulse.media Crypto Glossary',
     url: `${BASE}/${locale}/glossary`,
+    inLanguage: locale,
     hasDefinedTerm: GLOSSARY.map((t) => ({
       '@type': 'DefinedTerm',
+      '@id': `${BASE}/${locale}/glossary/${t.slug}`,
       name: t.term[loc],
       description: t.definition[loc],
-      url: `${BASE}/${locale}/glossary#${t.slug}`,
+      url: `${BASE}/${locale}/glossary/${t.slug}`,
     })),
   };
 

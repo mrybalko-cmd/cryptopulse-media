@@ -44,7 +44,7 @@ function VenueName({
     <>
       <Image
         src={rate.logo}
-        alt=""
+        alt="" aria-hidden="true"
         width={size === 'md' ? 28 : 32}
         height={size === 'md' ? 28 : 32}
         className={`${size === 'md' ? 'w-5 h-5' : 'w-[22px] h-[22px]'} rounded-md shrink-0`}

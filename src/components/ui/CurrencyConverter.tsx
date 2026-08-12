@@ -522,6 +522,6 @@ function CurrencyIcon({ keyName, meta, size }: { keyName: Key; meta: Record<stri
     );
   }
   return (
-    <Image src={image} alt="" width={size} height={size} className="rounded-full shrink-0" style={{ width: size, height: size }} unoptimized />
+    <Image src={image} alt="" aria-hidden="true" width={size} height={size} className="rounded-full shrink-0" style={{ width: size, height: size }} unoptimized />
   );
 }

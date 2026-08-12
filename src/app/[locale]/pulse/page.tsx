@@ -12,6 +12,10 @@ import PopularSidebar from '@/components/ui/PopularSidebar';
 
 type Props = { params: Promise<{ locale: string }> };
 
+/** The day the index was first published. Fixed: it is a fact about the page,
+ *  not something that should drift with each rebuild. */
+const PULSE_LAUNCHED = '2026-07-20';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -135,12 +139,25 @@ export default async function PulsePage({ params }: Props) {
   const limits = isRu ? LIMITS_RU : LIMITS_EN;
   const faq = isRu ? FAQ_RU : FAQ_EN;
 
+  // Matches the shape used on glossary term pages: publisher by @id rather
+  // than a second inline copy of the organisation, and the fields Google asks
+  // for on an Article. dateModified is the day's own computation, so the page
+  // never claims to be fresher than the number it shows.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: isRu ? 'Пульс рынка — индекс активности крипторынка' : 'Market Pulse — crypto market activity index',
+    description: isRu
+      ? 'Абсолютный индекс активности крипторынка от 0 до 100, где 50 — обычный режим. Считается по обороту, движению цены, волатильности, настроению и поведению альткоинов.'
+      : 'An absolute 0–100 index of crypto market activity where 50 means normal conditions. Built from turnover, price movement, volatility, sentiment and altcoin behaviour.',
     url: `${BASE}/${locale}/pulse`,
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media' },
+    inLanguage: locale,
+    mainEntityOfPage: `${BASE}/${locale}/pulse`,
+    image: [`${BASE}/${locale}/pulse/opengraph-image`],
+    datePublished: PULSE_LAUNCHED,
+    ...(data?.computedAt && { dateModified: data.computedAt }),
+    author: { '@id': `${BASE}/#organization` },
+    publisher: { '@id': `${BASE}/#organization` },
   };
 
   const faqLd = {

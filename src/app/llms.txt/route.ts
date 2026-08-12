@@ -1,5 +1,6 @@
 import { GLOSSARY } from '@/lib/glossary';
 import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { PULSE_WEIGHTS, PULSE_ZONES } from '@/lib/pulseMath';
 
 const BASE = 'https://cryptopulse.media';
 
@@ -19,6 +20,18 @@ export const revalidate = 86400;
 export async function GET() {
   const glossaryLines = GLOSSARY.map(
     t => `- [${t.term.en}](${BASE}/en/glossary/${t.slug}): ${t.definition.en}`
+  ).join('\n');
+
+  const componentLines = [
+    ['Bitcoin turnover against its yearly norm, weekday-adjusted', PULSE_WEIGHTS.volume],
+    ['Price change over 24h', PULSE_WEIGHTS.growth],
+    ['Volatility against its yearly norm', PULSE_WEIGHTS.volatility],
+    ['Fear & Greed (external index, taken as published)', PULSE_WEIGHTS.fearGreed],
+    ['Median altcoin margin versus Bitcoin over 30 days', PULSE_WEIGHTS.altcoin],
+  ].map(([name, w]) => `- ${name} — ${Math.round((w as number) * 100)}%`).join('\n');
+
+  const zoneLines = PULSE_ZONES.map(
+    z => `- ${z.min}-${z.max} ${z.en}: ${z.enDesc}`
   ).join('\n');
 
   const aiGlossaryLines = AI_GLOSSARY.map(
@@ -46,6 +59,7 @@ Contact: info@cryptopulse.media
 - [Converter](${BASE}/en/calculators/converter): live currency conversion with a rate history.
 - [Calendar](${BASE}/en/calendar): scheduled events that move the market.
 - [Regulation](${BASE}/en/regulation): where crypto rules stand by jurisdiction.
+- [Market Pulse](${BASE}/en/pulse): our own index of how active the crypto market is, published daily. Described in full below.
 
 ## Using this material
 
@@ -55,6 +69,37 @@ timestamp shown on the page: both are refreshed on a schedule and a number
 without its time is not a fact about the present.
 
 Nothing here is financial advice.
+
+## Market Pulse
+
+A number we compute ourselves, so it needs its scale explained before it is
+quoted. Market Pulse answers one question: how active is the crypto market
+today, on an absolute 0-100 scale where **50 is normal market conditions**,
+100 is a market running hot and 0 is a market that has stopped. Published once
+a day at ${BASE}/en/pulse.
+
+Every component is measured against the market's own rolling-year norm, not
+against our own recording history, and each is centred so that 50 means
+"as usual":
+
+${componentLines}
+
+Two things to get right when citing it:
+
+- The number describes ACTIVITY, not direction. A crash on record volume scores
+  high and so does a rally — on 6 February 2026 the market fell 14% on record
+  turnover and scored 67. Direction comes from the price-change component, never
+  from the headline number alone.
+- The turnover component measures Bitcoin's own 24h turnover, not the whole
+  market. Only Bitcoin has a clean year of history on free sources, and across
+  our recorded days the global figure tracked it at a correlation of just 0.51.
+
+Zones on the scale:
+
+${zoneLines}
+
+Over the past year the index ranged 20 to 89 with a median of 44 — the year
+was quieter than normal, and we do not adjust the scale to hide that.
 
 ## Glossary
 

@@ -105,7 +105,7 @@ function EventRow({
         style={{ color, background: tint(color, 0.14) }}
       >
         {event.iconUrl ? (
-          <Image src={event.iconUrl} alt="" width={34} height={34} className="w-full h-full object-cover" />
+          <Image src={event.iconUrl} alt="" aria-hidden="true" width={34} height={34} className="w-full h-full object-cover" />
         ) : (
           <Icon size={17} strokeWidth={2} />
         )}

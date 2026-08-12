@@ -62,14 +62,14 @@ export default async function GlossaryTermPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
+    // Same @id the listing uses for this term, so the two documents describe
+    // one entity rather than two that happen to share a name.
+    '@id': `${BASE}/${locale}/glossary/${slug}`,
     name,
     description: definition,
     url: `${BASE}/${locale}/glossary/${slug}`,
-    inDefinedTermSet: {
-      '@type': 'DefinedTermSet',
-      name: isRu ? 'Глоссарий криптовалют CryptoPulse.media' : 'CryptoPulse.media Crypto Glossary',
-      url: `${BASE}/${locale}/glossary`,
-    },
+    inLanguage: locale,
+    inDefinedTermSet: { '@id': `${BASE}/${locale}/glossary#dictionary` },
   };
 
   const articleLd = {

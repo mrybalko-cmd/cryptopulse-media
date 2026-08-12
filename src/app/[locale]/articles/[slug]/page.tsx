@@ -22,7 +22,7 @@ import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
-import SwgBasic from '@/components/layout/SwgBasic';
+import SwgBasic, { openAccessMarkup } from '@/components/layout/SwgBasic';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -124,9 +124,11 @@ export default async function ArticlePage({ params }: Props) {
 
   const wordCount = countBodyWords(article.body);
 
+  const schemaType = article.seo?.schemaType || 'BlogPosting';
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': article.seo?.schemaType || 'BlogPosting',
+    '@type': schemaType,
     headline: article.title,
     description: article.excerpt,
     url: `https://cryptopulse.media/${locale}/articles/${slug}`,
@@ -140,6 +142,7 @@ export default async function ArticlePage({ params }: Props) {
       : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
     publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
+    ...openAccessMarkup,
   };
 
   const breadcrumbLd = {
@@ -157,7 +160,7 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <ViewTracker id={article._id} />
-      <SwgBasic locale={locale} />
+      <SwgBasic locale={locale} type={schemaType} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">

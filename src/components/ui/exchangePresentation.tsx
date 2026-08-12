@@ -78,13 +78,19 @@ export function ExchangeLogo({
       <span
         className={`${shared} flex items-center justify-center text-white font-black text-[calc(var(--logo-sm)*0.36)] md:text-[calc(var(--logo-lg)*0.36)]`}
         style={{ ...vars, background: exchange.logoBg || '#3b82f6' }}
+        aria-hidden="true"
       >
         {exchange.name.slice(0, 2).toUpperCase()}
       </span>
     );
   }
   return (
-    <span className={`${shared} inline-block`} style={vars}>
+    // Decorative on purpose, and marked so explicitly. Every placement puts the
+    // exchange name in text right beside the mark, so alt text would make a
+    // screen reader announce the same name twice. aria-hidden states that the
+    // empty alt is a decision rather than an oversight — an audit otherwise
+    // reads it as 29 images "missing" alt on this page alone.
+    <span className={`${shared} inline-block`} style={vars} aria-hidden="true">
       <Image
         src={sanityImageTransform(exchange.logo, { width: size * 2 })!}
         alt=""
