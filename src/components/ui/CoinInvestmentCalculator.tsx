@@ -156,7 +156,7 @@ export default function CoinInvestmentCalculator({
       {mode === 'once' ? (
         <OnceResult
           amount={amountOnce} price={price} reference={reference} symbol={symbol} color={color}
-          isRu={isRu} money={money} pct={pct}
+          isRu={isRu} money={money}
           ath={ath} athChangePct={athChangePct} name={name}
         />
       ) : (
@@ -187,10 +187,10 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 function OnceResult({
-  amount, price, reference, symbol, color, isRu, money, pct, ath, athChangePct, name,
+  amount, price, reference, symbol, color, isRu, money, ath, athChangePct, name,
 }: {
   amount: number; price: number | null; reference: InvestmentReference[]; symbol: string; color: string;
-  isRu: boolean; money: (n: number) => string; pct: (n: number) => string;
+  isRu: boolean; money: (n: number) => string;
   ath: number; athChangePct: number; name: string;
 }) {
   const first = reference[0];
@@ -334,7 +334,7 @@ function MonthlyResult({
         </div>
       </div>
 
-      <JourneyChart run={run} color={color} isRu={isRu} money={money} dateLabel={dateLabel} />
+      <JourneyChart run={run} color={color} isRu={isRu} dateLabel={dateLabel} />
 
       {run.worst && (
         <Drawdown
@@ -365,8 +365,8 @@ function MonthlyResult({
  * and the fill is the profit or loss — visible rather than arithmetic.
  */
 function JourneyChart({
-  run, color, isRu, money, dateLabel,
-}: { run: DcaRun; color: string; isRu: boolean; money: (n: number) => string; dateLabel: (d: string) => string }) {
+  run, color, isRu, dateLabel,
+}: { run: DcaRun; color: string; isRu: boolean; dateLabel: (d: string) => string }) {
   const pts = run.series;
   if (pts.length < 3) return null;
   const W = 620, H = 140, PAD = 6;

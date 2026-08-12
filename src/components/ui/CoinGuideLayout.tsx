@@ -45,7 +45,6 @@ export default async function CoinGuideLayout({
   return (
     <CoinPageShell
       locale={locale}
-      slug={slug}
       meta={meta}
       market={market}
       history={history}

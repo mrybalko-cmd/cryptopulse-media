@@ -31,7 +31,6 @@ export interface CoinFact {
  */
 export default function CoinPageShell({
   locale,
-  slug,
   meta,
   market,
   history,
@@ -46,7 +45,6 @@ export default function CoinPageShell({
   glossaryTerms,
 }: {
   locale: string;
-  slug: string;
   meta: CoinMeta;
   market: CoinMarket | null;
   history: CoinHistoryPoint[];
