@@ -1,6 +1,9 @@
 import { COIN_REGISTRY, coinMeta } from './coinRegistry';
 
 const UPSTREAM_TIMEOUT_MS = 10_000;
+/** Tighter than the quote request: a slow chart must never hold a build page
+ *  open long enough to hit the platform's per-page timeout. */
+const HISTORY_TIMEOUT_MS = 6_000;
 
 /**
  * How far back the investment calculator can reach.
@@ -105,20 +108,21 @@ export async function fetchCoinMarket(slug: string): Promise<CoinMarket | null> 
 /**
  * A year of daily closes — the deepest the free tier serves.
  *
- * This one cannot be batched: the chart endpoint takes a single coin. Twenty-four
- * of them in a row during a build walks straight into the rate limit, so a 429
- * waits and retries rather than silently leaving the page without a chart.
+ * One attempt, no waiting. This cannot be batched (the chart endpoint takes a
+ * single coin), so twenty-four of them during a build do meet the rate limit —
+ * but retrying with a backoff pushed pages past Vercel's 60-second per-page
+ * build budget and failed the deployment outright. A rate-limited coin simply
+ * renders without its chart and picks one up on the next revalidation, which
+ * is a far cheaper failure than no deployment at all.
  */
 export async function fetchCoinHistory(slug: string): Promise<CoinHistoryPoint[]> {
   const meta = coinMeta(slug);
   if (!meta) return [];
   try {
-    const url = `https://api.coingecko.com/api/v3/coins/${meta.id}/market_chart?vs_currency=usd&days=${HISTORY_DAYS}&interval=daily`;
-    let res = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 21_600 } });
-    for (let attempt = 0; attempt < 3 && res.status === 429; attempt++) {
-      await new Promise((r) => setTimeout(r, 20_000 * (attempt + 1)));
-      res = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS), next: { revalidate: 21_600 } });
-    }
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/coins/${meta.id}/market_chart?vs_currency=usd&days=${HISTORY_DAYS}&interval=daily`,
+      { signal: AbortSignal.timeout(HISTORY_TIMEOUT_MS), next: { revalidate: 21_600 } }
+    );
     if (!res.ok) return [];
     const data = await res.json();
     const prices: [number, number][] = data?.prices ?? [];
