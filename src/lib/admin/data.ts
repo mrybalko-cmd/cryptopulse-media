@@ -1452,7 +1452,12 @@ export interface PulseSnapshot {
   totalVolume24h: number;
   fearGreedValue: number;
   altSeasonValue: number;
+  /** Weekday-adjusted — what the score uses. */
   volumeChangePct: number;
+  /** Unadjusted, vs a plain 7-day mean. What we published before 11.08.2026;
+   *  kept so the two methods stay comparable in the log. */
+  volumeChangePctRaw?: number;
+  weekdayFactor?: number;
   pulseScore: number;
   pulseClassification: string;
   computedAt: string;
@@ -1461,7 +1466,9 @@ export interface PulseSnapshot {
 export async function fetchPulseHistory(limit: number): Promise<PulseSnapshot[]> {
   return client.fetch(
     `*[_type == "marketSnapshot"] | order(date desc) [0...${limit}]{
-      _id, date, totalVolume24h, fearGreedValue, altSeasonValue, volumeChangePct, pulseScore, pulseClassification, computedAt
+      _id, date, totalVolume24h, fearGreedValue, altSeasonValue,
+      volumeChangePct, volumeChangePctRaw, weekdayFactor,
+      pulseScore, pulseClassification, computedAt
     }`
   );
 }

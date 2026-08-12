@@ -750,7 +750,12 @@ export interface MarketSnapshot {
   totalVolume24h: number;
   fearGreedValue: number;
   altSeasonValue: number;
+  /** Weekday-adjusted change vs the recent baseline — what the score uses. */
   volumeChangePct: number;
+  /** Unadjusted change vs a plain 7-day mean, kept for comparison in admin.
+   *  Optional because rows written before 11.08.2026 predate the field. */
+  volumeChangePctRaw?: number;
+  weekdayFactor?: number;
   pulseScore: number;
   pulseClassification: string;
   computedAt: string;
@@ -759,7 +764,20 @@ export interface MarketSnapshot {
 export async function saveMarketSnapshot(snapshot: Omit<MarketSnapshot, '_id'>): Promise<void> {
   if (!process.env.SANITY_API_WRITE_TOKEN) return;
   try {
-    await writeClient.create({ _type: 'marketSnapshot', ...snapshot });
+    // One document per calendar day, enforced here rather than assumed. A
+    // retried or double-fired cron used to create a second row for the same
+    // date; that was harmless when only the newest row was read, but the
+    // percentile and the weekday factors are now ranked across the whole
+    // history, so a duplicated day would quietly bias both.
+    const existing = await writeClient.fetch<string | null>(
+      `*[_type == "marketSnapshot" && date == $date][0]._id`,
+      { date: snapshot.date }
+    );
+    if (existing) {
+      await writeClient.patch(existing).set(snapshot).commit();
+    } else {
+      await writeClient.create({ _type: 'marketSnapshot', ...snapshot });
+    }
   } catch {
     // best-effort — a missed daily snapshot just means the next cron run
     // falls back to a wider baseline gap, not a broken page
@@ -770,9 +788,14 @@ export const fetchRecentMarketSnapshots = unstable_cache(
   async (limit = 7): Promise<MarketSnapshot[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
+      // Ordered by `date`, not `computedAt`: the weekday profile and the
+      // volume baseline both depend on calendar order, and a row whose
+      // computedAt drifted past midnight would otherwise sort out of place.
       return await client.fetch(
-        `*[_type == "marketSnapshot"] | order(computedAt desc) [0...$limit] {
-          _id, date, totalVolume24h, fearGreedValue, altSeasonValue, volumeChangePct, pulseScore, pulseClassification, computedAt
+        `*[_type == "marketSnapshot"] | order(date desc) [0...$limit] {
+          _id, date, totalVolume24h, fearGreedValue, altSeasonValue,
+          volumeChangePct, volumeChangePctRaw, weekdayFactor,
+          pulseScore, pulseClassification, computedAt
         }`,
         { limit }
       );

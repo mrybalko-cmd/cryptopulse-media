@@ -30,5 +30,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "_comment_exclude": "scripts/ holds standalone maintenance scripts run by Node directly (node --experimental-strip-types), not part of the Next build. They import with explicit .ts extensions, which this app config deliberately disallows.",
+  "exclude": ["node_modules", "scripts"]
 }

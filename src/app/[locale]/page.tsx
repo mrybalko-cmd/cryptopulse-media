@@ -248,7 +248,6 @@ export default async function HomePage({ params }: Props) {
                   <PulseWidget
                     data={pulseData}
                     locale={locale}
-                    idSuffix="home-desktop"
                     className="h-full lg:col-start-3 lg:row-start-2"
                   />
                 )}
@@ -295,7 +294,7 @@ export default async function HomePage({ params }: Props) {
           lg:hidden to avoid a second repeat there. */}
       {pulseData && (
         <div className="lg:hidden">
-          <PulseWidget data={pulseData} locale={locale} idSuffix="home-mobile" asHeading={false} />
+          <PulseWidget data={pulseData} locale={locale} asHeading={false} />
         </div>
       )}
     </div>

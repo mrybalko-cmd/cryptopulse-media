@@ -285,7 +285,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                     href={`/${locale}/altcoin-season`}
                   />
                 )}
-                {pulseData && <PulseWidget data={pulseData} locale={locale} idSuffix="calculators-hub" />}
+                {pulseData && <PulseWidget data={pulseData} locale={locale} variant="hub" />}
               </div>
             </>
           )}

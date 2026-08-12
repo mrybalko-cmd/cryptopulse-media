@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { fetchLatestPulse } from '@/lib/pulse';
+import { zoneMeta } from '@/lib/pulseMath';
 
 // Standard 1.91:1 og:image size — a 1:1 square got center-cropped top/bottom
 // by Facebook and other scrapers, which target this ratio and don't just
@@ -14,15 +15,12 @@ export const contentType = 'image/png';
 // the daily Pulse score updates. Matches the page's own window.
 export const revalidate = 300;
 
-const VERDICTS: Record<string, { ru: string; en: string }> = {
-  flatline: { ru: 'Штиль', en: 'Flatline' },
-  warming: { ru: 'Разминка', en: 'Warming up' },
-  steady: { ru: 'Ровный ритм', en: 'Steady rhythm' },
-  heating: { ru: 'Разогрев', en: 'Heating up' },
-  peak: { ru: 'Пиковая активность', en: 'Peak activity' },
-};
-
-const GRAD = { a: '#3b82f6', b: '#06b6d4', c: '#ec4899' };
+// Matches the on-site widget's single violet gradient rather than the old
+// blue→cyan→pink ECG palette, so a shared card and the page look like the
+// same object. Cyan is kept only for the secondary glow.
+const V1 = '#c084fc';
+const V2 = '#8b5cf6';
+const GRAD = { a: V2, b: '#06b6d4', c: V1 };
 
 // Mirrors PulseWidget.tsx's own look (same bg-card tone, same glow blobs,
 // same gradient ECG line/number, same 40/30/30 bar) rather than a
@@ -34,8 +32,15 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
   const { locale } = await params;
   const isRu = locale === 'ru';
   const data = await fetchLatestPulse();
-  const score = data?.score ?? 50;
-  const verdict = data ? (VERDICTS[data.classification]?.[isRu ? 'ru' : 'en'] ?? data.classification) : (isRu ? 'Пульс рынка' : 'Market Pulse');
+  // Same fallback rule as the widget: no honest percentile yet → show the
+  // raw composite, never a number we can't stand behind.
+  const headline = data ? (data.percentile ?? data.score) : 50;
+  const zone = data ? zoneMeta(data.zone) : null;
+  const verdict = zone ? (isRu ? zone.ru : zone.en) : isRu ? 'Пульс рынка' : 'Market Pulse';
+  const caption = data?.percentile != null
+    ? isRu ? `активнее, чем в ${data.percentile}% дней` : `busier than ${data.percentile}% of days`
+    : isRu ? 'сводный индекс рынка' : 'composite market index';
+  const bars = data?.history ?? [];
 
   return new ImageResponse(
     (
@@ -62,28 +67,23 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
             </div>
           </div>
 
-          <svg width="100%" height="100" viewBox="0 0 320 60" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="ecg" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={GRAD.a} />
-                <stop offset="50%" stopColor={GRAD.b} />
-                <stop offset="100%" stopColor={GRAD.c} />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,30 L45,30 L58,30 L67,8 L76,52 L85,30 L115,30 L320,30"
-              fill="none"
-              stroke="url(#ecg)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-
-          <div style={{ display: 'flex', gap: 10 }}>
-            <div style={{ display: 'flex', width: '40%', height: 12, borderRadius: 999, background: GRAD.a }} />
-            <div style={{ display: 'flex', width: '30%', height: 12, borderRadius: 999, background: GRAD.b }} />
-            <div style={{ display: 'flex', width: '30%', height: 12, borderRadius: 999, background: GRAD.c }} />
+          {/* The same percentile bar chart the site shows, so a shared card
+              reads as a screenshot of the real widget rather than separate
+              art direction. */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120 }}>
+            {bars.map((d, i) => (
+              <div
+                key={d.date}
+                style={{
+                  display: 'flex',
+                  flex: 1,
+                  height: `${Math.max(9, d.percentile ?? d.score)}%`,
+                  borderRadius: '4px 4px 1px 1px',
+                  backgroundImage: `linear-gradient(180deg, ${V1}, ${V2})`,
+                  opacity: i === bars.length - 1 ? 1 : 0.78,
+                }}
+              />
+            ))}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -106,15 +106,15 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
               fontSize: 220,
               fontWeight: 800,
               lineHeight: 1,
-              fontFamily: 'monospace',
-              backgroundImage: `linear-gradient(90deg, ${GRAD.a}, ${GRAD.b}, ${GRAD.c})`,
+              backgroundImage: `linear-gradient(160deg, ${V1}, ${V2})`,
               backgroundClip: 'text',
               color: 'transparent',
             }}
           >
-            {score}
+            {headline}
           </div>
           <div style={{ display: 'flex', fontSize: 40, fontWeight: 700, color: '#edf0f7', marginTop: 8 }}>{verdict}</div>
+          <div style={{ display: 'flex', fontSize: 22, color: '#9aa0ae', marginTop: 10 }}>{caption}</div>
         </div>
       </div>
     ),

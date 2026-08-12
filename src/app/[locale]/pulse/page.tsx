@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import { fetchLatestPulse, PULSE_WEIGHTS } from '@/lib/pulse';
+import { fetchLatestPulse, PULSE_WEIGHTS, PULSE_ZONES, PULSE_MIN_SAMPLE } from '@/lib/pulse';
 import { fetchPopularContent } from '@/lib/sanity';
 import PulseWidget from '@/components/ui/PulseWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -35,27 +35,64 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const ZONES = [
-  { range: '0–24', color: '#3b82f6', ru: 'Штиль', en: 'Flatline' },
-  { range: '25–44', color: '#06b6d4', ru: 'Разминка', en: 'Warming up' },
-  { range: '45–55', color: '#94a3b8', ru: 'Ровный ритм', en: 'Steady rhythm' },
-  { range: '56–74', color: '#f472b6', ru: 'Разогрев', en: 'Heating up' },
-  { range: '75–100', color: '#ec4899', ru: 'Пиковая активность', en: 'Peak activity' },
-];
-
 const FACTORS_RU = [
   { pct: '40%', name: 'Fear & Greed Index', desc: 'Наш уже существующий индекс страха и жадности — коллективное настроение участников рынка.' },
   { pct: '30%', name: 'Altcoin Season Index', desc: 'Ротация капитала между биткоином и альткоинами — признак аппетита к риску.' },
-  { pct: '30%', name: 'Импульс объёма торгов', desc: 'Изменение суммарного объёма за 24ч относительно скользящего 7-дневного среднего — признак реальной активности, а не только настроения.' },
+  { pct: '30%', name: 'Импульс объёма торгов', desc: 'Оборот за 24 часа против нормы для этого дня недели — признак реальной активности, а не только настроения.' },
 ];
 
 const FACTORS_EN = [
   { pct: '40%', name: 'Fear & Greed Index', desc: 'Our existing Fear & Greed Index — collective market sentiment.' },
   { pct: '30%', name: 'Altcoin Season Index', desc: 'Capital rotation between Bitcoin and altcoins — a risk-appetite signal.' },
-  { pct: '30%', name: 'Volume momentum', desc: '24h total trading volume change vs. a rolling 7-day average — a sign of real activity, not just mood.' },
+  { pct: '30%', name: 'Volume momentum', desc: '24h turnover against the norm for that weekday — a sign of real activity, not just mood.' },
+];
+
+// Ordered walkthrough of the calculation. Step 2 and step 3 are the two
+// corrections made on 11.08.2026 and are stated plainly rather than buried:
+// before them the index was partly measuring the calendar, and three of its
+// five zones were unreachable in principle.
+const STEPS_RU = [
+  {
+    t: 'Три сигнала сводятся в один балл',
+    d: 'Страх и жадность — 40%, ротация в альткоины — 30%, импульс объёма — 30%. Веса зафиксированы и не подбирались задним числом.',
+  },
+  {
+    t: 'Объём сравнивается с нормой своего дня недели',
+    d: 'Понедельник в крипте тише среды примерно на четверть: по нашим данным понедельник даёт 0,72 от оборота среднего дня, а среда — 1,15. Раньше любой день сравнивался со средним за прошлые семь, поэтому каждый понедельник выглядел провалом рынка. Теперь понедельник сравнивается с понедельниками.',
+  },
+  {
+    t: 'Балл переводится в место на нашей истории',
+    d: 'Сырой составной балл живёт в узком коридоре, поэтому число на первом экране — это перцентиль: сколько процентов прошлых дней были спокойнее сегодняшнего. Сырой балл остаётся видимым под графиком, чтобы методику можно было проверить.',
+  },
+  {
+    t: 'Если данных нет, день не публикуется',
+    d: 'Недоступный источник — это пропуск в истории, а не подставленное значение.',
+  },
+];
+
+const STEPS_EN = [
+  {
+    t: 'Three signals become one score',
+    d: 'Fear & Greed 40%, altcoin rotation 30%, volume momentum 30%. The weights are fixed and were not fitted after the fact.',
+  },
+  {
+    t: 'Volume is compared to the norm for its weekday',
+    d: 'Monday is about a quarter quieter than Wednesday in crypto: in our own data Monday runs at 0.72 of an average day’s turnover and Wednesday at 1.15. Previously every day was compared to a plain seven-day mean, so every Monday read as a market collapse. Now Mondays are compared to Mondays.',
+  },
+  {
+    t: 'The score becomes a place in our own history',
+    d: 'The raw composite lives in a narrow corridor, so the headline number is a percentile: what share of past days were quieter than today. The raw score stays visible below the chart so the method remains checkable.',
+  },
+  {
+    t: 'No data, no entry',
+    d: 'An unavailable source leaves a gap in the history rather than an invented value.',
+  },
 ];
 
 const FAQ_RU = [
+  { q: 'Почему число сегодня другое, чем вчера, хотя рынок почти не двигался?', a: 'Показатель на первом экране — это место дня среди всех дней, что мы измерили. Если рынок стоит, а прошлая неделя была бурной, сегодняшний день опускается в рейтинге, хотя абсолютные значения не изменились. Сырой составной балл под графиком показывает абсолютную величину и ведёт себя спокойнее.' },
+  { q: 'Что значит «норма для этого дня недели»?', a: 'Средний оборот всех таких же дней недели в нашей истории. У каждого дня свой коэффициент: по нашим данным понедельник даёт 0,72 от оборота среднего дня, среда — 1,15. Мы делим сегодняшний оборот на коэффициент его дня и только потом сравниваем с прошлыми днями. Без этой поправки каждый понедельник выглядел обвалом рынка, хотя это был просто понедельник.' },
+  { q: 'Насколько надёжна шкала на нынешней выборке?', a: 'Пока умеренно, и мы пишем это прямо на странице. Перцентиль считается по всей накопленной истории, поэтому чем длиннее история, тем устойчивее шкала. Пока дней меньше четырнадцати, мы вообще не показываем перцентиль и оставляем сырой балл — выдавать точность, которой нет, мы не будем.' },
   { q: 'Чем Пульс отличается от Fear & Greed Index?', a: 'Fear & Greed измеряет только настроение (страх/жадность). Пульс — более широкий показатель: он добавляет к настроению ротацию капитала между биткоином и альткоинами и реальную активность рынка (объём торгов), а не только эмоции.' },
   { q: 'Как часто обновляется индекс?', a: 'Раз в сутки — новый снапшот считается автоматически и публикуется здесь же. Отдельные компоненты (Fear & Greed, Altcoin Season) обновляются с той же периодичностью, что и на их собственных страницах.' },
   { q: 'Почему веса именно 40/30/30?', a: 'Настроение рынка (Fear & Greed) — самый изученный и проверенный временем сигнал, поэтому у него наибольший вес. Ротация в альткоины и объём торгов — более узкие сигналы, поэтому у каждого по 30%. Веса могут уточняться по мере накопления данных — любое изменение будет отражено на этой странице.' },
@@ -64,6 +101,9 @@ const FAQ_RU = [
 ];
 
 const FAQ_EN = [
+  { q: 'Why did the number move when the market barely did?', a: 'The headline figure is where the day ranks among every day we have measured. If the market is flat but last week was busy, today slips down the ranking even though the absolute values did not change. The raw composite score below the chart shows the absolute level and moves less.' },
+  { q: 'What does “the norm for this weekday” mean?', a: 'The average turnover of every same weekday in our history. Each day carries its own factor: in our data Monday runs at 0.72 of an average day and Wednesday at 1.15. Today’s turnover is divided by its weekday factor before anything is compared. Without that correction every Monday looked like a market collapse when it was simply a Monday.' },
+  { q: 'How reliable is the scale on the current sample?', a: 'Moderately, and we say so on the page. The percentile is ranked against the whole accumulated history, so the longer the record the steadier the scale. Below fourteen days we show no percentile at all and fall back to the raw score — we will not manufacture precision we do not have.' },
   { q: 'How is Pulse different from the Fear & Greed Index?', a: 'Fear & Greed only measures sentiment. Pulse is broader — it adds capital rotation between Bitcoin and altcoins and real market activity (trading volume), not just emotion.' },
   { q: 'How often does it update?', a: 'Once a day — a new snapshot is computed automatically and published here. The underlying components update on the same schedule as their own pages.' },
   { q: 'Why these specific weights (40/30/30)?', a: 'Market sentiment (Fear & Greed) is the most studied, time-tested signal, so it carries the most weight. Altcoin rotation and volume are narrower signals, each weighted at 30%. Weights may be refined as we gather more data — any change will be disclosed here.' },
@@ -83,6 +123,7 @@ export default async function PulsePage({ params }: Props) {
 
   const factors = isRu ? FACTORS_RU : FACTORS_EN;
   const faq = isRu ? FAQ_RU : FAQ_EN;
+  const steps = isRu ? STEPS_RU : STEPS_EN;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -115,9 +156,11 @@ export default async function PulsePage({ params }: Props) {
         {isRu ? 'На главную' : 'Home'}
       </Link>
 
-      {/* Hero */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-10">
-        <div className="flex-1">
+      {/* Hero — the reading itself leads the page as a full-width panel
+          below the intro, instead of a 256px tile squeezed beside it: the
+          chart, three factors and share row need the width. */}
+      <div className="mb-8">
+        <div>
           <p className="text-xs font-bold uppercase tracking-widest text-accent mb-2">
             {isRu ? 'Собственный индекс CryptoPulse' : 'CryptoPulse’s own index'}
           </p>
@@ -126,20 +169,21 @@ export default async function PulsePage({ params }: Props) {
           </h1>
           <p className="text-muted text-sm leading-relaxed max-w-xl">
             {isRu
-              ? 'Составной показатель от 0 до 100, который объединяет страх и жадность, ротацию капитала между биткоином и альткоинами и импульс объёма торгов — чтобы не сверять три разных индекса вручную. Публикуется ежедневно.'
-              : 'A composite score from 0 to 100 that blends fear and greed, Bitcoin-to-altcoin capital rotation, and trading volume momentum — so you don’t have to check three separate indices by hand. Published daily.'}
+              ? 'Одно число от 0 до 100, которое отвечает на вопрос «сегодня на рынке оживлённее или тише обычного?». Внутри — страх и жадность, ротация капитала между биткоином и альткоинами и оборот торгов, очищенный от эффекта дня недели. Обновляется раз в сутки.'
+              : 'A single 0–100 number answering one question: is the market busier or quieter than usual today? Inside it are fear and greed, Bitcoin-to-altcoin capital rotation, and trading volume with the weekday effect removed. Updated once a day.'}
           </p>
         </div>
-        {data ? (
-          <div className="shrink-0 w-full sm:w-64">
-            <PulseWidget data={data} locale={locale} idSuffix="pulse-page" asHeading={false} />
-          </div>
-        ) : (
-          <p className="text-xs text-muted shrink-0">
-            {isRu ? 'Первый снапшот появится в течение суток после запуска.' : 'The first snapshot will appear within a day of launch.'}
-          </p>
-        )}
       </div>
+
+      {data ? (
+        <div className="mb-10">
+          <PulseWidget data={data} locale={locale} asHeading={false} variant="full" />
+        </div>
+      ) : (
+        <p className="text-xs text-muted mb-10">
+          {isRu ? 'Первый снапшот появится в течение суток после запуска.' : 'The first snapshot will appear within a day of launch.'}
+        </p>
+      )}
 
       {/* Zones */}
       <section className="mb-10">
@@ -147,23 +191,67 @@ export default async function PulsePage({ params }: Props) {
           {isRu ? 'Зоны индекса' : 'Index zones'}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {ZONES.map((z) => (
-            <div key={z.range} className="border border-border rounded-lg p-3 flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: z.color }} />
-                <span className="font-mono text-xs text-muted tabular-nums">{z.range}</span>
+          {PULSE_ZONES.map((z) => {
+            const isNow = data?.percentile != null && data.percentile >= z.min && data.percentile <= z.max;
+            return (
+              <div
+                key={z.zone}
+                className={`border rounded-lg p-3 flex flex-col gap-1.5 relative ${isNow ? '' : 'border-border'}`}
+                style={
+                  isNow
+                    ? {
+                        borderColor: 'color-mix(in srgb, var(--violet-2) 55%, transparent)',
+                        background: 'color-mix(in srgb, var(--violet) 9%, transparent)',
+                      }
+                    : undefined
+                }
+              >
+                {isNow && (
+                  <span className="absolute top-2 right-2.5 text-[9px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--violet-2)' }}>
+                    {isRu ? 'сегодня' : 'today'}
+                  </span>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: z.color }} />
+                  <span className="font-mono text-xs text-muted tabular-nums">{z.min}–{z.max}</span>
+                </div>
+                <span className="text-sm font-semibold text-foreground">{isRu ? z.ru : z.en}</span>
               </div>
-              <span className="text-sm font-semibold text-foreground">{isRu ? z.ru : z.en}</span>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted mt-3 leading-relaxed">
+          {isRu
+            ? `Границы зон заданы по перцентилю, поэтому каждая зона встречается примерно в пятой части дней — ни одна не остаётся недостижимой. Пока в истории меньше ${PULSE_MIN_SAMPLE} дней, перцентиль не показывается вовсе, а на первом экране стоит сырой составной балл.`
+            : `Zone boundaries are set by percentile, so each zone occurs on roughly a fifth of days — none is unreachable. Below ${PULSE_MIN_SAMPLE} days of history no percentile is shown at all and the headline falls back to the raw composite score.`}
+        </p>
+      </section>
+
+      {/* Methodology — the ordered walkthrough first, then the weights table */}
+      <section className="mb-10">
+        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">
+          {isRu ? 'Как считается' : 'How it is calculated'}
+        </h2>
+        <div className="flex flex-col divide-y divide-border border border-border rounded-lg overflow-hidden mb-4">
+          {steps.map((s, i) => (
+            <div key={s.t} className="flex items-start gap-4 px-4 py-3.5">
+              <span
+                className="w-6 h-6 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-[11px] font-black"
+                style={{ background: 'color-mix(in srgb, var(--violet) 22%, transparent)', color: 'var(--violet-2)' }}
+              >
+                {i + 1}
+              </span>
+              <div>
+                <div className="text-sm font-semibold text-foreground mb-1">{s.t}</div>
+                <div className="text-xs text-muted leading-relaxed">{s.d}</div>
+              </div>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* Methodology */}
-      <section className="mb-10">
-        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4">
-          {isRu ? 'Из чего считается' : 'How it is calculated'}
-        </h2>
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wider mb-3">
+          {isRu ? 'Веса компонентов' : 'Component weights'}
+        </h3>
         <div className="flex flex-col divide-y divide-border border border-border rounded-lg overflow-hidden">
           {factors.map((f) => (
             <div key={f.name} className="flex items-start gap-4 px-4 py-3">
@@ -189,19 +277,19 @@ export default async function PulsePage({ params }: Props) {
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="bg-card border border-border rounded-lg p-4">
-            <div className="text-sm font-semibold text-foreground mb-2">{isRu ? 'Низкий пульс (0–24)' : 'Low pulse (0–24)'}</div>
+            <div className="text-sm font-semibold text-foreground mb-2">{isRu ? 'Низкие значения (0–19)' : 'Low readings (0–19)'}</div>
             <p className="text-xs text-muted leading-relaxed">
               {isRu
-                ? 'Рынок в фазе затишья — низкая волатильность, низкий интерес. Часто предшествует фазе накопления перед движением.'
-                : 'The market is quiet — low volatility, low interest. Often precedes an accumulation phase ahead of a move.'}
+                ? 'Рынок спокойнее, чем почти во все дни, что мы наблюдали: низкая волатильность и низкий интерес. Часто предшествует фазе накопления перед движением.'
+                : 'The market is calmer than on almost every day we have observed: low volatility, low interest. Often precedes an accumulation phase ahead of a move.'}
             </p>
           </div>
           <div className="bg-card border border-border rounded-lg p-4">
-            <div className="text-sm font-semibold text-foreground mb-2">{isRu ? 'Высокий пульс (75–100)' : 'High pulse (75–100)'}</div>
+            <div className="text-sm font-semibold text-foreground mb-2">{isRu ? 'Высокие значения (80–100)' : 'High readings (80–100)'}</div>
             <p className="text-xs text-muted leading-relaxed">
               {isRu
-                ? 'Повышенная активность и жадность одновременно — риск резких движений в обе стороны возрастает. Не сигнал к действию сам по себе.'
-                : 'Elevated activity and greed at once — the risk of sharp moves in either direction rises. Not an action signal on its own.'}
+                ? 'Оборот и жадность повышены одновременно — риск резких движений в обе стороны растёт. Сам по себе это не сигнал к действию.'
+                : 'Turnover and greed are elevated at once — the risk of sharp moves in either direction rises. Not an action signal on its own.'}
             </p>
           </div>
         </div>
@@ -242,8 +330,9 @@ export default async function PulsePage({ params }: Props) {
               <p>
                 Пульс рынка CryptoPulse объединяет три независимых сигнала в один. Помимо эмоционального фона (страх/жадность),
                 он учитывает <Link href={`/${locale}/altcoin-season`} className="text-accent hover:underline">ротацию капитала между биткоином и альткоинами</Link> —
-                классический признак того, куда инвесторы готовы нести повышенный риск, — и реальный импульс объёма торгов,
-                который показывает, подкреплено ли движение настоящей активностью или это просто разговоры в соцсетях.
+                классический признак того, куда инвесторы готовы нести повышенный риск, — и оборот торгов, очищенный от
+                календарного эффекта. Последнее важнее, чем кажется: без поправки на день недели любой понедельник выглядит
+                провалом рынка, хотя это всего лишь понедельник.
               </p>
               <p>
                 Такой составной подход снижает риск сделать вывод на основе одного искажённого сигнала. Используйте Пульс
@@ -263,8 +352,9 @@ export default async function PulsePage({ params }: Props) {
               <p>
                 CryptoPulse’s Market Pulse blends three independent signals into one. Beyond emotional sentiment (fear/greed),
                 it factors in <Link href={`/${locale}/altcoin-season`} className="text-accent hover:underline">capital rotation between Bitcoin and altcoins</Link> —
-                a classic sign of where investors are willing to take on extra risk — and real trading volume momentum, which
-                shows whether a move is backed by real activity or just social media chatter.
+                a classic sign of where investors are willing to take on extra risk — and trading volume with the calendar
+                effect stripped out. That last part matters more than it sounds: without a weekday correction every Monday
+                looks like a market collapse when it is simply a Monday.
               </p>
               <p>
                 This composite approach reduces the risk of drawing a conclusion from a single distorted signal. Use Pulse

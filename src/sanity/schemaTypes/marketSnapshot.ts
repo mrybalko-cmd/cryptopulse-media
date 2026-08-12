@@ -14,8 +14,13 @@ export const marketSnapshotType = defineType({
     defineField({ name: 'totalVolume24h', title: 'Total 24h volume (USD)', type: 'number', readOnly: true }),
     defineField({ name: 'fearGreedValue', title: 'Fear & Greed value', type: 'number', readOnly: true }),
     defineField({ name: 'altSeasonValue', title: 'Altcoin Season value', type: 'number', readOnly: true }),
-    defineField({ name: 'volumeChangePct', title: 'Volume change vs baseline (%)', type: 'number', readOnly: true }),
-    defineField({ name: 'pulseScore', title: 'Pulse score', type: 'number', readOnly: true }),
+    defineField({ name: 'volumeChangePct', title: 'Volume change vs baseline, weekday-adjusted (%)', type: 'number', readOnly: true }),
+    // Kept alongside the adjusted figure so the two are comparable in admin:
+    // the unadjusted number is what we published before 11.08.2026 and is
+    // what made every Monday look like a crash.
+    defineField({ name: 'volumeChangePctRaw', title: 'Volume change vs plain 7-day mean (%)', type: 'number', readOnly: true }),
+    defineField({ name: 'weekdayFactor', title: 'Weekday volume factor applied', type: 'number', readOnly: true }),
+    defineField({ name: 'pulseScore', title: 'Pulse score (raw composite)', type: 'number', readOnly: true }),
     defineField({ name: 'pulseClassification', title: 'Pulse classification', type: 'string', readOnly: true }),
     defineField({ name: 'computedAt', title: 'Computed at', type: 'datetime', readOnly: true }),
   ],
