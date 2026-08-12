@@ -11,6 +11,7 @@ import { youtubeEmbedType } from './youtubeEmbed';
 import { tweetEmbedType } from './tweetEmbed';
 import { facebookEmbedType } from './facebookEmbed';
 import { sidebarBannerType } from './sidebarBanner';
+import { coinQuotesType } from './coinQuotes';
 import { marketSnapshotType } from './marketSnapshot';
 import { exchangeType } from './exchange';
 import { exchangeReviewType } from './exchangeReview';
@@ -20,5 +21,6 @@ import { adminActivityLogType } from './adminActivityLog';
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType, facebookEmbedType,
-  sidebarBannerType, marketSnapshotType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
+  sidebarBannerType, marketSnapshotType,
+    coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
 ];

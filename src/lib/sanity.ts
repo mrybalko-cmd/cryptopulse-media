@@ -814,6 +814,51 @@ export const fetchRecentMarketSnapshots = unstable_cache(
   { revalidate: READ_CACHE_SECONDS }
 );
 
+// ── Coin quotes fallback ────────────────────────────────────────────────────
+// Read whenever CoinGecko refuses; written once an hour by the cron. Keeps
+// coin pages from shipping empty when a build's parallel workers meet the
+// free tier's rate limit.
+
+export interface StoredCoinQuote {
+  coinId: string;
+  price: number;
+  change24h: number;
+  marketCap: number;
+  volume24h: number;
+  ath: number;
+  athChangePct: number;
+  circulating: number | null;
+  maxSupply: number | null;
+  logo: string;
+}
+
+export async function saveCoinQuotes(quotes: StoredCoinQuote[]): Promise<void> {
+  if (!process.env.SANITY_API_WRITE_TOKEN || quotes.length === 0) return;
+  try {
+    await writeClient.createOrReplace({
+      _id: 'coinQuotes',
+      _type: 'coinQuotes',
+      updatedAt: new Date().toISOString(),
+      quotes,
+    });
+  } catch {
+    // best-effort: a missed write just means the fallback is one hour older
+  }
+}
+
+export const fetchStoredCoinQuotes = unstable_cache(
+  async (): Promise<{ updatedAt: string; quotes: StoredCoinQuote[] } | null> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    try {
+      return await client.fetch(`*[_id == "coinQuotes"][0]{ updatedAt, quotes }`);
+    } catch {
+      return null;
+    }
+  },
+  ['fetchStoredCoinQuotes'],
+  { revalidate: 600 }
+);
+
 // ---------------- Exchanges ----------------
 
 export interface ExchangeBadgeRaw {

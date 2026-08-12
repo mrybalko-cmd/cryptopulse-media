@@ -1,4 +1,5 @@
 import { COIN_REGISTRY, coinMeta } from './coinRegistry';
+import { fetchStoredCoinQuotes } from './sanity';
 
 const UPSTREAM_TIMEOUT_MS = 10_000;
 /** Tighter than the quote request: a slow chart must never hold a build page
@@ -79,13 +80,37 @@ async function fetchAllMarkets(): Promise<Map<string, CoinMarket>> {
   return out;
 }
 
-/** Live quote plus the logo for one coin, served from the batched request. */
+/**
+ * The quote a coin page renders.
+ *
+ * Live figures when the upstream answers; the last stored snapshot when it does
+ * not. Without the fallback a rate-limited build shipped pages with no price,
+ * no logo and no stat tiles, and the page's own revalidation kept meeting the
+ * same limit — the emptiness was sticky.
+ */
 export async function fetchCoinMarket(slug: string): Promise<CoinMarket | null> {
   const meta = coinMeta(slug);
   if (!meta) return null;
   const all = await fetchAllMarkets();
   const hit = all.get(meta.id);
   if (hit) return hit;
+
+  const stored = await fetchStoredCoinQuotes();
+  const saved = stored?.quotes?.find((q) => q.coinId === meta.id);
+  if (saved) {
+    return {
+      price: saved.price,
+      change24h: saved.change24h,
+      marketCap: saved.marketCap,
+      volume24h: saved.volume24h,
+      ath: saved.ath,
+      athChangePct: saved.athChangePct,
+      circulating: saved.circulating,
+      maxSupply: saved.maxSupply,
+      logo: saved.logo,
+      updatedAt: stored!.updatedAt,
+    };
+  }
   // Single-coin fallback for the case where the batch itself was rate-limited.
   try {
     const res = await fetch(

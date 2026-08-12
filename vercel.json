@@ -23,6 +23,7 @@
   ],
   "crons": [
     { "path": "/api/cron/pulse-snapshot", "schedule": "5 0 * * *" },
-    { "path": "/api/cron/exchange-volumes", "schedule": "15 0 * * *" }
+    { "path": "/api/cron/exchange-volumes", "schedule": "15 0 * * *" },
+    { "path": "/api/cron/coin-quotes", "schedule": "25 */4 * * *" }
   ]
 }
