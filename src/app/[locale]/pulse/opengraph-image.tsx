@@ -34,12 +34,12 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
   const data = await fetchLatestPulse();
   // Same fallback rule as the widget: no honest percentile yet → show the
   // raw composite, never a number we can't stand behind.
-  const headline = data ? (data.percentile ?? data.score) : 50;
+  const headline = data ? data.score : 50;
   const zone = data ? zoneMeta(data.zone) : null;
   const verdict = zone ? (isRu ? zone.ru : zone.en) : isRu ? 'Пульс рынка' : 'Market Pulse';
-  const caption = data?.percentile != null
-    ? isRu ? `активнее, чем в ${data.percentile}% дней` : `busier than ${data.percentile}% of days`
-    : isRu ? 'сводный индекс рынка' : 'composite market index';
+  // The caption carries the scale itself: "23" is meaningless to someone who
+  // meets the index for the first time in a social feed.
+  const caption = isRu ? '50 — обычный режим · 100 — разгон' : '50 is normal · 100 is running hot';
   const bars = data?.history ?? [];
 
   return new ImageResponse(
@@ -77,7 +77,7 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
                 style={{
                   display: 'flex',
                   flex: 1,
-                  height: `${Math.max(9, d.percentile ?? d.score)}%`,
+                  height: `${Math.max(6, d.score)}%`,
                   borderRadius: '4px 4px 1px 1px',
                   backgroundImage: `linear-gradient(180deg, ${V1}, ${V2})`,
                   opacity: i === bars.length - 1 ? 1 : 0.78,

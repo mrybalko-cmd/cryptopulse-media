@@ -1,14 +1,13 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchPulseHistory } from '@/lib/admin/data';
 import { formatPragueDate } from '@/lib/admin/timezone';
-import { fetchLatestPulse, PULSE_MIN_SAMPLE } from '@/lib/pulse';
-import { percentileOf, zoneMeta, zoneOf } from '@/lib/pulseMath';
+import { fetchLatestPulse } from '@/lib/pulse';
+import { zoneMeta, zoneOf, median } from '@/lib/pulseMath';
 import PulseWidget from '@/components/ui/PulseWidget';
 
-// Deliberately longer than the widget's own chart window: this is the log
-// you study the index's behaviour in, so it should outrun what the site
-// shows rather than mirror it.
-const HISTORY_LIMIT = 120;
+// Deliberately longer than the widget's own chart window: this is the log you
+// study the index's behaviour in, so it should outrun what the site shows.
+const HISTORY_LIMIT = 400;
 
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
@@ -16,10 +15,17 @@ function weekdayLabel(date: string) {
   return WEEKDAYS[(new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7];
 }
 
-function pct(v: number | undefined) {
+function num(v: number | null | undefined, digits = 0) {
   if (typeof v !== 'number') return '—';
-  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}%`;
+  return v.toFixed(digits).replace('.', ',');
 }
+
+function signed(v: number | null | undefined, digits = 1) {
+  if (typeof v !== 'number') return '—';
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(digits).replace('.', ',')}`;
+}
+
+const COLS = 'grid-cols-[70px_26px_1fr_46px_46px_46px_46px_46px_46px_64px_54px_44px]';
 
 export default async function AdminPulsePage() {
   await requireAdminPermission('pulse');
@@ -28,24 +34,39 @@ export default async function AdminPulsePage() {
     fetchLatestPulse(),
   ]);
 
-  // Ranked against the same series the site uses, so a row here and the
-  // widget never disagree about what today's number is.
-  const series = history.map((s) => s.pulseScore).filter((v) => typeof v === 'number');
+  const scores = history.map((s) => s.pulseScore).filter((v): v is number => typeof v === 'number');
+  const stats = scores.length
+    ? { min: Math.min(...scores), max: Math.max(...scores), med: Math.round(median(scores)) }
+    : null;
+  const reconstructed = history.filter((s) => s.reconstructed).length;
 
   return (
     <div>
       <h1 className="text-[19px] font-bold mb-1">Pulse</h1>
       <p className="text-[11px] text-[var(--admin-text-muted)] mb-2 max-w-3xl">
-        Данные считаются автоматически раз в сутки (крон в 00:05 UTC) и доступны здесь только для чтения — редактировать нечего,
-        это лог реальных значений. Виджет справа — тот же компонент, что и на главной странице сайта.
+        Считается автоматически раз в сутки (крон в 00:05 UTC), только для чтения — это лог реальных значений.
+        Виджет справа — тот же компонент, что и на сайте.
       </p>
-      <p className="text-[11px] text-[var(--admin-text-muted)] mb-6 max-w-3xl">
-        <b className="text-[var(--admin-text)]">Перцентиль</b> — место дня среди всех {series.length} сохранённых дней, это число
-        видит читатель. <b className="text-[var(--admin-text)]">Балл</b> — сырой составной показатель 40/30/30.{' '}
-        <b className="text-[var(--admin-text)]">Объём</b> показан дважды: с поправкой на день недели (её использует индекс) и без
-        поправки (так считалось до 11.08.2026). <b className="text-[var(--admin-text)]">К-т</b> — коэффициент дня недели: 0,72 у
-        понедельника означает, что типичный понедельник даёт 72% оборота среднего дня.
+      <p className="text-[11px] text-[var(--admin-text-muted)] mb-2 max-w-3xl">
+        <b className="text-[var(--admin-text)]">Индекс</b> — абсолютная шкала 0–100, где 50 = нормальные условия рынка.
+        Каждый компонент тоже отцентрован на 50: <b className="text-[var(--admin-text)]">Об</b> — оборот биткоина против
+        годовой медианы с поправкой на день недели, <b className="text-[var(--admin-text)]">Рост</b> — изменение цены за сутки,
+        <b className="text-[var(--admin-text)]"> Вол</b> — размах движения против годовой нормы,
+        <b className="text-[var(--admin-text)]"> С&amp;Ж</b> — внешний индекс страха и жадности,
+        <b className="text-[var(--admin-text)]"> Альт</b> — медианный отрыв альткоинов от биткоина за 30 дней.
       </p>
+      {stats && (
+        <p className="text-[11px] text-[var(--admin-text-muted)] mb-6 max-w-3xl">
+          За {scores.length} дней: минимум <b className="text-[var(--admin-text)]">{stats.min}</b>, максимум{' '}
+          <b className="text-[var(--admin-text)]">{stats.max}</b>, медиана <b className="text-[var(--admin-text)]">{stats.med}</b>.
+          {reconstructed > 0 && (
+            <>
+              {' '}Из них <b className="text-[var(--admin-text)]">{reconstructed}</b> восстановлены по историческим данным
+              (помечены значком <span className="text-[var(--admin-text)]">≈</span>) — это реконструкция, а не живое измерение.
+            </>
+          )}
+        </p>
+      )}
 
       {history.length === 0 ? (
         <p className="text-[13px] text-[var(--admin-text-muted)]">Пока нет ни одного снапшота.</p>
@@ -53,57 +74,58 @@ export default async function AdminPulsePage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] overflow-hidden">
             <div className="overflow-x-auto">
-              <div className="min-w-[720px]">
-                <div className="grid grid-cols-[74px_28px_1fr_58px_54px_52px_52px_72px_66px_48px] gap-2 px-4 py-2.5 text-[10px] uppercase font-extrabold text-[var(--admin-text-dim)] border-b border-[var(--admin-border)]">
+              <div className="min-w-[760px]">
+                <div className={`grid ${COLS} gap-2 px-4 py-2.5 text-[10px] uppercase font-extrabold text-[var(--admin-text-dim)] border-b border-[var(--admin-border)]`}>
                   <span>Дата</span>
                   <span>Дн</span>
                   <span>Зона</span>
-                  <span className="text-right">Перц.</span>
-                  <span className="text-right">Балл</span>
-                  <span className="text-right">F&amp;G</span>
-                  <span className="text-right">Alt</span>
-                  <span className="text-right">Объём</span>
-                  <span className="text-right">Без попр.</span>
+                  <span className="text-right">Индекс</span>
+                  <span className="text-right">Об</span>
+                  <span className="text-right">Рост</span>
+                  <span className="text-right">Вол</span>
+                  <span className="text-right">С&amp;Ж</span>
+                  <span className="text-right">Альт</span>
+                  <span className="text-right">Оборот</span>
+                  <span className="text-right">Цена</span>
                   <span className="text-right">К-т</span>
                 </div>
 
                 {history.map((s) => {
-                  const p = percentileOf(s.pulseScore, series);
-                  const zone = p === null ? null : zoneMeta(zoneOf(p));
+                  const zone = zoneMeta((s.pulseZone as never) ?? zoneOf(s.pulseScore));
                   return (
                     <div
                       key={s._id}
-                      className="grid grid-cols-[74px_28px_1fr_58px_54px_52px_52px_72px_66px_48px] gap-2 px-4 py-2.5 text-[11.5px] border-b border-[var(--admin-border)] last:border-b-0 items-center"
+                      className={`grid ${COLS} gap-2 px-4 py-2.5 text-[11.5px] border-b border-[var(--admin-border)] last:border-b-0 items-center`}
                     >
                       <span className="tabular-nums">
+                        {s.reconstructed && <span className="text-[var(--admin-text-dim)] mr-1" title="восстановлено">≈</span>}
                         {formatPragueDate(new Date(`${s.date}T00:00:00Z`), { day: '2-digit', month: '2-digit' })}
                       </span>
                       <span className="text-[var(--admin-text-dim)]">{weekdayLabel(s.date)}</span>
                       <span className="flex items-center gap-2 min-w-0">
-                        <span className="flex-1 h-1.5 rounded-full bg-[var(--admin-input)] overflow-hidden">
-                          <span
-                            className="block h-full rounded-full"
-                            style={{ width: `${p ?? s.pulseScore}%`, background: zone?.color ?? 'var(--admin-text-dim)' }}
-                          />
+                        <span className="flex-1 h-1.5 rounded-full bg-[var(--admin-input)] overflow-hidden relative">
+                          <span className="block h-full rounded-full" style={{ width: `${s.pulseScore}%`, background: zone.color }} />
+                          {/* the 50 mark — the whole scale hangs off it */}
+                          <span className="absolute left-1/2 top-0 bottom-0 w-px bg-[var(--admin-text-dim)]" />
                         </span>
-                        <span className="text-[10px] text-[var(--admin-text-muted)] whitespace-nowrap">
-                          {zone?.ru ?? '—'}
-                        </span>
+                        <span className="text-[10px] text-[var(--admin-text-muted)] whitespace-nowrap">{zone.ru}</span>
                       </span>
-                      <span className="font-bold tabular-nums text-right">{p ?? '—'}</span>
-                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{s.pulseScore}</span>
-                      <span className="text-[var(--admin-text-dim)] tabular-nums text-right">{s.fearGreedValue}</span>
-                      <span className="text-[var(--admin-text-dim)] tabular-nums text-right">{s.altSeasonValue}</span>
+                      <span className="font-bold tabular-nums text-right">{s.pulseScore}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.volumeScore)}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.growthScore)}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.volatilityScore)}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.fearGreedValue)}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.altcoinScoreValue)}</span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">
+                        {typeof s.btcVolume24h === 'number' ? `${Math.round(s.btcVolume24h / 1e9)} млрд` : '—'}
+                      </span>
                       <span
                         className="tabular-nums text-right"
-                        style={{ color: s.volumeChangePct >= 0 ? '#22c55e' : '#ef4444' }}
+                        style={{ color: (s.priceChange24h ?? 0) >= 0 ? '#22c55e' : '#ef4444' }}
                       >
-                        {pct(s.volumeChangePct)}
+                        {signed(s.priceChange24h)}%
                       </span>
-                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{pct(s.volumeChangePctRaw)}</span>
-                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">
-                        {typeof s.weekdayFactor === 'number' ? s.weekdayFactor.toFixed(2).replace('.', ',') : '—'}
-                      </span>
+                      <span className="tabular-nums text-right text-[var(--admin-text-dim)]">{num(s.weekdayFactor, 2)}</span>
                     </div>
                   );
                 })}
@@ -111,17 +133,11 @@ export default async function AdminPulsePage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div>
             {latestPulse ? (
               <PulseWidget data={latestPulse} locale="ru" variant="hub" />
             ) : (
               <p className="text-[12px] text-[var(--admin-text-muted)]">Нет данных для виджета.</p>
-            )}
-            {series.length < PULSE_MIN_SAMPLE && (
-              <p className="text-[11px] text-[var(--admin-text-muted)] leading-relaxed">
-                Дней меньше {PULSE_MIN_SAMPLE}, поэтому перцентиль пока не показывается ни здесь, ни на сайте — на первом экране
-                стоит сырой балл.
-              </p>
             )}
           </div>
         </div>

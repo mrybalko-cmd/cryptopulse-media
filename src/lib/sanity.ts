@@ -747,17 +747,23 @@ export const fetchTopLikedNews = unstable_cache(
 export interface MarketSnapshot {
   _id: string;
   date: string;
-  totalVolume24h: number;
-  fearGreedValue: number;
-  altSeasonValue: number;
-  /** Weekday-adjusted change vs the recent baseline — what the score uses. */
-  volumeChangePct: number;
-  /** Unadjusted change vs a plain 7-day mean, kept for comparison in admin.
-   *  Optional because rows written before 11.08.2026 predate the field. */
-  volumeChangePctRaw?: number;
+  // raw inputs — point-in-time facts
+  btcVolume24h?: number;
+  normVolume?: number;
   weekdayFactor?: number;
+  priceChange24h?: number;
+  normAbsChange?: number;
+  altcoinMarginPp?: number | null;
+  altcoinCoins?: number | null;
+  // component scores, each 0-100 with 50 = normal market conditions
+  volumeScore?: number;
+  growthScore?: number;
+  volatilityScore?: number;
+  fearGreedValue?: number;
+  altcoinScoreValue?: number | null;
   pulseScore: number;
-  pulseClassification: string;
+  pulseZone?: string;
+  reconstructed?: boolean;
   computedAt: string;
 }
 
@@ -766,9 +772,9 @@ export async function saveMarketSnapshot(snapshot: Omit<MarketSnapshot, '_id'>):
   try {
     // One document per calendar day, enforced here rather than assumed. A
     // retried or double-fired cron used to create a second row for the same
-    // date; that was harmless when only the newest row was read, but the
-    // percentile and the weekday factors are now ranked across the whole
-    // history, so a duplicated day would quietly bias both.
+    // date; harmless when only the newest row was read, but the rolling-year
+    // statistics shown on the page are computed across the whole log, so a
+    // duplicated day would quietly bias them.
     const existing = await writeClient.fetch<string | null>(
       `*[_type == "marketSnapshot" && date == $date][0]._id`,
       { date: snapshot.date }
@@ -779,8 +785,8 @@ export async function saveMarketSnapshot(snapshot: Omit<MarketSnapshot, '_id'>):
       await writeClient.create({ _type: 'marketSnapshot', ...snapshot });
     }
   } catch {
-    // best-effort — a missed daily snapshot just means the next cron run
-    // falls back to a wider baseline gap, not a broken page
+    // best-effort — a missed daily snapshot just leaves a gap in the log,
+    // not a broken page
   }
 }
 
@@ -793,9 +799,10 @@ export const fetchRecentMarketSnapshots = unstable_cache(
       // computedAt drifted past midnight would otherwise sort out of place.
       return await client.fetch(
         `*[_type == "marketSnapshot"] | order(date desc) [0...$limit] {
-          _id, date, totalVolume24h, fearGreedValue, altSeasonValue,
-          volumeChangePct, volumeChangePctRaw, weekdayFactor,
-          pulseScore, pulseClassification, computedAt
+          _id, date, btcVolume24h, normVolume, weekdayFactor,
+          priceChange24h, normAbsChange, altcoinMarginPp, altcoinCoins,
+          volumeScore, growthScore, volatilityScore, fearGreedValue, altcoinScoreValue,
+          pulseScore, pulseZone, reconstructed, computedAt
         }`,
         { limit }
       );

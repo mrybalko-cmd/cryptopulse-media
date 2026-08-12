@@ -1449,26 +1449,31 @@ export const fetchAuthorPublicationCounts = unstable_cache(
 export interface PulseSnapshot {
   _id: string;
   date: string;
-  totalVolume24h: number;
-  fearGreedValue: number;
-  altSeasonValue: number;
-  /** Weekday-adjusted — what the score uses. */
-  volumeChangePct: number;
-  /** Unadjusted, vs a plain 7-day mean. What we published before 11.08.2026;
-   *  kept so the two methods stay comparable in the log. */
-  volumeChangePctRaw?: number;
+  btcVolume24h?: number;
+  normVolume?: number;
   weekdayFactor?: number;
+  priceChange24h?: number;
+  normAbsChange?: number;
+  altcoinMarginPp?: number | null;
+  altcoinCoins?: number | null;
+  volumeScore?: number;
+  growthScore?: number;
+  volatilityScore?: number;
+  fearGreedValue?: number;
+  altcoinScoreValue?: number | null;
   pulseScore: number;
-  pulseClassification: string;
+  pulseZone?: string;
+  reconstructed?: boolean;
   computedAt: string;
 }
 
 export async function fetchPulseHistory(limit: number): Promise<PulseSnapshot[]> {
   return client.fetch(
     `*[_type == "marketSnapshot"] | order(date desc) [0...${limit}]{
-      _id, date, totalVolume24h, fearGreedValue, altSeasonValue,
-      volumeChangePct, volumeChangePctRaw, weekdayFactor,
-      pulseScore, pulseClassification, computedAt
+      _id, date, btcVolume24h, normVolume, weekdayFactor,
+      priceChange24h, normAbsChange, altcoinMarginPp, altcoinCoins,
+      volumeScore, growthScore, volatilityScore, fearGreedValue, altcoinScoreValue,
+      pulseScore, pulseZone, reconstructed, computedAt
     }`
   );
 }

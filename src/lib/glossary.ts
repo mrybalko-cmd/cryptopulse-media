@@ -1540,6 +1540,123 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Мельчайшая единица измерения эфира (ETH), в которой обычно указывается размер комиссии за газ. Один ETH равен миллиарду gwei.',
       en: 'A tiny denomination of ether (ETH) commonly used to express gas fees. One ETH equals one billion gwei.',
     },
+    updated: '2026-08-12',
+    related: [
+      "gas-fee",
+      "transaction",
+      "smart-contract",
+      "fiat",
+      "satoshi",
+      "block-explorer"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Гвей — не отдельная монета, а удобная единица для очень маленьких сумм эфира. Один эфир содержит миллиард гвеев, а один гвей — ещё миллиард вей, самой мелкой доли. Так же, как в рубле сто копеек, только шагов больше.",
+                        "en": "Gwei is not a separate coin but a convenient unit for very small amounts of ether. One ether holds a billion gwei, and one gwei holds another billion wei, the smallest fraction. The idea is the same as cents in a dollar, just with more steps."
+                  },
+                  {
+                        "ru": "Единица понадобилась потому, что комиссия за перевод в эфире измеряется тысячными долями монеты. Писать «0,000000021 ETH» неудобно и легко ошибиться в нулях, а «21 гвей» читается сразу.",
+                        "en": "The unit exists because an Ethereum transaction fee is measured in thousandths of a coin. Writing “0.000000021 ETH” is awkward and easy to miscount, while “21 gwei” reads at a glance."
+                  },
+                  {
+                        "ru": "В кошельке цена газа почти всегда показана именно в гвеях. Умножив её на объём работы, который займёт ваша операция, вы получите комиссию в эфире.",
+                        "en": "Wallets almost always show the gas price in gwei. Multiply it by the amount of work your operation takes and you get the fee in ether."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Считаем комиссию",
+                  "en": "Working out the fee"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Обычный перевод эфира занимает 21 000 единиц газа. Смотрим, во что он обойдётся при разной загрузке сети.",
+                        "en": "A plain ether transfer costs 21,000 units of gas. Here is what that comes to at different network loads."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Спокойная сеть, 8 гвей",
+                                    "en": "Quiet network, 8 gwei"
+                              },
+                              "value": {
+                                    "ru": "0,000168 ETH",
+                                    "en": "0.000168 ETH"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Обычный день, 21 гвей",
+                                    "en": "Ordinary day, 21 gwei"
+                              },
+                              "value": {
+                                    "ru": "0,000441 ETH",
+                                    "en": "0.000441 ETH"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Пиковая нагрузка, 120 гвей",
+                                    "en": "Peak load, 120 gwei"
+                              },
+                              "value": {
+                                    "ru": "0,00252 ETH",
+                                    "en": "0.00252 ETH"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Разница между спокойным часом и пиком — пятнадцатикратная. Если операция не срочная, стоит подождать: цена газа меняется в течение суток и обычно ниже ночью и в выходные.",
+                        "en": "The gap between a quiet hour and a peak is fifteenfold. If the operation is not urgent it pays to wait: gas prices move through the day and are usually lower at night and on weekends."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Гвей — это цена, а не сумма",
+                              "en": "Gwei is a price, not a total"
+                        },
+                        "text": {
+                              "ru": "Комиссия зависит и от цены газа, и от сложности операции. Обмен на децентрализованной бирже занимает в десять раз больше газа, чем простой перевод, поэтому при той же цене обойдётся в десять раз дороже.",
+                              "en": "The fee depends on both the gas price and the complexity of the operation. A swap on a decentralised exchange uses ten times the gas of a plain transfer, so at the same price it costs ten times more."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Слишком низкая цена — зависшая транзакция",
+                              "en": "Too low a price means a stuck transaction"
+                        },
+                        "text": {
+                              "ru": "Если поставить цену ниже, чем принимает сеть, перевод будет висеть в ожидании часами. Кошелёк обычно предлагает разумное значение сам.",
+                              "en": "Set the price below what the network is accepting and the transfer will sit pending for hours. Wallets normally suggest a sensible value themselves."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "В сетях второго уровня цифры другие",
+                              "en": "Layer-two networks show different figures"
+                        },
+                        "text": {
+                              "ru": "В Arbitrum или Base комиссии измеряются долями гвея. Привычка к значениям основной сети там сбивает с толку.",
+                              "en": "On Arbitrum or Base fees are measured in fractions of a gwei. Numbers from the main network are misleading there."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'altcoin',
@@ -2539,6 +2656,143 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Стратегия в DeFi, при которой пользователь предоставляет свои активы протоколам (например, в пулы ликвидности) ради получения процентного дохода или дополнительных токенов.',
       en: 'A DeFi strategy in which a user supplies assets to protocols (for example, liquidity pools) in order to earn interest income or additional tokens.',
     },
+    updated: '2026-08-12',
+    related: [
+      "defi",
+      "staking",
+      "liquidity-pool",
+      "dex",
+      "smart-contract",
+      "tokenomics"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Доходное фермерство — размещение криптовалюты в протоколах DeFi ради дохода. Вы отдаёте монеты в пул ликвидности или в кредитный протокол, а взамен получаете часть комиссий, проценты по займам и часто дополнительные токены самого протокола.",
+                        "en": "Yield farming means placing crypto into DeFi protocols to earn a return. You supply coins to a liquidity pool or a lending protocol and receive a share of fees, interest from borrowers, and often extra tokens issued by the protocol itself."
+                  },
+                  {
+                        "ru": "Практика возникла летом 2020 года, когда протокол Compound начал раздавать собственный токен тем, кто пользуется платформой. Доходность мгновенно взлетела до трёхзначных величин, и за несколько месяцев в DeFi пришли миллиарды долларов.",
+                        "en": "The practice emerged in the summer of 2020, when the Compound protocol began distributing its own token to platform users. Yields instantly jumped into triple digits and billions of dollars flowed into DeFi within months."
+                  },
+                  {
+                        "ru": "Ключевой момент, который часто теряется: обещанная доходность складывается из двух очень разных частей. Комиссии реальны и приходят от торговой активности, а раздаваемые токены — это эмиссия, и её ценность зависит от того, будет ли на них спрос.",
+                        "en": "The point most often lost: an advertised yield combines two very different parts. Fees are real and come from trading activity, while distributed tokens are issuance whose value depends on whether demand for them exists."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Разбираем обещанные проценты",
+                  "en": "Breaking down an advertised yield"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Пул обещает 120% годовых. Смотрим, из чего эта цифра состоит.",
+                        "en": "A pool advertises 120% a year. Here is what that figure consists of."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Комиссии с торгового оборота",
+                                    "en": "Fees from trading volume"
+                              },
+                              "value": {
+                                    "ru": "12% годовых",
+                                    "en": "12% a year"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Раздача токенов протокола",
+                                    "en": "Protocol token rewards"
+                              },
+                              "value": {
+                                    "ru": "108% годовых",
+                                    "en": "108% a year"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Падение цены токена за квартал",
+                                    "en": "Token price fall over the quarter"
+                              },
+                              "value": {
+                                    "ru": "−70%",
+                                    "en": "−70%"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Непостоянные потери при расхождении цен",
+                                    "en": "Impermanent loss as prices diverge"
+                              },
+                              "value": {
+                                    "ru": "−5%",
+                                    "en": "−5%"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Устойчивая часть здесь — только 12%. Остальное держится на цене раздаваемого токена, а она обычно падает по мере того, как фермеры продают награду. С учётом падения токена и непостоянных потерь реальный результат оказывается отрицательным, хотя баннер обещал 120%.",
+                        "en": "Only the 12% is durable. The rest rests on the price of the distributed token, which usually falls as farmers sell their rewards. Once the token's decline and impermanent loss are counted the real outcome is negative, though the banner promised 120%."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Разделяйте комиссии и эмиссию",
+                              "en": "Separate fees from issuance"
+                        },
+                        "text": {
+                              "ru": "Хороший протокол показывает обе части отдельно. Если в интерфейсе одна общая цифра, это уже повод разбираться самому.",
+                              "en": "A good protocol shows both parts separately. A single combined figure in the interface is itself a reason to dig deeper."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Риск смарт-контракта не исчезает",
+                              "en": "Smart-contract risk does not go away"
+                        },
+                        "text": {
+                              "ru": "Средства лежат в коде, который может содержать ошибку. Аудит снижает риск, но не убирает его: взломы случались и у проверенных протоколов.",
+                              "en": "Funds sit in code that may contain a flaw. An audit lowers the risk without removing it: audited protocols have been exploited too."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Комиссии сети съедают маленькие суммы",
+                              "en": "Network fees eat small amounts"
+                        },
+                        "text": {
+                              "ru": "Вход, выход и сбор награды — отдельные операции. При сумме в несколько сотен долларов в основной сети Ethereum комиссии могут превысить доход.",
+                              "en": "Entering, exiting and claiming rewards are separate operations. On a few hundred dollars in Ethereum's main network the fees can exceed the return."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Высокая доходность — это цена риска",
+                              "en": "A high yield is the price of risk"
+                        },
+                        "text": {
+                              "ru": "Ставка в сотни процентов означает, что рынок оценивает вероятность потерь как высокую. Это информация, а не подарок.",
+                              "en": "A rate in the hundreds of percent means the market prices the chance of loss as high. That is information, not a gift."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'liquidity-pool',
@@ -2804,6 +3058,133 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Самая высокая цена, которую когда-либо достигал актив за всю историю торгов.',
       en: 'The highest price an asset has ever reached over its entire trading history.',
     },
+    updated: '2026-08-12',
+    related: [
+      "bitcoin",
+      "market-order",
+      "fomo",
+      "whale",
+      "market-cap",
+      "exchange"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Исторический максимум — самая высокая цена, которой актив достигал за всё время торгов. Пока цена не превысила прежний пик, максимум остаётся тем же, сколько бы лет ни прошло.",
+                        "en": "An all-time high is the highest price an asset has ever reached. Until price exceeds the previous peak the high stands, however many years pass."
+                  },
+                  {
+                        "ru": "Показатель зависит от того, в чём измерять. Монета может обновить максимум в долларах и одновременно оставаться далеко от пика по отношению к биткоину — это разные вещи, и путать их не стоит.",
+                        "en": "The figure depends on the unit of measurement. A coin can set a new high in dollars while remaining far below its peak against bitcoin — these are different things and should not be conflated."
+                  },
+                  {
+                        "ru": "Биржи считают максимум по-разному: одни берут цену сделок, другие учитывают краткие выбросы в стакане. Поэтому на двух площадках исторический максимум одной монеты может отличаться на несколько процентов.",
+                        "en": "Exchanges compute the high differently: some use traded prices, others count brief spikes in the order book. So the all-time high for one coin can differ by a few percent between two venues."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Что значит расстояние до максимума",
+                  "en": "What the distance from the high means"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Актив стоил на пике 100 долларов и упал до 40. Считаем, что нужно, чтобы вернуться.",
+                        "en": "An asset peaked at $100 and fell to $40. Here is what a return would require."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Падение от максимума",
+                                    "en": "Drop from the high"
+                              },
+                              "value": {
+                                    "ru": "60%",
+                                    "en": "60%"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Рост, нужный для возврата",
+                                    "en": "Gain needed to recover"
+                              },
+                              "value": {
+                                    "ru": "150%",
+                                    "en": "150%"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Падение на 80%",
+                                    "en": "A drop of 80%"
+                              },
+                              "value": {
+                                    "ru": "нужен рост 400%",
+                                    "en": "needs a 400% gain"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Падение на 90%",
+                                    "en": "A drop of 90%"
+                              },
+                              "value": {
+                                    "ru": "нужен рост 900%",
+                                    "en": "needs a 900% gain"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Асимметрия здесь важнее самого числа: чем глубже падение, тем непропорционально больший рост нужен для возврата. Именно поэтому «монета упала всего на 80%, вырастет обратно» — рассуждение, недооценивающее задачу вчетверо.",
+                        "en": "The asymmetry matters more than the number itself: the deeper the fall, the disproportionately larger the recovery required. This is why “the coin is only down 80%, it will come back” underestimates the task fourfold."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Максимум — не уровень поддержки",
+                              "en": "A high is not a support level"
+                        },
+                        "text": {
+                              "ru": "Прежний пик не обязан быть достигнут снова. Тысячи монет с максимумами 2021 года не вернулись к ним и, вероятно, не вернутся.",
+                              "en": "A previous peak carries no obligation to be reached again. Thousands of coins with 2021 highs have not returned to them and probably will not."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Обновление максимума часто совпадает с притоком новичков",
+                              "en": "New highs often coincide with an influx of newcomers"
+                        },
+                        "text": {
+                              "ru": "Заголовки о рекорде привлекают тех, кто раньше не интересовался рынком. Это делает окрестности максимума самой людной и самой рискованной зоной.",
+                              "en": "Record headlines attract people who were not following the market before. That makes the area around a high the most crowded and the riskiest zone."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Сравнивайте в одной валюте",
+                              "en": "Compare in one currency"
+                        },
+                        "text": {
+                              "ru": "Максимум в долларах, в евро и в биткоинах достигается в разные дни. Утверждение «обновили исторический максимум» без указания валюты почти бессодержательно.",
+                              "en": "Highs in dollars, in euros and in bitcoin occur on different days. The claim “a new all-time high” without naming the currency says almost nothing."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'fomo',
@@ -2813,6 +3194,143 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Fear of Missing Out — страх упустить выгоду. Эмоциональное состояние, при котором инвестор покупает актив на пике роста из боязни «не успеть», что часто приводит к убыткам.',
       en: 'Fear of Missing Out — the emotional state in which an investor buys an asset near the top of a rally out of fear of "missing the move," which often leads to losses.',
     },
+    updated: '2026-08-12',
+    related: [
+      "fud",
+      "hodl",
+      "ath",
+      "market-order",
+      "leverage",
+      "whale"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Страх упустить выгоду — это состояние, в котором решение принимается не по расчёту, а потому что цена уже растёт без вас. Человек покупает не потому, что оценил актив, а потому что боится остаться в стороне.",
+                        "en": "The fear of missing out is a state in which a decision comes not from analysis but from watching price rise without you. A person buys not because they assessed the asset but because they are afraid of being left behind."
+                  },
+                  {
+                        "ru": "Механизм усиливается обратной связью: рост цены порождает заголовки, заголовки приводят новых покупателей, покупки толкают цену дальше. На каждом витке кажется, что доказательств правоты становится больше, хотя прибавляется только скорость.",
+                        "en": "The mechanism is amplified by feedback: rising prices produce headlines, headlines bring new buyers, buying pushes price further. Each turn feels like more evidence of being right, though all that grows is the speed."
+                  },
+                  {
+                        "ru": "Отличить это состояние от обоснованного решения помогает простой признак: если вы не могли объяснить, зачем вам этот актив, неделю назад по той же цене, то покупаете вы движение, а не актив.",
+                        "en": "One simple test separates this state from a reasoned decision: if you could not have explained why you wanted this asset a week ago at the same price, you are buying the move rather than the asset."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Во что это обходится",
+                  "en": "What it costs"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Два входа в один и тот же актив: один по плану, другой на волне заголовков.",
+                        "en": "Two entries into the same asset: one to a plan, one on a wave of headlines."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Вход по плану, заранее выбранная цена",
+                                    "en": "Planned entry at a pre-chosen price"
+                              },
+                              "value": {
+                                    "ru": "1 000 долларов по 40",
+                                    "en": "$1,000 at 40"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Вход на пике внимания",
+                                    "en": "Entry at peak attention"
+                              },
+                              "value": {
+                                    "ru": "1 000 долларов по 95",
+                                    "en": "$1,000 at 95"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Цена через три месяца",
+                                    "en": "Price three months later"
+                              },
+                              "value": {
+                                    "ru": "55",
+                                    "en": "55"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Результат первого",
+                                    "en": "Outcome of the first"
+                              },
+                              "value": {
+                                    "ru": "+37%",
+                                    "en": "+37%"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Результат второго",
+                                    "en": "Outcome of the second"
+                              },
+                              "value": {
+                                    "ru": "−42%",
+                                    "en": "−42%"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Актив был один и тот же, разной была только точка входа. Разница в результате — 79 процентных пунктов, и она целиком объясняется тем, в какой момент принималось решение.",
+                        "en": "The asset was identical; only the entry point differed. The 79-point gap in outcome is explained entirely by when the decision was made."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "Что с этим делать",
+                  "en": "What to do about it"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Решение до движения, а не во время",
+                              "en": "Decide before the move, not during it"
+                        },
+                        "text": {
+                              "ru": "Цена входа, размер позиции и условия выхода, записанные заранее, работают именно потому, что записаны в спокойном состоянии.",
+                              "en": "An entry price, position size and exit conditions written down in advance work precisely because they were written in a calm state."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Разбить вход на части",
+                              "en": "Split the entry"
+                        },
+                        "text": {
+                              "ru": "Покупка равными долями по расписанию снимает вопрос «а вдруг сейчас пик» — она заведомо не попадает ни в лучшую, ни в худшую точку.",
+                              "en": "Buying equal amounts on a schedule removes the question of whether this is the top — it deliberately hits neither the best nor the worst point."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Заголовок — не сигнал",
+                              "en": "A headline is not a signal"
+                        },
+                        "text": {
+                              "ru": "К моменту, когда о росте пишут широкие издания, движение уже отражено в цене. Новость сообщает о прошлом, а не о будущем.",
+                              "en": "By the time mainstream outlets write about a rally, the move is already in the price. News reports the past, not the future."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'fud',
@@ -2822,6 +3340,101 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Fear, Uncertainty and Doubt (страх, неопределённость и сомнение) — распространение негативной или пугающей информации о проекте, часто намеренно, чтобы снизить его цену.',
       en: 'Fear, Uncertainty and Doubt — the spread of negative or alarming information about a project, often deliberate, intended to push its price down.',
     },
+    updated: '2026-08-12',
+    related: [
+      "fomo",
+      "hodl",
+      "whale",
+      "rug-pull",
+      "ath",
+      "exchange"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Аббревиатура складывается из трёх слов: страх, неуверенность, сомнение. Так называют поток тревожных сообщений, который сбивает цену быстрее, чем участники успевают проверить, есть ли за ними что-то реальное.",
+                        "en": "The abbreviation stands for fear, uncertainty and doubt. It describes a stream of alarming messages that knocks price down faster than participants can check whether anything real lies behind it."
+                  },
+                  {
+                        "ru": "Важно, что термин ничего не говорит о правдивости. Плохая новость может быть полностью достоверной: крах биржи FTX в 2022 году сначала называли этим словом, и он оказался правдой. Ярлык описывает эмоциональный эффект, а не факты.",
+                        "en": "The term says nothing about truth. Bad news can be entirely accurate: the collapse of the FTX exchange in 2022 was first dismissed with this word and turned out to be real. The label describes an emotional effect, not the facts."
+                  },
+                  {
+                        "ru": "Именно поэтому слово стало удобным инструментом спора. Назвать критику этим ярлыком проще, чем ответить на неё по существу, и в спорах о конкретных проектах оно чаще всего используется именно так.",
+                        "en": "That is exactly why the word became a convenient debating tool. Labelling criticism this way is easier than answering it, and in arguments about specific projects it is most often used that way."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Как отличить панику от новости",
+                  "en": "Telling panic from news"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Есть ли первоисточник",
+                              "en": "Is there a primary source"
+                        },
+                        "text": {
+                              "ru": "Заявление регулятора, отчётность, запись в блокчейне — это проверяемые вещи. Пересказ анонимного сообщения проверить нельзя.",
+                              "en": "A regulator's statement, a filing, an on-chain record — these can be checked. A retelling of an anonymous post cannot."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Меняет ли новость что-то по существу",
+                              "en": "Does the news change anything substantive"
+                        },
+                        "text": {
+                              "ru": "Задержка обновления и приостановка вывода средств — события разного веса, хотя реакция цены на них может выглядеть одинаково.",
+                              "en": "A delayed upgrade and a halt on withdrawals are events of different weight, though the price reaction to them can look identical."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Кому выгодно ваше решение",
+                              "en": "Who benefits from your decision"
+                        },
+                        "text": {
+                              "ru": "И паника, и её опровержение кому-то выгодны. Вопрос «кто это говорит и что он получит» полезнее, чем сам ярлык.",
+                              "en": "Both a panic and its rebuttal benefit someone. Asking who is speaking and what they gain is more useful than the label itself."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Отвечают ли по существу",
+                              "en": "Is the response substantive"
+                        },
+                        "text": {
+                              "ru": "Если на конкретный вопрос о резервах отвечают словом «паникёры», отсутствие ответа само по себе информативно.",
+                              "en": "If a specific question about reserves is answered with the word “panic”, the absence of an answer is itself informative."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Ярлык работает в обе стороны. Им пользуются и те, кто хочет купить дешевле, распространяя тревогу, и те, кто хочет удержать цену, объявляя любую критику паникой. В обоих случаях слово заменяет разбор.",
+                        "en": "The label cuts both ways. It is used both by those who want to buy cheaper by spreading alarm and by those who want to hold price up by declaring all criticism panic. In both cases the word replaces analysis."
+                  },
+                  {
+                        "ru": "Практический вывод простой: решение о продаже, принятое за пятнадцать минут на основании одного сообщения, почти всегда хуже решения, принятого через сутки на основании проверенных фактов. Рынок редко закрывается за ночь.",
+                        "en": "The practical conclusion is simple: a decision to sell made in fifteen minutes on the strength of one post is almost always worse than one made a day later on verified facts. Markets rarely close overnight."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'hodl',
@@ -2831,6 +3444,101 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Сленговое слово (от опечатки «hold»), обозначающее стратегию долгосрочного удержания криптовалюты несмотря на колебания рынка.',
       en: 'Crypto slang (originating from a typo of "hold") for a strategy of holding cryptocurrency long-term regardless of market swings.',
     },
+    updated: '2026-08-12',
+    related: [
+      "fomo",
+      "fud",
+      "bitcoin",
+      "ath",
+      "halving",
+      "non-custodial-wallet"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Откуда слово",
+                  "en": "Where the word comes from"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Слово появилось в декабре 2013 года из опечатки. Участник форума Bitcointalk написал сообщение с заголовком «I AM HODLING», объясняя, что после падения цены не собирается ничего продавать, потому что всё равно торгует хуже профессионалов.",
+                        "en": "The word came from a typo in December 2013. A user on the Bitcointalk forum posted under the heading “I AM HODLING”, explaining that after a price drop he was not going to sell anything because he traded worse than professionals anyway."
+                  },
+                  {
+                        "ru": "Опечатка прижилась и со временем обросла толкованием hold on for dear life — «держаться изо всех сил». Это позднейшая расшифровка, а не исходный смысл.",
+                        "en": "The typo caught on and later acquired the reading “hold on for dear life”. That is a retrofitted expansion, not the original meaning."
+                  },
+                  {
+                        "ru": "За шуткой стоит содержательная идея: большинство частных инвесторов проигрывают рынку не из-за плохого выбора активов, а из-за попыток угадать моменты входа и выхода. Отказ от таких попыток — осознанная стратегия, а не пассивность.",
+                        "en": "Behind the joke is a substantive idea: most retail investors lose to the market not through poor asset selection but through attempts to time entries and exits. Declining to try is a deliberate strategy, not passivity."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Чем это отличается от бездействия",
+                  "en": "How this differs from doing nothing"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Актив выбран заранее",
+                              "en": "The asset was chosen in advance"
+                        },
+                        "text": {
+                              "ru": "Стратегия предполагает, что вы разобрались, что держите. Держать монету, о которой ничего не знаете, — это не стратегия, а надежда.",
+                              "en": "The strategy assumes you understand what you hold. Holding a coin you know nothing about is not a strategy but a hope."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Размер позиции такой, что её можно не трогать",
+                              "en": "The position is sized so it can be left alone"
+                        },
+                        "text": {
+                              "ru": "Если сумма такая, что падение вдвое заставит продавать, то стратегия не выдержит первой же просадки.",
+                              "en": "If the amount is such that a halving forces a sale, the strategy will not survive its first drawdown."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Есть условия пересмотра",
+                              "en": "There are conditions for review"
+                        },
+                        "text": {
+                              "ru": "Взлом протокола, уход команды, смена правил выпуска — поводы пересмотреть решение. Отказ реагировать на факты — не дисциплина, а упрямство.",
+                              "en": "A protocol exploit, a team walking away, a change to issuance rules are reasons to revisit. Refusing to react to facts is stubbornness, not discipline."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Хранение продумано",
+                              "en": "Custody is thought through"
+                        },
+                        "text": {
+                              "ru": "Долгий срок повышает цену ошибки в хранении. Держать многолетнюю позицию на бирже — отдельный риск, не связанный с ценой.",
+                              "en": "A long horizon raises the cost of a custody mistake. Holding a multi-year position on an exchange is a separate risk, unrelated to price."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Стратегия проверена на биткоине и эфире, у которых есть многолетняя история и работающая сеть. Переносить её на любую монету механически нельзя: из тысяч проектов, существовавших в 2017 году, до сегодняшнего дня в заметном виде дожили десятки.",
+                        "en": "The approach has been tested on bitcoin and ether, which have years of history and a working network. Transferring it to any coin mechanically does not work: of the thousands of projects alive in 2017, only dozens survive in any meaningful form."
+                  },
+                  {
+                        "ru": "Второе ограничение — срок. Подход рассчитан на годы, а не на месяцы, и требует, чтобы деньги действительно не понадобились в этот срок. Инвестировать так средства, отложенные на ближайший год, значит гарантированно оказаться перед выбором в худший момент.",
+                        "en": "The second limit is time. The approach is built for years rather than months and requires that the money genuinely is not needed in that span. Committing next year's funds this way guarantees facing a decision at the worst moment."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'whale',
@@ -2840,6 +3548,143 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Инвестор или кошелёк, владеющий очень крупным объёмом криптовалюты. Действия китов (крупные покупки или продажи) способны заметно влиять на цену актива.',
       en: 'An investor or wallet holding a very large amount of cryptocurrency. The actions of whales (large buys or sells) can noticeably move an asset\'s price.',
     },
+    updated: '2026-08-12',
+    related: [
+      "market-order",
+      "order-book",
+      "block-explorer",
+      "exchange",
+      "ath",
+      "fomo"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Китом называют владельца настолько крупной позиции, что его отдельная сделка заметна на цене. Точного порога нет: для биткоина это тысячи монет, для небольшого токена достаточно и нескольких десятков тысяч долларов.",
+                        "en": "A whale is the holder of a position large enough that a single trade of theirs moves the price. There is no exact threshold: for bitcoin it means thousands of coins, while for a small token a few tens of thousands of dollars is enough."
+                  },
+                  {
+                        "ru": "Дело не в богатстве, а в соотношении размера позиции и глубины рынка. Один и тот же человек будет китом в токене с оборотом в миллион долларов и незаметным участником в биткоине.",
+                        "en": "It is not about wealth but about the ratio of position size to market depth. The same person is a whale in a token turning over a million dollars a day and an invisible participant in bitcoin."
+                  },
+                  {
+                        "ru": "Крупные кошельки видны в блокчейне, и за ними следят специальные сервисы. Но видно только движение средств, а не намерение: перевод на биржу может означать и подготовку к продаже, и смену места хранения.",
+                        "en": "Large wallets are visible on-chain and tracked by dedicated services. Yet only the movement is visible, not the intent: a transfer to an exchange can mean preparation to sell or simply a change of custody."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Почему крупная сделка двигает цену",
+                  "en": "Why a large trade moves price"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "В стакане на продажу выставлено по 10 монет на каждом ценовом уровне. Кит покупает 40 монет одной рыночной заявкой.",
+                        "en": "The order book has 10 coins for sale at each price level. A whale buys 40 coins with a single market order."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Первые 10 монет",
+                                    "en": "First 10 coins"
+                              },
+                              "value": {
+                                    "ru": "по 100 долларов",
+                                    "en": "at $100"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Следующие 10",
+                                    "en": "Next 10"
+                              },
+                              "value": {
+                                    "ru": "по 102 доллара",
+                                    "en": "at $102"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Следующие 10",
+                                    "en": "Next 10"
+                              },
+                              "value": {
+                                    "ru": "по 105 долларов",
+                                    "en": "at $105"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Последние 10",
+                                    "en": "Last 10"
+                              },
+                              "value": {
+                                    "ru": "по 110 долларов",
+                                    "en": "at $110"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Средняя цена покупки вышла 104,25 доллара вместо 100, а на экране у всех остальных цена мгновенно подскочила на 10%. Никакой новости при этом не было — двигал цену размер заявки, а не информация.",
+                        "en": "The average purchase price came to $104.25 instead of $100, and on everyone else's screen the price jumped 10% instantly. No news was involved — the order size moved the price, not information."
+                  },
+                  "total": {
+                        "label": {
+                              "ru": "Средняя цена",
+                              "en": "Average price"
+                        },
+                        "value": {
+                              "ru": "104,25 доллара",
+                              "en": "$104.25"
+                        }
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Перевод на биржу — не приговор",
+                              "en": "A transfer to an exchange is not a verdict"
+                        },
+                        "text": {
+                              "ru": "Сервисы отслеживания сообщают о движении средств, а не о планах. Значительная часть таких переводов заканчивается ничем.",
+                              "en": "Tracking services report movements, not plans. A significant share of such transfers comes to nothing."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Чем меньше монета, тем важнее распределение",
+                              "en": "The smaller the coin, the more distribution matters"
+                        },
+                        "text": {
+                              "ru": "Если несколько кошельков держат большую часть выпуска, цена зависит от решений нескольких человек. Это видно в блокчейн-эксплорере до покупки.",
+                              "en": "If a handful of wallets hold most of the supply, price depends on a few people's decisions. This is visible in a block explorer before you buy."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Копировать сделки бессмысленно",
+                              "en": "Copying trades makes little sense"
+                        },
+                        "text": {
+                              "ru": "Вы видите сделку после её исполнения и не знаете ни горизонта, ни размера остальной позиции, ни того, чем она захеджирована.",
+                              "en": "You see a trade after it executed and know neither the horizon, nor the size of the rest of the position, nor how it is hedged."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'halving',
@@ -3078,6 +3923,91 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Обратно совместимое обновление правил протокола, при котором старые ноды продолжают работать в новой сети без необходимости обязательного обновления.',
       en: 'A backwards-compatible update to a protocol\'s rules, where old nodes can continue operating on the upgraded network without being forced to update.',
     },
+    updated: '2026-08-12',
+    related: [
+      "hard-fork",
+      "bitcoin",
+      "blockchain",
+      "node",
+      "consensus-mechanism",
+      "mining"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Мягкий форк — обновление правил сети, при котором новые правила строже старых. Блоки, созданные по новым правилам, остаются допустимыми и для старых узлов, поэтому сеть не разделяется, даже если обновились не все.",
+                        "en": "A soft fork is a rules update in which the new rules are stricter than the old ones. Blocks produced under the new rules remain valid for old nodes as well, so the network does not split even if not everyone upgrades."
+                  },
+                  {
+                        "ru": "Отличие от жёсткого форка именно в направлении. Жёсткий форк расширяет допустимое — старые узлы перестают понимать новые блоки, и цепочка расходится надвое. Мягкий сужает, и совместимость сохраняется в одну сторону.",
+                        "en": "The difference from a hard fork lies in direction. A hard fork widens what is permitted — old nodes stop recognising new blocks and the chain splits in two. A soft fork narrows it, and compatibility survives one way."
+                  },
+                  {
+                        "ru": "Обратная сторона такой совместимости в том, что старые узлы проверяют новые правила не полностью. Они видят блок как корректный, хотя не понимают части его содержимого. Поэтому мягкий форк считают более щадящим по последствиям, но менее прозрачным по сути.",
+                        "en": "The flip side of that compatibility is that old nodes do not fully verify the new rules. They see a block as valid while not understanding part of its contents. This makes a soft fork gentler in consequences but less transparent in substance."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Как это выглядело в биткоине",
+                  "en": "How it looked in Bitcoin"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "SegWit, 2017 год",
+                              "en": "SegWit, 2017"
+                        },
+                        "text": {
+                              "ru": "Подписи вынесли в отдельную часть блока. Старые узлы видели такие транзакции как корректные, хотя не разбирали новый формат. Обновление подготовило почву для сети Lightning.",
+                              "en": "Signatures were moved into a separate part of the block. Old nodes saw such transactions as valid without parsing the new format. The upgrade laid the ground for the Lightning network."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Taproot, 2021 год",
+                              "en": "Taproot, 2021"
+                        },
+                        "text": {
+                              "ru": "Добавил новую схему подписей и сделал сложные условия траты неотличимыми от обычного перевода. Активирован при поддержке более 90% вычислительной мощности.",
+                              "en": "Added a new signature scheme and made complex spending conditions indistinguishable from ordinary transfers. Activated with over 90% of hash power in support."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Ограничение размера блока в 1 МБ",
+                              "en": "The 1 MB block size limit"
+                        },
+                        "text": {
+                              "ru": "Введено в 2010 году тоже как ужесточение правил: до этого предела не было. Позже именно спор о его изменении привёл к жёсткому форку и появлению Bitcoin Cash.",
+                              "en": "Introduced in 2010, also as a tightening: before that there was no limit. The later dispute over changing it produced the hard fork that created Bitcoin Cash."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Для держателя монет мягкий форк обычно проходит незаметно: новых монет не появляется, кошелёк продолжает работать, ничего делать не нужно. Именно этим он отличается от жёсткого форка, после которого у вас оказывается баланс в двух сетях сразу.",
+                        "en": "For a coin holder a soft fork usually passes unnoticed: no new coins appear, the wallet keeps working, nothing needs doing. That is precisely what distinguishes it from a hard fork, after which you hold a balance on two networks at once."
+                  },
+                  {
+                        "ru": "Единственное, что стоит проверить, — поддерживает ли ваш кошелёк новые возможности. Старая версия продолжит отправлять и принимать средства, но не даст пользоваться тем, что добавило обновление: например, более дешёвыми комиссиями нового формата адресов.",
+                        "en": "The one thing worth checking is whether your wallet supports the new capabilities. An old version will keep sending and receiving but will not let you use what the upgrade added — cheaper fees from a new address format, for instance."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'consensus-mechanism',
@@ -3621,6 +4551,143 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Аналог стандарта ERC-20, но в сети TRON. Часто используется для переводов USDT — комиссии в сети TRON, как правило, заметно ниже, чем в Ethereum.',
       en: 'An equivalent of the ERC-20 standard, but on the TRON network. It is widely used for USDT transfers — fees on TRON are typically much lower than on Ethereum.',
     },
+    updated: '2026-08-12',
+    related: [
+      "erc-20",
+      "bep-20",
+      "stablecoin",
+      "transaction",
+      "smart-contract",
+      "exchange"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "TRC-20 — стандарт токенов в сети Tron. Он описывает набор функций, которые должен уметь контракт токена: показывать баланс, переводить средства, разрешать списание третьей стороне. Любой кошелёк, знающий стандарт, работает с любым таким токеном.",
+                        "en": "TRC-20 is the token standard on the Tron network. It describes the set of functions a token contract must provide: report a balance, transfer funds, authorise a third party to spend. Any wallet that knows the standard works with any such token."
+                  },
+                  {
+                        "ru": "Стандарт устроен так же, как ERC-20 в Ethereum, и намеренно повторяет его набор функций. Разница не в логике, а в сети: комиссии, скорость подтверждения и способ оплаты газа у Tron свои.",
+                        "en": "The standard mirrors Ethereum's ERC-20 and deliberately repeats its function set. The difference is not in logic but in the network: Tron has its own fees, confirmation speed and way of paying for gas."
+                  },
+                  {
+                        "ru": "Практическая известность стандарта держится почти целиком на одном применении — переводах USDT. По объёму этих переводов Tron долгие годы соперничает с Ethereum, и причина проста: комиссия за перевод здесь измеряется центами, а не долларами.",
+                        "en": "The standard's practical fame rests almost entirely on one use — USDT transfers. Tron has rivalled Ethereum on the volume of those transfers for years, for a simple reason: a transfer here costs cents rather than dollars."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Чем отличается от соседних стандартов",
+                  "en": "How it differs from neighbouring standards"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Перевод 1 000 USDT в трёх разных сетях. Значения комиссий ориентировочные и меняются вместе с загрузкой.",
+                        "en": "Sending 1,000 USDT across three networks. Fee figures are indicative and move with network load."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "TRC-20, сеть Tron",
+                                    "en": "TRC-20 on Tron"
+                              },
+                              "value": {
+                                    "ru": "около 1 доллара",
+                                    "en": "around $1"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "ERC-20, сеть Ethereum",
+                                    "en": "ERC-20 on Ethereum"
+                              },
+                              "value": {
+                                    "ru": "3–15 долларов",
+                                    "en": "$3–15"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "BEP-20, сеть BNB Chain",
+                                    "en": "BEP-20 on BNB Chain"
+                              },
+                              "value": {
+                                    "ru": "около 0,2 доллара",
+                                    "en": "around $0.20"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Время подтверждения в Tron",
+                                    "en": "Confirmation time on Tron"
+                              },
+                              "value": {
+                                    "ru": "около минуты",
+                                    "en": "about a minute"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Для перевода стейблкоинов между биржами разница в комиссии решает всё, и поэтому Tron занял эту нишу. Но у сети меньше приложений DeFi и заметно выше концентрация валидаторов, так что выбор здесь — не «лучше или хуже», а «дешевле против шире».",
+                        "en": "For moving stablecoins between exchanges the fee difference decides everything, which is how Tron took this niche. But the network has fewer DeFi applications and markedly higher validator concentration, so the choice is not better versus worse but cheaper versus broader."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Сеть при выводе выбирается отдельно",
+                              "en": "The network is chosen separately on withdrawal"
+                        },
+                        "text": {
+                              "ru": "USDT существует в десятке сетей. Отправив TRC-20 на адрес ERC-20, вы почти наверняка потеряете средства безвозвратно.",
+                              "en": "USDT exists on a dozen networks. Send TRC-20 to an ERC-20 address and the funds are almost certainly lost for good."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Для комиссии нужен TRX на балансе",
+                              "en": "You need TRX on the balance for fees"
+                        },
+                        "text": {
+                              "ru": "Комиссия платится в основной монете сети. Кошелёк только с USDT не сможет отправить перевод, пока на нём нет небольшого запаса TRX.",
+                              "en": "Fees are paid in the network's native coin. A wallet holding only USDT cannot send until it also holds a small amount of TRX."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Адреса начинаются с T",
+                              "en": "Addresses begin with T"
+                        },
+                        "text": {
+                              "ru": "Формат адреса отличается от Ethereum визуально, и это первая проверка перед отправкой.",
+                              "en": "The address format differs visually from Ethereum's, and that is the first check before sending."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Эмитент может заморозить баланс",
+                              "en": "The issuer can freeze a balance"
+                        },
+                        "text": {
+                              "ru": "Это свойство самого USDT, а не сети: компания-эмитент технически способна заблокировать адрес в любой сети.",
+                              "en": "That is a property of USDT itself rather than the network: the issuing company can technically block an address on any network."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'bep-20',
@@ -3630,6 +4697,101 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Стандарт токенов сети BNB Smart Chain (BSC), совместимый по структуре с ERC-20, но с более низкими комиссиями за транзакции.',
       en: 'A token standard on the BNB Smart Chain (BSC), structurally compatible with ERC-20 but with lower transaction fees.',
     },
+    updated: '2026-08-12',
+    related: [
+      "erc-20",
+      "trc-20",
+      "stablecoin",
+      "smart-contract",
+      "transaction",
+      "defi"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "BEP-20 — стандарт токенов в сети BNB Chain, созданной биржей Binance. Как и родственные стандарты, он задаёт обязательный набор функций контракта, благодаря которому все кошельки и приложения работают с любым токеном одинаково.",
+                        "en": "BEP-20 is the token standard on BNB Chain, the network created by the Binance exchange. Like its relatives it defines a mandatory set of contract functions so that every wallet and application handles any token the same way."
+                  },
+                  {
+                        "ru": "Стандарт полностью совместим с ERC-20 на уровне кода: приложение, написанное для Ethereum, переносится сюда почти без изменений. Это было сознательным решением — сеть запускалась в 2020 году как более дешёвая альтернатива, и лёгкий перенос проектов был её главным аргументом.",
+                        "en": "The standard is fully compatible with ERC-20 at the code level: an application written for Ethereum ports here with almost no changes. That was deliberate — the network launched in 2020 as a cheaper alternative, and easy migration was its main argument."
+                  },
+                  {
+                        "ru": "Плата за дешевизну — в устройстве сети. Блоки подтверждают несколько десятков валидаторов вместо тысяч независимых узлов, поэтому решения принимаются быстрее, но круг тех, кто их принимает, заметно уже.",
+                        "en": "The price of that cheapness is in the network's design. Blocks are confirmed by a few dozen validators rather than thousands of independent nodes, so decisions come faster but the circle making them is markedly narrower."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Низкий порог входа работает в обе стороны",
+                              "en": "A low barrier cuts both ways"
+                        },
+                        "text": {
+                              "ru": "Выпустить токен здесь стоит копейки, поэтому в сети огромное количество проектов-однодневок. Наличие токена в сети ничего не говорит о его качестве.",
+                              "en": "Issuing a token here costs pennies, so the network is full of short-lived projects. A token existing on the network says nothing about its quality."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Одинаковый адрес в разных сетях",
+                              "en": "The same address across networks"
+                        },
+                        "text": {
+                              "ru": "У одного кошелька адрес в BNB Chain и в Ethereum совпадает. Это удобно и опасно одновременно: отправить не в ту сеть легко, а средства придут на «правильный» адрес в неправильной сети.",
+                              "en": "One wallet has an identical address on BNB Chain and Ethereum. That is convenient and dangerous at once: sending to the wrong network is easy, and the funds land on the right address in the wrong network."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Комиссия платится в BNB",
+                              "en": "Fees are paid in BNB"
+                        },
+                        "text": {
+                              "ru": "Без небольшого запаса основной монеты перевести токены нельзя, как и в других сетях.",
+                              "en": "Without a small reserve of the native coin you cannot move tokens, as on other networks."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Проверяйте адрес контракта, а не название",
+                              "en": "Check the contract address, not the name"
+                        },
+                        "text": {
+                              "ru": "Название и символ токена никем не защищены. Подделка популярной монеты с тем же тикером — самая частая схема в этой сети.",
+                              "en": "A token's name and symbol are not protected by anything. Cloning a popular coin under the same ticker is the most common scheme on this network."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Как отличить сети при выводе",
+                  "en": "Telling networks apart on withdrawal"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "При выводе с биржи сеть выбирается отдельным пунктом, и биржа обычно показывает комиссию для каждой. Ошибка на этом шаге — самая дорогая из бытовых: средства уходят в сеть, где получатель не контролирует адрес, и вернуть их можно только через поддержку, если она вообще возьмётся.",
+                        "en": "When withdrawing from an exchange the network is a separate field, and the exchange usually shows the fee for each. A mistake at this step is the costliest of everyday errors: funds go to a network where the recipient does not control the address, and recovery depends entirely on support agreeing to help."
+                  },
+                  {
+                        "ru": "Простое правило: сеть выбирает получатель, а не отправитель. Прежде чем выводить, попросите у второй стороны не только адрес, но и название сети, и сверьте оба поля.",
+                        "en": "A simple rule: the recipient chooses the network, not the sender. Before withdrawing, ask the other side for both the address and the network name, and check both fields."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'cold-wallet',
@@ -4117,6 +5279,101 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Anti-Money Laundering («противодействие отмыванию денег») — комплекс политик и процедур, которые биржи и финансовые организации применяют для предотвращения незаконных финансовых операций. На практике это выражается в мониторинге транзакций на подозрительную активность, лимитах на вывод средств и обязательной проверке личности (KYC) перед крупными операциями — требования обычно устанавливает регулятор той юрисдикции, где работает биржа.',
       en: 'Anti-Money Laundering — a set of policies and procedures that exchanges and financial institutions use to prevent illicit financial activity. In practice, this means monitoring transactions for suspicious patterns, applying withdrawal limits, and requiring identity verification (KYC) before larger transactions — requirements are typically set by the regulator in the exchange\'s operating jurisdiction.',
     },
+    updated: '2026-08-12',
+    related: [
+      "kyc",
+      "exchange",
+      "custodial-wallet",
+      "p2p",
+      "fiat",
+      "block-explorer"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Противодействие отмыванию денег — набор правил, обязывающих финансовые компании проверять, откуда у клиента средства, и сообщать о подозрительных операциях. В криптовалютах эти требования распространяются на биржи, обменники и кастодиальные кошельки.",
+                        "en": "Anti-money laundering is a set of rules requiring financial companies to check where a client's funds come from and to report suspicious activity. In crypto these requirements apply to exchanges, brokers and custodial wallets."
+                  },
+                  {
+                        "ru": "В Европейском союзе основу задают директивы AMLD и регламент MiCA, который с 2024 года распространил единые правила на всех поставщиков криптоуслуг. Отдельное требование — «правило перевода»: при переводе между площадками должны передаваться данные отправителя и получателя.",
+                        "en": "In the European Union the framework comes from the AMLD directives and the MiCA regulation, which since 2024 has extended unified rules to all crypto service providers. A separate requirement is the travel rule: transfers between platforms must carry sender and recipient data."
+                  },
+                  {
+                        "ru": "Проверку часто путают с KYC, хотя это разные вещи. KYC — установление личности при регистрации, разовая процедура. AML — постоянное наблюдение за операциями после неё: анализ сумм, частоты, происхождения средств.",
+                        "en": "The checks are often confused with KYC, though they are different. KYC is identity verification at sign-up, a one-off procedure. AML is ongoing monitoring of activity afterwards: analysis of amounts, frequency and the origin of funds."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Что именно проверяют",
+                  "en": "What is actually checked"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Происхождение средств",
+                              "en": "The source of funds"
+                        },
+                        "text": {
+                              "ru": "Крупное пополнение может потребовать документов: выписки, договора продажи, справки о доходах. Это стандартная процедура, а не признак подозрений.",
+                              "en": "A large deposit may require documents: statements, a sale agreement, proof of income. This is standard procedure rather than a sign of suspicion."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "История адреса в блокчейне",
+                              "en": "The wallet's on-chain history"
+                        },
+                        "text": {
+                              "ru": "Специальные сервисы оценивают, проходили ли средства через миксеры, санкционные адреса или взломанные площадки. Оценка вероятностная, и ложные срабатывания случаются.",
+                              "en": "Specialist services assess whether funds passed through mixers, sanctioned addresses or hacked platforms. The assessment is probabilistic and false positives do occur."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Нетипичное поведение",
+                              "en": "Unusual behaviour"
+                        },
+                        "text": {
+                              "ru": "Резкая смена схемы операций, дробление сумм, переводы сразу после вывода — всё это поводы для дополнительных вопросов.",
+                              "en": "An abrupt change in activity, splitting amounts, transfers immediately after withdrawal — all of these prompt further questions."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Связь с санкционными списками",
+                              "en": "Links to sanctions lists"
+                        },
+                        "text": {
+                              "ru": "Проверка идёт и по личности клиента, и по адресам, с которыми он взаимодействует.",
+                              "en": "Screening covers both the client's identity and the addresses they interact with."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Практический риск для обычного пользователя — не штраф, а заморозка. Если средства пришли с адреса с плохой историей, площадка может ограничить вывод до выяснения, и разбирательство занимает недели. Покупка криптовалюты у случайного продавца с рук — самый частый способ получить такую историю, ничего не нарушив самому.",
+                        "en": "The practical risk for an ordinary user is not a fine but a freeze. If funds arrive from an address with a poor history, a platform may restrict withdrawal pending review, and that takes weeks. Buying crypto from a random private seller is the most common way to acquire such a history without doing anything wrong yourself."
+                  },
+                  {
+                        "ru": "Снизить риск помогает простое правило: пополнять счёт с площадок, которые сами проходят проверку, и хранить подтверждения покупок. Выписка о том, где и когда были куплены монеты, снимает большинство вопросов за один раз.",
+                        "en": "A simple rule reduces the risk: fund accounts from platforms that are themselves regulated, and keep purchase records. A statement showing where and when coins were bought settles most questions in one go."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'airdrop',
@@ -4350,6 +5607,143 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Initial DEX Offering — первичное размещение токена сразу на децентрализованной бирже, без участия централизованного посредника.',
       en: 'Initial DEX Offering — a token launch that takes place directly on a decentralized exchange, without a centralized intermediary.',
     },
+    updated: '2026-08-12',
+    related: [
+      "ico",
+      "defi",
+      "liquidity-pool",
+      "smart-contract",
+      "exchange",
+      "fomo"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "IDO — первичное размещение токена сразу на децентрализованной бирже. Проект создаёт пул ликвидности, вносит в него свои токены и некоторую сумму в стейблкоинах или эфире, после чего торговля открывается автоматически для всех.",
+                        "en": "An IDO is a token's first offering directly on a decentralised exchange. The project creates a liquidity pool, deposits its tokens along with some stablecoins or ether, and trading opens automatically for everyone."
+                  },
+                  {
+                        "ru": "Формат появился в 2020 году как ответ на две проблемы предшественников. У ICO деньги собирались до листинга, и проект мог исчезнуть с ними. У IEO всё зависело от решения одной биржи. В IDO торговля начинается сразу, а ликвидность видна в блокчейне.",
+                        "en": "The format emerged in 2020 as an answer to two problems with its predecessors. In an ICO money was raised before listing and a project could vanish with it. In an IEO everything depended on one exchange's decision. In an IDO trading starts immediately and liquidity is visible on-chain."
+                  },
+                  {
+                        "ru": "Обратная сторона немедленного старта — отсутствие всякого отбора. Разместить токен может кто угодно, никаких проверок нет, и ответственность за оценку проекта целиком лежит на покупателе.",
+                        "en": "The flip side of an immediate start is the absence of any filter. Anyone can list a token, no checks apply, and the entire burden of assessing a project falls on the buyer."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Что происходит в первые минуты",
+                  "en": "What happens in the first minutes"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Токен выходит в пул на 100 000 долларов ликвидности. Смотрим типичный ход первого часа.",
+                        "en": "A token launches into a pool with $100,000 of liquidity. Here is a typical first hour."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Стартовая цена",
+                                    "en": "Starting price"
+                              },
+                              "value": {
+                                    "ru": "0,10 доллара",
+                                    "en": "$0.10"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Пик через 4 минуты",
+                                    "en": "Peak after 4 minutes"
+                              },
+                              "value": {
+                                    "ru": "0,85 доллара",
+                                    "en": "$0.85"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Цена через час",
+                                    "en": "Price after an hour"
+                              },
+                              "value": {
+                                    "ru": "0,18 доллара",
+                                    "en": "$0.18"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Доля покупок ботами в первом блоке",
+                                    "en": "Share of first-block buys by bots"
+                              },
+                              "value": {
+                                    "ru": "до 80%",
+                                    "en": "up to 80%"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Тот, кто увидел рост и купил на пике, к концу часа потерял около 80%. Автоматические программы получают доступ к пулу в том же блоке, где он создан, поэтому обычный человек физически не может оказаться первым — он покупает уже у ботов.",
+                        "en": "Whoever saw the rally and bought at the peak was down about 80% within the hour. Automated programs reach the pool in the same block it is created, so an ordinary person physically cannot be first — they are buying from the bots."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Заблокирована ли ликвидность",
+                              "en": "Is liquidity locked"
+                        },
+                        "text": {
+                              "ru": "Если создатель может забрать ликвидность из пула, он способен обнулить цену одной операцией. Блокировка на срок проверяется в блокчейне и должна быть указана в документации.",
+                              "en": "If the creator can pull liquidity out of the pool they can zero the price in one transaction. A time lock is verifiable on-chain and should be stated in the documentation."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Кому принадлежит основная доля выпуска",
+                              "en": "Who holds most of the supply"
+                        },
+                        "text": {
+                              "ru": "Несколько кошельков с большей частью токенов — это будущее давление на цену. Распределение видно в эксплорере до покупки.",
+                              "en": "A handful of wallets holding most of the tokens is future selling pressure. The distribution is visible in an explorer before you buy."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Есть ли у контракта особые права",
+                              "en": "Does the contract carry special powers"
+                        },
+                        "text": {
+                              "ru": "Возможность выпускать новые токены, менять комиссию или запрещать продажу отдельным адресам — всё это записано в коде и проверяется до сделки.",
+                              "en": "The ability to mint new tokens, change fees or block particular addresses from selling is written into the code and can be checked before trading."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Скорость решает не в вашу пользу",
+                              "en": "Speed does not work in your favour"
+                        },
+                        "text": {
+                              "ru": "Соревноваться с автоматическими программами за первые секунды бессмысленно. Если стратегия строится на том, чтобы успеть, — это не стратегия.",
+                              "en": "Competing with automated programs for the first seconds is pointless. If a strategy depends on being fast enough, it is not a strategy."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'whitepaper',
@@ -6024,6 +7418,133 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Число, используемое один раз, которое майнеры подбирают при добыче блока в сетях Proof-of-Work, а также счётчик, предотвращающий повторное использование одной и той же транзакции на аккаунте.',
       en: 'A number used once, which miners search for when mining a block in Proof-of-Work networks; also a counter that prevents a transaction from being replayed on an account.',
     },
+    updated: '2026-08-12',
+    related: [
+      "mining",
+      "hash",
+      "proof-of-work",
+      "blockchain",
+      "transaction",
+      "block-explorer"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Nonce — число, которое подбирают, чтобы результат вычисления удовлетворил заданному условию. Слово составлено из английского «number used once» — число, используемое один раз.",
+                        "en": "A nonce is a number picked so that the result of a computation satisfies a given condition. The word comes from “number used once”."
+                  },
+                  {
+                        "ru": "В майнинге это единственная часть блока, которую майнер может свободно менять. Он подставляет число, считает хеш блока и проверяет, оказался ли результат меньше целевого значения. Не подошло — прибавляет единицу и считает заново.",
+                        "en": "In mining it is the only part of a block a miner may freely change. They insert a number, compute the block's hash and check whether the result came out below a target value. If not, they add one and compute again."
+                  },
+                  {
+                        "ru": "Именно этот перебор и есть работа в «доказательстве работы». Найти подходящее число можно только слепым перебором, а проверить чужую находку — одной операцией. На этой асимметрии держится вся защита сети.",
+                        "en": "This brute-force search is the work in proof of work. A valid number can only be found by blind search, while verifying someone else's find takes a single operation. The network's entire security rests on that asymmetry."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Масштаб перебора",
+                  "en": "The scale of the search"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Поле nonce в биткоине занимает 32 бита. Считаем, на сколько его хватает современному оборудованию.",
+                        "en": "Bitcoin's nonce field is 32 bits wide. Here is how far that goes on modern hardware."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Всего вариантов в поле",
+                                    "en": "Total values in the field"
+                              },
+                              "value": {
+                                    "ru": "около 4,3 миллиарда",
+                                    "en": "about 4.3 billion"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Скорость одного устройства",
+                                    "en": "Speed of one machine"
+                              },
+                              "value": {
+                                    "ru": "до 200 триллионов хешей в секунду",
+                                    "en": "up to 200 trillion hashes per second"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Время на весь перебор",
+                                    "en": "Time to exhaust the field"
+                              },
+                              "value": {
+                                    "ru": "доли секунды",
+                                    "en": "a fraction of a second"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Целевое время блока",
+                                    "en": "Target block interval"
+                              },
+                              "value": {
+                                    "ru": "10 минут",
+                                    "en": "10 minutes"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Поля давно не хватает: устройство перебирает все четыре миллиарда вариантов быстрее, чем за секунду. Поэтому майнеры меняют и другие части блока — метку времени и служебную транзакцию, — чтобы получить новый набор вариантов для перебора.",
+                        "en": "The field has long been too small: a machine exhausts all four billion values in under a second. So miners also vary other parts of the block — the timestamp and a service transaction — to obtain a fresh set of values to search."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "Где ещё встречается это слово",
+                  "en": "Where else the word appears"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Счётчик транзакций в Ethereum",
+                              "en": "The transaction counter in Ethereum"
+                        },
+                        "text": {
+                              "ru": "Здесь nonce означает совсем другое: порядковый номер операции с конкретного адреса. Он не даёт отправить один и тот же перевод дважды.",
+                              "en": "Here nonce means something else entirely: the sequence number of an operation from a given address. It prevents the same transfer being sent twice."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Зависшая транзакция",
+                              "en": "A stuck transaction"
+                        },
+                        "text": {
+                              "ru": "Если операция с меньшим номером не подтверждена, все последующие ждут её. Отсюда приём «заменить транзакцию с тем же номером и большей комиссией».",
+                              "en": "If an operation with a lower number is unconfirmed, every later one waits for it. Hence the trick of replacing a transaction with the same number and a higher fee."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Одноразовые коды в криптографии",
+                              "en": "One-time values in cryptography"
+                        },
+                        "text": {
+                              "ru": "В шифровании таким числом гарантируют, что два одинаковых сообщения дадут разный результат.",
+                              "en": "In encryption such a value guarantees that two identical messages produce different output."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'block-explorer',
@@ -6121,6 +7642,133 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Наименьшая единица биткоина, равная одной стомиллионной (0.00000001) BTC. Названа в честь создателя биткоина.',
       en: 'The smallest unit of Bitcoin, equal to one hundred-millionth (0.00000001) of a BTC. Named after Bitcoin\'s creator.',
     },
+    updated: '2026-08-12',
+    related: [
+      "bitcoin",
+      "fiat",
+      "gwei",
+      "transaction",
+      "exchange",
+      "whitepaper"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Сатоши — самая мелкая часть биткоина, одна стомиллионная. В одном биткоине сто миллионов сатоши, и дробить монету мельче протокол не умеет.",
+                        "en": "A satoshi is the smallest part of a bitcoin, one hundred-millionth of it. One bitcoin holds a hundred million satoshi, and the protocol cannot divide a coin any further."
+                  },
+                  {
+                        "ru": "Единица названа в честь Сатоши Накамото — псевдонима автора биткоина, опубликовавшего описание системы в 2008 году. Личность за этим именем не установлена до сих пор.",
+                        "en": "The unit is named after Satoshi Nakamoto, the pseudonym of bitcoin's author, who published the system's description in 2008. The identity behind the name has never been established."
+                  },
+                  {
+                        "ru": "Такое дробление заложено с самого начала не ради удобства, а по необходимости: если монета дорожает в тысячи раз, расплачиваться целыми биткоинами становится невозможно.",
+                        "en": "The subdivision was built in from the start out of necessity rather than convenience: if a coin appreciates a thousandfold, paying in whole bitcoins becomes impossible."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Сколько это в деньгах",
+                  "en": "What it is worth"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Пересчитаем при цене биткоина 60 000 долларов.",
+                        "en": "Converting at a bitcoin price of $60,000."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "1 сатоши",
+                                    "en": "1 satoshi"
+                              },
+                              "value": {
+                                    "ru": "0,0006 доллара",
+                                    "en": "$0.0006"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "1 000 сатоши",
+                                    "en": "1,000 satoshi"
+                              },
+                              "value": {
+                                    "ru": "0,60 доллара",
+                                    "en": "$0.60"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "100 000 сатоши",
+                                    "en": "100,000 satoshi"
+                              },
+                              "value": {
+                                    "ru": "60 долларов",
+                                    "en": "$60"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "1 000 000 сатоши",
+                                    "en": "1,000,000 satoshi"
+                              },
+                              "value": {
+                                    "ru": "600 долларов",
+                                    "en": "$600"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Отсюда видно, зачем нужна единица: покупка за пять долларов — это примерно 8 300 сатоши, и такую сумму гораздо проще держать в голове, чем 0,000083 BTC.",
+                        "en": "This shows why the unit exists: a five-dollar purchase is roughly 8,300 satoshi, and that is far easier to hold in your head than 0.000083 BTC."
+                  }
+            }
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Комиссия сети считается в сатоши за байт",
+                              "en": "Network fees are quoted in satoshi per byte"
+                        },
+                        "text": {
+                              "ru": "Кошелёк показывает не общую комиссию, а ставку за единицу размера транзакции. Итог зависит от того, из скольких частей собран ваш перевод.",
+                              "en": "A wallet shows a rate per unit of transaction size rather than a total fee. The final amount depends on how many pieces your transfer is assembled from."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "«Стакать сатоши» — не то же, что инвестировать",
+                              "en": "“Stacking sats” is not the same as investing"
+                        },
+                        "text": {
+                              "ru": "Выражение означает регулярную покупку небольших сумм. Это способ распределить вход по времени, а не гарантия результата.",
+                              "en": "The phrase means buying small amounts regularly. It is a way to spread entry over time, not a guarantee of an outcome."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Мельче сатоши перевести нельзя",
+                              "en": "Nothing smaller than a satoshi can be sent"
+                        },
+                        "text": {
+                              "ru": "В сети второго уровня Lightning расчёты идут в тысячных долях сатоши, но в основной сети такие суммы существовать не могут.",
+                              "en": "The Lightning second layer settles in thousandths of a satoshi, but such amounts cannot exist on the main network."
+                        }
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'fiat',
@@ -6130,6 +7778,133 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Традиционная государственная валюта, не обеспеченная физическим товаром, например доллар, евро или гривна — в противоположность криптовалюте.',
       en: 'Traditional government-issued currency not backed by a physical commodity, such as the US dollar, euro, or Czech koruna — as opposed to cryptocurrency.',
     },
+    updated: '2026-08-12',
+    related: [
+      "bitcoin",
+      "stablecoin",
+      "exchange",
+      "custodial-wallet",
+      "satoshi",
+      "aml"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Фиатными называют обычные государственные деньги — доллар, евро, злотый. Слово происходит от латинского fiat, «да будет»: ценность таких денег держится не на золоте или другом обеспечении, а на решении государства и доверии к нему.",
+                        "en": "Fiat money is ordinary state-issued currency — the dollar, the euro, the zloty. The word comes from the Latin fiat, “let it be”: the value of such money rests not on gold or another backing but on a state's decision and the trust placed in it."
+                  },
+                  {
+                        "ru": "Система в нынешнем виде существует с 1971 года, когда США окончательно отвязали доллар от золота. До этого количество денег было формально ограничено запасами металла.",
+                        "en": "The system in its present form dates from 1971, when the United States finally severed the dollar's link to gold. Before that the quantity of money was formally limited by metal reserves."
+                  },
+                  {
+                        "ru": "Ключевое отличие от криптовалют — в том, кто определяет выпуск. Объём фиатных денег устанавливает центральный банк исходя из экономической политики, тогда как выпуск биткоина задан кодом и не меняется по чьему-либо решению.",
+                        "en": "The key difference from cryptocurrencies is who determines issuance. The quantity of fiat money is set by a central bank according to economic policy, whereas bitcoin's issuance is fixed in code and does not change at anyone's decision."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Что это значит на практике",
+                  "en": "What this means in practice"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Ввод и вывод — самое узкое место",
+                              "en": "On-ramps and off-ramps are the bottleneck"
+                        },
+                        "text": {
+                              "ru": "Обмен между фиатом и криптовалютой проходит через регулируемых посредников, поэтому именно здесь требуют документы и здесь чаще всего возникают задержки.",
+                              "en": "Exchanging between fiat and crypto runs through regulated intermediaries, so this is where documents are demanded and where delays most often occur."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Стейблкоины — это фиат в другой оболочке",
+                              "en": "Stablecoins are fiat in another wrapper"
+                        },
+                        "text": {
+                              "ru": "Монета, привязанная к доллару, наследует и его свойства, и решения его эмитента. Это не выход из фиатной системы, а другой способ в ней находиться.",
+                              "en": "A coin pegged to the dollar inherits both its properties and its issuer's decisions. It is not an exit from the fiat system but another way of being inside it."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Инфляция — свойство системы, а не сбой",
+                              "en": "Inflation is a property of the system, not a fault"
+                        },
+                        "text": {
+                              "ru": "Постепенное обесценивание заложено в целевые показатели центральных банков. Обычно целью считают около 2% в год.",
+                              "en": "Gradual loss of value is built into central bank targets, usually set at around 2% a year."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Сколько стоит время",
+                  "en": "What time costs"
+            },
+            "example": {
+                  "setup": {
+                        "ru": "Что происходит с покупательной способностью 10 000 евро при инфляции 2% в год.",
+                        "en": "What happens to the purchasing power of €10,000 at 2% annual inflation."
+                  },
+                  "rows": [
+                        {
+                              "label": {
+                                    "ru": "Через 5 лет",
+                                    "en": "After 5 years"
+                              },
+                              "value": {
+                                    "ru": "9 057 евро",
+                                    "en": "€9,057"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Через 10 лет",
+                                    "en": "After 10 years"
+                              },
+                              "value": {
+                                    "ru": "8 203 евро",
+                                    "en": "€8,203"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Через 20 лет",
+                                    "en": "After 20 years"
+                              },
+                              "value": {
+                                    "ru": "6 730 евро",
+                                    "en": "€6,730"
+                              }
+                        },
+                        {
+                              "label": {
+                                    "ru": "Через 30 лет",
+                                    "en": "After 30 years"
+                              },
+                              "value": {
+                                    "ru": "5 521 евро",
+                                    "en": "€5,521"
+                              }
+                        }
+                  ],
+                  "outcome": {
+                        "ru": "Через тридцать лет сумма сохранит примерно 55% нынешней покупательной способности — при том, что целевая инфляция считается низкой и предсказуемой. Это объясняет, почему деньги держат не только на счёте, но и в активах.",
+                        "en": "After thirty years the sum retains roughly 55% of today's purchasing power — and that is with inflation considered low and predictable. This explains why money is held in assets and not only in accounts."
+                  }
+            }
+      }
+    ],
   },
   {
     slug: 'exchange',
@@ -6139,6 +7914,101 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Платформа для покупки, продажи и обмена криптовалют. Может быть централизованной (CEX) или децентрализованной (DEX).',
       en: 'A platform for buying, selling, and trading cryptocurrencies. It can be centralized (CEX) or decentralized (DEX).',
     },
+    updated: '2026-08-12',
+    related: [
+      "market-order",
+      "custodial-wallet",
+      "liquidity-pool",
+      "aml",
+      "kyc",
+      "defi"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Криптобиржа сводит покупателей и продавцов. Заявки собираются в стакан, где на одной стороне цены на покупку, на другой на продажу, и сделка происходит, когда они встречаются. Площадка берёт комиссию с оборота.",
+                        "en": "A crypto exchange brings buyers and sellers together. Orders collect in an order book with bids on one side and asks on the other, and a trade occurs when they meet. The venue takes a fee from turnover."
+                  },
+                  {
+                        "ru": "Биржи делятся на два типа, и разница между ними принципиальная. На централизованной площадке средства хранит компания, а торговля идёт по её внутренним записям — быстро и удобно, но монеты вам не принадлежат, пока вы их не вывели. На децентрализованной сделки исполняет смарт-контракт, а монеты остаются в вашем кошельке.",
+                        "en": "Exchanges come in two types, and the difference is fundamental. On a centralised venue the company holds the funds and trading runs on its internal ledger — fast and convenient, but the coins are not yours until you withdraw them. On a decentralised one a smart contract settles trades and the coins stay in your wallet."
+                  },
+                  {
+                        "ru": "Формула «не ваши ключи — не ваши монеты» появилась не из идеологии, а из практики. Mt. Gox в 2014-м, QuadrigaCX в 2019-м, FTX в 2022-м — каждый раз пользователи видели баланс на экране, которого фактически уже не было.",
+                        "en": "The phrase “not your keys, not your coins” came from experience rather than ideology. Mt. Gox in 2014, QuadrigaCX in 2019, FTX in 2022 — each time users saw a balance on screen that no longer existed in fact."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Как сравнивать площадки",
+                  "en": "How to compare venues"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Лицензия в вашей юрисдикции",
+                              "en": "A licence in your jurisdiction"
+                        },
+                        "text": {
+                              "ru": "В ЕС это регистрация по MiCA. Лицензия не гарантирует сохранность средств, но даёт понятный порядок действий при споре.",
+                              "en": "In the EU that means MiCA registration. A licence does not guarantee your funds are safe but it gives a defined process if something goes wrong."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Глубина стакана по вашей паре",
+                              "en": "Order book depth for your pair"
+                        },
+                        "text": {
+                              "ru": "Большой общий оборот площадки ничего не значит, если в нужной вам паре тонкий стакан: цена исполнения окажется хуже видимой.",
+                              "en": "A venue's large total turnover means nothing if your pair has a thin book: your execution price will be worse than the one displayed."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Условия ввода и вывода",
+                              "en": "Deposit and withdrawal terms"
+                        },
+                        "text": {
+                              "ru": "Комиссия за вывод в евро и доступные сети для стейблкоинов влияют на итог сильнее, чем разница в торговой комиссии.",
+                              "en": "The fee for withdrawing euros and the available networks for stablecoins affect the outcome more than a difference in trading fees."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Подтверждение резервов",
+                              "en": "Proof of reserves"
+                        },
+                        "text": {
+                              "ru": "Регулярная публикация с независимой проверкой лучше разового отчёта, но не заменяет полноценный аудит обязательств.",
+                              "en": "Regular publication with independent verification beats a one-off report, though it is not a full audit of liabilities."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "На что обратить внимание",
+                  "en": "What to watch for"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Разделение по назначению снимает большую часть риска: биржа — место для сделок, кошелёк — место для хранения. Держать на площадке ту сумму, с которой вы торгуете на этой неделе, разумно; держать там весь портфель годами — значит принимать риск, за который вам никто не платит.",
+                        "en": "Separating by purpose removes most of the risk: an exchange is a place to trade, a wallet is a place to store. Keeping the amount you are trading with this week on a venue is reasonable; keeping an entire portfolio there for years means taking on a risk nobody pays you for."
+                  },
+                  {
+                        "ru": "Наш рейтинг бирж сравнивает площадки по обороту, лицензиям и доступным продуктам. Комиссии мы не сравниваем и об этом пишем прямо: сопоставимых данных по ним у нас нет, а придумывать их мы не станем.",
+                        "en": "Our exchange ranking compares venues by turnover, licences and available products. We do not compare fees and say so plainly: we have no comparable data on them, and we will not invent it."
+                  }
+            ]
+      }
+    ],
   },
   {
     slug: 'genesis-block',
@@ -6148,5 +8018,100 @@ export const GLOSSARY: GlossaryTerm[] = [
       ru: 'Самый первый блок в блокчейне, с которого начинается вся цепочка. У биткоина генезис-блок был создан 3 января 2009 года.',
       en: 'The very first block in a blockchain, from which the entire chain begins. Bitcoin\'s genesis block was created on January 3, 2009.',
     },
+    updated: '2026-08-12',
+    related: [
+      "blockchain",
+      "bitcoin",
+      "block-explorer",
+      "mining",
+      "whitepaper",
+      "hard-fork"
+    ],
+    sections: [
+      {
+            "heading": {
+                  "ru": "Как это работает",
+                  "en": "How it works"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Генезис-блок — первый блок цепочки, единственный, у которого нет предыдущего. Все остальные блоки ссылаются на своего предшественника хешем, и эта цепочка ссылок обрывается именно здесь.",
+                        "en": "The genesis block is the first block of a chain, the only one with no predecessor. Every other block references the one before it by hash, and that chain of references ends here."
+                  },
+                  {
+                        "ru": "Обычно он прописан прямо в коде программы, а не добывается майнингом. Узел при запуске не проверяет его, а принимает как данность — иначе проверять было бы не от чего.",
+                        "en": "It is normally hard-coded into the software rather than mined. A node does not verify it at startup but accepts it as given — there would be nothing to verify against otherwise."
+                  },
+                  {
+                        "ru": "В биткоине блок создан 3 января 2009 года, и в его данные вписана строка из заголовка газеты The Times: «Chancellor on brink of second bailout for banks». Это одновременно доказательство, что блок не создан раньше указанной даты, и прямое указание на причину появления системы.",
+                        "en": "Bitcoin's was created on 3 January 2009, and its data carries a line from a headline in The Times: “Chancellor on brink of second bailout for banks”. That is at once proof the block was not made before that date and a direct statement of why the system appeared."
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Что в нём необычного",
+                  "en": "What is unusual about it"
+            },
+            "bullets": [
+                  {
+                        "title": {
+                              "ru": "Награду за него нельзя потратить",
+                              "en": "Its reward cannot be spent"
+                        },
+                        "text": {
+                              "ru": "Пятьдесят биткоинов первого блока не проводятся через обычный механизм расчёта баланса — из-за особенности исходного кода они навсегда недоступны.",
+                              "en": "The fifty bitcoins of the first block are not processed through the usual balance mechanism — a quirk of the original code makes them permanently unspendable."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Адрес по-прежнему получает переводы",
+                              "en": "The address still receives transfers"
+                        },
+                        "text": {
+                              "ru": "Люди годами отправляют туда небольшие суммы как дань уважения. Все они тоже остаются недоступными.",
+                              "en": "People have sent small amounts there for years as a tribute. Those too remain locked."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Пауза до второго блока",
+                              "en": "The gap before the second block"
+                        },
+                        "text": {
+                              "ru": "Между первым и вторым блоком прошло шесть дней вместо обычных десяти минут. Единого объяснения нет до сих пор.",
+                              "en": "Six days passed between the first and second block instead of the usual ten minutes. There is still no agreed explanation."
+                        }
+                  },
+                  {
+                        "title": {
+                              "ru": "Он есть у каждой сети",
+                              "en": "Every network has one"
+                        },
+                        "text": {
+                              "ru": "У Ethereum, у любого форка, у частного блокчейна — везде цепочка начинается с блока, принятого без проверки.",
+                              "en": "Ethereum, any fork, a private blockchain — every chain begins with a block accepted without verification."
+                        }
+                  }
+            ]
+      },
+      {
+            "heading": {
+                  "ru": "Почему это важно",
+                  "en": "Why it matters"
+            },
+            "paragraphs": [
+                  {
+                        "ru": "Генезис-блок задаёт идентичность сети. Два блокчейна с одинаковым кодом, но разными первыми блоками — это две разные, несовместимые сети. Именно поэтому при жёстком форке новая цепочка сохраняет общий генезис со старой: их история совпадает до точки расхождения.",
+                        "en": "The genesis block defines a network's identity. Two blockchains with identical code but different first blocks are two separate, incompatible networks. This is why a hard fork's new chain keeps the same genesis as the old one: their history matches up to the point of divergence."
+                  },
+                  {
+                        "ru": "Для практики отсюда следует простая вещь: доверие к цепочке начинается с доверия к тому, что ваш узел взял правильный первый блок. Все проверки после него бессмысленны, если начальная точка подменена — поэтому программу для узла берут только из официального источника и сверяют подпись.",
+                        "en": "One practical consequence follows: trust in a chain starts with trust that your node took the correct first block. Every check after it is meaningless if the starting point was substituted — which is why node software is taken only from an official source and its signature verified."
+                  }
+            ]
+      }
+    ],
   },
 ];
