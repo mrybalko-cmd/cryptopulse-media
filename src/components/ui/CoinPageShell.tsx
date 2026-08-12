@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import CoinInvestmentCalculator from './CoinInvestmentCalculator';
 import type { CoinMeta } from '@/lib/coinRegistry';
-import type { CoinHistoryPoint, CoinMarket } from '@/lib/coinMarket';
+import type { CoinMarket } from '@/lib/coinMarket';
 import type { InvestmentReference } from '@/lib/coinGuides';
 
 export interface CoinFaq { question: { ru: string; en: string }; answer: { ru: string; en: string } }
@@ -31,10 +31,9 @@ export interface CoinFact {
  */
 export default function CoinPageShell({
   locale,
+  slug,
   meta,
   market,
-  history,
-  startOptions,
   tagline,
   facts,
   reference,
@@ -45,10 +44,9 @@ export default function CoinPageShell({
   glossaryTerms,
 }: {
   locale: string;
+  slug: string;
   meta: CoinMeta;
   market: CoinMarket | null;
-  history: CoinHistoryPoint[];
-  startOptions: string[];
   tagline: string;
   /** Static facts about the project — founding year, creator, supply model. */
   facts: CoinFact[];
@@ -75,7 +73,6 @@ export default function CoinPageShell({
       : compact(market.circulating, nf)
     : '—';
 
-  const yearLow = history.length ? Math.min(...history.map((h) => h.price)) : null;
   const up = (market?.change24h ?? 0) >= 0;
 
   return (
@@ -135,17 +132,23 @@ export default function CoinPageShell({
         {market && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-[18px]">
             <Stat k={isRu ? 'Капитализация' : 'Market cap'} v={money(market.marketCap)}
-              s={`${isRu ? 'объём за сутки' : '24h volume'} ${money(market.volume24h)}`} />
+              s={isRu ? 'общая стоимость выпущенных монет' : 'value of all issued coins'} />
+            {/* Turnover against size says more than the raw volume figure: a
+                large coin trading thinly and a small one trading hard look
+                identical until you divide one by the other. */}
+            <Stat k={isRu ? 'Объём за сутки' : '24h volume'} v={money(market.volume24h)}
+              s={market.marketCap > 0
+                ? `${(market.volume24h / market.marketCap * 100).toFixed(1)}% ${isRu ? 'от капитализации' : 'of market cap'}`
+                : undefined} />
             <Stat k={isRu ? 'Максимум' : 'All-time high'} v={money(market.ath)}
               s={`${isRu ? 'на' : ''} ${Math.abs(market.athChangePct).toFixed(0)}% ${isRu ? 'ниже сейчас' : 'below now'}`} sColor="var(--negative)" />
             <Stat k={isRu ? 'В обращении' : 'Circulating'} v={supply} vSmall
-              s={market.maxSupply ? (isRu ? 'предел задан' : 'capped supply') : (isRu ? 'эмиссия продолжается' : 'still issuing')} />
-            <Stat k={isRu ? 'Минимум года' : 'Year low'} v={yearLow ? money(yearLow) : '—'}
-              s={isRu ? 'за последние 12 месяцев' : 'over the last 12 months'} />
+              s={market.maxSupply
+                ? `${(market.circulating! / market.maxSupply * 100).toFixed(0)}% ${isRu ? 'от предела' : 'of the cap'}`
+                : (isRu ? 'эмиссия продолжается' : 'still issuing')} />
           </div>
         )}
 
-        {history.length > 2 && <YearChart history={history} yearLow={yearLow} color={meta.color} isRu={isRu} money={money} />}
       </section>
 
       <CoinInvestmentCalculator
@@ -157,8 +160,7 @@ export default function CoinPageShell({
         ath={market?.ath ?? 0}
         athChangePct={market?.athChangePct ?? 0}
         reference={reference}
-        history={history}
-        startOptions={startOptions}
+        slug={slug}
       />
 
       {facts.length > 0 && (
@@ -259,46 +261,6 @@ function Stat({ k, v, s, sColor, vSmall }: { k: string; v: string; s?: string; s
       <p className="text-[10px] font-extrabold uppercase tracking-[0.07em] text-muted">{k}</p>
       <p className={`${vSmall ? 'text-[14px]' : 'text-base'} font-extrabold mt-1 tabular-nums text-foreground`}>{v}</p>
       {s && <p className="text-[10.5px] mt-0.5" style={{ color: sColor ?? 'var(--muted)' }}>{s}</p>}
-    </div>
-  );
-}
-
-/** Twelve months of closes. The page had no chart at all before this. */
-function YearChart({ history, yearLow, color, isRu, money }: { history: CoinHistoryPoint[]; yearLow: number | null; color: string; isRu: boolean; money: (n: number) => string }) {
-  const step = Math.max(1, Math.ceil(history.length / 90));
-  const pts = history.filter((_, i) => i % step === 0);
-  if (pts.length < 3) return null;
-  const W = 600, H = 100, PAD = 4;
-  const lo = Math.min(...pts.map((p) => p.price));
-  const hi = Math.max(...pts.map((p) => p.price));
-  const span = hi - lo || 1;
-  const x = (i: number) => (i / (pts.length - 1)) * W;
-  const y = (v: number) => H - PAD - ((v - lo) / span) * (H - PAD * 2);
-  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.price).toFixed(1)}`).join(' ');
-  const id = `yc-${color.replace('#', '')}`;
-
-  return (
-    <div className="mt-[18px]">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block w-full h-[92px] sm:h-[120px]"
-        role="img" aria-label={isRu ? 'График цены за 12 месяцев' : 'Price chart over 12 months'}>
-        <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-            <stop offset="100%" stopColor={color} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={`${line} L${W},${H} L0,${H} Z`} fill={`url(#${id})`} />
-        <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={W} cy={y(pts[pts.length - 1].price)} r="4" fill={color} />
-      </svg>
-      <div className="flex justify-between text-[10px] text-muted mt-1.5">
-        <span>{isRu ? '12 месяцев назад' : '12 months ago'}</span>
-        {/* The true minimum from the full series, not from the sampled points —
-            the sampling skips days and reported a different figure here than
-            the stat above it. */}
-        <span>{isRu ? 'минимум года' : 'year low'} {money(yearLow ?? lo)}</span>
-        <span>{isRu ? 'сегодня' : 'today'}</span>
-      </div>
     </div>
   );
 }

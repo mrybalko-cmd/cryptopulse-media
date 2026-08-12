@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import CoinPageShell, { type CoinQuote } from './CoinPageShell';
 import { coinMeta } from '@/lib/coinRegistry';
-import { fetchCoinHistory, fetchCoinMarket, startOptions } from '@/lib/coinMarket';
+import { fetchCoinMarket } from '@/lib/coinMarket';
 import type { CoinGuideData } from '@/lib/coinGuides';
 
 /**
@@ -40,15 +40,16 @@ export default async function CoinGuideLayout({
   const meta = coinMeta(slug);
   if (!meta) return null;
 
-  const [market, history] = await Promise.all([fetchCoinMarket(slug), fetchCoinHistory(slug)]);
+  // Only the quote is fetched here, and it is batched across the whole
+  // registry. History is loaded by the calculator after paint.
+  const market = await fetchCoinMarket(slug);
 
   return (
     <CoinPageShell
       locale={locale}
+      slug={slug}
       meta={meta}
       market={market}
-      history={history}
-      startOptions={startOptions(history)}
       tagline={tagline}
       facts={guide.stats}
       reference={guide.investmentReference}

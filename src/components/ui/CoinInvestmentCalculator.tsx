@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CoinHistoryPoint, DcaRun } from '@/lib/coinMarket';
-import { simulateDca } from '@/lib/coinMarket';
+import { simulateDca, startOptions as startOptionsFrom } from '@/lib/coinMarket';
 import type { InvestmentReference } from '@/lib/coinGuides';
 
 const AMOUNTS_ONCE = [100, 500, 1000, 2000, 5000];
@@ -20,8 +20,7 @@ export default function CoinInvestmentCalculator({
   ath,
   athChangePct,
   reference,
-  history,
-  startOptions,
+  slug,
 }: {
   locale: string;
   symbol: string;
@@ -33,12 +32,27 @@ export default function CoinInvestmentCalculator({
   /** Curated one-off entry points (2011, 2016, 2021 …) — the only way to reach
    *  further back than a year, since the free price feed stops at 365 days. */
   reference: InvestmentReference[];
-  /** A year of daily closes, for the regular-purchase mode. */
-  history: CoinHistoryPoint[];
-  startOptions: string[];
+  slug: string;
 }) {
   const isRu = locale === 'ru';
   const [mode, setMode] = useState<'once' | 'monthly'>('once');
+  // Loaded after paint rather than at build time: twenty-four history requests
+  // in a burst met the rate limit and, with a retry, failed the deployment.
+  // Both the chart and this mode sit below the fold, so nothing waits on it.
+  const [history, setHistory] = useState<CoinHistoryPoint[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`/api/coin-history?slug=${encodeURIComponent(slug)}`)
+      .then((r) => r.json())
+      .then((d) => { if (alive) setHistory(Array.isArray(d?.history) ? d.history : []); })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoadingHistory(false); });
+    return () => { alive = false; };
+  }, [slug]);
+
+  const startOptions = useMemo(() => startOptionsFrom(history), [history]);
   const [amountOnce, setAmountOnce] = useState(1000);
   const [amountMonthly, setAmountMonthly] = useState(100);
   const [startIdx, setStartIdx] = useState(0);
@@ -81,6 +95,10 @@ export default function CoinInvestmentCalculator({
 
   return (
     <section className="glass-panel" style={{ ['--coin' as string]: color }}>
+      {history.length > 2 && (
+        <YearChart history={history} color={color} isRu={isRu} money={money} />
+      )}
+
       <h2 className="text-[19px] sm:text-xl font-extrabold tracking-tight text-foreground">
         {isRu ? `Сколько бы вы заработали на ${name}` : `What you would have made on ${name}`}
       </h2>
@@ -161,7 +179,7 @@ export default function CoinInvestmentCalculator({
         />
       ) : (
         <MonthlyResult
-          run={dca} amount={amountMonthly} color={color} isRu={isRu}
+          run={dca} amount={amountMonthly} color={color} isRu={isRu} loading={loadingHistory}
           money={money} pct={pct} dateLabel={dateLabel} plural={plural}
         />
       )}
@@ -179,6 +197,46 @@ export default function CoinInvestmentCalculator({
           : ' Past performance says nothing about the future. This is not investment advice.'}
       </p>
     </section>
+  );
+}
+
+/** Twelve months of closes. The coin pages carried no chart at all before this. */
+function YearChart({ history, color, isRu, money }: { history: CoinHistoryPoint[]; color: string; isRu: boolean; money: (n: number) => string }) {
+  const step = Math.max(1, Math.ceil(history.length / 90));
+  const pts = history.filter((_, i) => i % step === 0);
+  if (pts.length < 3) return null;
+  const W = 600, H = 100, PAD = 4;
+  const lo = Math.min(...pts.map((p) => p.price));
+  const hi = Math.max(...pts.map((p) => p.price));
+  // The label uses the true minimum of the full series, not of the sampled
+  // points — sampling skips days and quoted a different low than the page did.
+  const trueLow = Math.min(...history.map((p) => p.price));
+  const span = hi - lo || 1;
+  const x = (i: number) => (i / (pts.length - 1)) * W;
+  const y = (v: number) => H - PAD - ((v - lo) / span) * (H - PAD * 2);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.price).toFixed(1)}`).join(' ');
+  const id = `yc-${color.replace('#', '')}`;
+
+  return (
+    <div className="mb-5">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block w-full h-[92px] sm:h-[120px]"
+        role="img" aria-label={isRu ? 'График цены за 12 месяцев' : 'Price chart over 12 months'}>
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`${line} L${W},${H} L0,${H} Z`} fill={`url(#${id})`} />
+        <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={W} cy={y(pts[pts.length - 1].price)} r="4" fill={color} />
+      </svg>
+      <div className="flex justify-between text-[10px] text-muted mt-1.5">
+        <span>{isRu ? '12 месяцев назад' : '12 months ago'}</span>
+        <span>{isRu ? 'минимум года' : 'year low'} {money(trueLow)}</span>
+        <span>{isRu ? 'сегодня' : 'today'}</span>
+      </div>
+    </div>
   );
 }
 
@@ -280,16 +338,18 @@ function OnceResult({
 }
 
 function MonthlyResult({
-  run, amount, color, isRu, money, pct, dateLabel, plural,
+  run, amount, color, isRu, money, pct, dateLabel, plural, loading,
 }: {
-  run: DcaRun | null; amount: number; color: string; isRu: boolean;
+  run: DcaRun | null; amount: number; color: string; isRu: boolean; loading: boolean;
   money: (n: number) => string; pct: (n: number) => string;
   dateLabel: (d: string) => string; plural: (n: number, a: string, b: string, c: string) => string;
 }) {
   if (!run) {
     return (
       <p className="text-sm text-muted">
-        {isRu ? 'Для этой монеты пока не хватает истории цен, чтобы посчитать регулярные покупки.' : 'There is not enough price history for this coin to model regular purchases yet.'}
+        {loading
+          ? (isRu ? 'Загружаю историю цен…' : 'Loading price history…')
+          : (isRu ? 'Историю цен для этой монеты сейчас получить не удалось. Обновите страницу через несколько минут.' : 'Price history for this coin could not be fetched just now. Try again in a few minutes.')}
       </p>
     );
   }
