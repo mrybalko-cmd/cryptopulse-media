@@ -5,6 +5,7 @@ import CoinInvestmentCalculator from './CoinInvestmentCalculator';
 import type { CoinMeta } from '@/lib/coinRegistry';
 import type { CoinMarket } from '@/lib/coinMarket';
 import type { InvestmentReference } from '@/lib/coinGuides';
+import { formatTimestamp } from '@/lib/formatTimestamp';
 
 export interface CoinFaq { question: { ru: string; en: string }; answer: { ru: string; en: string } }
 export interface CoinQuote {
@@ -74,6 +75,7 @@ export default function CoinPageShell({
     : '—';
 
   const up = (market?.change24h ?? 0) >= 0;
+  const quoteTime = market ? formatTimestamp(market.updatedAt)?.full : null;
 
   return (
     <div className="coin-page max-w-4xl mx-auto px-4 sm:px-6 py-10" style={{ ['--coin' as string]: meta.color }}>
@@ -125,6 +127,15 @@ export default function CoinPageShell({
               >
                 {up ? '▲' : '▼'} {Math.abs(market.change24h).toFixed(2)}% {isRu ? 'за сутки' : '24h'}
               </span>
+              {/* When the upstream refuses a quote the page falls back to the
+                  last stored one, which can be hours old. A price with no
+                  timestamp reads as live whether it is or not, so the age is
+                  always on the page — not only when it is inconvenient. */}
+              {quoteTime && (
+                <p className="text-[10.5px] text-muted mt-2 tabular-nums">
+                  {isRu ? 'обновлено' : 'updated'} {quoteTime}
+                </p>
+              )}
             </div>
           )}
         </div>
