@@ -22,7 +22,6 @@ import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
-import SwgBasic, { openAccessMarkup } from '@/components/layout/SwgBasic';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -142,7 +141,13 @@ export default async function ArticlePage({ params }: Props) {
       : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
     publisher: { '@id': 'https://cryptopulse.media/#organization' },
     mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
-    ...openAccessMarkup,
+    // Plain schema.org, not a Subscribe-with-Google signal: it states the
+    // story is not behind a paywall, which Google News reads on its own.
+    // The swg-basic.js integration it used to accompany was removed — it
+    // logged "No config could be discovered in the page" on every article
+    // because the publication was never set up in Reader Revenue Manager,
+    // so it shipped ~82 KB per story to do nothing.
+    isAccessibleForFree: true,
   };
 
   const breadcrumbLd = {
@@ -160,7 +165,6 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       <ViewTracker id={article._id} />
-      <SwgBasic locale={locale} type={schemaType} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">

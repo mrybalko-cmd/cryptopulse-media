@@ -89,9 +89,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <head>
-        {/* Only preconnect to the image CDN (the LCP hero cover). GA/GTM load
-            lazily below, and Subscribe-with-Google now loads only on article
-            and news pages, so preconnecting to either up front is premature —
+        {/* Only preconnect to the image CDN (the LCP hero cover). GA and Ahrefs
+            load lazily below, so preconnecting to them up front is premature —
             it just trips PageSpeed's ">4 preconnects / unused preconnect"
             warning without helping. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
@@ -115,15 +114,15 @@ export default async function LocaleLayout({ children, params }: Props) {
           </main>
           <Footer />
         </NextIntlClientProvider>
-        {/* Deliberately after {children}, not in <head>.
-            Google's swg-basic.js writes isAccessibleForFree and isPartOf into
-            the FIRST application/ld+json it finds. While this block led, that
-            was the publication's `@graph` — and article properties landing
-            beside `@graph` is invalid JSON-LD, which is what put a schema.org
-            validation error on 1450 URLs. Rendering it last leaves the page's
-            own Article node first, which is the node the script means to
-            annotate and where the properties are valid. Placement in the
-            document does not change how a crawler reads either block. */}
+        {/* Deliberately after {children}, not in <head>, so a page's own
+            Article node is the first application/ld+json on the page.
+            This started as a fix: Google's swg-basic.js wrote article
+            properties into whichever block came first, and while this one led
+            they landed beside `@graph` — invalid JSON-LD on 1450 URLs. That
+            script has since been removed, but the order is kept: the page's
+            own subject should lead, and anything that injects into "the first
+            block" then finds the right one. Placement in the document does not
+            change how a crawler reads either block. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

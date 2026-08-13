@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Zap, Mail } from 'lucide-react';
-import { CONTACT_EMAIL, X_PROFILE_URL } from '@/lib/constants';
+import { CONTACT_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import FooterNavGroup from '@/components/layout/FooterNavGroup';
 
-// lucide-react's "X" icon is a generic close/times glyph, not the X (Twitter)
-// brand mark — render the real logo shape directly instead.
-function XLogo({ size = 16 }: { size?: number }) {
+// The official "in" glyph, drawn rather than pulled from an icon set: lucide
+// has no brand marks, and LinkedIn's guidelines do not allow redrawing it.
+function LinkedInLogo({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    <svg width={size} height={size} viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
+      <path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z" />
     </svg>
   );
 }
@@ -35,7 +35,7 @@ export default async function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-6">
 
           {/* Brand — extra bottom margin on mobile so the first accordion
-              below doesn't crowd the X follow button */}
+              below doesn't crowd the follow button */}
           <div className="mb-6 lg:mb-0">
             <Link href={`/${locale}`} className="inline-flex items-center gap-2 mb-3">
               <div className="w-6 h-6 rounded bg-red-600 flex items-center justify-center shrink-0">
@@ -47,17 +47,20 @@ export default async function Footer() {
             </Link>
             <p className="text-muted text-xs leading-relaxed max-w-52 mb-4">{t('tagline')}</p>
             <a
-              href={X_PROFILE_URL}
+              href={LINKEDIN_PROFILE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 hover:border-accent/40 hover:bg-foreground/5 transition-colors group max-w-52"
+              className="inline-flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/[0.07] transition-colors group max-w-52"
             >
-              <span className="w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
-                <XLogo size={14} />
+              {/* Brand blue rather than the site accent: LinkedIn asks that the
+                  mark keep its own colour, and one saturated square reads as a
+                  logo where a graphite circle read as another icon. */}
+              <span className="w-7 h-7 rounded-[7px] bg-[#0A66C2] text-white flex items-center justify-center shrink-0 shadow-[0_1px_3px_rgba(10,102,194,0.45)] group-hover:shadow-[0_2px_8px_rgba(10,102,194,0.55)] transition-shadow">
+                <LinkedInLogo size={13} />
               </span>
               <span className="flex flex-col leading-tight min-w-0">
-                <span className="text-xs font-semibold text-foreground truncate">{t('followX')}</span>
-                <span className="text-[11px] text-muted truncate">{t('followXHandle')}</span>
+                <span className="text-xs font-semibold text-foreground truncate">{t('followLinkedIn')}</span>
+                <span className="text-[11px] text-muted truncate">{t('followLinkedInHandle')}</span>
               </span>
             </a>
           </div>
