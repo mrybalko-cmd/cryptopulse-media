@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Solana (SOL): цена, история, калькулятор' : 'Solana (SOL): price, history, calculator';
   const description = isRu
-    ? 'Полная история Solana: кто создал, что такое Proof of History, крах FTX и возрождение, NFT и DeFi на Solana. Калькулятор: сколько бы вы заработали, вложив $100–5000 в SOL 5 лет назад.'
-    : 'Complete Solana history: who created it, what is Proof of History, the FTX collapse and recovery, NFT and DeFi on Solana. Calculator: how much would you have earned investing $100–5000 in SOL 5 years ago.';
+    ? 'История Solana: кто создал, что такое Proof of History, крах FTX и возрождение. Калькулятор: сколько бы вы заработали, вложив $100–5000 в SOL 5 лет назад.'
+    : 'Solana history: who created it, what Proof of History is, the FTX collapse and recovery. Calculator: what $100–5000 in SOL would be worth 5 years on.';
 
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs

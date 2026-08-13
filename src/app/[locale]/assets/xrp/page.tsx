@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'XRP: цена, история, калькулятор' : 'XRP: price, history, calculator';
   const description = isRu
-    ? 'Полная история XRP: как создали Ripple, партнёрства с банками, иск SEC 2020 года и историческая победа в суде 2023-го. Калькулятор: сколько бы вы заработали, вложив $100–5000 в XRP 5 или 10 лет назад.'
-    : 'Complete XRP history: how Ripple was created, bank partnerships, the 2020 SEC lawsuit and the landmark 2023 court victory. Calculator: how much would you have earned investing $100–5000 in XRP 5 or 10 years ago.';
+    ? 'История XRP: как создали Ripple, партнёрства с банками, иск SEC 2020 года и победа в суде 2023-го. Калькулятор инвестиций в XRP за 5 и 10 лет.'
+    : 'XRP history: how Ripple was created, bank partnerships, the 2020 SEC lawsuit and the 2023 court win. XRP investment calculator over 5 and 10 years.';
 
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs

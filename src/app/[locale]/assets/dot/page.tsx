@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Polkadot (DOT): цена, история, калькулятор' : 'Polkadot (DOT): price, history, calculator';
   const description = isRu
-    ? 'Полная история Polkadot: как Гэвин Вуд — создатель Solidity и сооснователь Ethereum — построил интероперабельную мультичейн сеть. Параллельные цепи, аукционы слотов и Polkadot 2.0. Калькулятор инвестиций.'
-    : 'Complete Polkadot history: how Gavin Wood — creator of Solidity and Ethereum co-founder — built an interoperable multi-chain network. Parachains, slot auctions and Polkadot 2.0. Investment calculator.';
+    ? 'История Polkadot: как Гэвин Вуд, создатель Solidity и сооснователь Ethereum, построил мультичейн-сеть. Парачейны, аукционы слотов, калькулятор инвестиций.'
+    : 'Polkadot history: how Gavin Wood, creator of Solidity and Ethereum co-founder, built a multi-chain network. Parachains, slot auctions, DOT calculator.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

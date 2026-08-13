@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Пульс рынка — индекс активности крипторынка от CryptoPulse'
-    : 'Market Pulse — CryptoPulse’s crypto market activity index';
+    ? 'Пульс рынка — индекс активности крипто'
+    : 'Market Pulse — crypto activity index';
   const description = isRu
-    ? 'Одно число от 0 до 100: насколько сегодня активен крипторынок. 50 — обычный режим, 100 — рынок разогрет, 0 — замер. Оборот, движение цены, волатильность, настроение и альткоины. Обновляется ежедневно.'
-    : 'A single 0–100 number: how active the crypto market is today. 50 is normal, 100 is running hot, 0 is frozen. Turnover, price move, volatility, sentiment and altcoins. Updated daily.';
+    ? 'Одно число от 0 до 100: насколько активен крипторынок. 50 — обычный режим, 100 — разогрет, 0 — замер. Оборот, цена, волатильность, настроение, альткоины.'
+    : 'A single 0–100 number: how active the crypto market is today. 50 is normal, 100 is running hot, 0 is frozen. Turnover, price, volatility, sentiment, altcoins.';
 
   return {
     title,

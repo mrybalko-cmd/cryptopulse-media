@@ -180,6 +180,16 @@ export default async function ArticlePage({ params }: Props) {
           automatically and varies a bit between articles depending on each
           cover's own proportions — that's the direct trade-off of "never
           crop, just scale". */}
+      {/* The hero is eager but carries no fetchPriority="high".
+          React emits a <link rel="preload"> for the images it renders, and the
+          router hoists those out of any route it prefetches — with eight
+          article links near the top of a story, seven full-size covers of
+          *other* articles landed in this page's preload queue. Prefetching
+          them is Next working as designed and cannot be switched off per
+          image; what could be switched off was their priority, which had them
+          competing with this page's own LCP. Measured: seven high-priority
+          preloads became zero, and the hero still loads from the initial HTML
+          in the same round trip. */}
       {article.coverImage && (() => {
         const dims = sanityImageDimensions(article.coverImage) ?? { width: 1200, height: 630 };
         return (
@@ -192,7 +202,6 @@ export default async function ArticlePage({ params }: Props) {
               height={dims.height}
               className="w-full h-auto"
               loading="eager"
-              fetchPriority="high"
             />
           </div>
         );

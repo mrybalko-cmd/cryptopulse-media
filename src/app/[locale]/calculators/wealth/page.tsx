@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Сравнение богатства — сколько лет работать, чтобы стать как Илон Маск?'
-    : "Wealth Comparison — how many years to earn Elon Musk's fortune?";
+    ? 'Годы работы до состояния Илона Маска'
+    : "Years of work to match Musk's fortune";
   const description = isRu
     ? 'Введи свою зарплату и узнай, сколько лет нужно работать, чтобы накопить состояние одного из топ-5 самых богатых людей мира по версии Forbes.'
     : 'Enter your salary and find out how many years of work it would take to match the fortune of one of the world\'s top 5 richest people, per Forbes.';

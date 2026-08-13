@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Chainlink (LINK): цена, история, калькулятор' : 'Chainlink (LINK): price, history, calculator';
   const description = isRu
-    ? 'Полная история Chainlink: как Сергей Назаров решил проблему оракула и создал инфраструктуру за 80% DeFi. LINK Marines, VRF, CCIP и почему без Chainlink не работает большинство DeFi-протоколов. Калькулятор инвестиций.'
-    : 'Complete Chainlink history: how Sergey Nazarov solved the oracle problem and built infrastructure for 80% of DeFi. LINK Marines, VRF, CCIP and why most DeFi protocols don\'t work without Chainlink. Investment calculator.';
+    ? 'История Chainlink: как Сергей Назаров решил проблему оракула и построил инфраструктуру для 80% DeFi. VRF, CCIP, калькулятор инвестиций в LINK.'
+    : 'Chainlink history: how Sergey Nazarov solved the oracle problem and built infrastructure for 80% of DeFi. VRF, CCIP, LINK investment calculator.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

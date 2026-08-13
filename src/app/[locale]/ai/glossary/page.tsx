@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Глоссарий ИИ — словарь терминов искусственного интеллекта' : 'AI Glossary — Artificial Intelligence Dictionary';
+  const title = isRu ? 'Глоссарий ИИ — термины и определения' : 'AI glossary — terms and definitions';
   const description = isRu
     ? `Понятные объяснения ${AI_GLOSSARY.length}+ ключевых терминов искусственного интеллекта: LLM, промпт-инжиниринг, RAG, галлюцинации и другие — простыми словами.`
     : `Clear explanations of ${AI_GLOSSARY.length}+ key artificial intelligence terms: LLM, prompt engineering, RAG, hallucinations, and more — in plain language.`;

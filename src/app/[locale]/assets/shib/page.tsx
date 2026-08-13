@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Shiba Inu (SHIB): цена, история, калькулятор' : 'Shiba Inu (SHIB): price, history, calculator';
   const description = isRu
-    ? 'Полная история Shiba Inu: анонимный создатель Ryoshi, как Виталик Бутерин сжёг 410 триллионов SHIB и отдал $1 млрд на COVID в Индии. Shibarium L2, экосистема и реализм про $0.01. Калькулятор инвестиций.'
-    : 'Complete Shiba Inu history: anonymous creator Ryoshi, how Vitalik Buterin burned 410 trillion SHIB and donated $1B to India COVID relief. Shibarium L2, ecosystem and realistic talk about $0.01. Investment calculator.';
+    ? 'История Shiba Inu: анонимный Ryoshi, сожжённые Виталиком Бутериным 410 триллионов SHIB, Shibarium L2 и реализм про $0.01. Калькулятор инвестиций.'
+    : 'Shiba Inu history: the anonymous Ryoshi, the 410 trillion SHIB Vitalik Buterin burned, Shibarium L2 and honest talk about $0.01. Investment calculator.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

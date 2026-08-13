@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: {
       default: isRu
-        ? 'CryptoPulse.media — Новости криптовалют, аналитика и гиды по активам'
+        ? 'CryptoPulse.media — новости и аналитика криптовалют'
         : 'CryptoPulse.media — Crypto News, Analysis & Asset Guides',
       template: '%s | CryptoPulse.media',
     },
@@ -105,10 +105,6 @@ export default async function LocaleLayout({ children, params }: Props) {
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
           }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
       </head>
       <body suppressHydrationWarning className="overflow-x-clip">
         <NextIntlClientProvider messages={messages}>
@@ -119,6 +115,19 @@ export default async function LocaleLayout({ children, params }: Props) {
           </main>
           <Footer />
         </NextIntlClientProvider>
+        {/* Deliberately after {children}, not in <head>.
+            Google's swg-basic.js writes isAccessibleForFree and isPartOf into
+            the FIRST application/ld+json it finds. While this block led, that
+            was the publication's `@graph` — and article properties landing
+            beside `@graph` is invalid JSON-LD, which is what put a schema.org
+            validation error on 1450 URLs. Rendering it last leaves the page's
+            own Article node first, which is the node the script means to
+            annotate and where the properties are valid. Placement in the
+            document does not change how a crawler reads either block. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
         <Script id="ga-init" strategy="lazyOnload">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}</Script>
         <Script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} strategy="lazyOnload" />

@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Bitcoin (BTC): цена, история, калькулятор' : 'Bitcoin (BTC): price, history, calculator';
   const description = isRu
-    ? 'Полная история Bitcoin: кто создал, история с пиццей, рост цены за 15 лет, знаменитые цитаты. Калькулятор: сколько бы вы заработали, вложив $100–5000 в BTC 5, 10 или 15 лет назад.'
-    : 'Complete Bitcoin history: who created it, the pizza story, 15 years of price growth, famous quotes. Calculator: how much would you have earned investing $100–5000 in BTC 5, 10, or 15 years ago.';
+    ? 'История Bitcoin: кто создал, история с пиццей, 15 лет роста цены. Калькулятор: сколько бы вы заработали, вложив $100–5000 в BTC 5, 10 или 15 лет назад.'
+    : 'Bitcoin history: who created it, the pizza story, 15 years of price growth. Calculator: what $100–5000 in BTC would be worth 5, 10 or 15 years on.';
 
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs

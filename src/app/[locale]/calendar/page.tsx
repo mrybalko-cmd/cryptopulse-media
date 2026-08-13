@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Криптокалендарь — важные события крипторынка' : 'Crypto Calendar — Key Market Events';
+  const title = isRu ? 'Криптокалендарь — события рынка' : 'Crypto Calendar — Key Market Events';
   const description = isRu
     ? 'Анлоки токенов, токенсейлы, листинги, отчётность и другие важные события крипторынка — с уровнем важности и датами.'
     : 'Token unlocks, token sales, listings, macro reports, and other key crypto market events — with importance ratings and dates.';

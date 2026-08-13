@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
 
   const title = isRu
-    ? 'Криптовалюты по странам мира: карта регулирования 2025'
-    : 'Crypto Regulation by Country: World Map 2025';
+    ? 'Крипта по странам: карта регулирования'
+    : 'Crypto regulation by country: world map';
   const description = isRu
     ? 'Интерактивная карта: в каких странах криптовалюта разрешена, ограничена или запрещена. Подробная информация о законах для 38 стран.'
     : 'Interactive map: in which countries is cryptocurrency legal, restricted, or banned. Detailed law information for 38 countries.';

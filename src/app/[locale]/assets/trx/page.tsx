@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'TRON (TRX): цена, история, калькулятор' : 'TRON (TRX): price, history, calculator';
   const description = isRu
-    ? 'Полная история Tron: от скандала с плагиатом до крупнейшей USDT-сети в мире. Джастин Сан, TRC-20, покупка BitTorrent и почему USDT на Tron дешевле чем на Ethereum. Калькулятор инвестиций.'
-    : 'Complete Tron history: from plagiarism scandal to the world\'s largest USDT network. Justin Sun, TRC-20, BitTorrent acquisition and why USDT on Tron is cheaper than on Ethereum. Investment calculator.';
+    ? 'История Tron: от скандала с плагиатом до крупнейшей USDT-сети мира. Джастин Сан, TRC-20, BitTorrent, калькулятор инвестиций в TRX.'
+    : "Tron history: from a plagiarism scandal to the world's largest USDT network. Justin Sun, TRC-20, BitTorrent, TRX investment calculator.";
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

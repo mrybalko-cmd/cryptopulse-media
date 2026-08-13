@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'BNB: цена, история, калькулятор' : 'BNB: price, history, calculator';
   const description = isRu
-    ? 'Полная история BNB: как Binance стала крупнейшей биржей мира, запуск BSC, механизм сжигания токенов, история с CZ. Калькулятор: сколько бы вы заработали, вложив в BNB 5 или 7 лет назад.'
-    : 'Complete BNB history: how Binance became the world\'s largest exchange, BSC launch, token burning mechanism, the CZ story. Calculator: how much would you have earned investing in BNB 5 or 7 years ago.';
+    ? 'История BNB: как Binance стала крупнейшей биржей мира, запуск BSC, сжигание токенов, дело CZ. Калькулятор инвестиций в BNB за 5 и 7 лет.'
+    : "BNB history: how Binance became the world's largest exchange, the BSC launch, token burns, the CZ case. BNB investment calculator over 5 and 7 years.";
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

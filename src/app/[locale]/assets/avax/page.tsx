@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Avalanche (AVAX): цена, история, калькулятор' : 'Avalanche (AVAX): price, history, calculator';
   const description = isRu
-    ? 'Полная история Avalanche: как Эмин Гюн Сирер создал блокчейн со снежным консенсусом и суб-секундной финальностью. Подсети, Avalanche9000, Visa и JPMorgan. Калькулятор инвестиций.'
-    : 'Complete Avalanche history: how Emin Gün Sirer built a blockchain with snowball consensus and sub-second finality. Subnets, Avalanche9000, Visa and JPMorgan. Investment calculator.';
+    ? 'История Avalanche: как Эмин Гюн Сирер создал блокчейн со снежным консенсусом и суб-секундной финальностью. Подсети, Visa и JPMorgan, калькулятор инвестиций.'
+    : 'Avalanche history: how Emin Gün Sirer built a chain with snowball consensus and sub-second finality. Subnets, Visa and JPMorgan, AVAX investment calculator.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

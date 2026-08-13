@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, truncateTitle, truncateDesc } from '@/lib/metadata';
 import { AI_GLOSSARY, AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
@@ -24,11 +24,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = term.term[loc];
   const definition = term.definition[loc];
 
-  const title = isRu ? `${name} — что это такое в ИИ?` : `${name} — What Is It in AI?`;
-  const description = definition.slice(0, 160);
+  // Same reasoning as the crypto glossary: term first, no brand suffix, clamped.
+  const title = truncateTitle(
+    isRu ? `${name} — что это такое в ИИ?` : `${name} — What Is It in AI?`,
+    60,
+    0
+  );
+  const description = truncateDesc(definition);
 
   return {
-    title,
+    title: { absolute: title },
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/ai/glossary/${slug}`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/ai/glossary/${slug}`, title, description, locale }),

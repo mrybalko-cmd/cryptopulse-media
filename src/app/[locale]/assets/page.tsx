@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Крипто-активы — Гид по Bitcoin, Ethereum и другим' : 'Crypto Assets — Guide to Bitcoin, Ethereum & More';
+  const title = isRu ? 'Крипто-активы — гиды по монетам' : 'Crypto assets — guides to the coins';
   const description = isRu
     ? 'История, факты, цены и калькуляторы инвестиций для главных криптовалют: Bitcoin, Ethereum, Solana и других. Всё что нужно знать инвестору.'
     : 'History, facts, prices and investment calculators for top cryptocurrencies: Bitcoin, Ethereum, Solana and others. Everything an investor needs to know.';

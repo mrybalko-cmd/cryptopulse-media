@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Cardano (ADA): цена, история, калькулятор' : 'Cardano (ADA): price, history, calculator';
   const description = isRu
-    ? 'Полная история Cardano: как Чарльз Хоскинсон создал блокчейн «третьего поколения» с научным подходом. Протокол Ouroboros, эры развития и почему ADA называют медленным но надёжным. Калькулятор инвестиций.'
-    : 'Complete Cardano history: how Charles Hoskinson built a third-generation blockchain with a scientific approach. Ouroboros protocol, development eras and why ADA is called slow but reliable. Investment calculator.';
+    ? 'История Cardano: как Чарльз Хоскинсон построил блокчейн «третьего поколения» на научном подходе. Протокол Ouroboros, эры развития, калькулятор инвестиций в ADA.'
+    : 'Cardano history: how Charles Hoskinson built a third-generation blockchain on a scientific approach. Ouroboros, development eras, ADA investment calculator.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

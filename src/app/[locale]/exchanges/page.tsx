@@ -30,7 +30,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const sp = await searchParams;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
-  const title = isRu ? 'Криптобиржи — рейтинг по объёму торгов' : 'Crypto Exchanges — Ranked by Trading Volume';
+  const title = isRu ? 'Криптобиржи — рейтинг по объёму торгов' : 'Crypto exchanges — ranked by volume';
   const description = isRu
     ? 'Рейтинг крупнейших криптобирж по объёму торгов за 24 часа: продукты, лицензии, доступность по регионам и новости CryptoPulse по каждой бирже.'
     : 'Ranking of the largest crypto exchanges by 24h trading volume: products, licensing, regional availability and CryptoPulse coverage for each exchange.';

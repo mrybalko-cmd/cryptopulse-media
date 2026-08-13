@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Litecoin (LTC): цена, история, калькулятор' : 'Litecoin (LTC): price, history, calculator';
   const description = isRu
-    ? 'Полная история Litecoin: как Чарли Ли создал «серебро к биткоиновому золоту». SegWit, Lightning Network, MimbleWimble, халвинги и почему LTC считается «тест-сетью» для биткоина. Калькулятор инвестиций.'
-    : 'Complete Litecoin history: how Charlie Lee created "silver to Bitcoin\'s gold." SegWit, Lightning Network, MimbleWimble, halvings and why LTC is considered Bitcoin\'s "testnet." Investment calculator.';
+    ? 'История Litecoin: как Чарли Ли создал «серебро к биткоиновому золоту». SegWit, Lightning Network, MimbleWimble, халвинги, калькулятор инвестиций.'
+    : "Litecoin history: how Charlie Lee created «silver to Bitcoin's gold». SegWit, Lightning Network, MimbleWimble, halvings, LTC investment calculator.";
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.
@@ -50,7 +50,7 @@ const GUIDE = {
     { slug: 'halving', label: { ru: 'Халвинг', en: 'Halving' } },
     { slug: 'proof-of-work', label: { ru: 'Proof of Work', en: 'Proof of Work' } },
     { slug: 'wallet', label: { ru: 'Кошелёк', en: 'Wallet' } },
-    { slug: 'fork', label: { ru: 'Форк', en: 'Fork' } },
+    { slug: 'hard-fork', label: { ru: 'Хард-форк', en: 'Hard fork' } },
   ],
 };
 

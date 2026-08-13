@@ -3,7 +3,7 @@ export const revalidate = 300;
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, truncateDesc } from '@/lib/metadata';
 import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from './AuthorPageBody';
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${author.name}${role ? ` — ${role}` : ''}`;
   const bio = isRu ? author.bioRu : author.bioEn;
   const description = bio
-    ? bio.slice(0, 155)
+    ? truncateDesc(bio)
     : isRu
     ? `Материалы автора ${author.name} на CryptoPulse.media`
     : `Articles by ${author.name} on CryptoPulse.media`;

@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Dogecoin (DOGE): цена, история, калькулятор' : 'Dogecoin (DOGE): price, history, calculator';
   const description = isRu
-    ? 'Полная история Dogecoin: от шутки за два дня до топ-10 криптовалют. Роль Илона Маска, NASCAR, ямайская бобслейная команда и DOGE-мания 2021. Калькулятор: что если бы вы купили DOGE 5 или 10 лет назад.'
-    : 'Complete Dogecoin history: from a two-day joke to top-10 cryptocurrency. Elon Musk\'s role, NASCAR, the Jamaican bobsled team and 2021 DOGE mania. Calculator: what if you had bought DOGE 5 or 10 years ago.';
+    ? 'История Dogecoin: от шутки за два дня до топ-10 криптовалют. Илон Маск, NASCAR и DOGE-мания 2021. Калькулятор: что если бы вы купили DOGE 5 или 10 лет назад.'
+    : 'Dogecoin history: from a two-day joke to a top-10 coin. Elon Musk, NASCAR and the 2021 DOGE mania. Calculator: what if you had bought DOGE 5 years ago.';
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
     // 20 characters and adds nothing here — the coin's name is already first.

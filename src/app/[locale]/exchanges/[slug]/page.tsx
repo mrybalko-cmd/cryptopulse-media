@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, truncateTitle } from '@/lib/metadata';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import {
   fetchExchangeBySlug,
@@ -49,8 +49,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const exchange = await fetchExchangeBySlug(slug, locale);
   if (!exchange) return {};
 
-  const title = (isRu ? exchange.seo?.metaTitleRu : exchange.seo?.metaTitleEn)
-    || (isRu ? `${exchange.name} — обзор, продукты и отзывы` : `${exchange.name} — overview, products and reviews`);
+  // Clamped rather than trimmed by hand: the exchange name is data, and
+  // "Crypto.com Exchange" alone eats half the budget the brand suffix leaves.
+  const title = truncateTitle(
+    (isRu ? exchange.seo?.metaTitleRu : exchange.seo?.metaTitleEn)
+      || (isRu ? `${exchange.name} — обзор и отзывы` : `${exchange.name} — overview and reviews`)
+  );
   const description = (isRu ? exchange.seo?.metaDescriptionRu : exchange.seo?.metaDescriptionEn)
     || (isRu ? exchange.taglineRu : exchange.taglineEn)
     || (isRu ? `${exchange.name}: обзор биржи, продукты, регулирование и отзывы читателей CryptoPulse.` : `${exchange.name}: exchange overview, products, regulation and reader reviews on CryptoPulse.`);

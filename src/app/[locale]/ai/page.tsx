@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'AI & Artificial Intelligence in Crypto';
   const description = isRu
     ? 'Новости и аналитика об искусственном интеллекте в мире криптовалют и блокчейна. ChatGPT, нейросети, AI-трейдинг, генеративные модели и их влияние на рынок.'
-    : 'News and analysis on artificial intelligence in the crypto and blockchain world. ChatGPT, neural networks, AI trading, generative models and their market impact.';
+    : 'News and analysis on artificial intelligence in crypto and blockchain. ChatGPT, neural networks, AI trading, generative models and their market impact.';
   return {
     title,
     description,

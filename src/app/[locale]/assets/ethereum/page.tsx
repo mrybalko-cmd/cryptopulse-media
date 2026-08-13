@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Ethereum (ETH): цена, история, калькулятор' : 'Ethereum (ETH): price, history, calculator';
   const description = isRu
-    ? 'Полная история Ethereum: кто создал, как работают смарт-контракты, The Merge и переход на PoS. Калькулятор: сколько бы вы заработали, вложив $100–5000 в ETH 5 или 10 лет назад.'
-    : 'Complete Ethereum history: who created it, how smart contracts work, The Merge and the shift to PoS. Calculator: how much would you have earned investing $100–5000 in ETH 5 or 10 years ago.';
+    ? 'История Ethereum: кто создал, как работают смарт-контракты, The Merge и переход на PoS. Калькулятор: сколько бы вы заработали, вложив $100–5000 в ETH.'
+    : 'Ethereum history: who created it, how smart contracts work, The Merge and the shift to PoS. Calculator: what $100–5000 in ETH would be worth today.';
 
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs
@@ -52,7 +52,7 @@ const GUIDE = {
     { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
     { slug: 'defi', label: { ru: 'DeFi', en: 'DeFi' } },
     { slug: 'staking', label: { ru: 'Стейкинг', en: 'Staking' } },
-    { slug: 'gas', label: { ru: 'Газ (Gas)', en: 'Gas' } },
+    { slug: 'gas-fee', label: { ru: 'Газ (комиссия)', en: 'Gas fee' } },
     { slug: 'nft', label: { ru: 'NFT', en: 'NFT' } },
     { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
     { slug: 'layer-2', label: { ru: 'Layer 2', en: 'Layer 2' } },

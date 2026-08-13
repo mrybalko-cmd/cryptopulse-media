@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
   const title = isRu
-    ? 'Индекс страха и жадности криптовалютного рынка'
+    ? 'Индекс страха и жадности'
     : 'Crypto Fear & Greed Index';
   const description = isRu
     ? 'Что такое индекс страха и жадности, как он считается, какие данные использует и как применять его в анализе криптовалютного рынка.'

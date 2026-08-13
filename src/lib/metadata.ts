@@ -62,7 +62,10 @@ export function truncateDesc(text: string, max = 155): string {
 export function truncateTitle(text: string, max = 60, suffixLen = 20): string {
   const budget = max - suffixLen;
   if (!text || text.length <= budget) return text;
-  const cut = text.slice(0, budget);
+  // The ellipsis is a character too. Without reserving room for it every
+  // truncated title came out one over the limit — 40 + '…' + the 20-char
+  // suffix is 61, which is exactly what the audit kept flagging.
+  const cut = text.slice(0, budget - 1);
   const lastSpace = cut.lastIndexOf(' ');
   return (lastSpace > budget * 0.6 ? cut.slice(0, lastSpace) : cut) + '…';
 }

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = isRu ? 'Cosmos Hub (ATOM): цена, история, калькулятор' : 'Cosmos Hub (ATOM): price, history, calculator';
   const description = isRu
     ? 'История Cosmos: от идеи «интернета блокчейнов» Джея Квона до сети независимых цепей, соединённых протоколом IBC. Калькулятор инвестиций в ATOM.'
-    : 'The history of Cosmos: from Jae Kwon\'s "Internet of Blockchains" idea to a network of independent chains connected by the IBC protocol. ATOM investment calculator.';
+    : "Cosmos history: from Jae Kwon's «Internet of Blockchains» to a network of independent chains linked by IBC. ATOM investment calculator.";
 
   return {
     // Absolute: the layout template appends ' | CryptoPulse.media', which costs

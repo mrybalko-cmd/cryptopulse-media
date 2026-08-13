@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, truncateTitle, truncateDesc } from '@/lib/metadata';
 import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
@@ -24,13 +24,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = term.term[loc];
   const definition = term.definition[loc];
 
-  const title = isRu
-    ? `${name} — что это такое в крипто?`
-    : `${name} — What Is It in Crypto?`;
-  const description = definition.slice(0, 160);
+  // The brand suffix costs 20 of the 60 usable characters, which left 13 for
+  // the term itself — "RLHF (обучение с подкреплением…)" ran to 104. On a
+  // definition page the term matters more than the brand, so it goes absolute
+  // and gets clamped at the whole-word boundary.
+  const title = truncateTitle(
+    isRu ? `${name} — что это такое в крипто?` : `${name} — What Is It in Crypto?`,
+    60,
+    0
+  );
+  const description = truncateDesc(definition);
 
   return {
-    title,
+    title: { absolute: title },
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/glossary/${slug}`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/glossary/${slug}`, title, description, locale }),
