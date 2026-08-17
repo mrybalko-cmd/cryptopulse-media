@@ -1,29 +1,140 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/en", "permanent": true },
-    { "source": "/en/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/en/news/ripple-secures-full-casp-license-in-luxembourg-under-mica", "permanent": true },
-    { "source": "/ru/news/ripple-casp-license-luxembourg-mica-2026", "destination": "/ru/news/ripple-poluchila-polnuyu-litsenziyu-casp-v-lyuksemburge-po-mica", "permanent": true },
-    { "source": "/en/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery", "destination": "/en/articles/crypto-market-drops-4-5-in-a-day-what-volume-and-traders-are-saying", "permanent": true },
-    { "source": "/en/interviews", "destination": "/en/articles", "permanent": true },
-    { "source": "/ru/interviews", "destination": "/ru/articles", "permanent": true },
-    { "source": "/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery", "destination": "/ru/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery", "permanent": true },
-    { "source": "/news/velikobritaniya-finalizirovala-kripto-pravila-steiblkoiny-1-kapitala-marc-protiv-manipulyacii", "destination": "/ru/news/velikobritaniya-finalizirovala-kripto-pravila-steiblkoiny-1-kapitala-marc-protiv-manipulyacii", "permanent": true },
-    { "source": "/ru/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5", "destination": "/en/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5", "permanent": true },
-    { "source": "/ru/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them", "destination": "/en/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them", "permanent": true },
-    { "source": "/en/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma", "destination": "/ru/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma", "permanent": true },
-    { "source": "/en/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "destination": "/ru/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda", "permanent": true },
-    { "source": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company-2026", "destination": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company", "permanent": true },
-    { "source": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-2026", "destination": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-izmenivshey-ii", "permanent": true },
-    { "source": "/en/articles/grok-and-xai-the-full-story-of-elon-musks-ai-2026", "destination": "/en/articles/grok-and-xai-the-full-story-of-elon-musk-s-ai", "permanent": true },
-    { "source": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska-2026", "destination": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska", "permanent": true },
-    { "source": "/ru/news/ssha-bitcoin-rezerv-minfin-mintorgovlya-2026", "destination": "/ru/news/spustya-god-posle-ukaza-trampa-bitkoin-rezerv-ssha-tak-i-ne-zarabotal-minfin-i-mintorgovlya-ne-m", "permanent": true },
-    { "source": "/en/news/ai-agents-stablecoin-payments-visa-2026", "destination": "/en/news/ai-agents-have-already-spent-73m-in-crypto-and-visa-just-joined-in", "permanent": true },
-    { "source": "/ru/news/bitkoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "destination": "/ru/news/bitcoin-opustilsya-nizhe-63000-likvidacii-azii-2026", "permanent": true },
-    { "source": "/ru/news/rl1-ten-european-banks-shared-blockchain", "destination": "/en/news/rl1-ten-european-banks-shared-blockchain", "permanent": true }
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "cryptopulse.media"
+        }
+      ],
+      "destination": "https://intokened.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.cryptopulse.media"
+        }
+      ],
+      "destination": "https://intokened.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "destination": "/en",
+      "permanent": true
+    },
+    {
+      "source": "/en/news/ripple-casp-license-luxembourg-mica-2026",
+      "destination": "/en/news/ripple-secures-full-casp-license-in-luxembourg-under-mica",
+      "permanent": true
+    },
+    {
+      "source": "/ru/news/ripple-casp-license-luxembourg-mica-2026",
+      "destination": "/ru/news/ripple-poluchila-polnuyu-litsenziyu-casp-v-lyuksemburge-po-mica",
+      "permanent": true
+    },
+    {
+      "source": "/en/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery",
+      "destination": "/en/articles/crypto-market-drops-4-5-in-a-day-what-volume-and-traders-are-saying",
+      "permanent": true
+    },
+    {
+      "source": "/en/interviews",
+      "destination": "/en/articles",
+      "permanent": true
+    },
+    {
+      "source": "/ru/interviews",
+      "destination": "/ru/articles",
+      "permanent": true
+    },
+    {
+      "source": "/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery",
+      "destination": "/ru/articles/kriptorynok-teryaet-4-5-za-den-chto-govoryat-obyomy-i-treidery",
+      "permanent": true
+    },
+    {
+      "source": "/news/velikobritaniya-finalizirovala-kripto-pravila-steiblkoiny-1-kapitala-marc-protiv-manipulyacii",
+      "destination": "/ru/news/velikobritaniya-finalizirovala-kripto-pravila-steiblkoiny-1-kapitala-marc-protiv-manipulyacii",
+      "permanent": true
+    },
+    {
+      "source": "/ru/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5",
+      "destination": "/en/articles/19-days-banned-the-us-has-lifted-export-controls-on-anthropic-s-fable-5-and-mythos-5",
+      "permanent": true
+    },
+    {
+      "source": "/ru/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them",
+      "destination": "/en/articles/cz-named-the-reasons-for-crypto-s-prolonged-decline-but-not-all-of-them",
+      "permanent": true
+    },
+    {
+      "source": "/en/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma",
+      "destination": "/ru/news/humanity-protocol-razblokiruet-tokeny-na-usd54-8-mln-na-fone-vosstanovleniya-posle-vzloma",
+      "permanent": true
+    },
+    {
+      "source": "/en/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda",
+      "destination": "/ru/news/azerbaidzhan-gotovitsya-legalizovat-kriptovalyuty-ramochnyi-zakon-primut-do-konca-goda",
+      "permanent": true
+    },
+    {
+      "source": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company-2026",
+      "destination": "/en/articles/openai-and-chatgpt-a-full-look-at-the-company",
+      "permanent": true
+    },
+    {
+      "source": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-2026",
+      "destination": "/ru/articles/openai-i-chatgpt-polnyy-razbor-kompanii-izmenivshey-ii",
+      "permanent": true
+    },
+    {
+      "source": "/en/articles/grok-and-xai-the-full-story-of-elon-musks-ai-2026",
+      "destination": "/en/articles/grok-and-xai-the-full-story-of-elon-musk-s-ai",
+      "permanent": true
+    },
+    {
+      "source": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska-2026",
+      "destination": "/ru/articles/grok-i-xai-polnaya-istoriya-ii-ilona-maska",
+      "permanent": true
+    },
+    {
+      "source": "/ru/news/ssha-bitcoin-rezerv-minfin-mintorgovlya-2026",
+      "destination": "/ru/news/spustya-god-posle-ukaza-trampa-bitkoin-rezerv-ssha-tak-i-ne-zarabotal-minfin-i-mintorgovlya-ne-m",
+      "permanent": true
+    },
+    {
+      "source": "/en/news/ai-agents-stablecoin-payments-visa-2026",
+      "destination": "/en/news/ai-agents-have-already-spent-73m-in-crypto-and-visa-just-joined-in",
+      "permanent": true
+    },
+    {
+      "source": "/ru/news/bitkoin-opustilsya-nizhe-63000-likvidacii-azii-2026",
+      "destination": "/ru/news/bitcoin-opustilsya-nizhe-63000-likvidacii-azii-2026",
+      "permanent": true
+    },
+    {
+      "source": "/ru/news/rl1-ten-european-banks-shared-blockchain",
+      "destination": "/en/news/rl1-ten-european-banks-shared-blockchain",
+      "permanent": true
+    }
   ],
   "crons": [
-    { "path": "/api/cron/pulse-snapshot", "schedule": "5 0 * * *" },
-    { "path": "/api/cron/exchange-volumes", "schedule": "15 0 * * *" },
-    { "path": "/api/cron/coin-quotes", "schedule": "25 */4 * * *" }
+    {
+      "path": "/api/cron/pulse-snapshot",
+      "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/exchange-volumes",
+      "schedule": "15 0 * * *"
+    },
+    {
+      "path": "/api/cron/coin-quotes",
+      "schedule": "25 */4 * * *"
+    }
   ]
 }
