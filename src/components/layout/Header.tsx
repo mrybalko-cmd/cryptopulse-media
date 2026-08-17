@@ -91,9 +91,13 @@ export default function Header() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="flex items-center gap-1 sm:gap-[5px] group"
+          className="flex items-center gap-1 group"
         >
-          <BrandMarkSvg className="w-9 h-9 sm:w-12 sm:h-12 shrink-0" />
+          {/* Height only: the mark is 45:47, and a square box would stretch it.
+              Smaller than the 48px it used to be because the frame no longer
+              carries 6px of empty margin on each side — the drawing itself is
+              the same size on screen, it just stopped being padded. */}
+          <BrandMarkSvg className="h-6 sm:h-8 w-auto shrink-0" />
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
           </span>

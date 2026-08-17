@@ -39,8 +39,8 @@ export default async function Footer() {
           {/* Brand — extra bottom margin on mobile so the first accordion
               below doesn't crowd the follow button */}
           <div className="mb-6 lg:mb-0">
-            <Link href={`/${locale}`} className="inline-flex items-center gap-[5px] mb-3">
-              <BrandMarkSvg className="w-8 h-8 shrink-0" />
+            <Link href={`/${locale}`} className="inline-flex items-center gap-1 mb-3">
+              <BrandMarkSvg className="h-5 w-auto shrink-0" />
               <span className="font-semibold text-sm">
                 {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
               </span>
