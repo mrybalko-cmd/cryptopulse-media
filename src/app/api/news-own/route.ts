@@ -5,7 +5,12 @@ const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
-  useCdn: false,
+  // Reads go through Sanity's CDN. The plan allows 1,000,000 CDN requests
+  // against 250,000 uncached ones, and with useCdn off every read was charged
+  // to the small quota — 251.8k of 250k used, 4 of a million CDN requests.
+  // Nothing here needs to be fresher than the CDN: results are wrapped in
+  // unstable_cache for 300s anyway, and Sanity purges the CDN on publish.
+  useCdn: true,
 });
 
 export async function GET(req: NextRequest) {

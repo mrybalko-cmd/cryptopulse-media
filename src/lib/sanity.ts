@@ -5,7 +5,12 @@ export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
-  useCdn: false,
+  // Reads go through Sanity's CDN. The plan allows 1,000,000 CDN requests
+  // against 250,000 uncached ones, and with useCdn off every read was charged
+  // to the small quota — 251.8k of 250k used, 4 of a million CDN requests.
+  // Nothing here needs to be fresher than the CDN: results are wrapped in
+  // unstable_cache for 300s anyway, and Sanity purges the CDN on publish.
+  useCdn: true,
 });
 
 const READ_CACHE_SECONDS = 300;
@@ -15,6 +20,8 @@ export const writeClient = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
   token: process.env.SANITY_API_WRITE_TOKEN,
+  // Stays off: the CDN does not serve authenticated requests, and a write that
+  // read its own stale copy would undo itself.
   useCdn: false,
 });
 
@@ -289,7 +296,9 @@ export const fetchComments = unstable_cache(
     }
   },
   ['fetchComments'],
-  { revalidate: 20 }
+  // 300s like every other read. This sat at 20 — refreshing fifteen times more
+  // often than anything else on the site for the sake of three comments.
+  { revalidate: READ_CACHE_SECONDS }
 );
 
 export async function isCommentingAllowed(targetId: string) {
