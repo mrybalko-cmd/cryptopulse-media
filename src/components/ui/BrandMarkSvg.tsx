@@ -25,9 +25,20 @@ const BRACKETS: ReadonlyArray<readonly [number, number, number, number]> = [
   [54, 4, 6, 56], [45, 4, 15, 6], [45, 54, 15, 6],
 ];
 
-/** The face the light hits, and the one that turns away from it. */
-const BOLT_LIT = '40,6 16,36 30,36 24,58';
-const BOLT_FOLD = '24,58 48,28 34,28 40,6';
+/**
+ * The face the light hits, and the one that turns away from it.
+ *
+ * These are the bolt at 0.58 — the size it is *inside the brackets*, which is
+ * the only size it is ever drawn at here. Splitting the shape into two faces the
+ * first time, I took the coordinates from the unscaled bolt and shipped a mark
+ * 1.72× too large, which is exactly 1/0.58. The brackets were right and the bolt
+ * was not, so it read as a huge bolt in a normal frame.
+ *
+ * Any change to BOLT_SCALE in build-logo.py has to be reflected here; these are
+ * the same six vertices that file scales at runtime.
+ */
+const BOLT_LIT = '36.64,16.92 22.72,34.32 30.84,34.32 27.36,47.08';
+const BOLT_FOLD = '27.36,47.08 41.28,29.68 33.16,29.68 36.64,16.92';
 
 const GOLD_LIT = '#FFC93C';
 const GOLD_FOLD = '#D4820F';
