@@ -14,8 +14,9 @@ import SidebarBanner from '@/components/ui/SidebarBanner';
 import { fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import { fetchTopAssetPrices } from '@/lib/coins';
 import { CRYPTO_CURRENCIES, FIAT_CURRENCIES, fetchConverterPrices } from '@/lib/currencies';
+import { SITE_BRAND, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
       title,
       description,
       url: `${BASE}/${locale}/calculators/converter`,
-      siteName: 'CryptoPulse.media',
+      siteName: `${SITE_BRAND}.media`,
       locale: isRu ? 'ru_RU' : 'en_US',
       images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
@@ -103,7 +104,7 @@ export default async function CurrencyConverterPage({ params, searchParams }: Pr
     '@graph': [
       {
         '@type': 'WebApplication',
-        name: isRu ? 'Конвертер криптовалют CryptoPulse' : 'CryptoPulse Crypto Converter',
+        name: isRu ? `Конвертер криптовалют ${SITE_BRAND}` : `${SITE_BRAND} Crypto Converter`,
         url: `${BASE}/${locale}/calculators/converter`,
         applicationCategory: 'FinanceApplication',
         operatingSystem: 'Any',

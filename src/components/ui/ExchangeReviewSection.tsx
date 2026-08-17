@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Star, Loader2 } from 'lucide-react';
 import type { ExchangeReview } from '@/lib/sanity';
+import { SITE_BRAND } from '@/lib/site';
 
 interface Props {
   exchangeId: string;
@@ -92,7 +93,7 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
           <div>
             <Stars value={Math.round(average)} size={16} />
             <p className="text-xs text-muted mt-1">
-              {isRu ? `${count} ${count === 1 ? 'отзыв' : 'отзывов'} читателей CryptoPulse` : `${count} review${count === 1 ? '' : 's'} from CryptoPulse readers`}
+              {isRu ? `${count} ${count === 1 ? 'отзыв' : 'отзывов'} читателей ${SITE_BRAND}` : `${count} review${count === 1 ? '' : 's'} from ${SITE_BRAND} readers`}
             </p>
           </div>
         </div>

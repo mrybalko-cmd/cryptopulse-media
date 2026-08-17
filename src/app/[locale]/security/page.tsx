@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { CONTACT_EMAIL } from '@/lib/constants';
+import { SITE_NAME } from '@/lib/site';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -12,8 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   const isRu = locale === 'ru';
   const description = isRu
-    ? 'Как распознать и избежать крипто-скама, фишинга и мошенничества от имени CryptoPulse.media.'
-    : 'How to recognize and avoid crypto scams, phishing, and fraud impersonating CryptoPulse.media.';
+    ? `Как распознать и избежать крипто-скама, фишинга и мошенничества от имени ${SITE_NAME}.`
+    : `How to recognize and avoid crypto scams, phishing, and fraud impersonating ${SITE_NAME}.`;
   return {
     title: t('securityTitle'),
     description,

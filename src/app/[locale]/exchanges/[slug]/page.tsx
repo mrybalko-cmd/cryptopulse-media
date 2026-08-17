@@ -21,6 +21,7 @@ import ExchangeRegions from '@/components/ui/ExchangeRegions';
 import ExchangeReviewSection from '@/components/ui/ExchangeReviewSection';
 import ExchangeNewsSection from '@/components/ui/ExchangeNewsSection';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import { SITE_BRAND } from '@/lib/site';
 
 // Every exchange page was rendering on demand on every request — no static
 // params, no revalidate — which made it the slowest page on the site (1.1s
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   );
   const description = (isRu ? exchange.seo?.metaDescriptionRu : exchange.seo?.metaDescriptionEn)
     || (isRu ? exchange.taglineRu : exchange.taglineEn)
-    || (isRu ? `${exchange.name}: обзор биржи, продукты, регулирование и отзывы читателей CryptoPulse.` : `${exchange.name}: exchange overview, products, regulation and reader reviews on CryptoPulse.`);
+    || (isRu ? `${exchange.name}: обзор биржи, продукты, регулирование и отзывы читателей ${SITE_BRAND}.` : `${exchange.name}: exchange overview, products, regulation and reader reviews on ${SITE_BRAND}.`);
 
   return {
     title,

@@ -1,5 +1,5 @@
 import { fetchSanityNews } from '@/lib/sanity';
-import { SITE_NAME } from '@/lib/constants';
+import { SITE_NAME } from '@/lib/site';
 
 export interface UnifiedNewsItem {
   id: string;

@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchTopLikedNews } from '@/lib/sanity';
 import NewsListItem from '@/components/ui/NewsListItem';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -18,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'Самые залайканные новости'
     : 'Most liked news';
   const description = isRu
-    ? 'Новости CryptoPulse.media, которые читатели отметили лайком чаще всего.'
-    : 'CryptoPulse.media news stories readers have liked the most.';
+    ? `Новости ${SITE_NAME}, которые читатели отметили лайком чаще всего.`
+    : `${SITE_NAME} news stories readers have liked the most.`;
   return {
     title,
     description,

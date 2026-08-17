@@ -4,6 +4,7 @@ import { getAdminSession } from '@/lib/admin/auth';
 import { hasPermission, type Permission } from '@/lib/admin/permissions';
 import LogoutButton from './LogoutButton';
 import ThemeToggle from './_shared/ThemeToggle';
+import { SITE_BRAND } from '@/lib/site';
 
 const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[] = [
   { href: '/admin', label: '🏠 Overview', permission: null },
@@ -32,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="w-[210px] bg-[var(--admin-panel)] border-r border-[var(--admin-border)] px-3.5 py-5 shrink-0 flex flex-col">
         <div className="flex items-center gap-2 px-2 pb-5 font-extrabold text-sm">
           <span className="w-5 h-5 rounded-md bg-red-600 flex items-center justify-center text-[10px]">⚡</span>
-          CryptoPulse.admin
+          {SITE_BRAND}.admin
         </div>
         <nav className="flex flex-col gap-0.5 flex-1">
           {visibleItems.map(item => (

@@ -11,6 +11,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import AssetsExplorer, { type AssetRow } from '@/components/ui/AssetsExplorer';
 import { COINS, COIN_IDS, fetchTopAssetPrices } from '@/lib/coins';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -139,7 +140,7 @@ export default async function AssetsPage({ params }: Props) {
     '@graph': [
       {
         '@type': 'CollectionPage',
-        name: isRu ? 'Крипто-активы | CryptoPulse.media' : 'Crypto Assets | CryptoPulse.media',
+        name: isRu ? 'Крипто-активы | ${SITE_NAME}' : 'Crypto Assets | ${SITE_NAME}',
         description: isRu
           ? 'Гиды по главным криптовалютам: история, факты и калькуляторы инвестиций.'
           : 'Guides to top cryptocurrencies: history, facts and investment calculators.',

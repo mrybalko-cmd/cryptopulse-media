@@ -20,9 +20,10 @@ import ArticleSidebar from '@/components/ui/ArticleSidebar';
 import SidebarBanner from '@/components/ui/SidebarBanner';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
-import { SITE_NAME } from '@/lib/constants';
+
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -45,8 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // guidance calls out 16:9 specifically for large-image thumbnail eligibility.
   const ogImageUrl = news.seoOgImageUrl
     || sanityImageTransform(news.coverImage, { width: 1200, height: 675, format: 'jpg' })
-    || `https://cryptopulse.media/${locale}/opengraph-image`;
-  const canonicalUrl = news.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/news/${slug}`;
+    || `${SITE_URL}/${locale}/opengraph-image`;
+  const canonicalUrl = news.seo?.canonicalUrl || `${SITE_URL}/${locale}/news/${slug}`;
   const translationLang = news.translation?.language;
   const translationSlug = news.translation?.slug;
 
@@ -58,17 +59,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        [locale]: `https://cryptopulse.media/${locale}/news/${slug}`,
+        [locale]: `${SITE_URL}/${locale}/news/${slug}`,
         ...(translationLang && translationSlug
-          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/news/${translationSlug}` }
+          ? { [translationLang]: `${SITE_URL}/${translationLang}/news/${translationSlug}` }
           : {}),
         // x-default points at the English version when we can resolve it —
         // either this page is EN, or its translation is the EN one. Omitted
         // when no EN counterpart exists so it never targets a missing URL.
         ...(locale === 'en'
-          ? { 'x-default': `https://cryptopulse.media/en/news/${slug}` }
+          ? { 'x-default': `${SITE_URL}/en/news/${slug}` }
           : translationLang === 'en' && translationSlug
-            ? { 'x-default': `https://cryptopulse.media/en/news/${translationSlug}` }
+            ? { 'x-default': `${SITE_URL}/en/news/${translationSlug}` }
             : {}),
       },
     },
@@ -76,14 +77,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       title,
       description,
-      url: `https://cryptopulse.media/${locale}/news/${slug}`,
-      siteName: 'CryptoPulse.media',
+      url: `${SITE_URL}/${locale}/news/${slug}`,
+      siteName: '${SITE_NAME}',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: [{ url: ogImageUrl, width: 1200, height: 675, alt: title }],
       publishedTime: news.publishedAt,
       modifiedTime: news.updatedAt || news.publishedAt,
       ...(news.author?.slug && {
-        authors: [`https://cryptopulse.media/${locale}/authors/${news.author.slug}`],
+        authors: [`${SITE_URL}/${locale}/authors/${news.author.slug}`],
       }),
       ...(news.topic && { section: news.topic }),
       ...(news.seo?.keywords?.length && { tags: news.seo.keywords }),
@@ -103,7 +104,6 @@ export default async function NewsDetailPage({ params }: Props) {
   const news = await fetchNewsBySlug(slug.trim(), locale);
 
   if (!news) notFound();
-
 
   const commentsEnabled = news.commentsEnabled !== false;
   const relatedNews = await fetchRelatedNews(news._id, locale, 3);
@@ -129,17 +129,17 @@ export default async function NewsDetailPage({ params }: Props) {
     '@type': 'NewsArticle',
     headline: news.title,
     description: news.excerpt,
-    url: `https://cryptopulse.media/${locale}/news/${slug}`,
-    image: [news.seoOgImageUrl || news.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
+    url: `${SITE_URL}/${locale}/news/${slug}`,
+    image: [news.seoOgImageUrl || news.coverImage || `${SITE_URL}/${locale}/opengraph-image`],
     datePublished: news.publishedAt,
     dateModified: news.updatedAt || news.publishedAt,
     inLanguage: locale,
     ...(wordCount > 0 && { wordCount }),
     author: news.author
-      ? { '@type': 'Person', name: news.author.name.trim(), url: `https://cryptopulse.media/${locale}/authors/${news.author.slug}` }
-      : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
-    publisher: { '@id': 'https://cryptopulse.media/#organization' },
-    mainEntityOfPage: `https://cryptopulse.media/${locale}/news/${slug}`,
+      ? { '@type': 'Person', name: news.author.name.trim(), url: `${SITE_URL}/${locale}/authors/${news.author.slug}` }
+      : { '@type': 'Organization', '@id': '${SITE_URL}/#organization' },
+    publisher: { '@id': '${SITE_URL}/#organization' },
+    mainEntityOfPage: `${SITE_URL}/${locale}/news/${slug}`,
     // Plain schema.org, not a Subscribe-with-Google signal: it states the
     // story is not behind a paywall, which Google News reads on its own.
     // The swg-basic.js integration it used to accompany was removed — it
@@ -153,13 +153,13 @@ export default async function NewsDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `https://cryptopulse.media/${locale}` },
-      { '@type': 'ListItem', position: 2, name: locale === 'ru' ? 'Новости' : 'News', item: `https://cryptopulse.media/${locale}/news` },
-      { '@type': 'ListItem', position: 3, name: news.title, item: `https://cryptopulse.media/${locale}/news/${slug}` },
+      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `${SITE_URL}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: locale === 'ru' ? 'Новости' : 'News', item: `${SITE_URL}/${locale}/news` },
+      { '@type': 'ListItem', position: 3, name: news.title, item: `${SITE_URL}/${locale}/news/${slug}` },
     ],
   };
 
-  const pageUrl = `https://cryptopulse.media/${locale}/news/${slug}`;
+  const pageUrl = `${SITE_URL}/${locale}/news/${slug}`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
@@ -239,7 +239,7 @@ export default async function NewsDetailPage({ params }: Props) {
                 {news.author.name}
               </a>
             ) : (
-              <span rel="author">{news.author?.name || 'CryptoPulse.media'}</span>
+              <span rel="author">{news.author?.name || '${SITE_NAME}'}</span>
             )}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">

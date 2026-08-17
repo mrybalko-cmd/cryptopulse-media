@@ -7,9 +7,10 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { fetchNewsByTopic } from '@/lib/sanity';
-import { SITE_NAME } from '@/lib/constants';
+
 import NewsCard from '@/components/ui/NewsCard';
 import { NEWS_TOPICS as TOPICS } from '@/lib/topics';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; topic: string }> };
 
@@ -29,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `Новости: ${topicName}`
     : `News: ${topicName}`;
   const description = isRu
-    ? `Последние новости CryptoPulse.media по теме «${topicName}»: актуальные события, аналитика и комментарии.`
-    : `Latest CryptoPulse.media news on ${topicName}: events, analysis and commentary.`;
+    ? `Последние новости ${SITE_NAME} по теме «${topicName}»: актуальные события, аналитика и комментарии.`
+    : `Latest ${SITE_NAME} news on ${topicName}: events, analysis and commentary.`;
 
   // Same rule as the article topic pages — a near-empty topic listing isn't
   // worth indexing over the real news items it would otherwise list.
@@ -86,8 +87,8 @@ export default async function NewsTopicPage({ params }: Props) {
     name: pageTitle,
     url: `${BASE}/${locale}/news/topic/${topic}`,
     description: isRu
-      ? `Новости по теме «${topicName}» на CryptoPulse.media`
-      : `News on ${topicName} at CryptoPulse.media`,
+      ? `Новости по теме «${topicName}» на ${SITE_NAME}`
+      : `News on ${topicName} at ${SITE_NAME}`,
   };
 
   return (

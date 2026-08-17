@@ -1,5 +1,6 @@
+import { SITE_BRAND } from '@/lib/site';
 export const metadata = {
-  title: 'CryptoPulse Studio',
+  title: `${SITE_BRAND} Studio`,
   robots: { index: false, follow: false },
 };
 

@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
+import { CONTACT_EMAIL } from '@/lib/constants';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,16 +12,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   const isRu = locale === 'ru';
   const description = isRu
-    ? 'Как разместить рекламный материал о своём проекте на CryptoPulse.media.'
-    : 'How to feature your project in a sponsored placement on CryptoPulse.media.';
+    ? `Как разместить рекламный материал о своём проекте на ${SITE_NAME}.`
+    : `How to feature your project in a sponsored placement on ${SITE_NAME}.`;
   return {
     title: t('advertisingTitle'),
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/advertising`, title: t('advertisingTitle'), description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/advertising`, title: t('advertisingTitle'), description, locale }),
     alternates: {
-      canonical: `https://cryptopulse.media/${locale}/advertising`,
-      languages: { ru: 'https://cryptopulse.media/ru/advertising', en: 'https://cryptopulse.media/en/advertising', 'x-default': 'https://cryptopulse.media/en/advertising' },
+      canonical: `${SITE_URL}/${locale}/advertising`,
+      languages: { ru: '${SITE_URL}/ru/advertising', en: '${SITE_URL}/en/advertising', 'x-default': '${SITE_URL}/en/advertising' },
     },
   };
 }

@@ -15,6 +15,7 @@ import ExchangeToolbar, { type ExchangeSearchParams } from '@/components/ui/Exch
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import PopularList from '@/components/ui/PopularList';
 import SidebarBanner from '@/components/ui/SidebarBanner';
+import { SITE_BRAND } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<ExchangeSearchParams> };
 
@@ -32,8 +33,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const isRu = locale === 'ru';
   const title = isRu ? 'Криптобиржи — рейтинг по объёму торгов' : 'Crypto exchanges — ranked by volume';
   const description = isRu
-    ? 'Рейтинг крупнейших криптобирж по объёму торгов за 24 часа: продукты, лицензии, доступность по регионам и новости CryptoPulse по каждой бирже.'
-    : 'Ranking of the largest crypto exchanges by 24h trading volume: products, licensing, regional availability and CryptoPulse coverage for each exchange.';
+    ? `Рейтинг крупнейших криптобирж по объёму торгов за 24 часа: продукты, лицензии, доступность по регионам и новости ${SITE_BRAND} по каждой бирже.`
+    : `Ranking of the largest crypto exchanges by 24h trading volume: products, licensing, regional availability and ${SITE_BRAND} coverage for each exchange.`;
 
   // Any filter/sort query param produces a distinct crawlable URL (e.g.
   // ?type=DEX&sort=year), but canonical always points back at the bare
@@ -117,7 +118,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: isRu ? 'Криптобиржи | CryptoPulse.media' : 'Crypto Exchanges | CryptoPulse.media',
+    name: isRu ? `Криптобиржи | ${SITE_BRAND}.media` : `Crypto Exchanges | ${SITE_BRAND}.media`,
     description: isRu
       ? 'Рейтинг крупнейших криптобирж по объёму торгов.'
       : 'Ranking of the largest crypto exchanges by trading volume.',
@@ -172,8 +173,8 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
           </h1>
           <p className="text-muted text-sm leading-relaxed max-w-[60ch] mb-2">
             {isRu
-              ? 'Продукты, лицензии и материалы CryptoPulse по каждой площадке.'
-              : 'Products, licensing and CryptoPulse coverage for every venue.'}
+              ? `Продукты, лицензии и материалы ${SITE_BRAND} по каждой площадке.`
+              : `Products, licensing and ${SITE_BRAND} coverage for every venue.`}
           </p>
           {updatedStamp && (
             <p className="text-muted text-xs mb-4">
@@ -226,7 +227,7 @@ export default async function ExchangesPage({ params, searchParams }: Props) {
               {ranked.length > 0 && <ExchangeTable items={ranked} locale={locale} maxVolume={maxVolume} />}
               <p className="text-[11px] text-muted mt-2.5">
                 {isRu
-                  ? 'Нажмите на строку, чтобы открыть обзор биржи на CryptoPulse. «Торговать» открывается в новой вкладке.'
+                  ? `Нажмите на строку, чтобы открыть обзор биржи на ${SITE_BRAND}. «Торговать» открывается в новой вкладке.`
                   : 'Tap a row to open our review of that exchange. “Trade” opens in a new tab.'}
               </p>
 

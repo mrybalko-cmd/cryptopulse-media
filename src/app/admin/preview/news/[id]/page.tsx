@@ -6,6 +6,7 @@ import { fetchAdminNewsById, fetchAuthorOptions } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import RichText from '@/components/ui/RichText';
 import ArticleBadge from '@/components/ui/ArticleBadge';
+import { SITE_NAME } from '@/lib/site';
 
 export default async function PreviewNewsPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('news');
@@ -46,7 +47,7 @@ export default async function PreviewNewsPage({ params }: { params: Promise<{ id
         <div className="flex items-center flex-wrap gap-3 mb-4 pb-4 border-b border-border">
           <div className="flex items-center gap-1.5 text-xs text-muted">
             <User size={12} />
-            <span>{author?.name || 'CryptoPulse.media'}</span>
+            <span>{author?.name || SITE_NAME}</span>
           </div>
           {date && (
             <div className="flex items-center gap-1.5 text-xs text-muted">

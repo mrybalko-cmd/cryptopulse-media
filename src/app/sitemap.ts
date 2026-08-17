@@ -7,8 +7,9 @@ import { COINS } from '@/lib/coins';
 import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/sitemapRoutes';
 import { PAGE_REVISIONS } from '@/lib/pageRevisions';
+import { SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 // Rebuild hourly. Without this the whole sitemap — including the daily dates on
 // live-data pages and the newest-content dates on listings — would freeze at

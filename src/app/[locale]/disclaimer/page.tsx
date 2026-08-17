@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
+import { CONTACT_EMAIL } from '@/lib/constants';
+import { SITE_HOST, SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,16 +12,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   const isRu = locale === 'ru';
   const description = isRu
-    ? 'Дисклеймер CryptoPulse.media: материалы носят информационный характер и не являются финансовой консультацией.'
-    : "CryptoPulse.media's disclaimer: content is for informational purposes only and is not financial advice.";
+    ? `Дисклеймер ${SITE_NAME}: материалы носят информационный характер и не являются финансовой консультацией.`
+    : `${SITE_NAME}'s disclaimer: content is for informational purposes only and is not financial advice.`;
   return {
     title: t('disclaimerTitle'),
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/disclaimer`, title: t('disclaimerTitle'), description, locale }),
     alternates: {
-      canonical: `https://cryptopulse.media/${locale}/disclaimer`,
-      languages: { ru: 'https://cryptopulse.media/ru/disclaimer', en: 'https://cryptopulse.media/en/disclaimer', 'x-default': 'https://cryptopulse.media/en/disclaimer' },
+      canonical: `${SITE_URL}/${locale}/disclaimer`,
+      languages: { ru: '${SITE_URL}/ru/disclaimer', en: '${SITE_URL}/en/disclaimer', 'x-default': '${SITE_URL}/en/disclaimer' },
     },
   };
 }
@@ -62,7 +63,7 @@ export default async function DisclaimerPage({ params }: Props) {
           <>
             <h2>Только информационный характер</h2>
             <p>
-              Весь контент на {SITE_NAME} (cryptopulse.media) — новости, статьи, интервью и другие
+              Весь контент на {SITE_NAME} ({SITE_HOST}) — новости, статьи, интервью и другие
               материалы — предоставляется исключительно в информационных и образовательных целях.
             </p>
 
@@ -115,7 +116,7 @@ export default async function DisclaimerPage({ params }: Props) {
           <>
             <h2>General Information Only</h2>
             <p>
-              All content on {SITE_NAME} (cryptopulse.media) — news, articles, and other
+              All content on {SITE_NAME} ({SITE_HOST}) — news, articles, and other
               materials — is provided strictly for informational and educational purposes.
             </p>
 

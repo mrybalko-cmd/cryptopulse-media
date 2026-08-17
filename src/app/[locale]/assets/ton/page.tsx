@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { TON_QUOTES, TON_FAQ, TON_INVESTMENT_REFERENCE } from '@/lib/tonData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ton';
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'Gram (бывший Toncoin) — монета экосистемы Telegram: цена, история ребрендинга и калькулятор инвестиций.'
     : 'Gram, formerly Toncoin — the coin of the Telegram ecosystem: price, the story of the rebrand, and an investment calculator.';
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -69,8 +70,8 @@ export default async function TonPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/ton`,
   };
 

@@ -9,6 +9,7 @@ import { fetchLatestPulse, PULSE_WEIGHTS, PULSE_ZONES } from '@/lib/pulse';
 import { fetchPopularContent } from '@/lib/sanity';
 import PulseWidget from '@/components/ui/PulseWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import { SITE_BRAND } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -184,7 +185,7 @@ export default async function PulsePage({ params }: Props) {
       </Link>
 
       <p className="text-xs font-bold uppercase tracking-widest text-accent mb-2">
-        {isRu ? 'Собственный индекс CryptoPulse' : 'CryptoPulse’s own index'}
+        {isRu ? `Собственный индекс ${SITE_BRAND}` : `${SITE_BRAND}’s own index`}
       </p>
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight text-balance mb-4">
         {isRu ? 'Пульс рынка' : 'Market Pulse'}
@@ -382,8 +383,8 @@ export default async function PulsePage({ params }: Props) {
         <p className="text-xs text-muted leading-relaxed">
           <span className="font-semibold text-foreground">{isRu ? 'Важно: ' : 'Note: '}</span>
           {isRu
-            ? 'Пульс — вспомогательный аналитический инструмент, не торговый сигнал и не инвестиционная рекомендация. Используйте его как один из факторов анализа наряду с техническим и фундаментальным. CryptoPulse.media не даёт инвестиционных рекомендаций.'
-            : 'Pulse is a supplementary analytical tool, not a trading signal or investment advice. Use it as one factor alongside technical and fundamental research. CryptoPulse.media does not provide investment advice.'}
+            ? `Пульс — вспомогательный аналитический инструмент, не торговый сигнал и не инвестиционная рекомендация. Используйте его как один из факторов анализа наряду с техническим и фундаментальным. ${SITE_BRAND}.media не даёт инвестиционных рекомендаций.`
+            : `Pulse is a supplementary analytical tool, not a trading signal or investment advice. Use it as one factor alongside technical and fundamental research. ${SITE_BRAND}.media does not provide investment advice.`}
         </p>
       </div>
 

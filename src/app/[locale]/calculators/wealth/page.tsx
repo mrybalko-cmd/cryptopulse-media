@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import WealthCalculator from '@/components/ui/WealthCalculator';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${BASE}/${locale}/calculators/wealth`,
-      siteName: 'CryptoPulse.media',
+      siteName: '${SITE_NAME}',
       locale: isRu ? 'ru_RU' : 'en_US',
       images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'stellar';
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'The history of Stellar: from Jed McCaleb\'s split with Ripple to a network for cheap cross-border payments and asset tokenization. XLM investment calculator.';
 
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -47,8 +48,8 @@ export default async function StellarPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2026-07-14',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,
   };
   const faqLd = {

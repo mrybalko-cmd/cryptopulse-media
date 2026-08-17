@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { SITE_BRAND } from '@/lib/site';
 
 // 16:9, not the classic 1200x630 OG ratio — Google Discover's own image
 // guidance calls out 16:9 specifically for large-image thumbnail eligibility.
@@ -88,7 +89,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
             </svg>
           </div>
           <div style={{ display: 'flex', fontSize: 36, fontWeight: 700, color: '#ffffff' }}>
-            CryptoPulse<span style={{ color: '#06b6d4' }}>.media</span>
+            {SITE_BRAND}<span style={{ color: '#06b6d4' }}>.media</span>
           </div>
         </div>
         <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#ffffff', maxWidth: 900, lineHeight: 1.2 }}>

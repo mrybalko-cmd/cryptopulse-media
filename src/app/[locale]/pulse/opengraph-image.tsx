@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { fetchLatestPulse } from '@/lib/pulse';
 import { zoneMeta } from '@/lib/pulseMath';
+import { SITE_BRAND } from '@/lib/site';
 
 // Standard 1.91:1 og:image size — a 1:1 square got center-cropped top/bottom
 // by Facebook and other scrapers, which target this ratio and don't just
@@ -93,7 +94,7 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
               </svg>
             </div>
             <div style={{ display: 'flex', fontSize: 24, fontWeight: 700, color: '#edf0f7' }}>
-              CryptoPulse<span style={{ color: '#22d3ee' }}>.media</span>
+              {SITE_BRAND}<span style={{ color: '#22d3ee' }}>.media</span>
             </div>
           </div>
         </div>

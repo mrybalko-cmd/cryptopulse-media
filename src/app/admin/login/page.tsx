@@ -1,6 +1,7 @@
 import { loginAction } from './actions';
 import PasswordField from '../(dashboard)/_shared/PasswordField';
 import SubmitButton from '../(dashboard)/_shared/SubmitButton';
+import { SITE_BRAND } from '@/lib/site';
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
@@ -10,7 +11,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
       <div className="w-[380px] bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-2xl p-9">
         <div className="flex items-center gap-2 mb-7">
           <span className="w-[26px] h-[26px] rounded-lg bg-red-600 flex items-center justify-center text-[13px]">⚡</span>
-          <span className="font-extrabold text-base">CryptoPulse<b className="text-cyan-400">.admin</b></span>
+          <span className="font-extrabold text-base">{SITE_BRAND}<b className="text-cyan-400">.admin</b></span>
         </div>
         <p className="text-xl font-extrabold mb-1">Вход в админку</p>
         <p className="text-[12.5px] text-[var(--admin-text-muted)] mb-6">Доступ только для сотрудников редакции</p>

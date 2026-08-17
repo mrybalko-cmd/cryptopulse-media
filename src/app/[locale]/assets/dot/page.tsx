@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { DOT_QUOTES, DOT_FAQ, DOT_INVESTMENT_REFERENCE } from '@/lib/dotData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'dot';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'История Polkadot: как Гэвин Вуд, создатель Solidity и сооснователь Ethereum, построил мультичейн-сеть. Парачейны, аукционы слотов, калькулятор инвестиций.'
     : 'Polkadot history: how Gavin Wood, creator of Solidity and Ethereum co-founder, built a multi-chain network. Parachains, slot auctions, DOT calculator.';
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -67,8 +68,8 @@ export default async function DotPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/dot`,
   };
 

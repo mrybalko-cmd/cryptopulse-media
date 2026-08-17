@@ -4,6 +4,7 @@ import Link from 'next/link';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { ETH_QUOTES, ETH_FAQ, ETH_INVESTMENT_REFERENCE } from '@/lib/ethereumData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ethereum';
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'Ethereum history: who created it, how smart contracts work, The Merge and the shift to PoS. Calculator: what $100–5000 in ETH would be worth today.';
 
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -77,8 +78,8 @@ export default async function EthereumPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/ethereum`,
   };
 

@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { REGULATION_DATA, STATUS_META } from '@/lib/regulationData';
 import RegulationClient from './RegulationClient';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${BASE}/${locale}/regulation`,
-      siteName: 'CryptoPulse.media',
+      siteName: '${SITE_NAME}',
       locale: isRu ? 'ru_RU' : 'en_US',
       images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
@@ -61,12 +62,12 @@ export default async function RegulationPage({ params }: Props) {
     url: `${BASE}/${locale}/regulation`,
     publisher: {
       '@type': 'Organization',
-      name: 'CryptoPulse.media',
+      name: '${SITE_NAME}',
       url: BASE,
     },
     creator: {
       '@type': 'Organization',
-      name: 'CryptoPulse.media',
+      name: '${SITE_NAME}',
       url: BASE,
     },
     dateModified: '2025-06-01',

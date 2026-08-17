@@ -2,7 +2,8 @@ import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
+import { CONTACT_EMAIL } from '@/lib/constants';
+import { SITE_HOST, SITE_NAME } from '@/lib/site';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -13,8 +14,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   const isRu = locale === 'ru';
   const description = isRu
-    ? 'Редакционная политика CryptoPulse.media: источники, исправления и независимость от рекламодателей.'
-    : "CryptoPulse.media's editorial policy: sourcing, corrections, and independence from advertisers.";
+    ? `Редакционная политика ${SITE_NAME}: источники, исправления и независимость от рекламодателей.`
+    : `${SITE_NAME}'s editorial policy: sourcing, corrections, and independence from advertisers.`;
   return {
     title: t('editorialPolicyTitle'),
     description,
@@ -64,7 +65,7 @@ export default async function EditorialPolicyPage({ params }: Props) {
           <>
             <h2>Кто мы</h2>
             <p>
-              {SITE_NAME} (cryptopulse.media) — независимый медиапроект о криптовалютах и блокчейне.
+              {SITE_NAME} ({SITE_HOST}) — независимый медиапроект о криптовалютах и блокчейне.
               Мы публикуем собственные материалы: авторские новости, статьи и обзоры
               — на русском и английском языках.
             </p>
@@ -109,7 +110,7 @@ export default async function EditorialPolicyPage({ params }: Props) {
           <>
             <h2>Who We Are</h2>
             <p>
-              {SITE_NAME} (cryptopulse.media) is an independent media project covering cryptocurrency and
+              {SITE_NAME} ({SITE_HOST}) is an independent media project covering cryptocurrency and
               blockchain. We publish original content — authored news, articles, and reviews
               — in Russian and English.
             </p>

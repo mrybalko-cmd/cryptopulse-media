@@ -2,9 +2,9 @@ import { createClient } from '@sanity/client';
 // Shared so the address the feed publishes and the one the publisher schema
 // declares can't drift apart.
 import { CONTACT_EMAIL } from '@/lib/organizationSchema';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
-const SITE_NAME = 'CryptoPulse.media';
+const BASE = SITE_URL;
 
 export const revalidate = 1800;
 

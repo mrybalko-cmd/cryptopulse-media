@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
 import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -36,7 +37,7 @@ export default async function AiGlossaryPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
     '@id': `${BASE}/${locale}/ai/glossary#dictionary`,
-    name: isRu ? 'Глоссарий ИИ CryptoPulse.media' : 'CryptoPulse.media AI Glossary',
+    name: isRu ? 'Глоссарий ИИ ${SITE_NAME}' : '${SITE_NAME} AI Glossary',
     url: `${BASE}/${locale}/ai/glossary`,
     hasDefinedTerm: AI_GLOSSARY.map((t) => ({
       '@type': 'DefinedTerm',

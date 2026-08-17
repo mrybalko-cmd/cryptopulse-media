@@ -4,6 +4,7 @@ import { Zap, Mail } from 'lucide-react';
 import { CONTACT_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import FooterNavGroup from '@/components/layout/FooterNavGroup';
+import { SITE_BRAND, SITE_NAME } from '@/lib/site';
 
 // The official "in" glyph, drawn rather than pulled from an icon set: lucide
 // has no brand marks, and LinkedIn's guidelines do not allow redrawing it.
@@ -42,7 +43,7 @@ export default async function Footer() {
                 <Zap size={12} className="text-yellow-400" fill="currentColor" />
               </div>
               <span className="font-semibold text-sm">
-                CryptoPulse<span className="text-accent">.media</span>
+                {SITE_BRAND}<span className="text-accent">.media</span>
               </span>
             </Link>
             <p className="text-muted text-xs leading-relaxed max-w-52 mb-4">{t('tagline')}</p>
@@ -191,7 +192,7 @@ export default async function Footer() {
         <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
           <p className="text-xs text-muted">{t('disclaimerText')}</p>
           <p className="text-xs text-muted shrink-0">
-            © {new Date().getFullYear()} CryptoPulse.media · {t('rights')}
+            © {new Date().getFullYear()} ${SITE_NAME} · {t('rights')}
           </p>
         </div>
 

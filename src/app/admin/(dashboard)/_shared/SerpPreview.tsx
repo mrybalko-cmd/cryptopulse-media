@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { SITE_HOST } from '@/lib/site';
 
 // Reads live values straight off the surrounding <form>'s named fields
 // (title/slug/seoMetaTitle/seoMetaDescription/excerpt) instead of lifting
@@ -71,7 +72,7 @@ export default function SerpPreview({
     <div ref={ref} className="mt-2">
       <div className="bg-white rounded-lg p-4" style={{ fontFamily: 'arial,sans-serif' }}>
         <div style={{ fontSize: 12, color: '#202124' }}>
-          cryptopulse.media <span style={{ color: '#5f6368' }}>›</span> {locale} <span style={{ color: '#5f6368' }}>›</span> {section}
+          {SITE_HOST} <span style={{ color: '#5f6368' }}>›</span> {locale} <span style={{ color: '#5f6368' }}>›</span> {section}
           {slug && <> <span style={{ color: '#5f6368' }}>›</span> {slug}</>}
         </div>
         <div style={{ fontSize: 18, color: '#1a0dab', lineHeight: 1.3, margin: '2px 0 4px' }}>{displayTitle}</div>

@@ -1,8 +1,9 @@
 import { GLOSSARY } from '@/lib/glossary';
 import { AI_GLOSSARY } from '@/lib/aiGlossary';
 import { PULSE_WEIGHTS, PULSE_ZONES } from '@/lib/pulseMath';
+import { SITE_EMAIL, SITE_NAME, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 export const revalidate = 86400;
 
@@ -38,7 +39,7 @@ export async function GET() {
     t => `- [${t.term.en}](${BASE}/en/ai/glossary/${t.slug}): ${t.definition.en}`
   ).join('\n');
 
-  const body = `# CryptoPulse.media
+  const body = `# ${SITE_NAME}
 
 > An independent crypto publication covering the market, regulation and
 > exchanges, published in English and Russian. Every English page has a Russian
@@ -46,7 +47,7 @@ export async function GET() {
 
 Editorial standards, corrections policy and ad labelling: ${BASE}/en/editorial-policy
 Who writes here: ${BASE}/en/authors
-Contact: info@cryptopulse.media
+Contact: ${SITE_EMAIL}
 
 ## How this site is organised
 

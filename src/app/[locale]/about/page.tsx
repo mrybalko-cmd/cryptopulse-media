@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,8 +12,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'О нас' : 'About Us';
   const description = isRu
-    ? 'CryptoPulse.media — независимое крипто-медиа для русскоязычной и европейской аудитории. Новости, аналитика и образовательные материалы без лишнего шума.'
-    : 'CryptoPulse.media is an independent crypto media outlet for Russian-speaking and European audiences. News, analysis and educational content without the noise.';
+    ? `${SITE_NAME} — независимое крипто-медиа для русскоязычной и европейской аудитории. Новости, аналитика и образовательные материалы без лишнего шума.`
+    : `${SITE_NAME} is an independent crypto media outlet for Russian-speaking and European audiences. News, analysis and educational content without the noise.`;
   return {
     title,
     description,
@@ -55,7 +56,7 @@ export default async function AboutPage({ params }: Props) {
 
           <h2>Кто мы</h2>
           <p>
-            CryptoPulse.media — независимое крипто-медиа, созданное для тех, кто хочет разобраться
+            ${SITE_NAME} — независимое крипто-медиа, созданное для тех, кто хочет разобраться
             в цифровых активах без академического занудства и без хайпа. Мы пишем о Bitcoin, Ethereum,
             DeFi, регуляции и крипторынке в целом — на русском и английском языках.
           </p>
@@ -93,7 +94,7 @@ export default async function AboutPage({ params }: Props) {
             чётко маркируются. Редакционная повестка не зависит от рекламодателей.
           </p>
           <p>
-            CryptoPulse.media не является инвестиционным советником. Весь контент носит
+            ${SITE_NAME} не является инвестиционным советником. Весь контент носит
             исключительно информационный характер. Перед принятием финансовых решений проконсультируйтесь
             с квалифицированным специалистом.
           </p>
@@ -105,7 +106,7 @@ export default async function AboutPage({ params }: Props) {
 
           <h2>Who We Are</h2>
           <p>
-            CryptoPulse.media is an independent crypto media outlet for those who want to understand
+            ${SITE_NAME} is an independent crypto media outlet for those who want to understand
             digital assets without academic jargon or hype. We cover Bitcoin, Ethereum, DeFi, regulation,
             and the broader crypto market — in Russian and English.
           </p>
@@ -143,7 +144,7 @@ export default async function AboutPage({ params }: Props) {
             Our editorial agenda is independent of advertisers.
           </p>
           <p>
-            CryptoPulse.media is not an investment advisor. All content is for informational purposes only.
+            ${SITE_NAME} is not an investment advisor. All content is for informational purposes only.
             Please consult a qualified professional before making any financial decisions.
           </p>
 

@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { BNB_QUOTES, BNB_FAQ, BNB_INVESTMENT_REFERENCE } from '@/lib/bnbData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'bnb';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'История BNB: как Binance стала крупнейшей биржей мира, запуск BSC, сжигание токенов, дело CZ. Калькулятор инвестиций в BNB за 5 и 7 лет.'
     : "BNB history: how Binance became the world's largest exchange, the BSC launch, token burns, the CZ case. BNB investment calculator over 5 and 7 years.";
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -68,8 +69,8 @@ export default async function BnbPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/bnb`,
   };
 

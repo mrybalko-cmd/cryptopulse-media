@@ -7,6 +7,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from '../../AuthorPageBody';
 import { AUTHOR_PAGE_SIZE } from '../../page';
+import { SITE_NAME } from '@/lib/site';
 
 // Page 1 lives at /authors/[slug] itself; this route only serves page >= 2 —
 // same crawlable-pagination pattern as /articles/page/[n] and /news/page/[n].
@@ -36,8 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = bio
     ? `${bio.slice(0, 155 - pageSuffix.length)}${pageSuffix}`
     : isRu
-    ? `Материалы автора ${author.name} на CryptoPulse.media${pageSuffix}`
-    : `Articles by ${author.name} on CryptoPulse.media${pageSuffix}`;
+    ? `Материалы автора ${author.name} на ${SITE_NAME}${pageSuffix}`
+    : `Articles by ${author.name} on ${SITE_NAME}${pageSuffix}`;
   return {
     title,
     description,
@@ -74,7 +75,7 @@ export default async function AuthorDeepPage({ params }: Props) {
     name: author.name,
     ...(author.photo && { image: author.photo }),
     ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
-    worksFor: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    worksFor: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     url: `${BASE}/${locale}/authors/${slug}`,
   };
 

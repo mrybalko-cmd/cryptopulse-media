@@ -11,6 +11,7 @@ import { fetchAltcoinSeasonIndex } from '@/lib/altcoinSeason';
 import { fetchLatestPulse } from '@/lib/pulse';
 import { fetchTopAssetPrices } from '@/lib/coins';
 import { TOP_BILLIONAIRES } from '@/lib/billionaires';
+import { SITE_BRAND } from '@/lib/site';
 
 
 type Props = { params: Promise<{ locale: string }> };
@@ -116,7 +117,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
       },
       {
         '@type': 'ItemList',
-        name: isRu ? 'Калькуляторы CryptoPulse.media' : 'CryptoPulse.media calculators',
+        name: isRu ? `Калькуляторы ${SITE_BRAND}.media` : `${SITE_BRAND}.media calculators`,
         numberOfItems: tools.length,
         itemListElement: tools.map((t, i) => ({
           '@type': 'ListItem',
@@ -281,7 +282,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                     color={altColor(altcoinSeasonData.index)}
                     gradient={['#F0883E', '#D29922', '#8B5CF6']}
                     explanation={altExplain(altcoinSeasonData.index)}
-                    source="CryptoPulse · CoinGecko"
+                    source={`${SITE_BRAND} · CoinGecko`}
                     href={`/${locale}/altcoin-season`}
                   />
                 )}

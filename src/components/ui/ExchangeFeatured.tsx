@@ -12,6 +12,7 @@ import {
   productLabels,
   slugFor,
 } from './exchangePresentation';
+import { SITE_BRAND } from '@/lib/site';
 
 /**
  * A paid placement, lifted out of the ranking into its own slot above it.
@@ -45,7 +46,7 @@ export default function ExchangeFeatured({ exchange, locale }: { exchange: Excha
       <div className="relative">
         <span className="flex items-center gap-1.5 text-[9.5px] font-black uppercase tracking-[0.11em] text-[var(--violet-2)] mb-3">
           <PinIcon className="w-3 h-3" />
-          {isRu ? 'Партнёр CryptoPulse' : 'CryptoPulse partner'}
+          {isRu ? `Партнёр ${SITE_BRAND}` : `${SITE_BRAND} partner`}
         </span>
 
         <div className="flex items-center gap-4 flex-wrap">

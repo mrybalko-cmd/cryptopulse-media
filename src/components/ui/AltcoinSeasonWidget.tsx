@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import GaugeArc from './GaugeArc';
+import { SITE_BRAND } from '@/lib/site';
 
 interface Props {
   value: number;
@@ -49,7 +50,7 @@ export default function AltcoinSeasonWidget({ value, classification, locale, wid
           {indexLabel} ↗
         </span>
         <span className="text-[8px] text-muted/50 mt-0.5">
-          {locale === 'ru' ? 'расчёт CryptoPulse по CoinGecko' : 'CryptoPulse calc via CoinGecko'}
+          {locale === 'ru' ? `расчёт ${SITE_BRAND} по CoinGecko` : `${SITE_BRAND} calc via CoinGecko`}
         </span>
       </div>
 
@@ -63,7 +64,7 @@ export default function AltcoinSeasonWidget({ value, classification, locale, wid
           <span className="text-[10px] font-medium" style={{ color }}>{label}</span>
         </div>
         <span className="text-[8px] text-muted/50">
-          {locale === 'ru' ? 'расчёт CryptoPulse по CoinGecko' : 'CryptoPulse calc via CoinGecko'}
+          {locale === 'ru' ? `расчёт ${SITE_BRAND} по CoinGecko` : `${SITE_BRAND} calc via CoinGecko`}
         </span>
       </div>
     </Link>

@@ -1,6 +1,7 @@
 import { BASE } from './metadata';
+import { SITE_EMAIL, SITE_NAME } from '@/lib/site';
 
-export const CONTACT_EMAIL = 'info@cryptopulse.media';
+export const CONTACT_EMAIL = SITE_EMAIL;
 
 /** The organization node's canonical id. Article, glossary and listing schemas
  *  reference this instead of restating the publisher, so the entity is
@@ -35,7 +36,7 @@ export function organizationSchema(locale: string) {
   return {
     '@type': 'NewsMediaOrganization',
     '@id': ORGANIZATION_ID,
-    name: 'CryptoPulse.media',
+    name: '${SITE_NAME}',
     url: BASE,
     description: isRu
       ? 'Независимое издание о криптовалютах: новости, аналитика и справочные материалы о рынке, регулировании и биржах.'

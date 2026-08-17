@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { fetchExchangeBySlug, fetchExchangeMentions } from '@/lib/sanity';
+import { SITE_BRAND } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = isRu ? `Новости ${exchange.name}` : `${exchange.name} News`;
   const description = isRu
-    ? `Все статьи и новости CryptoPulse, упоминающие ${exchange.name}.`
-    : `All CryptoPulse articles and news mentioning ${exchange.name}.`;
+    ? `Все статьи и новости {SITE_BRAND}, упоминающие ${exchange.name}.`
+    : `All {SITE_BRAND} articles and news mentioning ${exchange.name}.`;
 
   return {
     title,

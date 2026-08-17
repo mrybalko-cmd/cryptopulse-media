@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -28,8 +29,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      'https://cryptopulse.media/sitemap.xml',
-      'https://cryptopulse.media/news-sitemap.xml',
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/news-sitemap.xml`,
     ],
   };
 }

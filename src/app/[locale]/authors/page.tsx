@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { fetchAuthors } from '@/lib/sanity';
 import { Users } from 'lucide-react';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -16,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'Наши авторы' : 'Our Authors';
   const description = isRu
-    ? 'Авторы и аналитики CryptoPulse.media — узнайте больше о команде, которая создаёт криптовалютный контент.'
-    : 'Meet the authors and analysts of CryptoPulse.media — the team behind our crypto content.';
+    ? `Авторы и аналитики ${SITE_NAME} — узнайте больше о команде, которая создаёт криптовалютный контент.`
+    : `Meet the authors and analysts of ${SITE_NAME} — the team behind our crypto content.`;
   return {
     title,
     description,
@@ -39,9 +40,9 @@ export default async function AuthorsPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: isRu ? 'Авторы CryptoPulse.media' : 'CryptoPulse.media Authors',
+    name: isRu ? 'Авторы ${SITE_NAME}' : '${SITE_NAME} Authors',
     url: `${BASE}/${locale}/authors`,
-    about: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    about: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
   };
 
   return (
@@ -59,8 +60,8 @@ export default async function AuthorsPage({ params }: Props) {
         </div>
         <p className="text-muted text-sm leading-relaxed ml-12">
           {isRu
-            ? 'Команда аналитиков и редакторов, которые создают материалы для CryptoPulse.media'
-            : 'The team of analysts and editors who create content for CryptoPulse.media'}
+            ? 'Команда аналитиков и редакторов, которые создают материалы для ${SITE_NAME}'
+            : 'The team of analysts and editors who create content for ${SITE_NAME}'}
         </p>
       </div>
 

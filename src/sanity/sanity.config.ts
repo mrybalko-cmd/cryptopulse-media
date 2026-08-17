@@ -6,6 +6,7 @@ import { schemaTypes } from './schemaTypes';
 import { publishWithTimingAction } from './actions/publishWithTiming';
 import { PublicationScheduleTool } from './plugins/PublicationScheduleTool';
 import { BannerPreview } from './components/BannerPreview';
+import { SITE_NAME } from '@/lib/site';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
@@ -14,7 +15,7 @@ const HOME_SETTINGS_ID = 'homeSettings';
 
 export default defineConfig({
   name: 'cryptopulse',
-  title: 'CryptoPulse.media',
+  title: SITE_NAME,
   projectId,
   dataset,
   plugins: [

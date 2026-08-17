@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { SHIB_QUOTES, SHIB_FAQ, SHIB_INVESTMENT_REFERENCE } from '@/lib/shibData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'shib';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'История Shiba Inu: анонимный Ryoshi, сожжённые Виталиком Бутериным 410 триллионов SHIB, Shibarium L2 и реализм про $0.01. Калькулятор инвестиций.'
     : 'Shiba Inu history: the anonymous Ryoshi, the 410 trillion SHIB Vitalik Buterin burned, Shibarium L2 and honest talk about $0.01. Investment calculator.';
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -67,8 +68,8 @@ export default async function ShibPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/shib`,
   };
 

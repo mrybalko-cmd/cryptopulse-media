@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE, truncateDesc } from '@/lib/metadata';
 import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from './AuthorPageBody';
+import { SITE_NAME } from '@/lib/site';
 
 export const AUTHOR_PAGE_SIZE = 20;
 
@@ -27,8 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = bio
     ? truncateDesc(bio)
     : isRu
-    ? `Материалы автора ${author.name} на CryptoPulse.media`
-    : `Articles by ${author.name} on CryptoPulse.media`;
+    ? `Материалы автора ${author.name} на ${SITE_NAME}`
+    : `Articles by ${author.name} on ${SITE_NAME}`;
   return {
     title,
     description,
@@ -59,7 +60,7 @@ export default async function AuthorPage({ params }: Props) {
     name: author.name,
     ...(author.photo && { image: author.photo }),
     ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
-    worksFor: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    worksFor: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     url: `${BASE}/${locale}/authors/${slug}`,
   };
 

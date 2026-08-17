@@ -1,7 +1,8 @@
 import '../globals.css';
+import { SITE_BRAND } from '@/lib/site';
 
 export const metadata = {
-  title: 'CryptoPulse Admin',
+  title: `${SITE_BRAND} Admin`,
   robots: { index: false, follow: false },
 };
 

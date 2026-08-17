@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { LINK_QUOTES, LINK_FAQ, LINK_INVESTMENT_REFERENCE } from '@/lib/linkData';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'link';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'История Chainlink: как Сергей Назаров решил проблему оракула и построил инфраструктуру для 80% DeFi. VRF, CCIP, калькулятор инвестиций в LINK.'
     : 'Chainlink history: how Sergey Nazarov solved the oracle problem and built infrastructure for 80% of DeFi. VRF, CCIP, LINK investment calculator.';
   return {
-    // Absolute: the layout template appends ' | CryptoPulse.media', which costs
+    // Absolute: the layout template appends ` | ${SITE_NAME}`, which costs
     // 20 characters and adds nothing here — the coin's name is already first.
     title: { absolute: title },
     description,
@@ -67,8 +68,8 @@ export default async function LinkPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
-    publisher: { '@type': 'Organization', name: 'CryptoPulse.media', url: BASE },
+    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/link`,
   };
 

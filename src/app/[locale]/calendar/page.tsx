@@ -5,6 +5,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchCalendarEvents } from '@/lib/sanity';
 import CalendarFilter from '@/components/ui/CalendarFilter';
 import PopularSidebar from '@/components/ui/PopularSidebar';
+import { SITE_NAME } from '@/lib/site';
 
 const CALENDAR_FAQ = [
   {
@@ -14,8 +15,8 @@ const CALENDAR_FAQ = [
       en: "Where does the calendar's event data come from?",
     },
     answer: {
-      ru: 'Редакция CryptoPulse.media вручную отслеживает официальные анонсы проектов, бирж и регуляторов и добавляет проверенные события с указанием источника.',
-      en: "CryptoPulse.media's editors manually track official announcements from projects, exchanges, and regulators, and add verified events with a source link.",
+      ru: `Редакция ${SITE_NAME} вручную отслеживает официальные анонсы проектов, бирж и регуляторов и добавляет проверенные события с указанием источника.`,
+      en: `${SITE_NAME}'s editors manually track official announcements from projects, exchanges, and regulators, and add verified events with a source link.`,
     },
   },
   {
@@ -108,7 +109,7 @@ export default async function CalendarPage({ params }: Props) {
     '@graph': [
       {
         '@type': 'ItemList',
-        name: isRu ? 'Криптокалендарь CryptoPulse.media' : 'CryptoPulse.media Crypto Calendar',
+        name: isRu ? 'Криптокалендарь ${SITE_NAME}' : '${SITE_NAME} Crypto Calendar',
         itemListElement: events.map((e, i) => ({
           '@type': 'ListItem',
           position: i + 1,

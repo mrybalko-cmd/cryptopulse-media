@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
 import type { EurRate } from '@/lib/eurRates';
+import { SITE_BRAND } from '@/lib/site';
 
 type SortKey = 'rate' | 'feePct' | 'type';
 type Filter = 'all' | 'p2p' | 'cex';
@@ -243,7 +244,7 @@ export default function EurRatesTable({ rates, locale }: { rates: EurRate[]; loc
 
       <p className="text-[11px] text-muted mt-2.5 leading-relaxed">
         {isRu
-          ? 'Нажмите на название площадки, чтобы открыть её обзор на CryptoPulse.'
+          ? `Нажмите на название площадки, чтобы открыть её обзор на ${SITE_BRAND}.`
           : 'Tap a venue name to open our review of that exchange.'}
       </p>
     </div>

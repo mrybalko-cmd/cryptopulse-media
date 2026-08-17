@@ -1,7 +1,8 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { SITE_HOST, SITE_URL } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 async function pingIndexNow(urls: string[]) {
   const key = process.env.INDEXNOW_KEY;
@@ -12,7 +13,7 @@ async function pingIndexNow(urls: string[]) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({
-        host: 'cryptopulse.media',
+        host: SITE_HOST,
         key,
         keyLocation: `${BASE}/${key}.txt`,
         urlList: urls,

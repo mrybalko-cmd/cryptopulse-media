@@ -5,6 +5,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import { fetchArticles } from '@/lib/sanity';
 import ArticlesListingBody from './ArticlesListingBody';
+import { SITE_URL } from '@/lib/site';
 
 export const INITIAL_LIMIT = 15;
 
@@ -22,8 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: buildOg({ url: `${BASE}/${locale}/articles`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/articles`, title, description, locale }),
     alternates: {
-      canonical: `https://cryptopulse.media/${locale}/articles`,
-      languages: { ru: 'https://cryptopulse.media/ru/articles', en: 'https://cryptopulse.media/en/articles', 'x-default': 'https://cryptopulse.media/en/articles' },
+      canonical: `${SITE_URL}/${locale}/articles`,
+      languages: { ru: '${SITE_URL}/ru/articles', en: '${SITE_URL}/en/articles', 'x-default': '${SITE_URL}/en/articles' },
     },
   };
 }

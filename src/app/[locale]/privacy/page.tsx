@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { CONTACT_EMAIL, SITE_NAME } from '@/lib/constants';
+import { CONTACT_EMAIL } from '@/lib/constants';
+import { SITE_HOST, SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -11,16 +12,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' });
   const isRu = locale === 'ru';
   const description = isRu
-    ? 'Как CryptoPulse.media собирает, использует и защищает ваши персональные данные.'
-    : 'How CryptoPulse.media collects, uses, and protects your personal data.';
+    ? `Как ${SITE_NAME} собирает, использует и защищает ваши персональные данные.`
+    : `How ${SITE_NAME} collects, uses, and protects your personal data.`;
   return {
     title: t('privacyTitle'),
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
     alternates: {
-      canonical: `https://cryptopulse.media/${locale}/privacy`,
-      languages: { ru: 'https://cryptopulse.media/ru/privacy', en: 'https://cryptopulse.media/en/privacy', 'x-default': 'https://cryptopulse.media/en/privacy' },
+      canonical: `${SITE_URL}/${locale}/privacy`,
+      languages: { ru: '${SITE_URL}/ru/privacy', en: '${SITE_URL}/en/privacy', 'x-default': '${SITE_URL}/en/privacy' },
     },
   };
 }
@@ -62,7 +63,7 @@ export default async function PrivacyPage({ params }: Props) {
           <>
             <p>
               {SITE_NAME} (далее «мы») — независимый проект, посвящённый новостям и аналитике криптовалютного
-              рынка. Эта политика объясняет, какие данные мы собираем при использовании сайта cryptopulse.media
+              рынка. Эта политика объясняет, какие данные мы собираем при использовании сайта {SITE_HOST}
               и как мы с ними поступаем.
             </p>
 
@@ -118,7 +119,7 @@ export default async function PrivacyPage({ params }: Props) {
           <>
             <p>
               {SITE_NAME} (&quot;we&quot;) is an independent project covering crypto market news and analysis.
-              This policy explains what data we collect when you use cryptopulse.media and how we handle it.
+              This policy explains what data we collect when you use {SITE_HOST} and how we handle it.
             </p>
 
             <h2>Information We Collect</h2>

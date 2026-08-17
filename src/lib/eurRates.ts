@@ -1,3 +1,4 @@
+import { SITE_NAME } from '@/lib/site';
 
 // Server renders wait on these. A third-party API that stalls must not be
 // able to hold a page open indefinitely, so every call carries a deadline.
@@ -138,7 +139,7 @@ async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
 async function fetchCoinbase(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
     const res = await fetch(`https://api.exchange.coinbase.com/products/${asset}-EUR/ticker`, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-      headers: { 'User-Agent': 'CryptoPulse.media rate comparison' },
+      headers: { 'User-Agent': '${SITE_NAME} rate comparison' },
       next: { revalidate: 120 },
     });
     if (!res.ok) return null;

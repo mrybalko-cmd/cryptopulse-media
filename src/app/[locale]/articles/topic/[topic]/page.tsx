@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { fetchArticlesByTopic } from '@/lib/sanity';
 import ArticleCard from '@/components/ui/ArticleCard';
 import { TOPICS } from '@/lib/topics';
+import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; topic: string }> };
 
@@ -28,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `Статьи по теме: ${topicName}`
     : `Articles: ${topicName}`;
   const description = isRu
-    ? `Читайте аналитические статьи CryptoPulse.media по теме «${topicName}»: разборы, тренды и экспертные мнения.`
-    : `Explore CryptoPulse.media analysis and in-depth articles on ${topicName}: trends, breakdowns, and expert takes.`;
+    ? `Читайте аналитические статьи ${SITE_NAME} по теме «${topicName}»: разборы, тренды и экспертные мнения.`
+    : `Explore ${SITE_NAME} analysis and in-depth articles on ${topicName}: trends, breakdowns, and expert takes.`;
 
   // Topics with only a handful of articles offer no real aggregation value
   // over the single article page itself — noindex those so crawl budget
@@ -75,8 +76,8 @@ export default async function TopicPage({ params }: Props) {
   const articles = await fetchArticlesByTopic(topic, locale, 50);
   const topicName = isRu ? topicData.ru : topicData.en;
   const pageTitle = isRu
-    ? `Статьи по теме: ${topicName} — CryptoPulse.media`
-    : `Articles: ${topicName} — CryptoPulse.media`;
+    ? `Статьи по теме: ${topicName} — ${SITE_NAME}`
+    : `Articles: ${topicName} — ${SITE_NAME}`;
 
   const pageUrl = `${BASE}/${locale}/articles/topic/${topic}`;
 

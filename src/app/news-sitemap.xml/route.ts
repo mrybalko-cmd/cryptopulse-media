@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
@@ -12,7 +13,7 @@ const client = createClient({
   useCdn: true,
 });
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 
 export const revalidate = 300;
 
@@ -54,7 +55,7 @@ export async function GET() {
     <loc>${BASE}/${locale}/${section}/${item.slug.current}</loc>
     <news:news>
       <news:publication>
-        <news:name>CryptoPulse.media</news:name>
+        <news:name>${SITE_NAME}</news:name>
         <news:language>${lang}</news:language>
       </news:publication>
       <news:publication_date>${pubDate}</news:publication_date>

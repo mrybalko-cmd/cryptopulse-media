@@ -10,8 +10,9 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { organizationSchema, ORGANIZATION_ID } from '@/lib/organizationSchema';
 import '../globals.css';
+import { SITE_NAME, SITE_URL, TITLE_SUFFIX } from '@/lib/site';
 
-const BASE = 'https://cryptopulse.media';
+const BASE = SITE_URL;
 const GA_ID = 'G-8YJT9B6XFV';
 const AHREFS_KEY = '9PVWiRWYIPxrsY1xzgp+vA';
 
@@ -32,9 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: {
       default: isRu
-        ? 'CryptoPulse.media — новости и аналитика криптовалют'
-        : 'CryptoPulse.media — Crypto News, Analysis & Asset Guides',
-      template: '%s | CryptoPulse.media',
+        ? `${SITE_NAME} — новости и аналитика криптовалют`
+        : `${SITE_NAME} — Crypto News, Analysis & Asset Guides`,
+      template: `%s${TITLE_SUFFIX}`,
     },
     // Kept under ~150 chars (both languages) — the previous AI-aware rewrite
     // ran to 170-179 chars, which Ahrefs flagged as "meta description too
@@ -52,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       locale: isRu ? 'ru_RU' : 'en_US',
       alternateLocale: isRu ? 'en_US' : 'ru_RU',
-      siteName: 'CryptoPulse.media',
+      siteName: '${SITE_NAME}',
       url: `${BASE}/${locale}`,
     },
     twitter: { card: 'summary_large_image' },
@@ -78,7 +79,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       {
         '@type': 'WebSite',
         '@id': `${BASE}/#website`,
-        name: 'CryptoPulse.media',
+        name: '${SITE_NAME}',
         url: BASE,
         publisher: { '@id': ORGANIZATION_ID },
         inLanguage: locale,
@@ -94,7 +95,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             it just trips PageSpeed's ">4 preconnects / unused preconnect"
             warning without helping. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="alternate" type="application/rss+xml" title="CryptoPulse.media" href="/rss.xml" />
+        <link rel="alternate" type="application/rss+xml" title="${SITE_NAME}" href="/rss.xml" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
         {process.env.GOOGLE_PUBLISHER_CENTER_TOKEN && (
           <meta name="google-site-verification" content={process.env.GOOGLE_PUBLISHER_CENTER_TOKEN} />

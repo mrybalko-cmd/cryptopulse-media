@@ -1,4 +1,5 @@
-const BASE = 'https://cryptopulse.media';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
+const BASE = SITE_URL;
 
 export function buildOg(opts: {
   url: string;
@@ -12,7 +13,7 @@ export function buildOg(opts: {
   return {
     type: (opts.type ?? 'website') as 'website' | 'article',
     locale: opts.locale === 'ru' ? 'ru_RU' : 'en_US',
-    siteName: 'CryptoPulse.media',
+    siteName: '${SITE_NAME}',
     url: opts.url,
     title: opts.title,
     description: opts.description,
@@ -56,7 +57,7 @@ export function truncateDesc(text: string, max = 155): string {
 
 /**
  * Truncates a page title so it stays readable once the root layout's
- * `title.template` appends " | CryptoPulse.media" (20 chars) — pass only the
+ * `title.template` appends " | ${SITE_NAME}" (20 chars) — pass only the
  * page-specific text here, never a string that already includes the suffix.
  */
 export function truncateTitle(text: string, max = 60, suffixLen = 20): string {

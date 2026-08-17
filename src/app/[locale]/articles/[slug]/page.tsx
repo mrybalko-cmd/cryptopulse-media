@@ -22,6 +22,7 @@ import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -44,8 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // guidance calls out 16:9 specifically for large-image thumbnail eligibility.
   const ogImageUrl = article.seoOgImageUrl
     || sanityImageTransform(article.coverImage, { width: 1200, height: 675, format: 'jpg' })
-    || `https://cryptopulse.media/${locale}/opengraph-image`;
-  const canonicalUrl = article.seo?.canonicalUrl || `https://cryptopulse.media/${locale}/articles/${slug}`;
+    || `${SITE_URL}/${locale}/opengraph-image`;
+  const canonicalUrl = article.seo?.canonicalUrl || `${SITE_URL}/${locale}/articles/${slug}`;
   const translationLang = article.translation?.language;
   const translationSlug = article.translation?.slug;
 
@@ -57,17 +58,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        [locale]: `https://cryptopulse.media/${locale}/articles/${slug}`,
+        [locale]: `${SITE_URL}/${locale}/articles/${slug}`,
         ...(translationLang && translationSlug
-          ? { [translationLang]: `https://cryptopulse.media/${translationLang}/articles/${translationSlug}` }
+          ? { [translationLang]: `${SITE_URL}/${translationLang}/articles/${translationSlug}` }
           : {}),
         // x-default points at the English version when we can resolve it —
         // either this page is EN, or its translation is the EN one. Omitted
         // when no EN counterpart exists so it never targets a missing URL.
         ...(locale === 'en'
-          ? { 'x-default': `https://cryptopulse.media/en/articles/${slug}` }
+          ? { 'x-default': `${SITE_URL}/en/articles/${slug}` }
           : translationLang === 'en' && translationSlug
-            ? { 'x-default': `https://cryptopulse.media/en/articles/${translationSlug}` }
+            ? { 'x-default': `${SITE_URL}/en/articles/${translationSlug}` }
             : {}),
       },
     },
@@ -75,14 +76,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       title,
       description,
-      url: `https://cryptopulse.media/${locale}/articles/${slug}`,
-      siteName: 'CryptoPulse.media',
+      url: `${SITE_URL}/${locale}/articles/${slug}`,
+      siteName: '${SITE_NAME}',
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: [{ url: ogImageUrl, width: 1200, height: 675, alt: title }],
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt || article.publishedAt,
       ...(article.author?.slug && {
-        authors: [`https://cryptopulse.media/${locale}/authors/${article.author.slug}`],
+        authors: [`${SITE_URL}/${locale}/authors/${article.author.slug}`],
       }),
       ...(article.topic && { section: article.topic }),
       ...(article.seo?.keywords?.length && { tags: article.seo.keywords }),
@@ -130,17 +131,17 @@ export default async function ArticlePage({ params }: Props) {
     '@type': schemaType,
     headline: article.title,
     description: article.excerpt,
-    url: `https://cryptopulse.media/${locale}/articles/${slug}`,
-    image: [article.seoOgImageUrl || article.coverImage || `https://cryptopulse.media/${locale}/opengraph-image`],
+    url: `${SITE_URL}/${locale}/articles/${slug}`,
+    image: [article.seoOgImageUrl || article.coverImage || `${SITE_URL}/${locale}/opengraph-image`],
     datePublished: article.publishedAt,
     dateModified: article.updatedAt || article.publishedAt,
     inLanguage: locale,
     ...(wordCount > 0 && { wordCount }),
     author: article.author
-      ? { '@type': 'Person', name: article.author.name.trim(), url: `https://cryptopulse.media/${locale}/authors/${article.author.slug}` }
-      : { '@type': 'Organization', '@id': 'https://cryptopulse.media/#organization' },
-    publisher: { '@id': 'https://cryptopulse.media/#organization' },
-    mainEntityOfPage: `https://cryptopulse.media/${locale}/articles/${slug}`,
+      ? { '@type': 'Person', name: article.author.name.trim(), url: `${SITE_URL}/${locale}/authors/${article.author.slug}` }
+      : { '@type': 'Organization', '@id': '${SITE_URL}/#organization' },
+    publisher: { '@id': '${SITE_URL}/#organization' },
+    mainEntityOfPage: `${SITE_URL}/${locale}/articles/${slug}`,
     // Plain schema.org, not a Subscribe-with-Google signal: it states the
     // story is not behind a paywall, which Google News reads on its own.
     // The swg-basic.js integration it used to accompany was removed — it
@@ -154,13 +155,13 @@ export default async function ArticlePage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `https://cryptopulse.media/${locale}` },
-      { '@type': 'ListItem', position: 2, name: locale === 'ru' ? 'Статьи' : 'Articles', item: `https://cryptopulse.media/${locale}/articles` },
-      { '@type': 'ListItem', position: 3, name: article.title, item: `https://cryptopulse.media/${locale}/articles/${slug}` },
+      { '@type': 'ListItem', position: 1, name: locale === 'ru' ? 'Главная' : 'Home', item: `${SITE_URL}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: locale === 'ru' ? 'Статьи' : 'Articles', item: `${SITE_URL}/${locale}/articles` },
+      { '@type': 'ListItem', position: 3, name: article.title, item: `${SITE_URL}/${locale}/articles/${slug}` },
     ],
   };
 
-  const pageUrl = `https://cryptopulse.media/${locale}/articles/${slug}`;
+  const pageUrl = `${SITE_URL}/${locale}/articles/${slug}`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
@@ -234,7 +235,7 @@ export default async function ArticlePage({ params }: Props) {
                 {article.author.name}
               </a>
             ) : (
-              <span rel="author">{article.author?.name || 'CryptoPulse.media'}</span>
+              <span rel="author">{article.author?.name || '${SITE_NAME}'}</span>
             )}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">

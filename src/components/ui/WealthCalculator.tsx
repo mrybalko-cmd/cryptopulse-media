@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Check, Info, Share2 } from 'lucide-react';
 import { TOP_BILLIONAIRES } from '@/lib/billionaires';
 import ShareButtons from './ShareButtons';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 const BITCOIN_AGE_YEARS = 17;
 const HUMAN_LIFESPAN_YEARS = 80;
@@ -128,7 +129,7 @@ export default function WealthCalculator({ locale }: { locale: string }) {
               <span className="text-background text-xs font-bold">⚡</span>
             </div>
             <span className="text-xs font-medium text-muted uppercase tracking-widest">
-              CryptoPulse.media
+              ${SITE_NAME}
             </span>
           </div>
 
@@ -204,7 +205,7 @@ export default function WealthCalculator({ locale }: { locale: string }) {
                 <Share2 size={14} className="text-accent" />
                 {locale === 'ru' ? 'Поделиться результатом' : 'Share your result'}
               </span>
-              <ShareButtons url={`https://cryptopulse.media/${locale}/calculators/wealth`} title={shareTitle} locale={locale} vertical={false} />
+              <ShareButtons url={`${SITE_URL}/${locale}/calculators/wealth`} title={shareTitle} locale={locale} vertical={false} />
             </div>
           </div>
         </div>
