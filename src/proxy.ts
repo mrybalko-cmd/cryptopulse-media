@@ -1,8 +1,24 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
+import { SITE_URL } from './lib/site';
 
 const handleI18n = createMiddleware(routing);
+
+/**
+ * The host the site currently calls home. Anything served on a different host
+ * is a staging copy — a real second address the site answers on before the
+ * move — and must never be indexed: two hosts serving the same 1766 pages is
+ * duplicate content, and the wrong one can win.
+ */
+const CANONICAL_HOST = SITE_URL.replace(/^https?:\/\//, '');
+
+/** Adds noindex to every response served on a host that is not yet ours. */
+function guardNonCanonicalHost(request: NextRequest, response: Response | undefined): void {
+  const host = request.headers.get('host')?.split(':')[0];
+  if (!host || host === CANONICAL_HOST || host.endsWith('.vercel.app') || host === 'localhost') return;
+  response?.headers.set('X-Robots-Tag', 'noindex, nofollow');
+}
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,7 +29,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${routing.defaultLocale}`, request.url), 308);
   }
   if (pathname.startsWith('/studio') || pathname.startsWith('/api') || pathname.startsWith('/admin')) {
-    return NextResponse.next();
+    const passthrough = NextResponse.next();
+    guardNonCanonicalHost(request, passthrough);
+    return passthrough;
   }
   const response = handleI18n(request);
   // next-intl sets Set-Cookie (NEXT_LOCALE) on every response even with
@@ -36,6 +54,7 @@ export function proxy(request: NextRequest) {
       response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     }
   }
+  guardNonCanonicalHost(request, response);
   return response;
 }
 
