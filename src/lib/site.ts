@@ -43,12 +43,22 @@ export const SITE_BRAND = 'CryptoPulse';
 /**
  * Editorial inbox, published in schema.org and the RSS feed.
  *
- * Note it is not the address the public pages tell readers to write to — those
- * carry CONTACT_EMAIL from constants.ts, which is a personal mailbox. The two
- * have disagreed since before this file existed; unifying them is an editorial
- * decision, not a mechanical one.
+ * Written out rather than derived from SITE_HOST: derived, it would have
+ * become info@intokened.com the moment the site moved, advertising a mailbox
+ * that does not exist. Point it at info@ on the new domain once that mailbox
+ * is real and its SPF/DKIM/DMARC are set.
  */
-export const SITE_EMAIL = `info@${SITE_HOST}`;
+export const SITE_EMAIL = 'mrybalko@icloud.com';
+
+/**
+ * Hosts the site used to live on.
+ *
+ * Everything arriving on one of these is answered with a permanent redirect to
+ * the same path on SITE_URL — per URL, never a blanket bounce to the homepage,
+ * which is the single most expensive mistake available during a migration.
+ * A host listed here must never equal SITE_HOST, or the redirect loops.
+ */
+export const LEGACY_HOSTS: readonly string[] = ['cryptopulse.media', 'www.cryptopulse.media'];
 
 /** Suffix appended to page titles by the root layout's title template. */
 export const TITLE_SUFFIX = ` | ${SITE_NAME}`;

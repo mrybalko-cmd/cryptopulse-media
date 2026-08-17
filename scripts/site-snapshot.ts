@@ -10,6 +10,7 @@
  *   node --experimental-strip-types scripts/site-snapshot.ts <base> <out.json>
  */
 import fs from 'node:fs';
+import https from 'node:https';
 
 const BASE = process.argv[2] ?? 'https://cryptopulse.media';
 const OUT = process.argv[3] ?? 'snapshot.json';
@@ -31,15 +32,50 @@ interface PageFacts {
   words: number;
 }
 
+/**
+ * Optional fourth argument: an IP to connect to, ignoring DNS.
+ *
+ * A domain that has just moved spends up to its TTL with public resolvers
+ * still handing out the old address. Pinning the IP lets the new host be
+ * verified now rather than half an hour from now, and — more importantly —
+ * verifies the server itself rather than whatever DNS happens to say.
+ */
+const PIN_IP = process.argv[4];
+
 async function fetchText(url: string): Promise<{ status: number; body: string }> {
-  // No manual Accept-Encoding: fetch negotiates and decompresses on its own,
-  // and asking for gzip by hand hands back a body it has already decoded.
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SiteSnapshot/1.0)' },
-    redirect: 'manual',
-    signal: AbortSignal.timeout(45_000),
+  if (!PIN_IP) {
+    // No manual Accept-Encoding: fetch negotiates and decompresses on its own,
+    // and asking for gzip by hand hands back a body it has already decoded.
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SiteSnapshot/1.0)' },
+      redirect: 'manual',
+      signal: AbortSignal.timeout(45_000),
+    });
+    return { status: res.status, body: await res.text() };
+  }
+  const u = new URL(url);
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        host: PIN_IP,
+        servername: u.hostname,          // SNI still names the real host
+        port: 443,
+        path: u.pathname + u.search,
+        method: 'GET',
+        headers: { Host: u.hostname, 'User-Agent': 'Mozilla/5.0 (compatible; SiteSnapshot/1.0)', 'Accept-Encoding': 'identity' },
+        timeout: 45_000,
+      },
+      res => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', c => (body += c));
+        res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
+      }
+    );
+    req.on('timeout', () => req.destroy(new Error('timeout')));
+    req.on('error', reject);
+    req.end();
   });
-  return { status: res.status, body: await res.text() };
 }
 
 function one(html: string, re: RegExp): string | null {

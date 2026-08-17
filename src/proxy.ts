@@ -1,7 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
-import { SITE_URL } from './lib/site';
+import { LEGACY_HOSTS, SITE_URL } from './lib/site';
 
 const handleI18n = createMiddleware(routing);
 
@@ -13,6 +13,21 @@ const handleI18n = createMiddleware(routing);
  */
 const CANONICAL_HOST = SITE_URL.replace(/^https?:\/\//, '');
 
+/**
+ * A permanent redirect to the same path on the canonical host, or null.
+ *
+ * Only for hosts the site has actually left. Guarded against the case where a
+ * legacy host is still the canonical one — that would redirect a page to
+ * itself, forever.
+ */
+function redirectFromLegacyHost(request: NextRequest): NextResponse | null {
+  const host = request.headers.get('host')?.split(':')[0];
+  if (!host || host === CANONICAL_HOST) return null;
+  if (!LEGACY_HOSTS.includes(host)) return null;
+  const target = new URL(request.nextUrl.pathname + request.nextUrl.search, SITE_URL);
+  return NextResponse.redirect(target, 308);
+}
+
 /** Adds noindex to every response served on a host that is not yet ours. */
 function guardNonCanonicalHost(request: NextRequest, response: Response | undefined): void {
   const host = request.headers.get('host')?.split(':')[0];
@@ -21,6 +36,11 @@ function guardNonCanonicalHost(request: NextRequest, response: Response | undefi
 }
 
 export function proxy(request: NextRequest) {
+  // Before anything else: a request on an address the site has left never gets
+  // a page, only the way to its new one.
+  const moved = redirectFromLegacyHost(request);
+  if (moved) return moved;
+
   const { pathname } = request.nextUrl;
   if (pathname === '/') {
     // next-intl's own redirect for "/" uses NextResponse.redirect() with no
