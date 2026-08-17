@@ -1,7 +1,7 @@
 /**
  * The mark as it appears in the header and the footer — no tile.
  *
- * It used to be `/brand-mark.png`, the same square used for the favicon and the
+ * It used to be the mark PNG, the same square used for the favicon and the
  * app icon. That square carries a graphite tile, and the tile is #1D1D1F while
  * the site's own background is #1d1d1f — the same colour. On the dark theme the
  * tile was invisible, so a 40px box showed a 28px mark floating in 12px of
@@ -28,17 +28,20 @@ const BRACKETS: ReadonlyArray<readonly [number, number, number, number]> = [
 /**
  * The face the light hits, and the one that turns away from it.
  *
- * These are the bolt at 0.58 — the size it is *inside the brackets*, which is
+ * These are the bolt at 0.66 — the size it is *inside the brackets*, which is
  * the only size it is ever drawn at here. Splitting the shape into two faces the
  * first time, I took the coordinates from the unscaled bolt and shipped a mark
- * 1.72× too large, which is exactly 1/0.58. The brackets were right and the bolt
- * was not, so it read as a huge bolt in a normal frame.
+ * 1.72× too large, which is exactly 1/0.58 for the scale then in use. The
+ * brackets were right and the bolt was not, so it read as a huge bolt in a
+ * normal frame.
  *
  * Any change to BOLT_SCALE in build-logo.py has to be reflected here; these are
- * the same six vertices that file scales at runtime.
+ * the same six vertices that file scales at runtime. Recomputing them by hand
+ * is what caused that bug, so take them from the script rather than by eye:
+ *   python3 -c "..." using BOLT and BOLT_SCALE out of build-logo.py
  */
-const BOLT_LIT = '36.64,16.92 22.72,34.32 30.84,34.32 27.36,47.08';
-const BOLT_FOLD = '27.36,47.08 41.28,29.68 33.16,29.68 36.64,16.92';
+const BOLT_LIT = '37.28,14.84 21.44,34.64 30.68,34.64 26.72,49.16';
+const BOLT_FOLD = '26.72,49.16 42.56,29.36 33.32,29.36 37.28,14.84';
 
 const GOLD_LIT = '#FFC93C';
 const GOLD_FOLD = '#D4820F';

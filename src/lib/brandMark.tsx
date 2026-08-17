@@ -22,8 +22,8 @@ const BRACKETS: ReadonlyArray<readonly [number, number, number, number]> = [
   [54, 4, 6, 56], [45, 4, 15, 6], [45, 54, 15, 6],
 ];
 
-/** The bolt, already scaled to 0.58 and centred — the value the brackets frame. */
-const BOLT = '36.64,16.92 22.72,34.32 30.84,34.32 27.36,47.08 41.28,29.68 33.16,29.68';
+/** The bolt, already scaled to 0.66 and centred — the value the brackets frame. */
+const BOLT = '37.28,14.84 21.44,34.64 30.68,34.64 26.72,49.16 42.56,29.36 33.32,29.36';
 
 export const BRAND_GRAPHITE = '#1d1d1f';
 export const BRAND_PAPER = '#f2f3f5';
