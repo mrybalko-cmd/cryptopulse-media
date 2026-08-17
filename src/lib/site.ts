@@ -27,18 +27,31 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://cryptopuls
 export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '');
 
 /**
- * The publication's name as readers see it: page titles, footer, legal pages,
- * schema.org, the title template. Includes the zone because the brand has
- * always been written with it.
- */
-export const SITE_NAME = 'CryptoPulse.media';
-
-/**
  * The name without its zone, for prose where the full form reads heavy —
  * "the {SITE_BRAND} editorial team" rather than "the CryptoPulse.media
  * editorial team".
  */
 export const SITE_BRAND = 'CryptoPulse';
+
+/**
+ * The zone, set in a quieter tone beside the brand in every lockup.
+ *
+ * Split out from SITE_NAME because it was written by hand in the header and in
+ * both opengraph-image routes, each with its own colour. Renaming the
+ * publication is now these two constants and nothing else — which is the whole
+ * point of this file, and was not true while '.media' lived in three files.
+ */
+export const SITE_ZONE = '.media';
+
+/**
+ * The publication's name as readers see it: page titles, footer, legal pages,
+ * schema.org, the title template. Includes the zone because the brand has
+ * always been written with it.
+ *
+ * Must stay identical to the publication name registered in Google Publisher
+ * Center and emitted in the news sitemap — Google matches them as strings.
+ */
+export const SITE_NAME = `${SITE_BRAND}${SITE_ZONE}`;
 
 /**
  * Editorial inbox, published in schema.org and the RSS feed.

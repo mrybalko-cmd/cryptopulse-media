@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import { SITE_BRAND } from '@/lib/site';
+import { BrandTile } from '@/lib/brandMark';
+import { SITE_BRAND, SITE_ZONE } from '@/lib/site';
 
 // 16:9, not the classic 1200x630 OG ratio — Google Discover's own image
 // guidance calls out 16:9 specifically for large-image thumbnail eligibility.
@@ -73,23 +74,9 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
         />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 12,
-              background: '#dc2626',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="#facc15">
-              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-            </svg>
-          </div>
+          <BrandTile size={56} simplified={false} />
           <div style={{ display: 'flex', fontSize: 36, fontWeight: 700, color: '#ffffff' }}>
-            {SITE_BRAND}<span style={{ color: '#06b6d4' }}>.media</span>
+            {SITE_BRAND}<span style={{ color: '#92959e' }}>{SITE_ZONE}</span>
           </div>
         </div>
         <div style={{ display: 'flex', fontSize: 48, fontWeight: 700, color: '#ffffff', maxWidth: 900, lineHeight: 1.2 }}>
@@ -101,7 +88,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ loc
             : 'News, analysis, asset guides, and a glossary — all in plain language'}
         </div>
         <div style={{ display: 'flex', gap: 14, marginTop: 36 }}>
-          <Pill color="#facc15" bg="rgba(220,38,38,0.18)">{isRu ? 'Крипто' : 'Crypto'}</Pill>
+          <Pill color="#ffc93c" bg="rgba(255,201,60,0.16)">{isRu ? 'Крипто' : 'Crypto'}</Pill>
           <Pill color="#93c5fd" bg="rgba(37,99,235,0.18)">{isRu ? 'ИИ' : 'AI'}</Pill>
         </div>
       </div>

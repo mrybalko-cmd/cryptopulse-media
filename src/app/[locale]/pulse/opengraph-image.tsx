@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
+import { BrandTile } from '@/lib/brandMark';
 import { fetchLatestPulse } from '@/lib/pulse';
 import { zoneMeta } from '@/lib/pulseMath';
-import { SITE_BRAND } from '@/lib/site';
+import { SITE_BRAND, SITE_ZONE } from '@/lib/site';
 
 // Standard 1.91:1 og:image size — a 1:1 square got center-cropped top/bottom
 // by Facebook and other scrapers, which target this ratio and don't just
@@ -88,13 +89,9 @@ export default async function PulseOpengraphImage({ params }: { params: Promise<
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 9, background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#facc15">
-                <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-              </svg>
-            </div>
+            <BrandTile size={36} simplified={false} />
             <div style={{ display: 'flex', fontSize: 24, fontWeight: 700, color: '#edf0f7' }}>
-              {SITE_BRAND}<span style={{ color: '#22d3ee' }}>.media</span>
+              {SITE_BRAND}<span style={{ color: '#92959e' }}>{SITE_ZONE}</span>
             </div>
           </div>
         </div>

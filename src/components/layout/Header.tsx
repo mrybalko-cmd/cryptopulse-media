@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Menu, X, Zap } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SiteSearch from '@/components/ui/SiteSearch';
-import { SITE_BRAND, SITE_NAME } from '@/lib/site';
+import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -96,7 +96,7 @@ export default function Header() {
             <Image src="/logo-mark.png" alt={SITE_NAME} width={36} height={36} className="w-full h-full object-cover" loading="eager" />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
-            {SITE_BRAND}<span className="text-accent">.media</span>
+            {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
           </span>
         </Link>
 
