@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: buildTwitter({ url: `${BASE}/${locale}/privacy`, title: t('privacyTitle'), description, locale }),
     alternates: {
       canonical: `${SITE_URL}/${locale}/privacy`,
-      languages: { ru: '${SITE_URL}/ru/privacy', en: '${SITE_URL}/en/privacy', 'x-default': '${SITE_URL}/en/privacy' },
+      languages: { ru: `${SITE_URL}/ru/privacy`, en: `${SITE_URL}/en/privacy`, 'x-default': `${SITE_URL}/en/privacy` },
     },
   };
 }

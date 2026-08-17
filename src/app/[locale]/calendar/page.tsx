@@ -109,7 +109,7 @@ export default async function CalendarPage({ params }: Props) {
     '@graph': [
       {
         '@type': 'ItemList',
-        name: isRu ? 'Криптокалендарь ${SITE_NAME}' : '${SITE_NAME} Crypto Calendar',
+        name: isRu ? `Криптокалендарь ${SITE_NAME}` : `${SITE_NAME} Crypto Calendar`,
         itemListElement: events.map((e, i) => ({
           '@type': 'ListItem',
           position: i + 1,

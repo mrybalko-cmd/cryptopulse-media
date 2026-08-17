@@ -60,7 +60,7 @@ export default async function AuthorPage({ params }: Props) {
     name: author.name,
     ...(author.photo && { image: author.photo }),
     ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
-    worksFor: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    worksFor: { '@type': 'Organization', name: SITE_NAME, url: BASE },
     url: `${BASE}/${locale}/authors/${slug}`,
   };
 

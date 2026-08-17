@@ -122,7 +122,7 @@ export default async function AltcoinSeasonPage({ params }: Props) {
         '@type': 'Article',
         headline: isRu ? 'Индекс альткоин-сезона' : 'Altcoin Season Index',
         url: `${BASE}/${locale}/altcoin-season`,
-        publisher: { '@type': 'Organization', name: '${SITE_NAME}' },
+        publisher: { '@type': 'Organization', name: SITE_NAME },
       },
       {
         '@type': 'FAQPage',
@@ -161,8 +161,8 @@ export default async function AltcoinSeasonPage({ params }: Props) {
           </h1>
           <p className="text-muted text-sm leading-relaxed max-w-xl">
             {isRu
-              ? 'Собственный расчёт ${SITE_NAME}: какая доля топ-100 криптовалют по капитализации обгоняет Bitcoin по доходности за последние 30 дней. Помогает понять, куда сейчас течёт капитал рынка — в Bitcoin или в альткоины.'
-              : "${SITE_NAME}'s own calculation: what share of the top 100 cryptocurrencies by market cap are outperforming Bitcoin over the last 30 days. Helps gauge where the market's capital is currently rotating — into Bitcoin, or into altcoins."}
+              ? `Собственный расчёт ${SITE_NAME}: какая доля топ-100 криптовалют по капитализации обгоняет Bitcoin по доходности за последние 30 дней. Помогает понять, куда сейчас течёт капитал рынка — в Bitcoin или в альткоины.`
+              : `${SITE_NAME}'s own calculation: what share of the top 100 cryptocurrencies by market cap are outperforming Bitcoin over the last 30 days. Helps gauge where the market's capital is currently rotating — into Bitcoin, or into altcoins.`}
           </p>
         </div>
 
@@ -312,8 +312,8 @@ export default async function AltcoinSeasonPage({ params }: Props) {
         <p className="text-xs text-muted leading-relaxed">
           <span className="font-semibold text-foreground">{isRu ? 'Важно: ' : 'Note: '}</span>
           {isRu
-            ? 'Индекс альткоин-сезона — вспомогательный статистический инструмент, не торговый сигнал и не инвестиционная рекомендация. Прошлая динамика цены не гарантирует будущих результатов. ${SITE_NAME} не даёт инвестиционных советов.'
-            : 'The Altcoin Season Index is a supplementary statistical tool, not a trading signal or investment advice. Past price performance does not guarantee future results. ${SITE_NAME} does not provide investment recommendations.'}
+            ? `Индекс альткоин-сезона — вспомогательный статистический инструмент, не торговый сигнал и не инвестиционная рекомендация. Прошлая динамика цены не гарантирует будущих результатов. ${SITE_NAME} не даёт инвестиционных советов.`
+            : `The Altcoin Season Index is a supplementary statistical tool, not a trading signal or investment advice. Past price performance does not guarantee future results. ${SITE_NAME} does not provide investment recommendations.`}
         </p>
       </div>
 

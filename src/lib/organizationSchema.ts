@@ -36,7 +36,7 @@ export function organizationSchema(locale: string) {
   return {
     '@type': 'NewsMediaOrganization',
     '@id': ORGANIZATION_ID,
-    name: '${SITE_NAME}',
+    name: SITE_NAME,
     url: BASE,
     description: isRu
       ? 'Независимое издание о криптовалютах: новости, аналитика и справочные материалы о рынке, регулировании и биржах.'

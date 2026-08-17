@@ -140,7 +140,7 @@ export default async function AssetsPage({ params }: Props) {
     '@graph': [
       {
         '@type': 'CollectionPage',
-        name: isRu ? 'Крипто-активы | ${SITE_NAME}' : 'Crypto Assets | ${SITE_NAME}',
+        name: isRu ? `Крипто-активы | ${SITE_NAME}` : `Crypto Assets | ${SITE_NAME}`,
         description: isRu
           ? 'Гиды по главным криптовалютам: история, факты и калькуляторы инвестиций.'
           : 'Guides to top cryptocurrencies: history, facts and investment calculators.',

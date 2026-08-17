@@ -48,8 +48,8 @@ export default async function AptosPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2026-07-14',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
-    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+    publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,
   };
   const faqLd = {

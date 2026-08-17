@@ -87,8 +87,12 @@ function extract(status: number, html: string): PageFacts {
 }
 
 const sitemapXml = (await fetchText(`${BASE}/sitemap.xml`)).body;
-const urls = [...sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]);
-console.log(`страниц в sitemap: ${urls.length}`);
+// The sitemap lists absolute URLs built from SITE_URL, which is the production
+// host even when the sitemap itself came from localhost. Taking those verbatim
+// would quietly snapshot production while claiming to measure the local build —
+// which is exactly what happened the first time this ran.
+const urls = [...sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => BASE + stripHost(m[1]));
+console.log(`страниц в sitemap: ${urls.length} (опрашиваю ${BASE})`);
 
 const out: Record<string, PageFacts | { error: string }> = {};
 let done = 0;

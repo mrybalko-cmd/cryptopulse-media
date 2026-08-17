@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${SITE_URL}/${locale}/news/${slug}`,
-      siteName: '${SITE_NAME}',
+      siteName: SITE_NAME,
       locale: locale === 'ru' ? 'ru_RU' : 'en_US',
       images: [{ url: ogImageUrl, width: 1200, height: 675, alt: title }],
       publishedTime: news.publishedAt,
@@ -137,8 +137,8 @@ export default async function NewsDetailPage({ params }: Props) {
     ...(wordCount > 0 && { wordCount }),
     author: news.author
       ? { '@type': 'Person', name: news.author.name.trim(), url: `${SITE_URL}/${locale}/authors/${news.author.slug}` }
-      : { '@type': 'Organization', '@id': '${SITE_URL}/#organization' },
-    publisher: { '@id': '${SITE_URL}/#organization' },
+      : { '@type': 'Organization', '@id': `${SITE_URL}/#organization` },
+    publisher: { '@id': `${SITE_URL}/#organization` },
     mainEntityOfPage: `${SITE_URL}/${locale}/news/${slug}`,
     // Plain schema.org, not a Subscribe-with-Google signal: it states the
     // story is not behind a paywall, which Google News reads on its own.
@@ -239,7 +239,7 @@ export default async function NewsDetailPage({ params }: Props) {
                 {news.author.name}
               </a>
             ) : (
-              <span rel="author">{news.author?.name || '${SITE_NAME}'}</span>
+              <span rel="author">{news.author?.name || SITE_NAME}</span>
             )}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted">

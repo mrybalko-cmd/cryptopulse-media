@@ -40,9 +40,9 @@ export default async function AuthorsPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: isRu ? 'Авторы ${SITE_NAME}' : '${SITE_NAME} Authors',
+    name: isRu ? `Авторы ${SITE_NAME}` : `${SITE_NAME} Authors`,
     url: `${BASE}/${locale}/authors`,
-    about: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    about: { '@type': 'Organization', name: SITE_NAME, url: BASE },
   };
 
   return (
@@ -60,8 +60,8 @@ export default async function AuthorsPage({ params }: Props) {
         </div>
         <p className="text-muted text-sm leading-relaxed ml-12">
           {isRu
-            ? 'Команда аналитиков и редакторов, которые создают материалы для ${SITE_NAME}'
-            : 'The team of analysts and editors who create content for ${SITE_NAME}'}
+            ? `Команда аналитиков и редакторов, которые создают материалы для ${SITE_NAME}`
+            : `The team of analysts and editors who create content for ${SITE_NAME}`}
         </p>
       </div>
 

@@ -70,8 +70,8 @@ export default async function TonPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
-    publisher: { '@type': 'Organization', name: '${SITE_NAME}', url: BASE },
+    author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+    publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
     mainEntityOfPage: `${BASE}/${locale}/assets/ton`,
   };
 

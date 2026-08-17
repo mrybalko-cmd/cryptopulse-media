@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${BASE}/${locale}/calculators/wealth`,
-      siteName: '${SITE_NAME}',
+      siteName: SITE_NAME,
       locale: isRu ? 'ru_RU' : 'en_US',
       images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },

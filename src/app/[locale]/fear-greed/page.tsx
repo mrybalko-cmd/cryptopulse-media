@@ -78,7 +78,7 @@ export default async function FearGreedPage({ params }: Props) {
       ? 'Индекс страха и жадности криптовалютного рынка'
       : 'Crypto Fear & Greed Index',
     url: `${BASE}/${locale}/fear-greed`,
-    publisher: { '@type': 'Organization', name: '${SITE_NAME}' },
+    publisher: { '@type': 'Organization', name: SITE_NAME },
   };
 
   const factors = isRu ? FACTORS_RU : FACTORS_EN;
@@ -215,8 +215,8 @@ export default async function FearGreedPage({ params }: Props) {
             {isRu ? 'Важно: ' : 'Note: '}
           </span>
           {isRu
-            ? 'Индекс страха и жадности — вспомогательный инструмент, не торговый сигнал. Используйте его как один из факторов анализа наряду с техническим и фундаментальным анализом. ${SITE_NAME} не даёт инвестиционных рекомендаций.'
-            : 'The Fear & Greed Index is a supplementary tool, not a trading signal. Use it as one factor in your analysis alongside technical and fundamental research. ${SITE_NAME} does not provide investment advice.'}
+            ? `Индекс страха и жадности — вспомогательный инструмент, не торговый сигнал. Используйте его как один из факторов анализа наряду с техническим и фундаментальным анализом. ${SITE_NAME} не даёт инвестиционных рекомендаций.`
+            : `The Fear & Greed Index is a supplementary tool, not a trading signal. Use it as one factor in your analysis alongside technical and fundamental research. ${SITE_NAME} does not provide investment advice.`}
         </p>
       </div>
 

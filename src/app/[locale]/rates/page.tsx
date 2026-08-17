@@ -331,8 +331,8 @@ export default async function RatesPage({ params }: Props) {
         <p className="text-xs text-muted leading-relaxed">
           <span className="font-semibold text-foreground">{isRu ? 'Важно: ' : 'Note: '}</span>
           {isRu
-            ? 'Курсы носят справочный характер и могут отличаться в момент сделки. ${SITE_NAME} не является стороной обмена, не хранит средства пользователей и не несёт ответственности за операции на сторонних площадках.'
-            : 'Rates are for reference only and may differ at the time of your trade. ${SITE_NAME} is not a party to any exchange, does not hold user funds, and is not responsible for transactions on third-party platforms.'}
+            ? `Курсы носят справочный характер и могут отличаться в момент сделки. ${SITE_NAME} не является стороной обмена, не хранит средства пользователей и не несёт ответственности за операции на сторонних площадках.`
+            : `Rates are for reference only and may differ at the time of your trade. ${SITE_NAME} is not a party to any exchange, does not hold user funds, and is not responsible for transactions on third-party platforms.`}
         </p>
       </div>
 

@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       locale: isRu ? 'ru_RU' : 'en_US',
       alternateLocale: isRu ? 'en_US' : 'ru_RU',
-      siteName: '${SITE_NAME}',
+      siteName: SITE_NAME,
       url: `${BASE}/${locale}`,
     },
     twitter: { card: 'summary_large_image' },
@@ -79,7 +79,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       {
         '@type': 'WebSite',
         '@id': `${BASE}/#website`,
-        name: '${SITE_NAME}',
+        name: SITE_NAME,
         url: BASE,
         publisher: { '@id': ORGANIZATION_ID },
         inLanguage: locale,
@@ -95,7 +95,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             it just trips PageSpeed's ">4 preconnects / unused preconnect"
             warning without helping. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="alternate" type="application/rss+xml" title="${SITE_NAME}" href="/rss.xml" />
+        <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="/rss.xml" />
         {/* Google Publisher Center — paste verification token from publishercenter.google.com into GOOGLE_PUBLISHER_CENTER_TOKEN env var */}
         {process.env.GOOGLE_PUBLISHER_CENTER_TOKEN && (
           <meta name="google-site-verification" content={process.env.GOOGLE_PUBLISHER_CENTER_TOKEN} />

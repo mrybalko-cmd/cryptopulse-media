@@ -37,7 +37,7 @@ export default async function AiGlossaryPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
     '@id': `${BASE}/${locale}/ai/glossary#dictionary`,
-    name: isRu ? 'Глоссарий ИИ ${SITE_NAME}' : '${SITE_NAME} AI Glossary',
+    name: isRu ? `Глоссарий ИИ ${SITE_NAME}` : `${SITE_NAME} AI Glossary`,
     url: `${BASE}/${locale}/ai/glossary`,
     hasDefinedTerm: AI_GLOSSARY.map((t) => ({
       '@type': 'DefinedTerm',

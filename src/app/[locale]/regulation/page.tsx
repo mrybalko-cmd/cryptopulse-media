@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${BASE}/${locale}/regulation`,
-      siteName: '${SITE_NAME}',
+      siteName: SITE_NAME,
       locale: isRu ? 'ru_RU' : 'en_US',
       images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
@@ -62,12 +62,12 @@ export default async function RegulationPage({ params }: Props) {
     url: `${BASE}/${locale}/regulation`,
     publisher: {
       '@type': 'Organization',
-      name: '${SITE_NAME}',
+      name: SITE_NAME,
       url: BASE,
     },
     creator: {
       '@type': 'Organization',
-      name: '${SITE_NAME}',
+      name: SITE_NAME,
       url: BASE,
     },
     dateModified: '2025-06-01',

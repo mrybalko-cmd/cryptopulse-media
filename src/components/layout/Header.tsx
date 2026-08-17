@@ -93,7 +93,7 @@ export default function Header() {
           className="flex items-center gap-2 sm:gap-2.5 group"
         >
           <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
-            <Image src="/logo-mark.png" alt="${SITE_NAME}" width={36} height={36} className="w-full h-full object-cover" loading="eager" />
+            <Image src="/logo-mark.png" alt={SITE_NAME} width={36} height={36} className="w-full h-full object-cover" loading="eager" />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             {SITE_BRAND}<span className="text-accent">.media</span>

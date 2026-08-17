@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = isRu ? `Новости ${exchange.name}` : `${exchange.name} News`;
   const description = isRu
-    ? `Все статьи и новости {SITE_BRAND}, упоминающие ${exchange.name}.`
-    : `All {SITE_BRAND} articles and news mentioning ${exchange.name}.`;
+    ? `Все статьи и новости ${SITE_BRAND}, упоминающие ${exchange.name}.`
+    : `All ${SITE_BRAND} articles and news mentioning ${exchange.name}.`;
 
   return {
     title,

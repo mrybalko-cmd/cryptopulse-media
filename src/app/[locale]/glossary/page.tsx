@@ -43,7 +43,7 @@ export default async function GlossaryPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
     '@id': `${BASE}/${locale}/glossary#dictionary`,
-    name: isRu ? 'Глоссарий криптовалют ${SITE_NAME}' : '${SITE_NAME} Crypto Glossary',
+    name: isRu ? `Глоссарий криптовалют ${SITE_NAME}` : `${SITE_NAME} Crypto Glossary`,
     url: `${BASE}/${locale}/glossary`,
     inLanguage: locale,
     hasDefinedTerm: GLOSSARY.map((t) => ({
