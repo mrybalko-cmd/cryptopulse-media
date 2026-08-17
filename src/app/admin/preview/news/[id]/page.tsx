@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Zap, User, Calendar } from 'lucide-react';
+import { User, Calendar } from 'lucide-react';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminNewsById, fetchAuthorOptions } from '@/lib/admin/data';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import RichText from '@/components/ui/RichText';
 import ArticleBadge from '@/components/ui/ArticleBadge';
 import { SITE_NAME } from '@/lib/site';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 export default async function PreviewNewsPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('news');
@@ -37,7 +38,7 @@ export default async function PreviewNewsPage({ params }: { params: Promise<{ id
         )}
         {news.breaking && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4">
-            <Zap size={12} fill="currentColor" />
+            <BoltIcon size={12} />
             {news.language === 'ru' ? 'Молния' : 'Breaking News'}
           </div>
         )}

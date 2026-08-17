@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getTranslations, getLocale } from 'next-intl/server';
-import { Zap, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { CONTACT_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import FooterNavGroup from '@/components/layout/FooterNavGroup';
-import { SITE_BRAND, SITE_NAME } from '@/lib/site';
+import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
 
 // The official "in" glyph, drawn rather than pulled from an icon set: lucide
 // has no brand marks, and LinkedIn's guidelines do not allow redrawing it.
@@ -39,11 +40,10 @@ export default async function Footer() {
               below doesn't crowd the follow button */}
           <div className="mb-6 lg:mb-0">
             <Link href={`/${locale}`} className="inline-flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded bg-red-600 flex items-center justify-center shrink-0">
-                <Zap size={12} className="text-yellow-400" fill="currentColor" />
-              </div>
+              <Image src="/brand-mark-small.png" alt="" aria-hidden width={24} height={24}
+                     className="w-6 h-6 rounded shrink-0" />
               <span className="font-semibold text-sm">
-                {SITE_BRAND}<span className="text-accent">.media</span>
+                {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
               </span>
             </Link>
             <p className="text-muted text-xs leading-relaxed max-w-52 mb-4">{t('tagline')}</p>

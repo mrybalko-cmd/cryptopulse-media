@@ -5,7 +5,7 @@ import { setRequestLocale } from 'next-intl/server';
 import ViewTracker from '@/components/ui/ViewTracker';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar, ExternalLink, Eye, Zap } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
@@ -24,6 +24,7 @@ import CommentSection from '@/components/ui/CommentSection';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, truncateTitle } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -218,7 +219,7 @@ export default async function NewsDetailPage({ params }: Props) {
       )}
       {news.breaking && (
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4 animate-pulse">
-          <Zap size={12} fill="currentColor" />
+          <BoltIcon size={12} />
           {locale === 'ru' ? 'Молния' : 'Breaking News'}
         </div>
       )}

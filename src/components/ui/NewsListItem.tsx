@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Zap, Pin, Eye, Heart } from 'lucide-react';
+import { Pin, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 import { TOPIC_TAG } from '@/lib/topics';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 interface NewsListItemProps {
   title: string;
@@ -41,7 +42,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
     <>
       {breaking && (
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-red-600 text-white mb-1.5 animate-pulse">
-          <Zap size={10} fill="currentColor" />
+          <BoltIcon size={10} />
           {locale === 'ru' ? 'Важное' : 'Breaking'}
         </span>
       )}
@@ -53,17 +54,17 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
       <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors">
         {aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-blue-600 flex items-center justify-center shrink-0" title="AI">
-            <Zap size={10} className="text-white" fill="currentColor" />
+            <BoltIcon size={10} className="text-white" />
           </span>
         )}
         {!external && ownBadge && !aiTopic && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded overflow-hidden relative shrink-0" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
-            <Image src="/logo-mark.png" alt={locale === 'ru' ? 'Наш материал' : 'Our story'} width={16} height={16} className="w-full h-full object-cover" />
+            <Image src="/brand-mark-small.png" alt={locale === 'ru' ? 'Наш материал' : 'Our story'} width={16} height={16} className="w-full h-full object-cover" />
           </span>
         )}
         {pinned && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-yellow-500 flex items-center justify-center" title={locale === 'ru' ? 'Закреплено' : 'Pinned'}>
-            <Pin size={10} className="text-background" fill="currentColor" />
+            <Pin size={10} className="text-background" />
           </span>
         )}
         {title}

@@ -1,4 +1,4 @@
-import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL, TITLE_SUFFIX } from '@/lib/site';
 const BASE = SITE_URL;
 
 export function buildOg(opts: {
@@ -60,7 +60,8 @@ export function truncateDesc(text: string, max = 155): string {
  * `title.template` appends ` | ${SITE_NAME}` (20 chars) — pass only the
  * page-specific text here, never a string that already includes the suffix.
  */
-export function truncateTitle(text: string, max = 60, suffixLen = 20): string {
+export function truncateTitle(text: string, max = 60,
+                              suffixLen = TITLE_SUFFIX.length): string {
   const budget = max - suffixLen;
   if (!text || text.length <= budget) return text;
   // The ellipsis is a character too. Without reserving room for it every

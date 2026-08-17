@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+
 import AuthorFeedItem from './AuthorFeedItem';
 import Pagination from './Pagination';
 import type { AuthorFeedItem as AIFeedItem } from '@/lib/sanity';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 type Props = {
   locale: string;
@@ -94,7 +95,7 @@ export default function AIPageBody({ locale, items, total, page, pageSize }: Pro
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-            <Zap size={16} className="text-white" fill="currentColor" />
+            <BoltIcon size={16} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">
             AI{!isFirstPage && <span className="text-muted font-normal text-xl ml-2">— {isRu ? 'страница' : 'page'} {page}</span>}
@@ -134,7 +135,7 @@ export default function AIPageBody({ locale, items, total, page, pageSize }: Pro
       ) : (
         <div className="border border-dashed border-border rounded-xl py-24 flex flex-col items-center justify-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-blue-600/10 flex items-center justify-center">
-            <Zap size={24} className="text-blue-400" fill="currentColor" />
+            <BoltIcon size={24} className="text-blue-400" />
           </div>
           <p className="text-muted text-sm text-center max-w-xs">
             {isRu

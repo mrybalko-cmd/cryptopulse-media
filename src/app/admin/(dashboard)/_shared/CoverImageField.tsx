@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Zap } from 'lucide-react';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 export default function CoverImageField({
   name,
@@ -41,13 +41,13 @@ export default function CoverImageField({
           <div className="absolute top-2 left-2 flex items-center gap-1.5">
             {breaking && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-[10.5px] font-bold">
-                <Zap size={10} fill="currentColor" />
+                <BoltIcon size={10} />
                 Важное
               </div>
             )}
             {ownBadge && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-[10.5px] font-medium">
-                <Zap size={10} className="text-yellow-400" fill="currentColor" />
+                <BoltIcon size={10} className="text-yellow-400" />
                 Наш материал
               </div>
             )}

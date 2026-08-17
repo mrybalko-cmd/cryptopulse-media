@@ -19,19 +19,24 @@
  * Set NEXT_PUBLIC_SITE_URL in the environment to move the site. The fallback
  * is the current home rather than localhost on purpose: a missing variable
  * during a production build should keep the site where it is, not publish
- * 1766 canonicals pointing at a development machine.
+ * 1768 canonicals pointing at a development machine.
+ *
+ * It also has to be the *current* home. It was still cryptopulse.media a week
+ * after the move, which meant any build without the variable would have quietly
+ * pointed every canonical, every hreflang and the schema logo back at the old
+ * domain — the one thing a migration cannot survive.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://cryptopulse.media').replace(/\/+$/, '');
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://intokened.com').replace(/\/+$/, '');
 
 /** Host alone — for display in text where a full URL would read as clutter. */
 export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '');
 
 /**
  * The name without its zone, for prose where the full form reads heavy —
- * "the {SITE_BRAND} editorial team" rather than "the CryptoPulse.media
- * editorial team".
+ * "the {SITE_BRAND} editorial team" rather than "the Intokened.com editorial
+ * team".
  */
-export const SITE_BRAND = 'CryptoPulse';
+export const SITE_BRAND = 'Intokened';
 
 /**
  * The zone, set in a quieter tone beside the brand in every lockup.
@@ -41,7 +46,7 @@ export const SITE_BRAND = 'CryptoPulse';
  * publication is now these two constants and nothing else — which is the whole
  * point of this file, and was not true while '.media' lived in three files.
  */
-export const SITE_ZONE = '.media';
+export const SITE_ZONE = '.com';
 
 /**
  * The publication's name as readers see it: page titles, footer, legal pages,

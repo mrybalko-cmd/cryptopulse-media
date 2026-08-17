@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, ArrowRight, Eye, Heart, Zap } from 'lucide-react';
+import { Clock, ArrowRight, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 import { sanityImageTransform } from '@/lib/sanityImage';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 interface ArticleCardProps {
   title: string;
@@ -67,7 +68,7 @@ export default function ArticleCard({
           )}
           {topic === 'ai' && (
             <div className={`absolute top-2 right-2 rounded bg-blue-600 flex items-center justify-center ${compact ? 'w-4 h-4' : 'w-5 h-5'}`} title="AI">
-              <Zap size={compact ? 9 : 11} className="text-white" fill="currentColor" />
+              <BoltIcon size={compact ? 9 : 11} className="text-white" />
             </div>
           )}
         </div>

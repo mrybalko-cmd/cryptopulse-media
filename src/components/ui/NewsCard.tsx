@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { ExternalLink, ArrowRight, Clock, Zap, Pin } from 'lucide-react';
+import { ExternalLink, ArrowRight, Clock, Pin } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import ArticleBadge from './ArticleBadge';
-
+import BoltIcon from '@/components/ui/BoltIcon';
 
 interface NewsCardProps {
   title: string;
@@ -41,13 +41,13 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
         <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5">
           {breaking && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-bold animate-pulse">
-              <Zap size={10} fill="currentColor" />
+              <BoltIcon size={10} />
               {locale === 'ru' ? 'Важное' : 'Breaking'}
             </div>
           )}
           {!external && ownBadge && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-medium">
-              <Zap size={10} className="text-yellow-400" fill="currentColor" />
+              <BoltIcon size={10} className="text-yellow-400" />
               {locale === 'ru' ? 'Наш материал' : 'Our story'}
             </div>
           )}
@@ -55,7 +55,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
       )}
       {pinned && (
         <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500 text-background text-xs font-medium">
-          <Pin size={10} fill="currentColor" />
+          <Pin size={10} />
           {locale === 'ru' ? 'Закреплено' : 'Pinned'}
         </div>
       )}

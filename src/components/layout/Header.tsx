@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SiteSearch from '@/components/ui/SiteSearch';
 import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
+import BoltIcon from '@/components/ui/BoltIcon';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -93,7 +94,7 @@ export default function Header() {
           className="flex items-center gap-2 sm:gap-2.5 group"
         >
           <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
-            <Image src="/logo-mark.png" alt={SITE_NAME} width={36} height={36} className="w-full h-full object-cover" loading="eager" />
+            <Image src="/brand-mark.png" alt={SITE_NAME} width={36} height={36} className="w-full h-full object-cover" loading="eager" />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
@@ -138,7 +139,7 @@ export default function Header() {
               >
                 {link.label}
                 {'ai' in link && link.ai && (
-                  <Zap size={11} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
+                  <BoltIcon size={11} className="text-blue-400 -ml-0.5 shrink-0" />
                 )}
               </Link>
             </li>
@@ -165,7 +166,7 @@ export default function Header() {
                   >
                     {link.label}
                     {'ai' in link && link.ai && (
-                      <Zap size={12} className="text-blue-400 -ml-0.5 shrink-0" fill="currentColor" />
+                      <BoltIcon size={12} className="text-blue-400 -ml-0.5 shrink-0" />
                     )}
                   </Link>
                 </li>

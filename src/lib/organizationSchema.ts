@@ -43,7 +43,7 @@ export function organizationSchema(locale: string) {
       : 'An independent crypto publication: news, analysis and reference material on the market, regulation and exchanges.',
     logo: {
       '@type': 'ImageObject',
-      url: `${BASE}/logo-mark.png`,
+      url: `${BASE}/brand-mark.png`,
       width: 512,
       height: 512,
     },
