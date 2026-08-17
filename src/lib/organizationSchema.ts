@@ -44,8 +44,8 @@ export function organizationSchema(locale: string) {
     logo: {
       '@type': 'ImageObject',
       url: `${BASE}/logo-mark.png`,
-      width: 500,
-      height: 500,
+      width: 512,
+      height: 512,
     },
     email: CONTACT_EMAIL,
     knowsLanguage: ['ru', 'en'],
