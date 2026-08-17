@@ -1150,7 +1150,10 @@ export const fetchExchangeReviews = unstable_cache(
     }
   },
   ['fetchExchangeReviews'],
-  { revalidate: 20 }
+  // Same bug as fetchComments above: sat at 20s, refreshing fifteen times
+  // more often than every other cached read on the site for a handful of
+  // reviews per exchange page.
+  { revalidate: READ_CACHE_SECONDS }
 );
 
 export async function fetchExchangeReviewSummary(exchangeId: string): Promise<{ average: number; count: number }> {
