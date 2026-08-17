@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SiteSearch from '@/components/ui/SiteSearch';
-import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
+import { SITE_BRAND, SITE_ZONE } from '@/lib/site';
 import BoltIcon from '@/components/ui/BoltIcon';
+import BrandMarkSvg from '@/components/ui/BrandMarkSvg';
 
 export default function Header() {
   const t = useTranslations('nav');
@@ -91,11 +91,9 @@ export default function Header() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="flex items-center gap-1.5 sm:gap-2 group"
+          className="flex items-center gap-1 sm:gap-[5px] group"
         >
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden shrink-0">
-            <Image src="/brand-mark.png" alt={SITE_NAME} width={40} height={40} className="w-full h-full object-cover" loading="eager" />
-          </div>
+          <BrandMarkSvg className="w-9 h-9 sm:w-12 sm:h-12 shrink-0" />
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
           </span>
