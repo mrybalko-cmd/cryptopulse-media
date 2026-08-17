@@ -1,6 +1,28 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "cryptopulse.media"
+        }
+      ],
+      "destination": "https://intokened.com/",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.cryptopulse.media"
+        }
+      ],
+      "destination": "https://intokened.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
