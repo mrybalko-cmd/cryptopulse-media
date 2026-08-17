@@ -39,9 +39,9 @@ export default async function Footer() {
           {/* Brand — extra bottom margin on mobile so the first accordion
               below doesn't crowd the follow button */}
           <div className="mb-6 lg:mb-0">
-            <Link href={`/${locale}`} className="inline-flex items-center gap-2 mb-3">
-              <Image src="/brand-mark-small.png" alt="" aria-hidden width={24} height={24}
-                     className="w-6 h-6 rounded shrink-0" />
+            <Link href={`/${locale}`} className="inline-flex items-center gap-1.5 mb-3">
+              <Image src="/brand-mark.png" alt="" aria-hidden width={28} height={28}
+                     className="w-7 h-7 rounded-lg shrink-0" />
               <span className="font-semibold text-sm">
                 {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
               </span>

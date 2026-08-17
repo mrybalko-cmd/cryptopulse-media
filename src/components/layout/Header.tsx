@@ -91,10 +91,10 @@ export default function Header() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="flex items-center gap-2 sm:gap-2.5 group"
+          className="flex items-center gap-1.5 sm:gap-2 group"
         >
-          <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg overflow-hidden shrink-0">
-            <Image src="/brand-mark.png" alt={SITE_NAME} width={36} height={36} className="w-full h-full object-cover" loading="eager" />
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden shrink-0">
+            <Image src="/brand-mark.png" alt={SITE_NAME} width={40} height={40} className="w-full h-full object-cover" loading="eager" />
           </div>
           <span className="font-bold text-sm sm:text-xl tracking-tight whitespace-nowrap">
             {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
