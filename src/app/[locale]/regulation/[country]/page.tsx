@@ -36,7 +36,10 @@ const T = {
     others: 'Другие страны', allCountries: 'Все страны\nна карте',
     prev: 'Предыдущая', next: 'Следующая',
     updated: 'Обновлено', disclaimer: 'материал носит справочный характер и не является инвестиционной или налоговой консультацией',
-    title: (n: string) => `Криптовалюта в ${n}: регулирование, налоги и лицензии`,
+    // No preposition: a country name is stored in the nominative, and
+    // "в ${n}" would render "в Германия" for anything without its own
+    // seo title written by hand.
+    title: (n: string) => `Криптовалюта: ${n} — регулирование, налоги и лицензии`,
   },
   en: {
     home: 'Home', map: 'Regulation map', mapAll: 'full map →',
