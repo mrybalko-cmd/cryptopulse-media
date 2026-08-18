@@ -29,6 +29,8 @@ function parseInput(formData: FormData): RegulationCountryInput {
     detailsEn: s('detailsEn'),
     taxNoteRu: s('taxNoteRu'),
     taxNoteEn: s('taxNoteEn'),
+    factNoteRu: s('factNoteRu'),
+    factNoteEn: s('factNoteEn'),
     regulatorName: s('regulatorName'),
     sourceUrl: s('sourceUrl'),
     checkedAt: s('checkedAt'),

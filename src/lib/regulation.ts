@@ -19,6 +19,8 @@ export type RegRegion = 'eu' | 'americas' | 'asia' | 'mena';
 /** A country as the map renders it: the old shape plus what Sanity adds. */
 export interface RegCountry extends CountryReg {
   region: RegRegion;
+  /** A single memorable thing that happened here — what makes the entry worth reading. */
+  factNote?: { ru: string; en: string };
   regulatorName?: string;
   sourceUrl?: string;
   /** ISO date. `updatedYear` is derived from it for the existing UI. */
@@ -61,6 +63,7 @@ interface SanityRegDoc {
   summaryRu: string; summaryEn: string;
   detailsRu: string; detailsEn: string;
   taxNoteRu?: string; taxNoteEn?: string;
+  factNoteRu?: string; factNoteEn?: string;
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
@@ -72,6 +75,7 @@ const QUERY = `*[_type == "regulationCountry"]{
   "summaryRu": summary.ru, "summaryEn": summary.en,
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
+  "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
   regulatorName, sourceUrl, checkedAt
 }`;
 
@@ -86,6 +90,9 @@ function fromSanity(d: SanityRegDoc): RegCountry {
     details: { ru: d.detailsRu, en: d.detailsEn },
     ...(d.taxNoteRu || d.taxNoteEn
       ? { taxNote: { ru: d.taxNoteRu ?? '', en: d.taxNoteEn ?? '' } }
+      : {}),
+    ...(d.factNoteRu || d.factNoteEn
+      ? { factNote: { ru: d.factNoteRu ?? '', en: d.factNoteEn ?? '' } }
       : {}),
     updatedYear: (d.checkedAt ?? '').slice(0, 4),
     region: d.region,

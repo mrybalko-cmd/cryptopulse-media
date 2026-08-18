@@ -110,6 +110,16 @@ export const regulationCountryType = defineType({
       ],
     }),
     defineField({
+      name: 'factNote',
+      title: 'Любопытный факт (необязательно)',
+      description: 'Событие, компания, случай — то, ради чего страницу дочитывают. Один-два предложения.',
+      type: 'object',
+      fields: [
+        { name: 'ru', title: 'Русский', type: 'text', rows: 3 },
+        { name: 'en', title: 'English', type: 'text', rows: 3 },
+      ],
+    }),
+    defineField({
       name: 'regulatorName',
       title: 'Регулятор',
       description: 'BaFin, SEC, ЦБ РФ — орган, который принимает правила.',

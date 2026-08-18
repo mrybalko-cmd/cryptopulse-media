@@ -79,6 +79,16 @@ export default function RegulationCountryForm({
             <textarea name="taxNoteEn" defaultValue={country?.taxNoteEn} rows={3} className={areaCls} />
             <p className={hintCls}>Можно оставить пустым — тогда блок про налоги у страны не появится.</p>
           </div>
+
+          <div className={cardCls}>
+            <div className={cardTitleCls}>Любопытный факт</div>
+            <label className={labelCls}>По-русски</label>
+            <textarea name="factNoteRu" defaultValue={country?.factNoteRu} rows={3} className={areaCls} />
+            <div className="h-4" />
+            <label className={labelCls}>In English</label>
+            <textarea name="factNoteEn" defaultValue={country?.factNoteEn} rows={3} className={areaCls} />
+            <p className={hintCls}>Событие, компания, случай — то, ради чего страницу дочитывают. Одно-два предложения, без него блок не появится.</p>
+          </div>
         </div>
 
         {/* ── properties ──────────────────────────────────────── */}

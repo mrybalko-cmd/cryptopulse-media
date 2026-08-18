@@ -30,6 +30,13 @@ export default function CountryDetail({ country, locale }: { country: RegCountry
         </div>
       )}
 
+      {country.factNote && (isRu ? country.factNote.ru : country.factNote.en) && (
+        <div className="sm:col-span-2 rounded-xl border border-accent/25 bg-accent/[0.06] px-3 py-2.5 text-[12px] text-muted">
+          <b className="text-accent">{isRu ? 'Любопытно.' : 'Worth knowing.'}</b>{' '}
+          {isRu ? country.factNote.ru : country.factNote.en}
+        </div>
+      )}
+
       <div className="sm:col-span-2 flex items-center gap-2 flex-wrap text-[11px] text-muted">
         <span>{checked}</span>
         {country.sourceUrl ? (

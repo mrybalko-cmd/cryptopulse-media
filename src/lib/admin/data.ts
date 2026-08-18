@@ -1555,6 +1555,7 @@ const REGULATION_PROJECTION = `
   "summaryRu": summary.ru, "summaryEn": summary.en,
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
+  "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
   regulatorName, sourceUrl, checkedAt
 `;
 
@@ -1573,6 +1574,8 @@ export interface AdminRegulationCountryDoc {
   detailsEn: string;
   taxNoteRu?: string;
   taxNoteEn?: string;
+  factNoteRu?: string;
+  factNoteEn?: string;
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
@@ -1604,6 +1607,8 @@ export interface RegulationCountryInput {
   detailsEn: string;
   taxNoteRu?: string;
   taxNoteEn?: string;
+  factNoteRu?: string;
+  factNoteEn?: string;
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
@@ -1625,6 +1630,11 @@ function regulationSetFields(input: RegulationCountryInput) {
       _type: 'object' as const,
       ru: input.taxNoteRu || undefined,
       en: input.taxNoteEn || undefined,
+    },
+    factNote: {
+      _type: 'object' as const,
+      ru: input.factNoteRu || undefined,
+      en: input.factNoteEn || undefined,
     },
     regulatorName: input.regulatorName || undefined,
     sourceUrl: input.sourceUrl || undefined,
