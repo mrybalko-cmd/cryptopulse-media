@@ -255,7 +255,7 @@ export interface RelatedItem {
 export function Related({ items }: { items: RelatedItem[] }) {
   if (!items.length) return null;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+    <div className={`grid grid-cols-1 gap-2 mt-3 ${items.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
       {items.map(r => (
         <Link key={r.href} href={r.href} className={`${PANEL} px-4 pt-3 pb-4 no-underline group`}>
           <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--violet-2)] mb-2 leading-[1.4]">{r.kind}</span>
