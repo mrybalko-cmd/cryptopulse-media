@@ -9,12 +9,24 @@ import {
   deleteRegulationCountry,
   fetchAdminRegulationCountryById,
   regulationIso2Taken,
+  REG_PAGE_FIELDS,
   type RegulationCountryInput,
+  type RegPageText,
 } from '@/lib/admin/data';
 import { logActivity } from '@/lib/admin/activityLog';
 
 function parseInput(formData: FormData): RegulationCountryInput {
   const s = (k: string) => String(formData.get(k) || '').trim();
+
+  // The page textareas are named `page.<field>.<lang>`, so one loop covers all
+  // twenty-two of them and a new section needs no change here.
+  const page: RegPageText = {};
+  for (const f of REG_PAGE_FIELDS) {
+    const ru = s(`page.${f}.ru`);
+    const en = s(`page.${f}.en`);
+    if (ru || en) page[f] = { ...(ru ? { ru } : {}), ...(en ? { en } : {}) };
+  }
+
   return {
     iso2: s('iso2').toUpperCase(),
     isoNum: s('isoNum'),
@@ -34,6 +46,8 @@ function parseInput(formData: FormData): RegulationCountryInput {
     regulatorName: s('regulatorName'),
     sourceUrl: s('sourceUrl'),
     checkedAt: s('checkedAt'),
+    hasPage: formData.get('hasPage') === 'on',
+    page,
   };
 }
 

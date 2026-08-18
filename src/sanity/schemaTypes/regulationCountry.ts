@@ -14,6 +14,24 @@ import { defineField, defineType } from 'sanity';
  * so nothing rendered it and nothing complained. A country carries its own
  * region now, and a new one cannot be silently invisible.
  */
+/**
+ * Every editable text on this document exists twice, once per language. The
+ * English side is written, not translated, so both are plain fields rather than
+ * anything that implies one is derived from the other.
+ */
+function bilingual(name: string, title: string, description: string, rows: number) {
+  return {
+    name,
+    title,
+    description,
+    type: 'object' as const,
+    fields: [
+      { name: 'ru', title: 'Русский', type: 'text', rows },
+      { name: 'en', title: 'English', type: 'text', rows },
+    ],
+  };
+}
+
 export const regulationCountryType = defineType({
   name: 'regulationCountry',
   title: 'Регулирование: страна',
@@ -133,6 +151,35 @@ export const regulationCountryType = defineType({
       validation: Rule => Rule.uri({ scheme: ['http', 'https'] }),
     }),
     defineField({
+      name: 'hasPage',
+      title: 'Своя страница',
+      description:
+        'Открывает /regulation/<slug> на обоих языках, ставит ссылку с карты и строку в sitemap. ' +
+        'Включайте только когда длинные тексты ниже заполнены — пустая страница хуже её отсутствия.',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'page',
+      title: 'Содержимое отдельной страницы',
+      description: 'Работает только при включённой галке выше.',
+      type: 'object',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        bilingual('intro', 'Коротко', 'Прямой ответ на «легальна ли крипта здесь». 60–80 слов.', 4),
+        bilingual('figures', 'Цифры', 'По строке на плитку: МЕТКА | значение | подпись. Например: НАЛОГ ФИЗЛИЦ | 0% | на доход и на прирост', 8),
+        bilingual('body', 'Разделы', 'Абзацы разделяются пустой строкой. Строка с «## » — заголовок раздела, «### » — подзаголовок. Ссылка: [якорь](https://…)', 18),
+        bilingual('allowed', 'Что разрешено', 'По пункту на строку.', 6),
+        bilingual('restricted', 'Что ограничено', 'По пункту на строку.', 6),
+        bilingual('timeline', 'Хронология', 'По строке на событие: Март 2022 | что произошло. Звёздочка в начале строки выделяет главное событие.', 8),
+        bilingual('faq', 'Частые вопросы', 'По строке на пару: Вопрос? | Ответ', 10),
+        bilingual('sources', 'Источники', 'По строке: Название | https://…', 6),
+        bilingual('related', 'Наши материалы', 'По одному slug на строку. Slug у русской и английской версии разные — заполняйте каждый язык своими.', 5),
+        bilingual('seoTitle', 'Заголовок для поиска', 'Если пусто — берётся заголовок страницы.', 2),
+        bilingual('seoDescription', 'Описание для поиска', 'Если пусто — берётся «Коротко».', 3),
+      ],
+    }),
+    defineField({
       name: 'checkedAt',
       title: 'Когда проверяли',
       description: 'Заменяет прежний «год данных»: живая дата у каждой страны.',
@@ -146,15 +193,15 @@ export const regulationCountryType = defineType({
     { title: 'Давно не проверяли', name: 'stale', by: [{ field: 'checkedAt', direction: 'asc' }] },
   ],
   preview: {
-    select: { title: 'name.ru', subtitle: 'iso2', status: 'status', checkedAt: 'checkedAt' },
-    prepare({ title, subtitle, status, checkedAt }) {
+    select: { title: 'name.ru', subtitle: 'iso2', status: 'status', checkedAt: 'checkedAt', hasPage: 'hasPage' },
+    prepare({ title, subtitle, status, checkedAt, hasPage }) {
       const label: Record<string, string> = {
         legal: 'Разрешено', restricted: 'С ограничениями',
         banned: 'Запрещено', unclear: 'Серая зона',
       };
       return {
         title: `${title} · ${subtitle}`,
-        subtitle: `${label[status] ?? status} · проверено ${checkedAt ?? '—'}`,
+        subtitle: `${label[status] ?? status} · проверено ${checkedAt ?? '—'}${hasPage ? ' · своя страница' : ''}`,
       };
     },
   },

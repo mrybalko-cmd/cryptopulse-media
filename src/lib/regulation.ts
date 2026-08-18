@@ -25,6 +25,15 @@ export interface RegCountry extends CountryReg {
   sourceUrl?: string;
   /** ISO date. `updatedYear` is derived from it for the existing UI. */
   checkedAt: string;
+  /**
+   * Whether this country has its own page at /regulation/<slug>.
+   *
+   * A flag rather than "does it have text": the two must be able to disagree.
+   * Text can be half-written and not yet worth a URL, and a page can need
+   * pulling without deleting what is in it.
+   */
+  hasPage?: boolean;
+  page?: RawPage;
 }
 
 export const REGION_LABELS: Record<RegRegion, { ru: string; en: string }> = {
@@ -67,7 +76,18 @@ interface SanityRegDoc {
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
+  hasPage?: boolean;
+  page?: RawPage;
 }
+
+/** The long-form fields, still as the editor typed them. Parsed at render. */
+export interface RawPage {
+  intro?: Bi; figures?: Bi; body?: Bi;
+  allowed?: Bi; restricted?: Bi;
+  timeline?: Bi; faq?: Bi; sources?: Bi; related?: Bi;
+  seoTitle?: Bi; seoDescription?: Bi;
+}
+interface Bi { ru?: string; en?: string }
 
 const QUERY = `*[_type == "regulationCountry"]{
   iso2, isoNum, "slug": slug.current, status, region,
@@ -76,7 +96,7 @@ const QUERY = `*[_type == "regulationCountry"]{
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
   "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
-  regulatorName, sourceUrl, checkedAt
+  regulatorName, sourceUrl, checkedAt, hasPage, page
 }`;
 
 function fromSanity(d: SanityRegDoc): RegCountry {
@@ -99,6 +119,8 @@ function fromSanity(d: SanityRegDoc): RegCountry {
     regulatorName: d.regulatorName,
     sourceUrl: d.sourceUrl,
     checkedAt: d.checkedAt,
+    hasPage: Boolean(d.hasPage),
+    ...(d.page ? { page: d.page } : {}),
   };
 }
 

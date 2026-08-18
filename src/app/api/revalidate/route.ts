@@ -71,6 +71,20 @@ export async function POST(request: NextRequest) {
     revalidatePath('/en/articles', 'page');
     revalidatePath('/ru/ai', 'page');
     revalidatePath('/en/ai', 'page');
+  } else if (type === 'regulation') {
+    // Country data and the long country pages. Scripts that write straight to
+    // Sanity bypass the admin's own revalidation, so without this the map and
+    // the country pages keep serving the previous text for up to five minutes
+    // and the edit looks like it did not save.
+    revalidateTag('regulation', { expire: 0 });
+    revalidatePath('/sitemap.xml');
+    revalidatePath('/ru/regulation', 'page');
+    revalidatePath('/en/regulation', 'page');
+    revalidatePath('/ru/regulation/[country]', 'page');
+    revalidatePath('/en/regulation/[country]', 'page');
+    if (slug) {
+      urlsToIndex.push(`${BASE}/ru/regulation/${slug}`, `${BASE}/en/regulation/${slug}`);
+    }
   } else if (type === 'news' && slug) {
     revalidateTag('news', { expire: 0 });
     revalidatePath('/sitemap.xml');

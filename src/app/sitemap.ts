@@ -8,6 +8,7 @@ import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/sitemapRoutes';
 import { PAGE_REVISIONS } from '@/lib/pageRevisions';
 import { SITE_URL } from '@/lib/site';
+import { getRegulationCountries } from '@/lib/regulation';
 
 const BASE = SITE_URL;
 
@@ -101,6 +102,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...LIVE_DATA_PATHS,
     ...COINS.filter(c => c.available).map(c => `/assets/${c.slug}`),
   ];
+
+  /**
+   * Country pages appear here the moment an editor ticks "Своя страница" —
+   * derived from the same data the route uses, so a sixth country cannot end
+   * up live and absent from the sitemap the way a hand-kept list would allow.
+   */
+  const countryPages = (await getRegulationCountries())
+    .filter(c => c.hasPage)
+    .flatMap(c => [
+      { url: `${BASE}/ru/regulation/${c.slug}`, lastModified: new Date(c.checkedAt), changeFrequency: 'monthly' as const, priority: 0.7 },
+      { url: `${BASE}/en/regulation/${c.slug}`, lastModified: new Date(c.checkedAt), changeFrequency: 'monthly' as const, priority: 0.7 },
+    ]);
 
   const staticPages = [
     ...LISTING_PATHS.flatMap(path => [
@@ -215,5 +228,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
-  return [...staticPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  return [...staticPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

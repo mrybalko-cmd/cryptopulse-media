@@ -1549,6 +1549,20 @@ export async function deleteSubscriber(id: string): Promise<void> {
 
 // ---------------- Regulation map ----------------
 
+/**
+ * The long-form fields of a country page, named once.
+ *
+ * Listing them here rather than spelling out twenty-two flat properties keeps
+ * the type, the projection, the form and the parser reading from one source —
+ * adding a section to the page is a single edit to this array.
+ */
+export const REG_PAGE_FIELDS = [
+  'intro', 'figures', 'body', 'allowed', 'restricted',
+  'timeline', 'faq', 'sources', 'related', 'seoTitle', 'seoDescription',
+] as const;
+export type RegPageField = (typeof REG_PAGE_FIELDS)[number];
+export type RegPageText = Partial<Record<RegPageField, { ru?: string; en?: string }>>;
+
 const REGULATION_PROJECTION = `
   _id, iso2, isoNum, "slug": slug.current, status, region,
   "nameRu": name.ru, "nameEn": name.en,
@@ -1556,7 +1570,7 @@ const REGULATION_PROJECTION = `
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
   "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
-  regulatorName, sourceUrl, checkedAt
+  regulatorName, sourceUrl, checkedAt, hasPage, page
 `;
 
 export interface AdminRegulationCountryDoc {
@@ -1579,6 +1593,8 @@ export interface AdminRegulationCountryDoc {
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
+  hasPage?: boolean;
+  page?: RegPageText;
 }
 
 export async function fetchAdminRegulationCountries(): Promise<AdminRegulationCountryDoc[]> {
@@ -1612,6 +1628,8 @@ export interface RegulationCountryInput {
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
+  hasPage: boolean;
+  page: RegPageText;
 }
 
 function regulationSetFields(input: RegulationCountryInput) {
@@ -1639,6 +1657,20 @@ function regulationSetFields(input: RegulationCountryInput) {
     regulatorName: input.regulatorName || undefined,
     sourceUrl: input.sourceUrl || undefined,
     checkedAt: input.checkedAt,
+    hasPage: input.hasPage,
+    page: {
+      _type: 'object' as const,
+      ...Object.fromEntries(
+        REG_PAGE_FIELDS.map(f => [
+          f,
+          {
+            _type: 'object' as const,
+            ru: input.page[f]?.ru || undefined,
+            en: input.page[f]?.en || undefined,
+          },
+        ])
+      ),
+    },
   };
 }
 

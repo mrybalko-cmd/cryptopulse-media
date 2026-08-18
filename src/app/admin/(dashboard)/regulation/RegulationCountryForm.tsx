@@ -1,4 +1,4 @@
-import type { AdminRegulationCountryDoc } from '@/lib/admin/data';
+import type { AdminRegulationCountryDoc, RegPageText } from '@/lib/admin/data';
 import SlugInput from '../_shared/SlugInput';
 import SubmitButton from '../_shared/SubmitButton';
 
@@ -22,6 +22,47 @@ const REGION_OPTIONS = [
   { value: 'asia', label: 'Азия' },
   { value: 'mena', label: 'Ближний Восток / Африка' },
 ];
+
+/**
+ * One bilingual field of the long page. Both languages sit side by side because
+ * the English text is written, not translated — seeing them together is what
+ * stops one side quietly falling behind the other.
+ */
+function PageField({
+  name, title, hint, rows = 4, example, page,
+}: {
+  name: string;
+  title: string;
+  hint: string;
+  rows?: number;
+  example?: string;
+  page?: RegPageText;
+}) {
+  const key = name as keyof RegPageText;
+  return (
+    <div className="mb-5">
+      <div className="flex items-baseline gap-2 mb-1.5">
+        <span className="text-[11.5px] font-bold text-[var(--admin-text-secondary)]">{title}</span>
+        <span className="text-[11px] text-[var(--admin-text-dim)]">{hint}</span>
+      </div>
+      {example && (
+        <pre className="text-[11px] text-[var(--admin-text-dim)] bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2 mb-2 whitespace-pre-wrap font-mono">
+{example}
+        </pre>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label className="text-[10.5px] uppercase tracking-wider text-[var(--admin-text-dim)] mb-1 block">Русский</label>
+          <textarea name={`page.${name}.ru`} defaultValue={page?.[key]?.ru ?? ''} rows={rows} className={areaCls} />
+        </div>
+        <div>
+          <label className="text-[10.5px] uppercase tracking-wider text-[var(--admin-text-dim)] mb-1 block">English</label>
+          <textarea name={`page.${name}.en`} defaultValue={page?.[key]?.en ?? ''} rows={rows} className={areaCls} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function RegulationCountryForm({
   country,
@@ -89,6 +130,63 @@ export default function RegulationCountryForm({
             <textarea name="factNoteEn" defaultValue={country?.factNoteEn} rows={3} className={areaCls} />
             <p className={hintCls}>Событие, компания, случай — то, ради чего страницу дочитывают. Одно-два предложения, без него блок не появится.</p>
           </div>
+
+          {/* ── the long page ──────────────────────────────────── */}
+          <details className={cardCls} open={Boolean(country?.hasPage)}>
+            <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
+              <span className={`${cardTitleCls} mb-0`}>Отдельная страница страны</span>
+              <span className="text-[11px] text-[var(--admin-text-dim)]">развернуть ▾</span>
+            </summary>
+
+            <p className="text-[12px] text-[var(--admin-text-dim)] leading-relaxed mt-4 mb-5">
+              Это содержимое живёт на <b className="text-[var(--admin-text-secondary)]">/regulation/{country?.slug || '<адрес>'}</b> и
+              показывается, только когда включена галка «Своя страница» справа. Ориентир — 900–1100 слов на каждом языке.
+              Английскую версию пишем отдельно, а не переводом.
+            </p>
+
+            <PageField
+              name="intro" title="Коротко" rows={4} page={country?.page}
+              hint="прямой ответ, 60–80 слов — его забирают ИИ-ответы и сниппет"
+            />
+            <PageField
+              name="figures" title="Цифры" rows={7} page={country?.page}
+              hint="по строке на плитку, шесть штук"
+              example={'НАЛОГ ФИЗЛИЦ | 0% | на доход и на прирост\nЛИЦЕНЗИЯ БИРЖ | Обязательна | VARA, FSRA или CMA'}
+            />
+            <PageField
+              name="body" title="Разделы" rows={16} page={country?.page}
+              hint="основной текст: кто регулирует, налоги подробно"
+              example={'## Кто и как регулирует\nАбзац текста. Ссылка внутри — [якорь](https://vara.ae).\n\n### Подзаголовок\nЕщё абзац.'}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <PageField name="allowed" title="Что разрешено" rows={5} page={country?.page} hint="по пункту на строку" />
+              <PageField name="restricted" title="Что ограничено" rows={5} page={country?.page} hint="по пункту на строку" />
+            </div>
+            <PageField
+              name="timeline" title="Хронология" rows={6} page={country?.page}
+              hint="как страна пришла к нынешнему положению"
+              example={'Март 2022 | Дубай создаёт VARA\n* Май 2022 | Bybit переносит штаб-квартиру  ← звёздочка выделяет главное'}
+            />
+            <PageField
+              name="faq" title="Частые вопросы" rows={7} page={country?.page}
+              hint="пять пар — уходят в разметку FAQPage"
+              example={'Нужно ли платить налог? | Нет, для физлиц ставка ноль.'}
+            />
+            <PageField
+              name="sources" title="Источники" rows={5} page={country?.page}
+              hint="регулятор и налоговая — читателю проверить, поиску подтвердить"
+              example={'VARA — Virtual Assets Regulatory Authority | https://www.vara.ae/'}
+            />
+            <PageField
+              name="related" title="Наши материалы" rows={4} page={country?.page}
+              hint="по одному slug на строку; у русской и английской версии slug разные"
+              example={'deribit-spot-ordera-coinbase-dubai-litsenziya'}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <PageField name="seoTitle" title="Заголовок для поиска" rows={2} page={country?.page} hint="пусто — берётся заголовок страницы" />
+              <PageField name="seoDescription" title="Описание для поиска" rows={3} page={country?.page} hint="пусто — берётся «Коротко»" />
+            </div>
+          </details>
         </div>
 
         {/* ── properties ──────────────────────────────────────── */}
@@ -110,6 +208,18 @@ export default function RegulationCountryForm({
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className={cardCls}>
+            <div className={cardTitleCls}>Своя страница</div>
+            <label className="flex items-start gap-2.5 text-[12.5px] cursor-pointer">
+              <input type="checkbox" name="hasPage" defaultChecked={Boolean(country?.hasPage)} className="mt-0.5" />
+              <span>Открыть /regulation/{country?.slug || '<адрес>'}</span>
+            </label>
+            <p className={hintCls}>
+              Включает адрес на обоих языках, ссылку «Подробно» на карте и строку в sitemap.
+              Включайте, когда длинные тексты слева заполнены: пустая страница хуже её отсутствия.
+            </p>
           </div>
 
           <div className={cardCls}>

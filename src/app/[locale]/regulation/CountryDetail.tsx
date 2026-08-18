@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { STATUS_META } from '@/lib/regulationData';
 import { REGION_LABELS, type RegCountry } from '@/lib/regulation';
 
@@ -34,6 +35,18 @@ export default function CountryDetail({ country, locale }: { country: RegCountry
         <div className="sm:col-span-2 rounded-xl border border-accent/25 bg-accent/[0.06] px-3 py-2.5 text-[12px] text-muted">
           <b className="text-accent">{isRu ? 'Любопытно.' : 'Worth knowing.'}</b>{' '}
           {isRu ? country.factNote.ru : country.factNote.en}
+        </div>
+      )}
+
+      {country.hasPage && (
+        <div className="sm:col-span-2">
+          <Link
+            href={`/${locale}/regulation/${country.slug}`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi)] px-3 py-2 text-[12.5px] font-semibold text-foreground no-underline hover:text-accent transition-colors"
+          >
+            {isRu ? `Подробно о стране: ${country.name.ru}` : `Full guide: ${country.name.en}`}
+            <span aria-hidden className="text-accent">→</span>
+          </Link>
         </div>
       )}
 
