@@ -103,9 +103,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${BASE}/${locale}/regulation/${c.slug}`,
       siteName: SITE_NAME,
       locale: isRu ? 'ru_RU' : 'en_US',
-      images: [{ url: `${BASE}/${locale}/opengraph-image` }],
     },
-    twitter: { card: 'summary_large_image', title, description, images: [`${BASE}/${locale}/opengraph-image`] },
+    twitter: { card: 'summary_large_image', title, description },
   };
 }
 
