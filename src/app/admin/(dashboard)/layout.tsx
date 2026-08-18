@@ -18,6 +18,7 @@ const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[
   { href: '/admin/homepage', label: '🏡 Homepage', permission: 'homepage' },
   { href: '/admin/authors', label: '👤 Authors', permission: 'authors' },
   { href: '/admin/calendar', label: '📅 Calendar events', permission: 'calendar' },
+  { href: '/admin/regulation', label: '🗺️ Regulation map', permission: 'regulation' },
   { href: '/admin/pulse', label: '📈 Pulse', permission: 'pulse' },
   { href: '/admin/subscribers', label: '✉️ Subscribers', permission: 'subscribers' },
 ];
