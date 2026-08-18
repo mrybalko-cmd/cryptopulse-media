@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { REGULATION_DATA, STATUS_META } from '@/lib/regulationData';
+import { STATUS_META } from '@/lib/regulationData';
+import { getRegulationCountries, lastCheckedAt } from '@/lib/regulation';
 import RegulationClient from './RegulationClient';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
@@ -15,9 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = isRu
     ? 'Крипта по странам: карта регулирования'
     : 'Crypto regulation by country: world map';
+  // Counted from the live data, never typed. The hard-coded "38" outlived
+  // eight additions and claimed 38 countries on a page that listed 46.
+  const count = (await getRegulationCountries()).length;
   const description = isRu
-    ? 'Интерактивная карта: в каких странах криптовалюта разрешена, ограничена или запрещена. Подробная информация о законах для 38 стран.'
-    : 'Interactive map: in which countries is cryptocurrency legal, restricted, or banned. Detailed law information for 38 countries.';
+    ? `Интерактивная карта: в каких странах криптовалюта разрешена, ограничена или запрещена. Подробная информация о законах для ${count} стран.`
+    : `Interactive map: in which countries is cryptocurrency legal, restricted, or banned. Detailed law information for ${count} countries.`;
 
   return {
     title,
@@ -48,17 +52,24 @@ export default async function RegulationPage({ params }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
-  const legalCount      = REGULATION_DATA.filter(c => c.status === 'legal').length;
-  const restrictedCount = REGULATION_DATA.filter(c => c.status === 'restricted').length;
-  const bannedCount     = REGULATION_DATA.filter(c => c.status === 'banned').length;
+  const countries = await getRegulationCountries();
+  const legalCount      = countries.filter(c => c.status === 'legal').length;
+  const restrictedCount = countries.filter(c => c.status === 'restricted').length;
+  const bannedCount     = countries.filter(c => c.status === 'banned').length;
+
+  // "Updated 2025" was written into the page by hand and stayed there while the
+  // data moved on. This follows the newest per-country check.
+  const updatedLabel = new Intl.DateTimeFormat(isRu ? 'ru-RU' : 'en-GB', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  }).format(new Date(lastCheckedAt(countries)));
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
     name: isRu ? 'Карта регулирования криптовалют по странам мира' : 'Crypto Regulation Map by Country',
     description: isRu
-      ? `Статус криптовалютного регулирования для ${REGULATION_DATA.length} стран. ${legalCount} разрешают, ${restrictedCount} ограничивают, ${bannedCount} запрещают.`
-      : `Cryptocurrency regulation status for ${REGULATION_DATA.length} countries. ${legalCount} permit, ${restrictedCount} restrict, ${bannedCount} ban.`,
+      ? `Статус криптовалютного регулирования для ${countries.length} стран. ${legalCount} разрешают, ${restrictedCount} ограничивают, ${bannedCount} запрещают.`
+      : `Cryptocurrency regulation status for ${countries.length} countries. ${legalCount} permit, ${restrictedCount} restrict, ${bannedCount} ban.`,
     url: `${BASE}/${locale}/regulation`,
     publisher: {
       '@type': 'Organization',
@@ -70,7 +81,8 @@ export default async function RegulationPage({ params }: Props) {
       name: SITE_NAME,
       url: BASE,
     },
-    dateModified: '2025-06-01',
+    // The newest per-country check, not a date typed once and forgotten.
+    dateModified: lastCheckedAt(countries),
     inLanguage: locale,
     about: { '@type': 'Thing', name: isRu ? 'Регулирование криптовалют' : 'Cryptocurrency regulation' },
   };
@@ -98,16 +110,16 @@ export default async function RegulationPage({ params }: Props) {
         </h1>
         <p className="text-muted text-sm sm:text-base leading-relaxed max-w-2xl">
           {isRu
-            ? `В каких странах можно свободно покупать биткоин и другие криптовалюты, где есть ограничения, а где торговля криптой полностью запрещена. Данные по ${REGULATION_DATA.length} странам, обновлено в 2025 году.`
-            : `Which countries allow you to freely buy bitcoin and other cryptocurrencies, where there are restrictions, and where crypto trading is completely banned. Data for ${REGULATION_DATA.length} countries, updated 2025.`}
+            ? `В каких странах можно свободно покупать биткоин и другие криптовалюты, где есть ограничения, а где торговля криптой полностью запрещена. Данные по ${countries.length} странам, последняя проверка — ${updatedLabel}.`
+            : `Which countries allow you to freely buy bitcoin and other cryptocurrencies, where there are restrictions, and where crypto trading is completely banned. Data for ${countries.length} countries, last checked ${updatedLabel}.`}
         </p>
 
         {/* Last updated */}
         <div className="mt-3 flex items-center gap-1.5 text-xs text-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
-          {isRu ? 'Данные проверены: июнь 2025' : 'Data verified: June 2025'}
+          {isRu ? `Данные проверены: ${updatedLabel}` : `Data verified: ${updatedLabel}`}
           <span className="text-border">·</span>
-          <span>{isRu ? `${REGULATION_DATA.length} стран` : `${REGULATION_DATA.length} countries`}</span>
+          <span>{isRu ? `${countries.length} стран` : `${countries.length} countries`}</span>
         </div>
 
         {/* Disclaimer */}
@@ -122,7 +134,7 @@ export default async function RegulationPage({ params }: Props) {
       </div>
 
       {/* Interactive client part: stats + map + list */}
-      <RegulationClient locale={locale} />
+      <RegulationClient locale={locale} countries={countries} />
 
       {/* SEO text block */}
       <section className="mt-14 pt-8 border-t border-border">

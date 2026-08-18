@@ -7,6 +7,7 @@ export const PERMISSIONS = [
   { key: 'homepage', label: 'Главная страница' },
   { key: 'authors', label: 'Авторы' },
   { key: 'calendar', label: 'Календарь событий' },
+  { key: 'regulation', label: 'Карта регулирования' },
   { key: 'pulse', label: 'Pulse' },
   { key: 'subscribers', label: 'Подписчики' },
 ] as const;

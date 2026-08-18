@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { PERMISSIONS } from '@/lib/admin/permissions';
 
 // Backs the custom /admin panel's own login + permissions — independent of
 // Sanity's own project-member accounts. Owners can grant/revoke access to
@@ -29,14 +30,11 @@ export const adminUserType = defineType({
       type: 'array',
       of: [{ type: 'string' }],
       options: {
-        list: [
-          { title: 'Новости', value: 'news' },
-          { title: 'Статьи', value: 'articles' },
-          { title: 'Баннеры', value: 'banners' },
-          { title: 'Криптобиржи', value: 'exchanges' },
-          { title: 'Комментарии', value: 'comments' },
-          { title: 'Главная страница', value: 'homepage' },
-        ],
+        // Taken from the one list the app checks against, not retyped. This
+        // copy had already fallen four sections behind — authors, calendar,
+        // pulse and subscribers existed in code and could not be granted here,
+        // so the only way to give someone those rights was to make them owner.
+        list: PERMISSIONS.map(p => ({ title: p.label, value: p.key })),
         layout: 'grid',
       },
       hidden: ({ document }) => Boolean(document?.isOwner),

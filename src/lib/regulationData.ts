@@ -217,18 +217,18 @@ export const REGULATION_DATA: CountryReg[] = [
     name: { ru: 'Сальвадор', en: 'El Salvador' },
     status: 'legal',
     summary: {
-      ru: 'Первая страна в мире, принявшая Bitcoin в качестве законного платёжного средства (2021). Bitcoin принимают все магазины.',
-      en: 'First country to adopt Bitcoin as legal tender (2021). All businesses are required to accept Bitcoin.',
+      ru: 'Первая страна в мире, принявшая Bitcoin как законное платёжное средство (2021). С 29 января 2025 года приём добровольный: обязанность бизнеса принимать Bitcoin отменена по условию сделки с МВФ.',
+      en: 'First country to adopt Bitcoin as legal tender (2021). Since 29 January 2025 acceptance is voluntary: the duty for businesses to accept Bitcoin was repealed under the terms of an IMF deal.',
     },
     details: {
-      ru: 'Правительство создало криптокошелёк Chivo. Накапливает Bitcoin в государственных резервах. Привлекает крипто-туристов и компании нулевым налогом на крипто.',
-      en: 'Government created the Chivo crypto wallet. Accumulates Bitcoin in national reserves. Attracts crypto tourists and companies with zero tax on crypto.',
+      ru: 'Поправки 2025 года сняли обязанность принимать Bitcoin, отменили уплату налогов в нём и свернули государственный кошелёк Chivo. Расплатиться Bitcoin по-прежнему можно — по согласию сторон, — а государство продолжает держать его в резервах.',
+      en: 'The 2025 amendments repealed the duty to accept Bitcoin, ended tax payments in it, and wound down the state-run Chivo wallet. Paying in Bitcoin is still possible by mutual agreement, and the state continues to hold it in reserves.',
     },
     taxNote: {
-      ru: 'Нет налога на прибыль от Bitcoin для иностранных инвесторов.',
-      en: 'No tax on Bitcoin gains for foreign investors.',
+      ru: 'Прирост стоимости Bitcoin налогом не облагается — эта льгота сохранена и после поправок.',
+      en: 'Bitcoin capital gains remain untaxed — the exemption survived the amendments.',
     },
-    updatedYear: '2025',
+    updatedYear: '2026',
   },
   {
     iso2: 'PT', isoNum: '620', slug: 'portugal',
@@ -603,10 +603,10 @@ export const REGULATION_DATA: CountryReg[] = [
       en: 'Complete ban since September 2021. All crypto transactions, exchanges, and mining declared illegal. PBOC launched the digital yuan (e-CNY) as an alternative.',
     },
     details: {
-      ru: 'Ранее Китай занимал до 70% мирового хешрейта Bitcoin. После запрета майнеры переехали в Казахстан, США, Россию. Гражданам запрещено пользоваться иностранными биржами через VPN.',
-      en: 'China previously accounted for up to 70% of Bitcoin\'s global hashrate. After the ban, miners relocated to Kazakhstan, the US, and Russia. Citizens are barred from using foreign exchanges via VPN.',
+      ru: 'До запрета на Китай приходилось до 70% мирового хешрейта Bitcoin; после него майнеры перебрались в США, Казахстан и Россию. Полностью майнинг из страны не ушёл: по независимым оценкам часть мощностей продолжает работать вопреки запрету. Гражданам запрещено пользоваться иностранными биржами, в том числе через VPN. Гонконг живёт по собственным правилам и лицензирует крипто-площадки.',
+      en: 'Before the ban China accounted for up to 70% of Bitcoin\'s global hashrate; afterwards miners moved to the US, Kazakhstan, and Russia. Mining never left entirely — independent estimates put a meaningful share of hashrate still inside the country. Citizens are barred from foreign exchanges, VPN included. Hong Kong operates under its own rules and licenses crypto platforms.',
     },
-    updatedYear: '2021',
+    updatedYear: '2026',
   },
   {
     iso2: 'DZ', isoNum: '012', slug: 'algeria',
@@ -695,16 +695,16 @@ export const REGULATION_DATA: CountryReg[] = [
   {
     iso2: 'BO', isoNum: '068', slug: 'bolivia',
     name: { ru: 'Боливия', en: 'Bolivia' },
-    status: 'banned',
+    status: 'restricted',
     summary: {
-      ru: 'Центральный банк Боливии запретил Bitcoin и все криптовалюты. Запрет действовал с 2014 по 2024 год, после чего был частично пересмотрен.',
-      en: 'Bolivia\'s central bank banned Bitcoin and all cryptocurrencies. The ban was in effect from 2014 to 2024, after which it was partially revised.',
+      ru: 'Запрет 2014 года отменён 26 июня 2024 года постановлением Центрального банка 082/2024. Операции с криптоактивами разрешены через авторизованные каналы.',
+      en: 'The 2014 ban was lifted on 26 June 2024 by central bank resolution 082/2024. Crypto transactions are permitted through authorised channels.',
     },
     details: {
-      ru: 'В 2024 году Боливия отменила запрет и разрешила использование криптовалют для международных расчётов, стремясь привлечь валютные резервы.',
-      en: 'In 2024 Bolivia lifted the ban and permitted crypto for international settlements, seeking to attract foreign currency reserves.',
+      ru: 'Владеть, покупать и продавать цифровые активы законно. Регуляторная рамка ещё достраивается: постановлением ASFI 1203/2025 приём заявок от финтех-компаний и бирж продлён до 30 апреля 2026 года. К 2026 году часть банков начала обслуживать операции с USDT.',
+      en: 'Owning, buying, and selling digital assets is lawful. The framework is still being built: ASFI resolution 1203/2025 extended the application window for fintech firms and exchanges to 30 April 2026. By 2026 several banks had begun servicing USDT transactions.',
     },
-    updatedYear: '2024',
+    updatedYear: '2026',
   },
 
   // ─── UNCLEAR ────────────────────────────────────────────────────────────────

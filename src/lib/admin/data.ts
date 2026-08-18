@@ -1280,7 +1280,7 @@ export async function fetchScheduleItems(
 
 export async function fetchDashboardCounts() {
   const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-  const [draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers] = await Promise.all([
+  const [draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers, regulationNoSource] = await Promise.all([
     client.fetch(`count(*[_type == "news" && publishTiming == "draft"])`),
     client.fetch(`count(*[_type == "article" && publishTiming == "draft"])`),
     client.fetch(`count(*[_type == "sidebarBanner" && active == true])`),
@@ -1297,8 +1297,9 @@ export async function fetchDashboardCounts() {
       { weekFromNow }
     ),
     client.fetch(`count(*[_type == "emailSubscriber" && active != false])`),
+    client.fetch(`count(*[_type == "regulationCountry" && !defined(sourceUrl)])`),
   ]);
-  return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers };
+  return { draftNews, draftArticles, activeBanners, exchangeCount, pendingComments, pendingReviews, scheduleThisWeek, activeSubscribers, regulationNoSource };
 }
 
 // ---------------- Schedule analytics ----------------
@@ -1544,4 +1545,110 @@ export async function setSubscriberActive(id: string, active: boolean): Promise<
 
 export async function deleteSubscriber(id: string): Promise<void> {
   await writeClient.delete(id);
+}
+
+// ---------------- Regulation map ----------------
+
+const REGULATION_PROJECTION = `
+  _id, iso2, isoNum, "slug": slug.current, status, region,
+  "nameRu": name.ru, "nameEn": name.en,
+  "summaryRu": summary.ru, "summaryEn": summary.en,
+  "detailsRu": details.ru, "detailsEn": details.en,
+  "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
+  regulatorName, sourceUrl, checkedAt
+`;
+
+export interface AdminRegulationCountryDoc {
+  _id: string;
+  iso2: string;
+  isoNum: string;
+  slug: string;
+  status: 'legal' | 'restricted' | 'banned' | 'unclear';
+  region: 'eu' | 'americas' | 'asia' | 'mena';
+  nameRu: string;
+  nameEn: string;
+  summaryRu: string;
+  summaryEn: string;
+  detailsRu: string;
+  detailsEn: string;
+  taxNoteRu?: string;
+  taxNoteEn?: string;
+  regulatorName?: string;
+  sourceUrl?: string;
+  checkedAt: string;
+}
+
+export async function fetchAdminRegulationCountries(): Promise<AdminRegulationCountryDoc[]> {
+  return client.fetch(
+    `*[_type == "regulationCountry"] | order(name.ru asc){ ${REGULATION_PROJECTION} }`
+  );
+}
+
+export async function fetchAdminRegulationCountryById(id: string): Promise<AdminRegulationCountryDoc | null> {
+  return client.fetch(
+    `*[_type == "regulationCountry" && _id == $id][0]{ ${REGULATION_PROJECTION} }`, { id }
+  );
+}
+
+export interface RegulationCountryInput {
+  iso2: string;
+  isoNum: string;
+  slug: string;
+  status: AdminRegulationCountryDoc['status'];
+  region: AdminRegulationCountryDoc['region'];
+  nameRu: string;
+  nameEn: string;
+  summaryRu: string;
+  summaryEn: string;
+  detailsRu: string;
+  detailsEn: string;
+  taxNoteRu?: string;
+  taxNoteEn?: string;
+  regulatorName?: string;
+  sourceUrl?: string;
+  checkedAt: string;
+}
+
+function regulationSetFields(input: RegulationCountryInput) {
+  return {
+    iso2: input.iso2.toUpperCase(),
+    isoNum: input.isoNum,
+    slug: { _type: 'slug' as const, current: input.slug },
+    status: input.status,
+    region: input.region,
+    name: { _type: 'object' as const, ru: input.nameRu, en: input.nameEn },
+    summary: { _type: 'object' as const, ru: input.summaryRu, en: input.summaryEn },
+    details: { _type: 'object' as const, ru: input.detailsRu, en: input.detailsEn },
+    // Emptied fields have to be unset, not set to '': an empty string still
+    // renders as a tax block with nothing in it.
+    taxNote: {
+      _type: 'object' as const,
+      ru: input.taxNoteRu || undefined,
+      en: input.taxNoteEn || undefined,
+    },
+    regulatorName: input.regulatorName || undefined,
+    sourceUrl: input.sourceUrl || undefined,
+    checkedAt: input.checkedAt,
+  };
+}
+
+export async function createRegulationCountry(input: RegulationCountryInput) {
+  return writeClient.create({ _type: 'regulationCountry', ...regulationSetFields(input) });
+}
+
+export async function updateRegulationCountry(id: string, input: RegulationCountryInput) {
+  await writeClient.patch(id).set(regulationSetFields(input)).commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteRegulationCountry(id: string) {
+  await writeClient.delete(id);
+}
+
+/** Is this ISO code already taken by another country? */
+export async function regulationIso2Taken(iso2: string, exceptId?: string): Promise<boolean> {
+  const found: string | null = await client.fetch(
+    `*[_type == "regulationCountry" && iso2 == $iso2 && _id != $exceptId][0]._id`,
+    { iso2: iso2.toUpperCase(), exceptId: exceptId ?? 'none' }
+  );
+  return Boolean(found);
 }

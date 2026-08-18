@@ -15,6 +15,7 @@ export default async function AdminDashboardPage() {
     { key: 'exchanges' as const, href: '/admin/exchanges', icon: '🏦', color: '#22c55e', title: 'Криптобиржи', stat: counts.exchangeCount, label: 'бирж' },
     { key: 'exchanges' as const, href: '/admin/exchange-reviews', icon: '⭐', color: '#f59e0b', title: 'Отзывы о биржах', stat: counts.pendingReviews, label: 'на проверке' },
     { key: 'comments' as const, href: '/admin/comments', icon: '💬', color: '#ec4899', title: 'Комментарии', stat: counts.pendingComments, label: 'на проверке' },
+    { key: 'regulation' as const, href: '/admin/regulation', icon: '🗺️', color: '#f97316', title: 'Карта регулирования', stat: counts.regulationNoSource, label: 'без источника' },
     { key: null, href: '/admin/schedule', icon: '📅', color: '#22d3ee', title: 'Расписание', stat: counts.scheduleThisWeek, label: 'событий на неделе' },
     { key: 'subscribers' as const, href: '/admin/subscribers', icon: '✉️', color: '#38bdf8', title: 'Подписчики', stat: counts.activeSubscribers, label: 'активных' },
     { key: 'homepage' as const, href: '/admin/homepage', icon: '🏡', color: '#94a3b8', title: 'Главная страница', stat: null, label: 'настройки вывода' },
