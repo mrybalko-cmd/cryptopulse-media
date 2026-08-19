@@ -551,7 +551,7 @@ html.light .prose-invert {
 
 /* На телефоне разворот перестаёт быть разворотом: панели, плавающие над низкой
    картой, наезжали на текст под ней. */
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .reg-clear { display: none; }
   .reg-spread { min-height: 0; display: block; }
   .reg-over { position: static; padding: 13px; gap: 11px; background: color-mix(in srgb, var(--foreground) 4%, transparent); }
@@ -667,4 +667,24 @@ html.light .prose-invert {
   .reg-mica-date { padding: 11px 8px; }
   .reg-q > summary { padding: 12px 13px; font-size: 14px; gap: 10px; }
   .reg-q > p { padding: 0 13px 13px; }
+}
+
+/* ── мобильный: панели разворота встают в колонку по всей ширине ──────────
+   На узком экране .reg-over становится статичным, но сами панели раньше
+   сохраняли десктопные ширины (374 и 456 px) и их резал overflow карты. */
+@media (max-width: 900px) {
+  .reg-over .reg-gl {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    max-height: none;
+  }
+  /* четыре числа в ряд не помещаются — раскладываем 2×2 */
+  .reg-gl.stats { flex-wrap: wrap; row-gap: 12px; }
+  .reg-gl.stats > div { flex: 1 1 40%; min-width: 0; }
+  /* полоса фильтра прокручивается внутри панели, а не растягивает её */
+  .reg-gl.side > div:first-child { min-width: 0; }
 }

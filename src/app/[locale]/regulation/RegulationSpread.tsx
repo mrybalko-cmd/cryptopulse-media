@@ -189,11 +189,11 @@ export default function RegulationSpread({
             </div>
           </div>
 
-          <div className="reg-gl side mt-[38px] py-[13px] px-[18px] flex gap-2">
+          <div className="reg-gl side stats mt-[38px] py-[13px] px-[18px] flex gap-2">
             {([['legal', 'ok'], ['restricted', 'mid'], ['banned', 'no']] as const).map(([s, cls]) => (
               <div key={s} className="flex-1 min-w-[78px] flex flex-col items-center text-center">
                 <span className={`reg-num ${cls} text-[27px]`}>{counts[s]}</span>
-                <span className="mt-[7px] text-[9.5px] max-[760px]:text-[10.5px] font-bold uppercase tracking-[0.15em] max-[760px]:tracking-[0.1em] text-muted">
+                <span className="mt-[7px] text-[9.5px] max-[900px]:text-[10.5px] font-bold uppercase tracking-[0.15em] max-[900px]:tracking-[0.1em] text-muted">
                   {isRu
                     ? { legal: 'разрешено', restricted: 'огранич.', banned: 'запрещено' }[s]
                     : { legal: 'legal', restricted: 'limited', banned: 'banned' }[s]}
@@ -202,7 +202,7 @@ export default function RegulationSpread({
             ))}
             <div className="flex-1 min-w-[78px] flex flex-col items-center text-center">
               <span className="reg-num text-[27px]">{guides}</span>
-              <span className="mt-[7px] text-[9.5px] max-[760px]:text-[10.5px] font-bold uppercase tracking-[0.15em] max-[760px]:tracking-[0.1em] text-muted">
+              <span className="mt-[7px] text-[9.5px] max-[900px]:text-[10.5px] font-bold uppercase tracking-[0.15em] max-[900px]:tracking-[0.1em] text-muted">
                 {isRu ? 'гидов' : 'guides'}
               </span>
             </div>
@@ -234,7 +234,7 @@ export default function RegulationSpread({
                     [isRu ? 'Проверено' : 'Checked', shown.checkedAt.split('-').reverse().join('.')],
                   ].map(([k, v]) => (
                     <div key={k} className="px-[9px] py-2 rounded-[9px] border border-[var(--glass-line)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] min-w-0">
-                      <span className="block mb-1.5 text-[9px] max-[760px]:text-[10px] font-bold uppercase tracking-[0.13em] text-muted whitespace-nowrap">{k}</span>
+                      <span className="block mb-1.5 text-[9px] max-[900px]:text-[10px] font-bold uppercase tracking-[0.13em] max-[900px]:tracking-[0.02em] text-muted whitespace-nowrap">{k}</span>
                       <span className="block text-[12.5px] font-bold leading-[1.28] tracking-[-0.02em] [overflow-wrap:anywhere]">{v}</span>
                     </div>
                   ))}
