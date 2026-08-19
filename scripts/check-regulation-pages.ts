@@ -53,8 +53,13 @@ async function main() {
           .join(' ')
           .replace(/\]\((https?:\/\/[^)]+)\)/g, ']')
           .replace(/\bhttps?:\/\/\S+/g, '');
-        const keep = /^(VARA|MAS|FSRA|DFSA|CMA|ADGM|DIFC|BaFin|CMVM|FINMA|MiCA|CASP|DLT|IRAS|ESMA|GST|NFT|G10|DPT|AED|IT|Payment|Services|Act|Financial|Markets|and|Three|Arrows|Capital|Bybit|Rulebook|EStG|[A-Z])$/;
-        const latin = [...new Set((prose.match(/[A-Za-z][A-Za-z.]*/g) ?? []).filter(w=>!keep.test(w.replace(/\.$/,''))))];
+        // A hand-kept allow-list of names does not scale past a few countries —
+        // it grew to twenty entries and still cried wolf on SEC, Mt.Gox and
+        // 1099-DA. What actually signals English leaking into Russian prose is
+        // a *lowercase* Latin word. Acronyms, brand names and anything with an
+        // internal capital are how we legitimately write regulators and laws.
+        const latin = [...new Set((prose.match(/[A-Za-z][A-Za-z.\-]*/g) ?? []))]
+          .filter(w => /^[a-z]+$/.test(w.replace(/[.\-]/g, '')));
         if (latin.length) say(`ru: латиница в тексте — ${latin.slice(0,6).join(', ')}`);
       }
 

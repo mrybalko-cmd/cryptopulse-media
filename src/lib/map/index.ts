@@ -50,13 +50,31 @@ function bounds(path: string): [number, number, number, number] {
 }
 
 /**
+ * The country's core extent, ignoring its outliers.
+ *
+ * Sizing a frame from the absolute bounding box fails on exactly the countries
+ * people look up: Alaska stretches the United States two thirds of the way
+ * around the world, and a frame built to contain it shows the country as a
+ * speck. The 5th–95th percentile of the outline's own points is the part that
+ * matters, and it needs no list of exceptions to know that.
+ */
+function core(path: string): [number, number, number, number, number, number] {
+  const n = path.match(/-?\d+\.?\d*/g)?.map(Number) ?? [];
+  const xs: number[] = [], ys: number[] = [];
+  for (let i = 0; i < n.length - 1; i += 2) { xs.push(n[i]); ys.push(n[i + 1]); }
+  xs.sort((a, b) => a - b); ys.sort((a, b) => a - b);
+  const at = (a: number[], q: number) => a[Math.min(a.length - 1, Math.floor(a.length * q))] ?? 0;
+  return [at(xs, 0.05), at(ys, 0.05), at(xs, 0.95), at(ys, 0.95), at(xs, 0.5), at(ys, 0.5)];
+}
+
+/**
  * The map shown in a country page's header.
  *
  * Wider than tall on purpose: the header's headline column is short, and a
  * square map left a third of the panel empty under the title.
  *
  * Countries below roughly 100km across have no outline in the 110m dataset at
- * all — Singapore is one of our five — so those fall back to the same click
+ * all — Singapore is one of ours — so those fall back to the same click
  * coordinates the big map already uses, drawn as a marker. Without that branch
  * the panel would render an empty sea.
  */
@@ -65,14 +83,16 @@ export function regionView(isoNum: string, aspect = 1.55): RegionView {
   const target = WORLD.targets[isoNum];
   if (!own && !target) return { viewBox: `0 0 ${WORLD.width} ${WORLD.height}`, neighbours: [] };
 
-  const [x0, y0, x1, y1] = own ? bounds(own) : [target[0], target[1], target[0], target[1]];
-  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const [x0, y0, x1, y1, cx, cy] = own
+    ? core(own)
+    : [target[0], target[1], target[0], target[1], target[0], target[1]];
 
-  // Enough room around the country to recognise where on earth this is, and a
-  // floor so a small country does not fill the frame edge to edge.
-  const w = Math.max((x1 - x0) * 4.2, 78);
-  const h = Math.max(w / aspect, (y1 - y0) * 2.6);
-  const vw = Math.max(w, h * aspect);
+  // Room enough to recognise where on earth this is, capped so that a large
+  // country does not become a detail on a world map.
+  const MAX = 340;
+  const sx = x1 - x0, sy = y1 - y0;
+  let vw = Math.max(78, Math.min(sx * 4.2, sx + 150, MAX));
+  vw = Math.min(MAX, Math.max(vw, sy * 1.9 * aspect));
   const vh = vw / aspect;
   const vx = Math.max(0, Math.min(cx - vw / 2, WORLD.width - vw));
   const vy = Math.max(0, Math.min(cy - vh / 2, WORLD.height - vh));

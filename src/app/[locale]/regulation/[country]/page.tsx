@@ -270,6 +270,7 @@ export default async function CountryRegulationPage({ params }: Props) {
               label={isRu ? REGION_LABELS[c.region].ru : REGION_LABELS[c.region].en}
               mapHref={`/${locale}/regulation`}
               allLabel={t.mapAll}
+              color={meta.color}
             />
           </div>
 

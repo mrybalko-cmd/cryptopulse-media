@@ -10,11 +10,20 @@ export default function RegionMap({
   label,
   mapHref,
   allLabel,
+  color,
 }: {
   isoNum: string;
   label: string;
   mapHref: string;
   allLabel: string;
+  /**
+   * The country's status colour, matching the big map.
+   *
+   * This was hard-coded green until China and South Korea arrived, at which
+   * point the header showed a banned country in the colour the map uses for
+   * "legal" — the two pictures of the same fact disagreed.
+   */
+  color: string;
 }) {
   const view = regionView(isoNum);
   const own = WORLD.paths[isoNum];
@@ -25,8 +34,8 @@ export default function RegionMap({
       <svg viewBox={view.viewBox} className="block w-full h-auto flex-1 min-h-0" role="img" aria-label={label}>
         <defs>
           <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--positive)" stopOpacity="0.62" />
-            <stop offset="1" stopColor="var(--positive)" stopOpacity="0.28" />
+            <stop offset="0" stopColor={color} stopOpacity="0.62" />
+            <stop offset="1" stopColor={color} stopOpacity="0.28" />
           </linearGradient>
           <filter id={`${id}-glow`} x="-90%" y="-90%" width="280%" height="280%">
             <feGaussianBlur stdDeviation="1.4" result="b" />
@@ -52,7 +61,7 @@ export default function RegionMap({
           <path
             d={own}
             fill={`url(#${id}-fill)`}
-            stroke="var(--positive)"
+            stroke={color}
             strokeWidth={1.1}
             vectorEffect="non-scaling-stroke"
             filter={`url(#${id}-glow)`}
@@ -62,13 +71,13 @@ export default function RegionMap({
              pixel here. The marker sits on the same coordinates the big map
              already uses to make such countries clickable. */
           <g filter={`url(#${id}-glow)`}>
-            <circle cx={view.marker[0]} cy={view.marker[1]} r={3.4} fill="var(--positive)" />
+            <circle cx={view.marker[0]} cy={view.marker[1]} r={3.4} fill={color} />
             <circle
               cx={view.marker[0]}
               cy={view.marker[1]}
               r={6.4}
               fill="none"
-              stroke="var(--positive)"
+              stroke={color}
               strokeWidth={0.9}
               strokeOpacity={0.5}
               vectorEffect="non-scaling-stroke"
