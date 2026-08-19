@@ -2,11 +2,14 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Eye } from 'lucide-react';
 
+/** Повторный заход на тот же материал засчитывается не раньше, чем через полчаса. */
+const COOLDOWN_MS = 30 * 60 * 1000;
+
 const NOOP_SUBSCRIBE = () => () => {};
 
 function readRemembered(id: string): number {
   try {
-    const v = Number(sessionStorage.getItem(`viewsOf:${id}`));
+    const v = Number(localStorage.getItem(`viewsOf:${id}`));
     return Number.isFinite(v) ? v : 0;
   } catch {
     return 0;
@@ -21,16 +24,19 @@ function readRemembered(id: string): number {
  * Запись мы всё равно делаем — и ответ на неё содержит новое значение, так что
  * точное число обходится нам без единого лишнего чтения из Sanity.
  *
- * Считаем один просмотр на материал за сессию вкладки: перезагрузка, возврат
- * назад и вторая вкладка иначе накручивали и счётчик, и счёт за квоту. Последнее
- * известное число тоже держим в сессии — иначе после перезагрузки оно
+ * Один просмотр на материал раз в COOLDOWN_MS: перезагрузка, возврат назад и
+ * вторая вкладка иначе накручивают и счётчик, и счёт за квоту — записи в Sanity
+ * идут мимо CDN и стоят дороже чтений. Окно вместо прежней привязки к сессии
+ * вкладки: читатель, вернувшийся к материалу позже, засчитывается снова.
+ *
+ * Последнее известное число тоже помним — иначе после перезагрузки оно
  * откатывалось бы к устаревшему серверному и выглядело как убыль.
  */
 export default function ViewCount({ id, initial }: { id: string; initial: number }) {
   const [fetched, setFetched] = useState<number | null>(null);
 
-  // Чтение из sessionStorage — внешний источник: на сервере его нет, поэтому
-  // при гидрации берём ноль и переключаемся уже на клиенте, без рассинхрона.
+  // Хранилище — внешний источник: на сервере его нет, поэтому при гидрации
+  // берём ноль и переключаемся уже на клиенте, без рассинхрона разметки.
   const remembered = useSyncExternalStore(
     NOOP_SUBSCRIBE,
     useCallback(() => readRemembered(id), [id]),
@@ -38,12 +44,14 @@ export default function ViewCount({ id, initial }: { id: string; initial: number
   );
 
   useEffect(() => {
-    const seenKey = `viewed:${id}`;
+    const seenKey = `viewedAt:${id}`;
+    const now = Date.now();
     try {
-      if (sessionStorage.getItem(seenKey) !== null) return;
-      sessionStorage.setItem(seenKey, '1');
+      const last = Number(localStorage.getItem(seenKey));
+      if (Number.isFinite(last) && last > 0 && now - last < COOLDOWN_MS) return;
+      localStorage.setItem(seenKey, String(now));
     } catch {
-      // приватный режим или хранилище отключено — считаем как раньше
+      // приватный режим или хранилище отключено — считаем каждый заход
     }
 
     let alive = true;
@@ -57,7 +65,7 @@ export default function ViewCount({ id, initial }: { id: string; initial: number
         if (!alive || typeof d?.views !== 'number') return;
         setFetched(d.views);
         try {
-          sessionStorage.setItem(`viewsOf:${id}`, String(d.views));
+          localStorage.setItem(`viewsOf:${id}`, String(d.views));
         } catch {
           // хранилище недоступно — число всё равно показано в этой загрузке
         }
