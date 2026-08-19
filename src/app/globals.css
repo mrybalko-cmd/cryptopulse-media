@@ -83,6 +83,19 @@
   --glass-clear-2: rgba(255, 255, 255, 0.012);
   --glass-edge: rgba(255, 255, 255, 0.16);
   --glass-edge-lit: rgba(255, 255, 255, 0.34);
+
+  /* Карта регуляции: поле, стекло и заливки стран */
+  --reg-field: #0e0e11;
+  --reg-sea: rgba(255, 255, 255, 0.045);
+  --reg-tagbg: rgba(10, 10, 13, 0.92);
+  --reg-fade: linear-gradient(180deg, rgba(14, 14, 17, 0.5), transparent 40%, rgba(14, 14, 17, 0.45));
+  --reg-g1: linear-gradient(168deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  --reg-g2: linear-gradient(168deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.032));
+  --reg-g3: linear-gradient(168deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  --reg-f-ok: url(#regOk);
+  --reg-f-mid: url(#regMid);
+  --reg-f-no: url(#regNo);
+  --reg-f-gr: url(#regGr);
 }
 
 html.light {
@@ -133,6 +146,21 @@ html.light {
   --glass-clear-2: rgba(255, 255, 255, 0.30);
   --glass-edge: rgba(255, 255, 255, 0.85);
   --glass-edge-lit: #ffffff;
+
+  /* На белом фоне «прозрачное» стекло — это БОЛЬШЕ белого, а не меньше:
+     панель должна лежать светлее подложки, иначе текст на ней теряется. */
+  --reg-field: #eef1f6;
+  --reg-sea: rgba(15, 20, 30, 0.06);
+  --reg-tagbg: rgba(255, 255, 255, 0.96);
+  --reg-fade: linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent 42%, rgba(255, 255, 255, 0.45));
+  --reg-g1: linear-gradient(168deg, rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.90));
+  --reg-g2: linear-gradient(168deg, rgba(255, 255, 255, 0.93), rgba(255, 255, 255, 0.84));
+  --reg-g3: linear-gradient(168deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.76));
+  /* Те же зелёный и янтарный на белом выцветают — у светлой темы свой набор. */
+  --reg-f-ok: url(#regOkL);
+  --reg-f-mid: url(#regMidL);
+  --reg-f-no: url(#regNoL);
+  --reg-f-gr: url(#regGrL);
 }
 
 @theme inline {
@@ -319,4 +347,324 @@ html.light .prose-invert {
 
 @media (prefers-reduced-motion: reduce) {
   .coin-page::before { display: none; }
+}
+
+/* ═══════════════ Карта регуляции: разворот ═══════════════
+   Панели плавают над картой, поэтому им нужны вещи, которых нет в утилитах:
+   три плотности стекла, косой отсвет и подложка цвета фона. Последняя не
+   украшение — без неё подписи тонут в яркой стране под стеклом. */
+.reg-spread {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  border-radius: 18px;
+  border: 1px solid var(--glass-line);
+  background: var(--reg-field);
+}
+.reg-spread::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 18% 8%, color-mix(in srgb, var(--violet) 24%, transparent), transparent 58%),
+    radial-gradient(100% 80% at 92% 96%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 56%);
+}
+.reg-map { position: relative; z-index: 0; width: 100%; }
+.reg-map svg { display: block; width: 100%; height: auto; }
+
+.reg-over {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 0;
+  background: var(--reg-fade);
+}
+.reg-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.reg-row.bot { align-items: flex-end; flex: 1 1 auto; min-height: 0; }
+
+.reg-gl {
+  position: relative;
+  isolation: isolate;
+  pointer-events: auto;
+  border-radius: 18px;
+  border: 1px solid var(--glass-line);
+  background-color: color-mix(in srgb, var(--background) 74%, transparent);
+  background-image: var(--reg-g2);
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 -1px 0 color-mix(in srgb, var(--foreground) 8%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--foreground) 3%, transparent),
+    var(--glass-shadow);
+}
+.reg-gl::after {
+  content: "";
+  position: absolute;
+  left: 16px; right: 16px; top: 0;
+  height: 1px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--glass-edge-lit), transparent);
+}
+.reg-gl::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(104deg, transparent 6%, color-mix(in srgb, var(--foreground) 6%, transparent) 26%, transparent 46%);
+}
+.reg-gl.thin { background-color: color-mix(in srgb, var(--background) 64%, transparent); background-image: var(--reg-g3); }
+.reg-gl.thick { background-color: color-mix(in srgb, var(--background) 88%, transparent); background-image: var(--reg-g1); }
+
+/* Числа: одно правило на всю страницу — моноширинные разряды, плотный трекинг,
+   градиентная заливка. Запасной цвет обязателен: там, где обрезка градиента по
+   тексту не поддержана, `color: transparent` отрисуется честно и цифра пропадёт. */
+.reg-num {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+  color: var(--violet-2);
+  background-image: linear-gradient(170deg, #e9dcff 0%, #c084fc 42%, #8b5cf6 100%);
+}
+.reg-num.ok { color: #4ade80; background-image: linear-gradient(170deg, #c6ffdc, #4ade80 48%, #16a34a); }
+.reg-num.mid { color: #fbbf24; background-image: linear-gradient(170deg, #ffe6b0, #fbbf24 48%, #d97706); }
+.reg-num.no { color: #f87171; background-image: linear-gradient(170deg, #ffd0d0, #f87171 48%, #dc2626); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .reg-num { -webkit-background-clip: text; background-clip: text; color: transparent; }
+}
+
+/* Зелёная кнопка перехода: по стеклу пробегает блик. */
+.reg-cta {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  font-weight: 700;
+  font-size: 13.5px;
+  line-height: 1;
+  color: #042a11;
+  background: linear-gradient(180deg, #4dea88, #22c55e 62%, #16a34a);
+  box-shadow:
+    0 9px 24px color-mix(in srgb, var(--positive) 38%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.16s, box-shadow 0.16s;
+}
+.reg-cta::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: -60%;
+  width: 45%;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.reg-cta:hover { transform: translateY(-1px); }
+.reg-cta:hover::before { left: 115%; }
+.reg-cta.ghost { background: color-mix(in srgb, var(--foreground) 7%, transparent); color: var(--foreground); border-color: var(--glass-line); box-shadow: none; }
+.reg-cta.ghost::before { display: none; }
+
+/* Кнопка «убрать панели» получает собственный фон: стеклянная брала яркость от
+   страны под собой и над зелёной Канадой светлела до нечитаемости. */
+.reg-clear {
+  position: absolute;
+  top: 18px; right: 18px;
+  z-index: 5;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-line);
+  background: color-mix(in srgb, var(--background) 90%, transparent);
+  backdrop-filter: blur(24px) saturate(1.7);
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+  opacity: 0.82;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.reg-clear:hover { opacity: 1; transform: translateY(-1px); }
+.reg-over.hidden .reg-gl.side { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Карта */
+.reg-map path { stroke: var(--glass-line); stroke-width: 0.35; vector-effect: non-scaling-stroke; transition: fill 0.12s, filter 0.12s; }
+.reg-map .none { fill: var(--reg-sea); }
+.reg-map .ok { fill: var(--reg-f-ok); }
+.reg-map .mid { fill: var(--reg-f-mid); }
+.reg-map .no { fill: var(--reg-f-no); }
+.reg-map .gr { fill: var(--reg-f-gr); }
+.reg-map .ok, .reg-map .mid, .reg-map .no, .reg-map .gr {
+  stroke: var(--glass-hi); stroke-width: 0.5; filter: drop-shadow(0 1px 1.4px rgba(0, 0, 0, 0.35));
+}
+.reg-map [data-n] { cursor: pointer; }
+.reg-map [data-n]:hover { filter: drop-shadow(0 0 7px currentColor) brightness(1.5); }
+.reg-map .ok:hover { color: var(--positive); }
+.reg-map .mid:hover { color: var(--importance-medium); }
+.reg-map .no:hover { color: var(--negative); }
+.reg-map .gr:hover { color: #9aa0aa; }
+.reg-map .sel { stroke: var(--foreground); stroke-width: 1.8; filter: drop-shadow(0 0 12px currentColor) brightness(1.7); }
+.reg-map.dim [data-n]:not(.match) { fill: var(--reg-sea) !important; filter: none !important; }
+
+.reg-tag {
+  position: absolute;
+  pointer-events: none;
+  z-index: 7;
+  transform: translate(-50%, -142%);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--foreground);
+  background: var(--reg-tagbg);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+}
+
+/* На телефоне разворот перестаёт быть разворотом: панели, плавающие над низкой
+   картой, наезжали на текст под ней. */
+@media (max-width: 760px) {
+  .reg-clear { display: none; }
+  .reg-spread { min-height: 0; display: block; }
+  .reg-over { position: static; padding: 13px; gap: 11px; background: color-mix(in srgb, var(--foreground) 4%, transparent); }
+  .reg-row { flex-direction: column; align-items: stretch; }
+  .reg-row.bot { flex: none; }
+}
+
+/* ── блок MiCA и «Ответы на вопросы» под картой ───────────────────────── */
+.reg-mica {
+  position: relative;
+  overflow: hidden;
+  padding: 26px 28px 24px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--violet-2) 26%, transparent);
+  background-color: var(--reg-field);
+  background-image:
+    linear-gradient(152deg,
+      color-mix(in srgb, var(--violet-2) 17%, transparent) 0%,
+      color-mix(in srgb, var(--violet-2) 5%, transparent) 46%,
+      transparent 78%);
+}
+.reg-mica::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(760px 320px at 88% -20%,
+    color-mix(in srgb, var(--violet-2) 20%, transparent), transparent 70%);
+}
+.reg-mica > * { position: relative; }
+.reg-mica-tag {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--violet-2);
+  border: 1px solid color-mix(in srgb, var(--violet-2) 34%, transparent);
+  background: color-mix(in srgb, var(--violet-2) 12%, transparent);
+}
+.reg-mica-dates {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.reg-mica-date {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+  padding: 13px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-line);
+  background: color-mix(in srgb, var(--background) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(1.5);
+}
+.reg-mica-date .reg-num { font-size: 15px; font-weight: 800; line-height: 1.15; }
+.reg-mica-date > span:last-child {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.reg-faq { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.reg-q {
+  border-radius: 12px;
+  border: 1px solid var(--glass-line);
+  background: color-mix(in srgb, var(--foreground) 3.5%, transparent);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.reg-q:hover { border-color: color-mix(in srgb, var(--violet-2) 30%, transparent); }
+.reg-q[open] { background: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.reg-q > summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--foreground);
+}
+.reg-q > summary::-webkit-details-marker { display: none; }
+.reg-q > summary::after {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin: 6px 0 0 auto;
+  border-right: 2px solid var(--violet-2);
+  border-bottom: 2px solid var(--violet-2);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.reg-q[open] > summary::after { transform: rotate(-135deg); }
+.reg-q > p {
+  margin: 0;
+  padding: 0 16px 15px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+@media (max-width: 700px) {
+  .reg-mica { padding: 20px 17px 18px; border-radius: 14px; }
+  .reg-mica-dates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .reg-mica-date { padding: 11px 8px; }
+  .reg-q > summary { padding: 12px 13px; font-size: 14px; gap: 10px; }
+  .reg-q > p { padding: 0 13px 13px; }
 }
