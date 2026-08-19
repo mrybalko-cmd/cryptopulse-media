@@ -14,6 +14,9 @@ export const client = createClient({
 });
 
 const READ_CACHE_SECONDS = 300;
+// Ленты и «Популярное» живут короче: их содержимое меняется чаще всего,
+// а с тегами сохранение в админке всё равно сбрасывает их мгновенно.
+const FEED_CACHE_SECONDS = 60;
 
 export const writeClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
@@ -25,12 +28,21 @@ export const writeClient = createClient({
   useCdn: false,
 });
 
-export async function incrementViews(id: string) {
-  if (!process.env.SANITY_API_WRITE_TOKEN) return;
+export async function incrementViews(id: string): Promise<number | null> {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return null;
   try {
-    await writeClient.patch(id).setIfMissing({ views: 0 }).inc({ views: 1 }).commit({ autoGenerateArrayKeys: false });
+    // Возвращаем новое значение: страница закэширована на минуты, и без этого
+    // читатель не видит собственный просмотр. Ответ на запись мы и так
+    // получаем — отдельного чтения из Sanity это не стоит.
+    const doc = await writeClient
+      .patch(id)
+      .setIfMissing({ views: 0 })
+      .inc({ views: 1 })
+      .commit({ autoGenerateArrayKeys: false });
+    return typeof doc?.views === 'number' ? doc.views : null;
   } catch {
     // view counting is best-effort, never block rendering on it
+    return null;
   }
 }
 
@@ -61,7 +73,7 @@ export const fetchActiveBanners = unstable_cache(
     }
   },
   ['fetchActiveBanners'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['banners'] }
 );
 
 export async function incrementBannerImpression(id: string) {
@@ -114,21 +126,34 @@ interface FetchArticlesOptions {
   offset?: number;
 }
 
-export async function fetchArticles({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-  try {
-    return await client.fetch(
-      `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
+/**
+ * Ленты читаются через unstable_cache с коротким окном и тегом.
+ *
+ * Раньше это были прямые client.fetch: Next не связывал их ни с каким тегом,
+ * поэтому revalidateTag после сохранения в админке сбрасывал только страницу
+ * самого материала, а лента и главная ещё до пяти минут показывали старое.
+ * Окно короче общего (60 с вместо 300), чтобы отложенная публикация
+ * появлялась не позже, чем раньше, — ISR-окно страницы и так 300 с.
+ */
+export const fetchArticles = unstable_cache(
+  async ({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
         _id, title, excerpt, slug, publishedAt, updatedAt, topic, readingTime, badge, views, likes,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,
-      { locale, offset, end: offset + limit }
-    );
-  } catch {
-    return [];
-  }
-}
+        { locale, offset, end: offset + limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchArticles'],
+  { revalidate: FEED_CACHE_SECONDS, tags: ['articles'] }
+);
 
 export const fetchArticleBySlug = unstable_cache(
   async (slug: string, locale: string) => {
@@ -153,20 +178,24 @@ export const fetchArticleBySlug = unstable_cache(
   { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
-export async function fetchSanityNews({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) {
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-  try {
-    return await client.fetch(
-      `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
+export const fetchSanityNews = unstable_cache(
+  async ({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "news" && language == $locale && publishedAt <= now()] | order(select(pinnedUntil > now() => 0, 1) asc, publishedAt desc) [$offset...$end] {
         _id, title, excerpt, slug, publishedAt, updatedAt, pinnedUntil, breaking, ownBadge, badge, topic, views, likes,
         "coverImage": coverImage.asset->url
       }`,
-      { locale, offset, end: offset + limit }
-    );
-  } catch {
-    return [];
-  }
-}
+        { locale, offset, end: offset + limit }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchSanityNews'],
+  { revalidate: FEED_CACHE_SECONDS, tags: ['news'] }
+);
 
 export const fetchNewsByTopic = unstable_cache(
   async (topic: string, locale: string, limit = 50) => {
@@ -434,7 +463,7 @@ export const fetchRelatedArticles = unstable_cache(
     }
   },
   ['fetchRelatedArticles'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
 export const fetchRelatedNews = unstable_cache(
@@ -453,7 +482,7 @@ export const fetchRelatedNews = unstable_cache(
     }
   },
   ['fetchRelatedNews'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
 );
 
 export interface PopularItem {
@@ -485,7 +514,7 @@ export const fetchAuthors = unstable_cache(
     }
   },
   ['fetchAuthors'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['authors'] }
 );
 
 export const fetchAuthorBySlug = unstable_cache(
@@ -504,7 +533,7 @@ export const fetchAuthorBySlug = unstable_cache(
     }
   },
   ['fetchAuthorBySlug'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['authors'] }
 );
 
 export interface AuthorFeedItem {
@@ -547,7 +576,7 @@ export const fetchAuthorFeed = unstable_cache(
     }
   },
   ['fetchAuthorFeed'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles', 'news'] }
 );
 
 export interface AuthorWithLatest {
@@ -634,7 +663,7 @@ export const fetchArticlesByTopic = unstable_cache(
     }
   },
   ['fetchArticlesByTopic'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
 );
 
 // Per-topic published-doc counts, so callers (sitemap generation) can mirror
@@ -669,7 +698,7 @@ export const fetchTopicStats = unstable_cache(
     }
   },
   ['fetchTopicStats'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles', 'news'] }
 );
 
 export const fetchPopularContent = unstable_cache(
@@ -688,7 +717,7 @@ export const fetchPopularContent = unstable_cache(
     }
   },
   ['fetchPopularContent'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: FEED_CACHE_SECONDS, tags: ['articles', 'news'] }
 );
 
 export interface TopLikedItem {
@@ -725,7 +754,7 @@ export const fetchTopLikedArticles = unstable_cache(
     }
   },
   ['fetchTopLikedArticles'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: FEED_CACHE_SECONDS, tags: ['articles'] }
 );
 
 export const fetchTopLikedNews = unstable_cache(
@@ -744,7 +773,7 @@ export const fetchTopLikedNews = unstable_cache(
     }
   },
   ['fetchTopLikedNews'],
-  { revalidate: READ_CACHE_SECONDS }
+  { revalidate: FEED_CACHE_SECONDS, tags: ['news'] }
 );
 
 // ── Pulse of the Day ────────────────────────────────────────────────────────

@@ -2,10 +2,10 @@ export const revalidate = 300;
 
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import ViewTracker from '@/components/ui/ViewTracker';
+import ViewCount from '@/components/ui/ViewCount';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Calendar, ExternalLink, Eye } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
@@ -164,7 +164,6 @@ export default async function NewsDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <ViewTracker id={news._id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">
@@ -220,7 +219,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {news.breaking && (
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4 animate-pulse">
           <BoltIcon size={12} />
-          {locale === 'ru' ? 'Молния' : 'Breaking News'}
+          {locale === 'ru' ? 'Важное' : 'Breaking'}
         </div>
       )}
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">
@@ -260,10 +259,7 @@ export default async function NewsDetailPage({ params }: Props) {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted">
-            <Eye size={12} />
-            <span>{news.views || 0}</span>
-          </div>
+          <ViewCount id={news._id} initial={news.views || 0} />
           <LikeButton id={news._id} locale={locale} initialLikes={news.likes || 0} />
         </div>
       </div>

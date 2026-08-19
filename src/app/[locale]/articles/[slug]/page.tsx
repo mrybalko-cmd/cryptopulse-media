@@ -2,10 +2,10 @@ export const revalidate = 300;
 
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import ViewTracker from '@/components/ui/ViewTracker';
+import ViewCount from '@/components/ui/ViewCount';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { ArrowLeft, Clock, Calendar, Eye } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar } from 'lucide-react';
 import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
@@ -165,7 +165,6 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <ViewTracker id={article._id} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="flex gap-6">
@@ -250,10 +249,7 @@ export default async function ArticlePage({ params }: Props) {
           )}
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted">
-            <Eye size={12} />
-            <span>{article.views || 0}</span>
-          </div>
+          <ViewCount id={article._id} initial={article.views || 0} />
           <LikeButton id={article._id} locale={locale} initialLikes={article.likes || 0} />
         </div>
       </div>

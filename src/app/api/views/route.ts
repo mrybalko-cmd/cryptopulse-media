@@ -7,8 +7,10 @@ export async function POST(request: NextRequest) {
     if (!id || typeof id !== 'string') {
       return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
     }
-    await incrementViews(id);
-    return NextResponse.json({ ok: true });
+    // Новое значение уходит обратно клиенту: страница отдаётся из кэша и
+    // своего же просмотра читатель иначе не увидит ещё несколько минут.
+    const views = await incrementViews(id);
+    return NextResponse.json({ ok: true, views }, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json({ ok: false }, { status: 500 });
   }
