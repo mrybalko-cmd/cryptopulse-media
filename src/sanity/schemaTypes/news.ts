@@ -292,10 +292,10 @@ export const newsType = defineType({
     }),
     defineField({
       name: 'breaking',
-      title: '⚡ Молния / Breaking news',
+      title: '⚡ Важное / Breaking news',
       type: 'boolean',
       initialValue: false,
-      description: 'Отметьте, если это срочная новость. На сайте рядом с заголовком появится бейдж «⚡ Молния». Снимите отметку, когда новость перестанет быть срочной.',
+      description: 'Отметьте, если это срочная новость. На сайте рядом с заголовком появится бейдж «⚡ Важное». Снимите отметку, когда новость перестанет быть срочной.',
     }),
     defineField({
       name: 'pinnedUntil',

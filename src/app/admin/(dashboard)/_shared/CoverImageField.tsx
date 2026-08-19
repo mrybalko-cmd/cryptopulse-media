@@ -69,7 +69,7 @@ export default function CoverImageField({
         {showBreakingToggle && (
           <label className="flex items-center gap-2 text-[12.5px]">
             <input type="checkbox" name="breaking" checked={breaking} onChange={e => setBreaking(e.target.checked)} />
-            ⚡ Молния (срочная новость)
+            ⚡ Важное (срочная новость)
           </label>
         )}
         {showOwnBadgeToggle && (
