@@ -529,7 +529,9 @@ html.light .prose-invert {
 .reg-map .no:hover { color: var(--negative); }
 .reg-map .gr:hover { color: #9aa0aa; }
 .reg-map .sel { stroke: var(--foreground); stroke-width: 1.8; filter: drop-shadow(0 0 12px currentColor) brightness(1.7); }
-.reg-map.dim [data-n]:not(.match) { fill: var(--reg-sea) !important; filter: none !important; }
+.reg-map svg.dim [data-n]:not(.match) { fill: var(--reg-sea) !important; filter: none !important; }
+/* совпавшие страны при активном фильтре чуть ярче, чтобы выбор читался */
+.reg-map svg.dim .match { filter: saturate(1.15) brightness(1.08); }
 
 .reg-tag {
   position: absolute;
@@ -688,3 +690,11 @@ html.light .prose-invert {
   /* полоса фильтра прокручивается внутри панели, а не растягивает её */
   .reg-gl.side > div:first-child { min-width: 0; }
 }
+
+/* ── отступ под указателем стран ──────────────────────────────────────────
+   Раньше верхний отступ стоял только на тексте слева, поэтому рельс
+   «Популярное» упирался в блок стран. Теперь он общий для обеих колонок
+   и живёт здесь, чтобы не потеряться при правках разметки. */
+.reg-below { margin-top: 56px; }
+.reg-rail { padding-top: 32px; }   /* карточка встаёт вровень с заголовком слева */
+@media (max-width: 900px) { .reg-below { margin-top: 36px; } }

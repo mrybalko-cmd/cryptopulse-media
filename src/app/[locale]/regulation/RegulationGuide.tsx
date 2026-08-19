@@ -50,7 +50,6 @@ export default function RegulationGuide({
   countries: RegCountry[];
 }) {
   const isRu = locale === 'ru';
-  const n = (s: RegStatus) => countries.filter(c => c.status === s).length;
   const names = (s: RegStatus) =>
     countries.filter(c => c.status === s).map(c => (isRu ? c.name.ru : c.name.en)).join(', ');
 
@@ -74,7 +73,7 @@ export default function RegulationGuide({
   const faq = regulationFaq(isRu);
 
   return (
-    <section className="mt-14 pt-8 border-t border-border">
+    <section className="pt-8 border-t border-border">
       <div className="max-w-3xl">
         <h2 className="text-lg font-bold text-foreground mb-4">
           {isRu ? 'Зачем эта карта' : 'Why this map exists'}
@@ -137,26 +136,26 @@ export default function RegulationGuide({
       <div className="max-w-3xl">
         <h3 className={h3}>{isRu ? 'Четыре статуса на карте' : 'Four statuses on the map'}</h3>
         <p className={p}>
-          <b className="text-foreground">{isRu ? `Разрешено (${n('legal')}).` : `Legal (${n('legal')}).`}</b>{' '}
+          <b className="text-foreground">{isRu ? 'Разрешено.' : 'Legal.'}</b>{' '}
           {isRu
             ? 'Криптовалюту можно свободно покупать, держать и продавать, биржи работают по лицензии. Законным платёжным средством она при этом почти нигде не является — это разные вещи, и их часто путают.'
             : 'Crypto can be freely bought, held and sold, and exchanges operate under licence. That is not the same as legal tender, which it is almost nowhere — the two are routinely confused.'}
         </p>
         <p className={p}>
-          <b className="text-foreground">{isRu ? `С ограничениями (${n('restricted')}).` : `Restricted (${n('restricted')}).`}</b>{' '}
+          <b className="text-foreground">{isRu ? 'С ограничениями.' : 'Restricted.'}</b>{' '}
           {isRu
             ? 'Владеть можно, но с оговорками: запрет расплачиваться в магазинах, обязательная идентификация, высокий налог или торговля только через одобренные площадки.'
             : 'Holding is allowed with conditions: no paying for goods, mandatory identification, heavy taxation, or trading only through approved venues.'}
         </p>
         <p className={p}>
-          <b className="text-foreground">{isRu ? `Запрещено (${n('banned')}).` : `Banned (${n('banned')}).`}</b>{' '}
+          <b className="text-foreground">{isRu ? 'Запрещено.' : 'Banned.'}</b>{' '}
           {names('banned')}.{' '}
           {isRu
             ? 'Строгость разная: где-то блокируют доступ к биржам, а в Алжире с 2025 года уголовно наказуемо даже простое хранение.'
             : 'Severity differs: some block access to exchanges, while Algeria has criminalised even holding since 2025.'}
         </p>
         <p className={p}>
-          <b className="text-foreground">{isRu ? `Серая зона (${n('unclear')}).` : `Grey zone (${n('unclear')}).`}</b>{' '}
+          <b className="text-foreground">{isRu ? 'Серая зона.' : 'Grey zone.'}</b>{' '}
           {isRu
             ? 'Саудовская Аравия: прямого запрета нет, но банкам нельзя обслуживать операции, а лицензий биржам не выдавали. Год назад в этой категории было четыре страны — три из них определились.'
             : 'Saudi Arabia: no outright ban, but banks may not service transactions and no exchange licences have been issued. A year ago this category held four countries; three have since made up their minds.'}

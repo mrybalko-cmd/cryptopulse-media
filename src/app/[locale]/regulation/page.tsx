@@ -115,7 +115,7 @@ export default async function RegulationPage({ params }: Props) {
 
       {/* Текст под картой идёт в одну колонку с рельсом «Популярное» —
           как на /assets, /rates и /exchanges */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+      <div className="reg-below grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="min-w-0">
           <RegulationGuide locale={locale} countries={countries} />
 
@@ -126,7 +126,9 @@ export default async function RegulationPage({ params }: Props) {
               : 'This is reference material, not investment or tax advice. Laws change — check your own regulator before acting.'}
           </p>
         </div>
-        <PopularSidebar locale={locale} />
+        <div className="reg-rail hidden lg:block">
+          <PopularSidebar locale={locale} />
+        </div>
       </div>
     </div>
   );
