@@ -1,4 +1,6 @@
-export const revalidate = 300;
+// 120, а не 300: на карточках видны просмотры, и при пятиминутном окне
+// они заметно расходились с точным числом внутри материала.
+export const revalidate = 120;
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
