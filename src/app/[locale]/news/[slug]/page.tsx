@@ -219,7 +219,7 @@ export default async function NewsDetailPage({ params }: Props) {
       {news.breaking && (
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4 animate-pulse">
           <BoltIcon size={12} />
-          {locale === 'ru' ? 'Важное' : 'Breaking'}
+          {locale === 'ru' ? 'Важное' : 'Breaking News'}
         </div>
       )}
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">

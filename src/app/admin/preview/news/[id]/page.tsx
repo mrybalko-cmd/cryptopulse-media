@@ -39,7 +39,7 @@ export default async function PreviewNewsPage({ params }: { params: Promise<{ id
         {news.breaking && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold mb-4">
             <BoltIcon size={12} />
-            {news.language === 'ru' ? 'Важное' : 'Breaking'}
+            {news.language === 'ru' ? 'Важное' : 'Breaking News'}
           </div>
         )}
 

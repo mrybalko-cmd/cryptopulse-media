@@ -43,7 +43,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
       {breaking && (
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-red-600 text-white mb-1.5 animate-pulse">
           <BoltIcon size={10} />
-          {locale === 'ru' ? 'Важное' : 'Breaking'}
+          {locale === 'ru' ? 'Важное' : 'Breaking News'}
         </span>
       )}
       {badge && badge !== 'none' && (

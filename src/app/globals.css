@@ -697,4 +697,8 @@ html.light .prose-invert {
    и живёт здесь, чтобы не потеряться при правках разметки. */
 .reg-below { margin-top: 56px; }
 .reg-rail { padding-top: 32px; }   /* карточка встаёт вровень с заголовком слева */
+/* На карте рельс не липнет к экрану, а уезжает вместе со страницей.
+   PopularSidebar общий с /rates и /assets, где закрепление нужно, —
+   поэтому снимаем его только здесь. */
+.reg-rail .sticky { position: static; }
 @media (max-width: 900px) { .reg-below { margin-top: 36px; } }

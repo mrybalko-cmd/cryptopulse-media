@@ -42,7 +42,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
           {breaking && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-bold animate-pulse">
               <BoltIcon size={10} />
-              {locale === 'ru' ? 'Важное' : 'Breaking'}
+              {locale === 'ru' ? 'Важное' : 'Breaking News'}
             </div>
           )}
           {!external && ownBadge && (
