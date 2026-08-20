@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { client } from '@/lib/sanity';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
-import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { STATUS_META } from '@/lib/regulationData';
 import { getRegulationCountries, REGION_LABELS, type RegCountry } from '@/lib/regulation';
 import {
@@ -31,6 +31,7 @@ const T = {
   ru: {
     home: 'Главная', map: 'Карта регуляции', mapAll: 'вся карта →',
     lead: 'Коротко.', checked: 'проверено', fact: 'Любопытный факт',
+    byline: 'Материал ведёт редакция Intokened.com',
     allowed: 'Разрешено', restricted: 'Ограничено',
     faq: 'Частые вопросы', sources: 'Источники', related: 'Читайте по теме',
     others: 'Другие страны', allCountries: 'Все страны\nна карте',
@@ -44,6 +45,7 @@ const T = {
   en: {
     home: 'Home', map: 'Regulation map', mapAll: 'full map →',
     lead: 'In short.', checked: 'checked', fact: 'Worth knowing',
+    byline: 'Maintained by the Intokened.com editorial team',
     allowed: 'Allowed', restricted: 'Restricted',
     faq: 'Common questions', sources: 'Sources', related: 'Related reading',
     others: 'Other countries', allCountries: 'All countries\non the map',
@@ -89,7 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = truncateDesc(pick(c, 'seoDescription', isRu) || pick(c, 'intro', isRu) || (isRu ? c.summary.ru : c.summary.en));
 
   return {
-    title: truncateTitle(title),
+    title: pageTitle(title),
     description,
     alternates: {
       canonical: `${BASE}/${locale}/regulation/${c.slug}`,
@@ -188,10 +190,16 @@ export default async function CountryRegulationPage({ params }: Props) {
     },
     {
       '@type': 'Article',
-      headline: truncateTitle(heading),
+      headline: titleText(heading),
       description: truncateDesc(intro),
       inLanguage: isRu ? 'ru-RU' : 'en-US',
+      // Гид ведёт редакция, а не отдельный человек: страну перепроверяют
+      // раз за разом, и подписывать её одним именем было бы неправдой.
+      // Организация в роли автора — то, что схема прямо допускает.
+      author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+      ...(c.publishedAt ? { datePublished: c.publishedAt } : {}),
       dateModified: c.checkedAt,
+      image: `${url}/opengraph-image`,
       mainEntityOfPage: url,
       publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
     },
@@ -261,6 +269,12 @@ export default async function CountryRegulationPage({ params }: Props) {
                 </span>
                 <span className="inline-flex items-center rounded-full px-3 py-[5px] text-[12px] font-semibold leading-[1.4] border border-[var(--glass-line)] bg-[var(--glass-hover)] text-muted shadow-[inset_0_1px_0_var(--glass-hi)] tabular-nums">
                   {t.checked} {dmy(c.checkedAt)}
+                </span>
+                {/* Кто отвечает за материал. Раньше на странице не было ни
+                    подписи, ни автора в разметке — для темы про налоги и
+                    лицензии это самый слабый сигнал доверия из возможных. */}
+                <span className="inline-flex items-center rounded-full px-3 py-[5px] text-[12px] font-semibold leading-[1.4] border border-[var(--glass-line)] bg-[var(--glass-hover)] text-muted shadow-[inset_0_1px_0_var(--glass-hi)]">
+                  {t.byline}
                 </span>
               </div>
             </div>

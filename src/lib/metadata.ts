@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { SITE_NAME, SITE_URL, TITLE_SUFFIX } from '@/lib/site';
 const BASE = SITE_URL;
 
@@ -56,20 +57,42 @@ export function truncateDesc(text: string, max = 155): string {
 }
 
 /**
- * Truncates a page title so it stays readable once the root layout's
- * `title.template` appends ` | ${SITE_NAME}` (20 chars) — pass only the
- * page-specific text here, never a string that already includes the suffix.
+ * Заголовок для тега <title>.
+ *
+ * Раньше здесь стояла жёсткая обрезка: собственный текст страницы урезался до
+ * сорока с небольшим символов, чтобы вместе с суффиксом « | Intokened.com»
+ * уложиться в шестьдесят. В выдачу из-за этого уходили обрывки на середине
+ * фразы — «Криптовалюта в Германии: регулирование,…», без слов «налоги» и
+ * «лицензии», ради которых страницу и писали. В аудите 20.08.2026 таких
+ * страниц нашлось 11 из 92 в выборке, а среди гидов по странам — все 30.
+ *
+ * Оборванная фраза читается хуже длинного заголовка, который поисковик и так
+ * подрежет по ширине сам. Поэтому теперь, когда заголовок не помещается вместе
+ * с суффиксом, мы отдаём его целиком и без суффикса: название сайта Google
+ * из сниппета всё равно часто убирает. Многоточие остаётся только для
+ * действительно длинных заголовков, где без него не обойтись.
+ *
+ * Передавайте сюда только текст самой страницы, без уже добавленного суффикса.
  */
-export function truncateTitle(text: string, max = 60,
-                              suffixLen = TITLE_SUFFIX.length): string {
-  const budget = max - suffixLen;
-  if (!text || text.length <= budget) return text;
-  // The ellipsis is a character too. Without reserving room for it every
-  // truncated title came out one over the limit — 40 + '…' + the 20-char
-  // suffix is 61, which is exactly what the audit kept flagging.
-  const cut = text.slice(0, budget - 1);
+export function pageTitle(text: string, max = 60, hardMax = 70): Metadata['title'] {
+  const budget = max - TITLE_SUFFIX.length;
+  if (!text) return text;
+  // Помещается вместе с брендом — пусть шаблон макета его и добавит.
+  if (text.length <= budget) return text;
+  // Не помещается, но остаётся читаемым целиком — отдаём без бренда.
+  if (text.length <= hardMax) return { absolute: text };
+  const cut = text.slice(0, hardMax - 1);
   const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > budget * 0.6 ? cut.slice(0, lastSpace) : cut) + '…';
+  return { absolute: (lastSpace > hardMax * 0.6 ? cut.slice(0, lastSpace) : cut) + '…' };
+}
+
+/**
+ * Тот же расчёт, но строкой — для мест, где нужен именно текст: заголовок в
+ * микроразметке, og:title, twitter:title.
+ */
+export function titleText(text: string, max = 60, hardMax = 70): string {
+  const t = pageTitle(text, max, hardMax);
+  return typeof t === 'string' ? t : (t as { absolute: string }).absolute;
 }
 
 /**

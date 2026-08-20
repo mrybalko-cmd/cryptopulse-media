@@ -25,6 +25,7 @@ export interface RegCountry extends CountryReg {
   sourceUrl?: string;
   /** ISO date. `updatedYear` is derived from it for the existing UI. */
   checkedAt: string;
+  publishedAt?: string;
   /**
    * Whether this country has its own page at /regulation/<slug>.
    *
@@ -76,6 +77,7 @@ interface SanityRegDoc {
   regulatorName?: string;
   sourceUrl?: string;
   checkedAt: string;
+  publishedAt?: string;
   hasPage?: boolean;
   page?: RawPage;
 }
@@ -96,7 +98,7 @@ const QUERY = `*[_type == "regulationCountry"]{
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
   "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
-  regulatorName, sourceUrl, checkedAt, hasPage, page
+  regulatorName, sourceUrl, checkedAt, publishedAt, hasPage, page
 }`;
 
 function fromSanity(d: SanityRegDoc): RegCountry {
@@ -115,6 +117,7 @@ function fromSanity(d: SanityRegDoc): RegCountry {
       ? { factNote: { ru: d.factNoteRu ?? '', en: d.factNoteEn ?? '' } }
       : {}),
     updatedYear: (d.checkedAt ?? '').slice(0, 4),
+    publishedAt: d.publishedAt,
     region: d.region,
     regulatorName: d.regulatorName,
     sourceUrl: d.sourceUrl,

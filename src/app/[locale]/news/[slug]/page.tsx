@@ -23,7 +23,7 @@ import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
-import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import BoltIcon from '@/components/ui/BoltIcon';
 
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationSlug = news.translation?.slug;
 
   return {
-    title: truncateTitle(title),
+    title: pageTitle(title),
     description,
     keywords: news.seo?.keywords,
     ...(news.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),

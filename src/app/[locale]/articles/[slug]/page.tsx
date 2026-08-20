@@ -22,7 +22,7 @@ import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
-import { truncateDesc, truncateTitle } from '@/lib/metadata';
+import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translationSlug = article.translation?.slug;
 
   return {
-    title: truncateTitle(title),
+    title: pageTitle(title),
     description,
     keywords: article.seo?.keywords,
     ...(article.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),

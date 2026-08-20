@@ -180,6 +180,17 @@ export const regulationCountryType = defineType({
       ],
     }),
     defineField({
+      name: 'publishedAt',
+      title: 'Когда гид вышел',
+      description:
+        'Дата первой публикации гида. Отдельно от «когда проверяли»: проверка повторяется, ' +
+        'а вышел материал один раз. Уходит в разметку как datePublished — без неё поисковик ' +
+        'не показывает расширенную карточку.',
+      type: 'date',
+      options: { dateFormat: 'DD.MM.YYYY' },
+      hidden: ({ parent }) => !parent?.hasPage,
+    }),
+    defineField({
       name: 'checkedAt',
       title: 'Когда проверяли',
       description: 'Заменяет прежний «год данных»: живая дата у каждой страны.',

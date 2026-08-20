@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE, truncateTitle, truncateDesc } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, titleText, truncateDesc } from '@/lib/metadata';
 import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // the term itself — "RLHF (обучение с подкреплением…)" ran to 104. On a
   // definition page the term matters more than the brand, so it goes absolute
   // and gets clamped at the whole-word boundary.
-  const title = truncateTitle(
+  const title = titleText(
     isRu ? `${name} — что это такое в крипто?` : `${name} — What Is It in Crypto?`,
     60,
     0

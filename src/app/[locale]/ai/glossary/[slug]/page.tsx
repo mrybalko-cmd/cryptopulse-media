@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE, truncateTitle, truncateDesc } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, titleText, truncateDesc } from '@/lib/metadata';
 import { AI_GLOSSARY, AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const definition = term.definition[loc];
 
   // Same reasoning as the crypto glossary: term first, no brand suffix, clamped.
-  const title = truncateTitle(
+  const title = titleText(
     isRu ? `${name} — что это такое в ИИ?` : `${name} — What Is It in AI?`,
     60,
     0

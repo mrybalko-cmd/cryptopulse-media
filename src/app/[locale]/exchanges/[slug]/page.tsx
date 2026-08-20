@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildOg, buildTwitter, BASE, truncateTitle } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, titleText } from '@/lib/metadata';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import {
   fetchExchangeBySlug,
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Clamped rather than trimmed by hand: the exchange name is data, and
   // "Crypto.com Exchange" alone eats half the budget the brand suffix leaves.
-  const title = truncateTitle(
+  const title = titleText(
     (isRu ? exchange.seo?.metaTitleRu : exchange.seo?.metaTitleEn)
       || (isRu ? `${exchange.name} — обзор и отзывы` : `${exchange.name} — overview and reviews`)
   );
