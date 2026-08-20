@@ -18,6 +18,28 @@ const READ_CACHE_SECONDS = 300;
 // а с тегами сохранение в админке всё равно сбрасывает их мгновенно.
 const FEED_CACHE_SECONDS = 60;
 
+/**
+ * Чтения админки. Тот же проект, но мимо CDN.
+ *
+ * Админка читает документ сразу после того, как сама его записала: сохранение
+ * редиректит на форму, и та перечитывает материал через считанные миллисекунды.
+ * CDN в этот момент ещё отдаёт прежнюю копию — замерено, расхождение держится
+ * не меньше трёх секунд. Редактор видел снятую галочку «наш материал» и пустую
+ * плашку на обложке, хотя в базе всё сохранилось. Хуже того: повторное
+ * «Сохранить» на такой форме записывало снятую галочку обратно и стирало
+ * отметку молча.
+ *
+ * Уходит в маленькую квоту некэшированных запросов, но админкой пользуются
+ * только редакторы — против трафика сайта это доли процента.
+ */
+export const adminClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: '2024-01-01',
+  token: process.env.SANITY_API_WRITE_TOKEN,
+  useCdn: false,
+});
+
 export const writeClient = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',

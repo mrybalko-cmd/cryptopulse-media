@@ -1,5 +1,9 @@
 import { unstable_cache } from 'next/cache';
-import { client, writeClient } from '@/lib/sanity';
+// Читаем через adminClient, а не через общий client: тот ходит в CDN Sanity,
+// который сразу после сохранения ещё отдаёт прежнюю копию документа —
+// форма возвращалась со снятой галочкой. Имя оставлено прежним, чтобы
+// не трогать 65 обращений ниже.
+import { adminClient as client, writeClient } from '@/lib/sanity';
 import type { Permission } from './permissions';
 import type { PortableTextBlock } from './portableText';
 import { pragueDateKey, pragueDateKeyToUTCDate } from './timezone';
