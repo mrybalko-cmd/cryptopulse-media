@@ -264,6 +264,12 @@ export async function updateAuthor(id: string, input: AuthorInput, photoAssetId?
 }
 
 export async function deleteAuthor(id: string) {
+  const used = await client.fetch<number>(`count(*[references($id)])`, { id });
+  if (used > 0) {
+    throw new Error(
+      `Автор подписан под ${used} материал(ами) или стоит в подборке на главной. Переназначьте их другому автору и удалите снова.`
+    );
+  }
   await writeClient.delete(id);
 }
 
@@ -353,7 +359,8 @@ export async function updateCalendarEvent(id: string, input: CalendarEventInput,
 }
 
 export async function deleteCalendarEvent(id: string) {
-  await writeClient.delete(id);
+  await deleteWithDependents(id, ['eventVote'], types =>
+    `Событие нельзя удалить: на него ссылается «${types.join(', ')}».`);
 }
 
 // ---------------- News ----------------
@@ -574,8 +581,76 @@ export async function updateNews(id: string, input: NewsInput, coverImageAssetId
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 
+/**
+ * Удаление материала вместе с тем, что на него ссылается.
+ *
+ * Sanity отказывается удалять документ, на который указывает хотя бы одна
+ * ссылка, а русская и английская версии всегда указывают друг на друга через
+ * translationRef. Из-за этого кнопка «Удалить» не срабатывала ни на одном
+ * материале: проверено на выборке из 60 свежих — входящая ссылка есть у всех.
+ *
+ * Парную ссылку и комментарии снимаем сами: и то и другое существует только
+ * ради удаляемого материала. А вот слот на главной редактор выбирал руками,
+ * поэтому там останавливаемся и говорим, что именно мешает.
+ */
+/**
+ * Удаление чего угодно, на что могут ссылаться другие документы.
+ *
+ * Та же причина, что и у deleteMaterial: Sanity не удаляет документ, пока на
+ * него указывает ссылка. Здесь мы сносим вместе с ним то, что без него не
+ * существует (голоса за событие, отзывы о бирже, ответы в ветке комментария),
+ * а на всём остальном останавливаемся с понятным текстом вместо отказа Sanity.
+ *
+ * @param owned типы, которые живут только ради удаляемого документа
+ * @param blockedMessage что сказать редактору, если мешает что-то ещё
+ */
+async function deleteWithDependents(
+  id: string,
+  owned: string[],
+  blockedMessage: (types: string[]) => string
+): Promise<void> {
+  const referring = await client.fetch<{ _id: string; _type: string }[]>(
+    `*[references($id)]{ _id, _type }`,
+    { id }
+  );
+  const blockers = [...new Set(referring.filter(r => !owned.includes(r._type)).map(r => r._type))];
+  if (blockers.length > 0) throw new Error(blockedMessage(blockers));
+
+  const tx = writeClient.transaction();
+  for (const r of referring) tx.delete(r._id);
+  tx.delete(id);
+  await tx.commit();
+}
+
+async function deleteMaterial(id: string): Promise<void> {
+  const referring = await client.fetch<{ _id: string; _type: string }[]>(
+    `*[references($id)]{ _id, _type }`,
+    { id }
+  );
+
+  const onHomepage = referring.filter(r => r._type === 'homeSettings');
+  if (onHomepage.length > 0) {
+    throw new Error(
+      'Материал стоит в подборке на главной странице. Уберите его в разделе «Главная страница» и удалите снова.'
+    );
+  }
+
+  const tx = writeClient.transaction();
+  for (const r of referring) {
+    if (r._type === 'news' || r._type === 'article') {
+      tx.patch(r._id, patch => patch.unset(['translationRef']));
+    } else if (r._type === 'comment') {
+      tx.delete(r._id);
+    } else {
+      throw new Error(`Материал нельзя удалить: на него ссылается «${r._type}». Уберите ссылку и повторите.`);
+    }
+  }
+  tx.delete(id);
+  await tx.commit();
+}
+
 export async function deleteNews(id: string) {
-  await writeClient.delete(id);
+  await deleteMaterial(id);
 }
 
 // ---------------- Taking material off the site (news + articles) ----------------
@@ -616,7 +691,14 @@ export async function republishDocument(id: string): Promise<void> {
 export async function duplicateNews(id: string): Promise<string> {
   const original = await client.fetch<Record<string, unknown> | null>(`*[_id == $id][0]`, { id });
   if (!original) throw new Error('News item not found');
-  const { _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u, slug, title, publishedAt: _p, ...rest } = original;
+  // Копия не наследует ни ссылку на перевод оригинала, ни его счётчики:
+  // иначе перевод другого языка начинает указывать на два документа,
+  // а свежий черновик открывается с чужими просмотрами и лайками.
+  const {
+    _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u,
+    slug, title, publishedAt: _p, translationRef: _t, views: _v, likes: _l,
+    ...rest
+  } = original;
   const originalSlug = (slug as { current?: string } | undefined)?.current ?? 'copy';
   const newSlug = `${originalSlug}-copy-${Math.random().toString(36).slice(2, 7)}`;
   const doc = await writeClient.create({
@@ -624,6 +706,8 @@ export async function duplicateNews(id: string): Promise<string> {
     title: `(Копия) ${String(title ?? '')}`,
     slug: { _type: 'slug', current: newSlug },
     publishTiming: 'draft',
+    views: 0,
+    likes: 0,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   return doc._id;
@@ -816,13 +900,20 @@ export async function updateArticle(id: string, input: ArticleInput, coverImageA
 }
 
 export async function deleteArticle(id: string) {
-  await writeClient.delete(id);
+  await deleteMaterial(id);
 }
 
 export async function duplicateArticle(id: string): Promise<string> {
   const original = await client.fetch<Record<string, unknown> | null>(`*[_id == $id][0]`, { id });
   if (!original) throw new Error('Article not found');
-  const { _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u, slug, title, publishedAt: _p, ...rest } = original;
+  // Копия не наследует ни ссылку на перевод оригинала, ни его счётчики:
+  // иначе перевод другого языка начинает указывать на два документа,
+  // а свежий черновик открывается с чужими просмотрами и лайками.
+  const {
+    _id: _o, _rev: _r, _createdAt: _c, _updatedAt: _u,
+    slug, title, publishedAt: _p, translationRef: _t, views: _v, likes: _l,
+    ...rest
+  } = original;
   const originalSlug = (slug as { current?: string } | undefined)?.current ?? 'copy';
   const newSlug = `${originalSlug}-copy-${Math.random().toString(36).slice(2, 7)}`;
   const doc = await writeClient.create({
@@ -830,6 +921,8 @@ export async function duplicateArticle(id: string): Promise<string> {
     title: `(Копия) ${String(title ?? '')}`,
     slug: { _type: 'slug', current: newSlug },
     publishTiming: 'draft',
+    views: 0,
+    likes: 0,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   return doc._id;
@@ -1035,7 +1128,8 @@ export async function updateExchange(id: string, input: ExchangeInput, logoAsset
 }
 
 export async function deleteExchange(id: string) {
-  await writeClient.delete(id);
+  await deleteWithDependents(id, ['exchangeReview'], types =>
+    `Биржу нельзя удалить: на неё ссылается «${types.join(', ')}». Уберите ссылку и повторите.`);
 }
 
 // ---------------- Homepage settings ----------------
@@ -1163,7 +1257,8 @@ export async function updateCommentText(id: string, text: string) {
 }
 
 export async function deleteComment(id: string) {
-  await writeClient.delete(id);
+  await deleteWithDependents(id, ['comment'], types =>
+    `Комментарий нельзя удалить: на него ссылается «${types.join(', ')}».`);
 }
 
 // ---------------- Exchange reviews ----------------
