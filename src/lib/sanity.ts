@@ -141,7 +141,7 @@ export const fetchArticles = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
-        _id, title, excerpt, slug, publishedAt, updatedAt, topic, readingTime, badge, views, likes,
+        _id, title, excerpt, slug, publishedAt, updatedAt, topic, readingTime, badge, ownBadge, views, likes,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt
       }`,
@@ -161,7 +161,7 @@ export const fetchArticleBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, body, topic, views, likes, seo, commentsEnabled, updatedAt,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, ownBadge, body, topic, views, likes, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
@@ -263,7 +263,7 @@ export const fetchNewsBySlug = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
-          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, badge, topic, views, likes, seo, commentsEnabled, updatedAt,
+          _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, badge, ownBadge, topic, views, likes, seo, commentsEnabled, updatedAt,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
@@ -453,7 +453,7 @@ export const fetchRelatedArticles = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && language == $locale && publishedAt <= now() && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, ownBadge, views, likes,
           "coverImage": coverImage.asset->url
         }`,
         { locale, excludeId, limit }
@@ -472,7 +472,7 @@ export const fetchRelatedNews = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "news" && language == $locale && publishedAt <= now() && _id != $excludeId] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt,
+          _id, title, excerpt, slug, publishedAt, breaking, ownBadge,
           "coverImage": coverImage.asset->url
         }`,
         { locale, excludeId, limit }
@@ -652,7 +652,7 @@ export const fetchArticlesByTopic = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && topic == $topic && language == $locale && publishedAt <= now()] | order(publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes, topic,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, ownBadge, views, likes, topic,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt
         }`,
@@ -743,7 +743,7 @@ export const fetchTopLikedArticles = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "article" && language == $locale && publishedAt <= now() && coalesce(likes, 0) > 0] | order(likes desc, views desc, publishedAt desc) [0...$limit] {
-          _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes, topic,
+          _id, title, excerpt, slug, publishedAt, readingTime, badge, ownBadge, views, likes, topic,
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt
         }`,

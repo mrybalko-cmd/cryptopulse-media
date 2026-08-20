@@ -173,6 +173,7 @@ export default async function TopicPage({ params }: Props) {
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               badge={article.badge}
+              ownBadge={article.ownBadge}
               views={article.views}
               likes={article.likes}
               locale={locale}

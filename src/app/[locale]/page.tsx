@@ -141,6 +141,7 @@ export default async function HomePage({ params }: Props) {
             publishedAt={heroArticles[1].publishedAt}
             readingTime={heroArticles[1].readingTime}
             badge={heroArticles[1].badge}
+            ownBadge={heroArticles[1].ownBadge}
             views={heroArticles[1].views}
             likes={heroArticles[1].likes}
             locale={locale}

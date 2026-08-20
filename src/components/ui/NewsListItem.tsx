@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Pin, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
 import { TOPIC_TAG } from '@/lib/topics';
 import BoltIcon from '@/components/ui/BoltIcon';
+import OwnMark from './OwnMark';
 
 interface NewsListItemProps {
   title: string;
@@ -57,11 +57,7 @@ export default function NewsListItem({ title, href, external, publishedAt, categ
             <BoltIcon size={10} className="text-white" />
           </span>
         )}
-        {!external && ownBadge && !aiTopic && (
-          <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded overflow-hidden relative shrink-0" title={locale === 'ru' ? 'Наш материал' : 'Our story'}>
-            <Image src="/brand-mark-small.png" alt={locale === 'ru' ? 'Наш материал' : 'Our story'} width={16} height={16} className="w-full h-full object-cover" />
-          </span>
-        )}
+        {!external && ownBadge && !aiTopic && <OwnMark locale={locale} size={13} className="float-left mt-[3px]" />}
         {pinned && (
           <span className="float-left mr-1.5 mt-0.5 w-4 h-4 rounded bg-yellow-500 flex items-center justify-center" title={locale === 'ru' ? 'Закреплено' : 'Pinned'}>
             <Pin size={10} className="text-background" />

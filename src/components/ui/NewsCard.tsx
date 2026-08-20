@@ -9,6 +9,7 @@ import { ru, enUS } from 'date-fns/locale';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import ArticleBadge from './ArticleBadge';
 import BoltIcon from '@/components/ui/BoltIcon';
+import OwnMark from '@/components/ui/OwnMark';
 
 interface NewsCardProps {
   title: string;
@@ -37,18 +38,12 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
 
   const content = (
     <>
-      {(breaking || (!external && ownBadge)) && (
+      {breaking && (
         <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5">
           {breaking && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-bold animate-pulse">
               <BoltIcon size={10} />
               {locale === 'ru' ? 'Важное' : 'Breaking News'}
-            </div>
-          )}
-          {!external && ownBadge && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-600 text-white text-xs font-medium">
-              <BoltIcon size={10} className="text-yellow-400" />
-              {locale === 'ru' ? 'Наш материал' : 'Our story'}
             </div>
           )}
         </div>
@@ -88,6 +83,7 @@ export default function NewsCard({ title, source, href, external, publishedAt, c
           </div>
         )}
         <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-3">
+          {!external && ownBadge && <OwnMark locale={locale} size={12} />}
           {title}
         </h3>
         <div className="flex items-center justify-between mt-3">

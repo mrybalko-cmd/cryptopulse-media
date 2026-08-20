@@ -3,6 +3,7 @@ export const revalidate = 300;
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import ViewCount from '@/components/ui/ViewCount';
+import OwnMark from '@/components/ui/OwnMark';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react';
@@ -223,6 +224,7 @@ export default async function NewsDetailPage({ params }: Props) {
         </div>
       )}
       <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">
+        {news.ownBadge && <OwnMark locale={locale} size={18} className="align-[-0.06em] mr-1.5" />}
         {news.title}
       </h1>
 
@@ -302,6 +304,8 @@ export default async function NewsDetailPage({ params }: Props) {
                 publishedAt={Math.floor(new Date(related.publishedAt).getTime() / 1000)}
                 imageUrl={related.coverImage}
                 locale={locale}
+                breaking={related.breaking}
+                ownBadge={related.ownBadge}
               />
             ))}
           </div>

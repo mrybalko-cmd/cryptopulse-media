@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ArrowRight, ExternalLink, Pin, Eye } from 'lucide-react';
 import { TOPIC_META } from '@/lib/topicMeta';
 import ArticleBadge from './ArticleBadge';
+import OwnMark from './OwnMark';
 import BoltIcon from '@/components/ui/BoltIcon';
 
 export { TOPIC_META };
@@ -80,7 +81,7 @@ export default function NewsTimelineRow({
             {breaking && (
               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white animate-pulse">
                 <BoltIcon size={8} />
-                {locale === 'ru' ? 'Срочно' : 'Breaking'}
+                {locale === 'ru' ? 'Важное' : 'Breaking News'}
               </span>
             )}
             {pinned && (
@@ -99,13 +100,7 @@ export default function NewsTimelineRow({
         <h3
           className="text-[13px] font-medium text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2"
         >
-          {!external && ownBadge && (
-            <BoltIcon
-              size={11}
-              className="inline mr-1 -mt-px text-yellow-500 shrink-0"
-              aria-label={locale === 'ru' ? 'Наш материал' : 'Our story'}
-            />
-          )}
+          {!external && ownBadge && <OwnMark locale={locale} size={11} />}
           {title}
         </h3>
 

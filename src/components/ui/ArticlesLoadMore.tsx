@@ -15,6 +15,7 @@ interface Article {
   publishedAt: string;
   readingTime?: number;
   badge?: string;
+  ownBadge?: boolean;
   views?: number;
   likes?: number;
 }
@@ -67,6 +68,7 @@ export default function ArticlesLoadMore({ locale, initialCount, pageSize = 15, 
               publishedAt={article.publishedAt}
               readingTime={article.readingTime}
               badge={article.badge}
+              ownBadge={article.ownBadge}
               views={article.views}
               likes={article.likes}
               locale={locale}

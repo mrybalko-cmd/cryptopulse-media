@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ArrowRight, Eye, Heart } from 'lucide-react';
 import ArticleBadge from './ArticleBadge';
+import OwnMark from './OwnMark';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import BoltIcon from '@/components/ui/BoltIcon';
 
@@ -20,6 +21,7 @@ interface ArticleCardProps {
   // more articles fit per row without a second component to keep in sync.
   compact?: boolean;
   badge?: string;
+  ownBadge?: boolean;
   views?: number;
   likes?: number;
   priority?: boolean;
@@ -36,7 +38,7 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({
-  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, views, likes, priority, topic, imageFade = false, titleLines = 2
+  title, excerpt, slug, coverImage, coverImageAlt, publishedAt, readingTime, locale, featured, compact, badge, ownBadge = false, views, likes, priority, topic, imageFade = false, titleLines = 2
 }: ArticleCardProps) {
   const date = new Date(publishedAt).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Prague'
@@ -80,6 +82,7 @@ export default function ArticleCard({
           </div>
         )}
         <h3 className={`font-semibold text-foreground leading-snug group-hover:text-[var(--title-hover)] transition-colors ${featured ? 'text-base' : compact ? 'text-xs' : 'text-sm'} ${titleLines === 3 ? 'line-clamp-3' : 'line-clamp-2'}`}>
+          {ownBadge && <OwnMark locale={locale} size={12} />}
           {title}
         </h3>
         {!compact && <p className="text-muted text-xs mt-2 leading-relaxed line-clamp-2">{excerpt}</p>}
