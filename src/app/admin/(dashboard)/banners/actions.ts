@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { pragueInputToISO } from '@/lib/admin/timezone';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createBanner, updateBanner, uploadImageAsset, type BannerInput } from '@/lib/admin/data';
 
@@ -11,8 +12,8 @@ function parseInput(formData: FormData): Omit<BannerInput, 'imageAssetId'> {
     link: String(formData.get('link') || ''),
     language: (formData.get('language') as BannerInput['language']) || 'all',
     weight: Number(formData.get('weight')) || 1,
-    startAt: String(formData.get('startAt') || '') || undefined,
-    endAt: String(formData.get('endAt') || '') || undefined,
+    startAt: pragueInputToISO(String(formData.get('startAt') || '')),
+    endAt: pragueInputToISO(String(formData.get('endAt') || '')),
     active: formData.get('active') === 'on',
   };
 }

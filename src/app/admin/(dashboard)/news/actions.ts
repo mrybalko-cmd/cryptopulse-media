@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { pragueInputToISO } from '@/lib/admin/timezone';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createNews, updateNews, deleteNews, duplicateNews, unpublishDocument, republishDocument, fetchAdminNewsById, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
@@ -41,7 +42,7 @@ async function parseNewsInput(formData: FormData, originalBody: PortableTextBloc
     excerpt: String(formData.get('excerpt') || ''),
     coverImageAlt: String(formData.get('coverImageAlt') || ''),
     publishTiming,
-    publishedAt: publishedAtRaw ? new Date(publishedAtRaw).toISOString() : undefined,
+    publishedAt: pragueInputToISO(publishedAtRaw),
     body: textToBlocks(String(formData.get('body') || ''), originalBody, newImageAssetIds),
     sourceName: String(formData.get('sourceName') || ''),
     sourceUrl: String(formData.get('sourceUrl') || ''),
@@ -55,7 +56,7 @@ async function parseNewsInput(formData: FormData, originalBody: PortableTextBloc
     ownBadge: formData.get('ownBadge') === 'on',
     badge: (formData.get('badge') as 'none' | 'promo' | 'companyNews') || 'none',
     breaking: formData.get('breaking') === 'on',
-    pinnedUntil: pinnedUntilRaw ? new Date(pinnedUntilRaw).toISOString() : undefined,
+    pinnedUntil: pragueInputToISO(pinnedUntilRaw),
     authorId: String(formData.get('authorId') || ''),
     commentsEnabled: formData.get('commentsEnabled') === 'on',
     translationRefId: String(formData.get('translationRefId') || ''),

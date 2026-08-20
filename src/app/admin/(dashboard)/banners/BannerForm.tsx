@@ -1,10 +1,8 @@
 import type { AdminBannerDoc } from '@/lib/admin/data';
+import { pragueLocalInput } from '@/lib/admin/timezone';
 import SubmitButton from '../_shared/SubmitButton';
 
-function toLocalInput(iso?: string) {
-  if (!iso) return '';
-  return iso.slice(0, 16);
-}
+
 
 export default function BannerForm({
   banner,
@@ -57,11 +55,11 @@ export default function BannerForm({
         <div></div>
         <div>
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Показывать с</label>
-          <input name="startAt" type="datetime-local" defaultValue={toLocalInput(banner?.startAt)} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+          <input name="startAt" type="datetime-local" defaultValue={pragueLocalInput(banner?.startAt)} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
         </div>
         <div>
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Показывать до</label>
-          <input name="endAt" type="datetime-local" defaultValue={toLocalInput(banner?.endAt)} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+          <input name="endAt" type="datetime-local" defaultValue={pragueLocalInput(banner?.endAt)} className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
         </div>
       </div>
 

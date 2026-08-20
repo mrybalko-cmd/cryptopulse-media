@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { pragueInputToISO } from '@/lib/admin/timezone';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createArticle, updateArticle, deleteArticle, duplicateArticle, unpublishDocument, republishDocument, fetchAdminArticleById, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
@@ -41,7 +42,7 @@ async function parseArticleInput(formData: FormData, originalBody: PortableTextB
     excerpt: String(formData.get('excerpt') || ''),
     coverImageAlt: String(formData.get('coverImageAlt') || ''),
     publishTiming,
-    publishedAt: publishedAtRaw ? new Date(publishedAtRaw).toISOString() : undefined,
+    publishedAt: pragueInputToISO(publishedAtRaw),
     readingTime: readingTimeRaw ? Number(readingTimeRaw) : undefined,
     topic: String(formData.get('topic') || ''),
     badge: String(formData.get('badge') || 'none'),

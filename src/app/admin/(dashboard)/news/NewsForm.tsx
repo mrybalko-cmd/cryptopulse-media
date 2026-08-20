@@ -1,4 +1,5 @@
 import type { AdminNewsDoc, AdminAuthorOption } from '@/lib/admin/data';
+import { pragueLocalInput } from '@/lib/admin/timezone';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import CoverImageField from '../_shared/CoverImageField';
@@ -30,10 +31,7 @@ const BADGES = [
   { value: 'companyNews', label: 'Новости компании', color: 'slate' as const },
 ];
 
-function toLocalInput(iso?: string) {
-  if (!iso) return '';
-  return iso.slice(0, 16);
-}
+
 
 export default function NewsForm({
   news,
@@ -98,7 +96,7 @@ export default function NewsForm({
               </label>
             ))}
           </div>
-          <input name="publishedAt" type="datetime-local" defaultValue={toLocalInput(news?.publishedAt)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+          <input name="publishedAt" type="datetime-local" defaultValue={pragueLocalInput(news?.publishedAt)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
           <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">Заполняется только если выбрано «Запланировать». Кнопка «Сохранить черновик» ниже игнорирует эти настройки.</p>
         </div>
 
@@ -129,7 +127,7 @@ export default function NewsForm({
 
         <div className="mb-5">
           <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Закрепить в топе до (необязательно)</label>
-          <input name="pinnedUntil" type="datetime-local" defaultValue={toLocalInput(news?.pinnedUntil)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+          <input name="pinnedUntil" type="datetime-local" defaultValue={pragueLocalInput(news?.pinnedUntil)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
         </div>
 
         <div className="mb-5">

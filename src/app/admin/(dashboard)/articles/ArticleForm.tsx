@@ -1,4 +1,5 @@
 import type { AdminArticleDoc, AdminAuthorOption } from '@/lib/admin/data';
+import { pragueLocalInput } from '@/lib/admin/timezone';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import CoverImageField from '../_shared/CoverImageField';
@@ -31,10 +32,7 @@ const BADGES = [
   { value: 'companyNews', label: 'Новости компании', color: 'slate' as const },
 ];
 
-function toLocalInput(iso?: string) {
-  if (!iso) return '';
-  return iso.slice(0, 16);
-}
+
 
 export default function ArticleForm({
   article,
@@ -99,7 +97,7 @@ export default function ArticleForm({
               </label>
             ))}
           </div>
-          <input name="publishedAt" type="datetime-local" defaultValue={toLocalInput(article?.publishedAt)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
+          <input name="publishedAt" type="datetime-local" defaultValue={pragueLocalInput(article?.publishedAt)} className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
           <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">Заполняется только если выбрано «Запланировать». Кнопка «Сохранить черновик» ниже игнорирует эти настройки.</p>
         </div>
 
