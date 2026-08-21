@@ -719,7 +719,7 @@ export const REGULATION_DATA: CountryReg[] = [
   {
     iso2: 'BO', isoNum: '068', slug: 'bolivia',
     name: { ru: 'Боливия', en: 'Bolivia' },
-    status: 'restricted',
+    status: 'legal',
     summary: {
       ru: 'Запрет 2014 года отменён 26 июня 2024 года постановлением Центрального банка 082/2024. Операции с криптоактивами разрешены через авторизованные каналы.',
       en: 'The 2014 ban was lifted on 26 June 2024 by central bank resolution 082/2024. Crypto transactions are permitted through authorised channels.',
@@ -775,7 +775,7 @@ export const REGULATION_DATA: CountryReg[] = [
   {
     iso2: 'PK', isoNum: '586', slug: 'pakistan',
     name: { ru: 'Пакистан', en: 'Pakistan' },
-    status: 'restricted',
+    status: 'legal',
     summary: {
       ru: 'Позиция менялась не раз: с 2018 года центральный банк держал банки в стороне от криптовалюты, а в 2025 году правительство создало криптосовет и учредило регулятора PVARA.',
       en: 'The position has shifted more than once: the central bank kept banks away from crypto from 2018, and in 2025 the government formed a crypto council and created the regulator PVARA.',
