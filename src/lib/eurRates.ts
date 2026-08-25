@@ -112,6 +112,13 @@ async function fetchBitstamp(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   }
 }
 
+// Kraken переименовал страницы курсов: суффикса -eur больше нет, а USDT
+// у них живёт под именем tether. Прежний шаблон отдавал 404 на обоих активах.
+const KRAKEN_PRICE_SLUG: Record<'USDT' | 'USDC', string> = {
+  USDT: 'tether',
+  USDC: 'usdc',
+};
+
 async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
   try {
     const pair = `${asset}EUR`;
@@ -129,7 +136,7 @@ async function fetchKraken(asset: 'USDT' | 'USDC'): Promise<EurRate | null> {
       rate: Number(price),
       feePct: 0.25,
       type: 'cex',
-      url: `https://www.kraken.com/prices/${asset.toLowerCase()}-eur`,
+      url: `https://www.kraken.com/prices/${KRAKEN_PRICE_SLUG[asset]}`,
     };
   } catch {
     return null;
