@@ -1,6 +1,7 @@
 import { BASE } from '@/lib/metadata';
 import ArticleCard from '@/components/ui/ArticleCard';
 import ArticlesLoadMore from '@/components/ui/ArticlesLoadMore';
+import Pagination from '@/components/ui/Pagination';
 import Link from 'next/link';
 import { Flame } from 'lucide-react';
 
@@ -22,10 +23,11 @@ type Props = {
   page: number;
   pageSize: number;
   hasNext: boolean;
+  totalPages: number;
   startOffsetForLoadMore: number;
 };
 
-export default function ArticlesListingBody({ locale, title, subtitle, articles, page, pageSize, hasNext, startOffsetForLoadMore }: Props) {
+export default function ArticlesListingBody({ locale, title, subtitle, articles, page, pageSize, hasNext, startOffsetForLoadMore, totalPages }: Props) {
   const pageUrl = `${BASE}/${locale}/articles${page > 1 ? `/page/${page}` : ''}`;
 
   const breadcrumbLd = {
@@ -123,6 +125,14 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
             pageSize={pageSize}
             nextPage={page + 1}
             hasNext={hasNext}
+          />
+
+          {/* Номера страниц: без них лента была цепочкой из «дальше». */}
+          <Pagination
+            basePath={`/${locale}/articles`}
+            currentPage={page}
+            totalPages={totalPages}
+            locale={locale}
           />
         </>
       ) : (

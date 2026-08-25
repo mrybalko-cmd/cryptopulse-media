@@ -1,4 +1,4 @@
-import { fetchSanityNews } from '@/lib/sanity';
+import { fetchSanityNews, countSanityNews } from '@/lib/sanity';
 import { SITE_NAME } from '@/lib/site';
 
 export interface UnifiedNewsItem {
@@ -43,4 +43,21 @@ export async function fetchOwnNews({
     views: typeof n.views === 'number' ? n.views : undefined,
     likes: typeof n.likes === 'number' ? n.likes : undefined,
   }));
+}
+
+/**
+ * Сколько всего новостей в ленте на этом языке.
+ *
+ * Нужно, чтобы посчитать число страниц: без него лента знала только
+ * «есть ли следующая» и не могла показать номера, из-за чего старые
+ * материалы висели в 36 переходах от первой страницы.
+ */
+export async function countOwnNews(locale = 'ru'): Promise<number> {
+  return (await countSanityNews(locale)) ?? 0;
+}
+
+/** Первая страница длиннее последующих, поэтому счёт не делится нацело. */
+export function totalNewsPages(total: number, initial: number, pageSize: number): number {
+  if (total <= initial) return 1;
+  return 1 + Math.ceil((total - initial) / pageSize);
 }

@@ -157,6 +157,23 @@ interface FetchArticlesOptions {
  * Окно короче общего (60 с вместо 300), чтобы отложенная публикация
  * появлялась не позже, чем раньше, — ISR-окно страницы и так 300 с.
  */
+export const countSanityArticles = unstable_cache(
+  async (locale: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return 0;
+    try {
+      // Фильтр обязан совпадать с fetchArticles слово в слово.
+      return await client.fetch<number>(
+        `count(*[_type == "article" && language == $locale && publishedAt <= now()])`,
+        { locale }
+      );
+    } catch {
+      return 0;
+    }
+  },
+  ['countSanityArticles'],
+  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
+);
+
 export const fetchArticles = unstable_cache(
   async ({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
@@ -216,6 +233,24 @@ export const fetchSanityNews = unstable_cache(
     }
   },
   ['fetchSanityNews'],
+  { revalidate: FEED_CACHE_SECONDS, tags: ['news'] }
+);
+
+export const countSanityNews = unstable_cache(
+  async (locale: string) => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return 0;
+    try {
+      // Фильтр обязан совпадать с fetchSanityNews слово в слово: иначе
+      // число страниц в пагинации разойдётся с тем, что реально в ленте.
+      return await client.fetch<number>(
+        `count(*[_type == "news" && language == $locale && publishedAt <= now()])`,
+        { locale }
+      );
+    } catch {
+      return 0;
+    }
+  },
+  ['countSanityNews'],
   { revalidate: FEED_CACHE_SECONDS, tags: ['news'] }
 );
 

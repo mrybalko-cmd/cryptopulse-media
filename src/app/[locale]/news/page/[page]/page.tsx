@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { fetchOwnNews } from '@/lib/news';
+import { fetchOwnNews, countOwnNews, totalNewsPages } from '@/lib/news';
 import NewsListingBody from '../../NewsListingBody';
 import { INITIAL, PAGE_SIZE } from '../../page';
 
@@ -57,6 +57,7 @@ export default async function NewsDeepPage({ params }: Props) {
   if (items.length === 0) notFound();
 
   const hasNext = items.length === limit;
+  const totalPages = totalNewsPages(await countOwnNews(locale), INITIAL, PAGE_SIZE);
 
   return (
     <NewsListingBody
@@ -68,6 +69,7 @@ export default async function NewsDeepPage({ params }: Props) {
       pageSize={PAGE_SIZE}
       hasNext={hasNext}
       startOffsetForLoadMore={offset + items.length}
+      totalPages={totalPages}
     />
   );
 }

@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { fetchArticles } from '@/lib/sanity';
+import { fetchArticles, countSanityArticles } from '@/lib/sanity';
 import ArticlesListingBody from '../../ArticlesListingBody';
 import { INITIAL_LIMIT } from '../../page';
 
@@ -53,6 +53,7 @@ export default async function ArticlesDeepPage({ params }: Props) {
   if (articles.length === 0) notFound();
 
   const hasNext = articles.length === INITIAL_LIMIT;
+  const totalPages = Math.max(1, Math.ceil(((await countSanityArticles(locale)) ?? 0) / INITIAL_LIMIT));
 
   return (
     <ArticlesListingBody
@@ -64,6 +65,7 @@ export default async function ArticlesDeepPage({ params }: Props) {
       pageSize={INITIAL_LIMIT}
       hasNext={hasNext}
       startOffsetForLoadMore={offset + articles.length}
+      totalPages={totalPages}
     />
   );
 }

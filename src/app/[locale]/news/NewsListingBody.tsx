@@ -1,5 +1,6 @@
 import { BASE } from '@/lib/metadata';
 import NewsLoadMore from '@/components/ui/NewsLoadMore';
+import Pagination from '@/components/ui/Pagination';
 import NewsTimelineRow from '@/components/ui/NewsTimelineRow';
 import { TOPIC_META } from '@/lib/topicMeta';
 import type { UnifiedNewsItem } from '@/lib/news';
@@ -41,10 +42,11 @@ type Props = {
   page: number;
   pageSize: number;
   hasNext: boolean;
+  totalPages: number;
   startOffsetForLoadMore: number;
 };
 
-export default function NewsListingBody({ locale, title, subtitle, items, page, pageSize, hasNext, startOffsetForLoadMore }: Props) {
+export default function NewsListingBody({ locale, title, subtitle, items, page, pageSize, hasNext, startOffsetForLoadMore, totalPages }: Props) {
   const isRu = locale === 'ru';
   const groups = groupByDay(items);
   const lastDay = groups.length > 0 ? groups[groups.length - 1].day : undefined;
@@ -171,6 +173,16 @@ export default function NewsListingBody({ locale, title, subtitle, items, page, 
             lastInitialDay={lastDay}
             nextPage={page + 1}
             hasNext={hasNext}
+          />
+
+          {/* Номерная навигация рядом с «показать ещё»: она даёт краулеру
+              ссылки на первую и последнюю страницу, из-за отсутствия которых
+              старые материалы оказывались в 36 переходах от начала ленты. */}
+          <Pagination
+            basePath={`/${locale}/news`}
+            currentPage={page}
+            totalPages={totalPages}
+            locale={locale}
           />
         </>
       ) : (

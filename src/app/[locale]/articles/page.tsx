@@ -5,7 +5,7 @@ export const revalidate = 120;
 import { getTranslations, setRequestLocale} from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { fetchArticles } from '@/lib/sanity';
+import { fetchArticles, countSanityArticles } from '@/lib/sanity';
 import ArticlesListingBody from './ArticlesListingBody';
 import { SITE_URL } from '@/lib/site';
 
@@ -36,8 +36,12 @@ export default async function ArticlesPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('articles');
 
-  const articles = await fetchArticles({ limit: INITIAL_LIMIT, locale });
+  const [articles, total] = await Promise.all([
+    fetchArticles({ limit: INITIAL_LIMIT, locale }),
+    countSanityArticles(locale),
+  ]);
   const hasNext = articles.length === INITIAL_LIMIT;
+  const totalPages = Math.max(1, Math.ceil((total ?? 0) / INITIAL_LIMIT));
 
   return (
     <ArticlesListingBody
@@ -49,6 +53,7 @@ export default async function ArticlesPage({ params }: Props) {
       pageSize={INITIAL_LIMIT}
       hasNext={hasNext}
       startOffsetForLoadMore={articles.length}
+      totalPages={totalPages}
     />
   );
 }

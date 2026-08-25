@@ -5,7 +5,7 @@ export const revalidate = 120;
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import type { Metadata } from 'next';
-import { fetchOwnNews } from '@/lib/news';
+import { fetchOwnNews, countOwnNews, totalNewsPages } from '@/lib/news';
 import NewsListingBody from './NewsListingBody';
 
 export const INITIAL = 30;
@@ -40,8 +40,12 @@ export default async function NewsPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('news');
 
-  const items = (await fetchOwnNews({ limit: INITIAL, locale })) ?? [];
+  const [items, total] = await Promise.all([
+    fetchOwnNews({ limit: INITIAL, locale }).then(r => r ?? []),
+    countOwnNews(locale),
+  ]);
   const hasNext = items.length === INITIAL;
+  const totalPages = totalNewsPages(total, INITIAL, PAGE_SIZE);
 
   return (
     <NewsListingBody
@@ -53,6 +57,7 @@ export default async function NewsPage({ params }: Props) {
       pageSize={PAGE_SIZE}
       hasNext={hasNext}
       startOffsetForLoadMore={items.length}
+      totalPages={totalPages}
     />
   );
 }
