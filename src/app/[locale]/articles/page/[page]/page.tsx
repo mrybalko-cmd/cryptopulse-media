@@ -30,14 +30,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     openGraph: buildOg({ url: `${BASE}/${locale}/articles/page/${page}`, title, description, locale }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/articles/page/${page}`, title, description, locale }),
-    // No hreflang here: this route is always noindex,follow (below), and a
-    // noindexed page annotating an equally-noindexed sibling as its language
-    // alternate is exactly the "hreflang to/from noindex URL" pattern SEO
-    // audits flag — hreflang should only ever point between indexable pages.
+    // Indexable since 31.08.2026. These pages carried noindex,follow to keep
+    // near-duplicate listings out of the index while still passing crawl paths
+    // to older material. Two Ahrefs crawls showed the follow half never
+    // happened: every orphaned article reported `pagination inlinks = 0`, and
+    // the orphan count grew 69 -> 97 while numbered pagination was live and
+    // the articles were reachable by hand. A crawler that will not traverse a
+    // noindex page cannot follow its links, so the listing has to be indexable
+    // for the links on it to count. hreflang follows, now that both sides of
+    // the pair are indexable — the same shape author pagination already uses.
     alternates: {
       canonical: `${BASE}/${locale}/articles/page/${page}`,
+      languages: {
+        ru: `${BASE}/ru/articles/page/${page}`,
+        en: `${BASE}/en/articles/page/${page}`,
+        'x-default': `${BASE}/en/articles/page/${page}`,
+      },
     },
-    robots: { index: false, follow: true },
   };
 }
 
