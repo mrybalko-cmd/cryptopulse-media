@@ -84,6 +84,15 @@
   --glass-edge: rgba(255, 255, 255, 0.16);
   --glass-edge-lit: rgba(255, 255, 255, 0.34);
 
+  /* Слои бумаги под блоком подписки. Лесенка уходит от графита к тону
+     --article-accent-tint: блок греется к правому краю, где лежит кнопка. */
+  --paper-1: #1a191d;
+  --paper-2: #2a1e1f;
+  --paper-3: #3b2622;
+  --paper-4: #4d2e26;
+  --paper-fold: rgba(255, 255, 255, 0.10);
+  --paper-halo: 0.24;
+
   /* Карта регуляции: поле, стекло и заливки стран */
   --reg-field: #0e0e11;
   --reg-sea: rgba(255, 255, 255, 0.045);
@@ -146,6 +155,14 @@ html.light {
   --glass-clear-2: rgba(255, 255, 255, 0.30);
   --glass-edge: rgba(255, 255, 255, 0.85);
   --glass-edge-lit: #ffffff;
+
+  /* На светлом лесенка идёт вниз по яркости и так же теплеет к кораллу */
+  --paper-1: #ece9eb;
+  --paper-2: #e6dbd8;
+  --paper-3: #dfcdc6;
+  --paper-4: #d6bcb2;
+  --paper-fold: rgba(255, 255, 255, 0.75);
+  --paper-halo: 0.18;
 
   /* На белом фоне «прозрачное» стекло — это БОЛЬШЕ белого, а не меньше:
      панель должна лежать светлее подложки, иначе текст на ней теряется. */
@@ -342,6 +359,79 @@ html.light .prose-invert {
 @media (max-width: 640px) {
   .glass-panel { border-radius: 18px; padding: 15px 14px; }
 }
+/* ── Блок подписки в конце материала ────────────────────────────────
+   Слоёная бумага плюс стекло. Слои рисуются SVG в разметке из остановок
+   --popular-panel; здесь только поверхность и кромка. Ореол за кнопкой
+   обязателен: стекло этой прозрачности без подсветки за ним неотличимо
+   от матовой плашки — тот же принцип, что у --glass-clear выше. */
+.paper-block {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--tema-fill);
+  box-shadow: var(--popular-shadow);
+  overflow: hidden;
+}
+.paper-block::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 0;
+  height: 1px;
+  z-index: 4;
+  background: linear-gradient(90deg, transparent, var(--glass-edge-lit), transparent);
+  pointer-events: none;
+}
+.paper-cta {
+  position: relative;
+  color: var(--foreground);
+  background: linear-gradient(180deg, var(--glass-clear), var(--glass-clear-2));
+  border: 1px solid color-mix(in srgb, var(--article-accent) 55%, transparent);
+  /* Тень смещённая и подкрашенная акцентом, а не ровный ореол: так кнопка
+     читается предметом, лежащим над бумагой, а не свечением на ней. */
+  box-shadow:
+    0 7px 20px -6px color-mix(in srgb, var(--article-accent) 55%, transparent),
+    0 1px 2px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 var(--glass-edge-lit);
+  /* Размытие подложки задаётся утилитой backdrop-blur-* в разметке:
+     рукописный backdrop-filter вырезается сборкой Lightning CSS (так же,
+     как у .glass-panel), а утилиты Tailwind идут через кастомные свойства
+     и доживают до браузера. */
+  transition: transform .18s cubic-bezier(.16,1,.3,1),
+              box-shadow .18s cubic-bezier(.16,1,.3,1),
+              border-color .18s;
+}
+/* Отражение в верхней половине, гаснет к середине — фаска настоящего стекла */
+.paper-cta::after {
+  content: '';
+  position: absolute;
+  inset: 1px 1px 50% 1px;
+  border-radius: 10px 10px 3px 3px;
+  background: linear-gradient(180deg, var(--glass-edge-lit), transparent);
+  opacity: .55;
+  pointer-events: none;
+}
+.paper-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--article-accent);
+  box-shadow:
+    0 11px 26px -6px color-mix(in srgb, var(--article-accent) 72%, transparent),
+    0 1px 2px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 var(--glass-edge-lit);
+}
+.paper-cta:focus-visible { outline: 2px solid var(--article-accent); outline-offset: 2px; }
+.paper-cta:disabled { opacity: .55; }
+.paper-field {
+  background: var(--glass-clear);
+  border: 1px solid var(--glass-edge);
+}
+.paper-field:focus { outline: none; border-color: var(--article-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .paper-cta { transition: none; }
+  .paper-cta:hover:not(:disabled) { transform: none; }
+}
+
 /* Панели идут стопкой, поэтому промежуток задаётся здесь, а не у каждой */
 .glass-panel + .glass-panel { margin-top: 18px; }
 
