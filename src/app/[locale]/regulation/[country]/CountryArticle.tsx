@@ -129,7 +129,7 @@ export function Body({ blocks }: { blocks: BodyBlock[] }) {
                   key={j}
                   href={r.href}
                   target="_blank"
-                  rel="noopener noreferrer nofollow"
+                  rel="noopener noreferrer"
                   className="text-accent no-underline border-b border-accent/30 hover:border-accent"
                 >
                   {r.text}
@@ -236,7 +236,7 @@ export function Sources({ items, checked }: { items: SourceLink[]; checked: stri
           <span className="flex-none font-mono text-[11px] font-bold tabular-nums text-muted opacity-70">
             {String(i + 1).padStart(2, '0')}
           </span>
-          <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="font-semibold text-foreground no-underline hover:text-accent leading-[1.4]">
+          <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground no-underline hover:text-accent leading-[1.4]">
             {s.title}
           </a>
           <span className="ml-auto flex-none font-mono text-[11px] tabular-nums text-muted opacity-70">{checked}</span>

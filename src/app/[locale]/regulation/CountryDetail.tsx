@@ -53,7 +53,7 @@ export default function CountryDetail({ country, locale }: { country: RegCountry
       <div className="sm:col-span-2 flex items-center gap-2 flex-wrap text-[11px] text-muted">
         <span>{checked}</span>
         {country.sourceUrl ? (
-          <a href={country.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">
+          <a href={country.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
             {country.regulatorName || (isRu ? 'источник' : 'source')}
           </a>
         ) : (

@@ -80,7 +80,7 @@ function TradeLink({ rate, isRu }: { rate: EurRate; isRu: boolean }) {
     <a
       href={rate.url}
       target="_blank"
-      rel="noopener noreferrer nofollow"
+      rel="noopener noreferrer sponsored"
       className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-extrabold text-foreground hover:border-accent/55 hover:text-accent transition-colors whitespace-nowrap"
     >
       {isRu ? 'Купить' : 'Trade'}

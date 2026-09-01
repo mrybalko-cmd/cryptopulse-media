@@ -154,7 +154,7 @@ export function TradeButton({
     <a
       href={exchange.tradeUrl}
       target="_blank"
-      rel="noopener noreferrer nofollow"
+      rel="noopener noreferrer sponsored"
       className={`relative z-20 inline-flex items-center gap-1.5 rounded-[10px] bg-positive font-extrabold text-white whitespace-nowrap
         shadow-[0_6px_18px_color-mix(in_srgb,var(--positive)_32%,transparent),inset_0_1px_0_rgba(255,255,255,0.25)]
         hover:brightness-110 transition-[filter] ${size === 'sm' ? 'px-2.5 py-1.5 text-[10px]' : 'px-3.5 py-2 text-[11.5px]'}`}
