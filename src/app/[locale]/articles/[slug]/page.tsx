@@ -198,14 +198,14 @@ export default async function ArticlePage({ params }: Props) {
       {article.coverImage && (() => {
         const dims = sanityImageDimensions(article.coverImage) ?? { width: 1200, height: 630 };
         return (
-          <div className="rounded-[20px] overflow-hidden mb-8">
+          <div className="rounded-[20px] overflow-hidden mb-8 bg-background">
             <img
               src={sanityImageTransform(article.coverImage, { width: 1536 })!}
               srcSet={sanityImageSrcSet(article.coverImage, { width: 1536 })}
               alt={article.coverImageAlt || (locale === 'ru' ? `Обложка статьи: ${article.title}` : `Article cover: ${article.title}`)}
               width={dims.width}
               height={dims.height}
-              className="w-full h-auto"
+              className="w-full h-auto block"
               loading="eager"
             />
           </div>

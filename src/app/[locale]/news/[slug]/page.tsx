@@ -197,14 +197,14 @@ export default async function NewsDetailPage({ params }: Props) {
       {news.coverImage && (() => {
         const dims = sanityImageDimensions(news.coverImage) ?? { width: 1200, height: 630 };
         return (
-          <div className="rounded-[20px] overflow-hidden mb-8">
+          <div className="rounded-[20px] overflow-hidden mb-8 bg-background">
             <img
               src={sanityImageTransform(news.coverImage, { width: 1536 })!}
               srcSet={sanityImageSrcSet(news.coverImage, { width: 1536 })}
               alt={news.coverImageAlt || (locale === 'ru' ? `Обложка новости: ${news.title}` : `News cover: ${news.title}`)}
               width={dims.width}
               height={dims.height}
-              className="w-full h-auto"
+              className="w-full h-auto block"
               loading="eager"
             />
           </div>
