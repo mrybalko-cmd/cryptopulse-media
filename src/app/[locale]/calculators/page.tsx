@@ -5,6 +5,7 @@ import Link from 'next/link';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import IndexGaugeCard from '@/components/ui/IndexGaugeCard';
 import PulseWidget from '@/components/ui/PulseWidget';
+import RegulationWidget from '@/components/ui/RegulationWidget';
 import { ConverterCard, WealthCard } from '@/components/ui/CalculatorToolCard';
 import { fetchFearGreedIndex } from '@/lib/feargreed';
 import { fetchAltcoinSeasonIndex } from '@/lib/altcoinSeason';
@@ -287,6 +288,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                   />
                 )}
                 {pulseData && <PulseWidget data={pulseData} locale={locale} variant="hub" />}
+                <RegulationWidget locale={locale} />
               </div>
             </>
           )}
