@@ -14,6 +14,7 @@ import OverlayArticleCard from '@/components/ui/OverlayArticleCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
+import RegulationWidget from '@/components/ui/RegulationWidget';
 import { fetchOwnNews } from '@/lib/news';
 import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings } from '@/lib/sanity';
 import { fetchLatestPulse } from '@/lib/pulse';
@@ -300,6 +301,13 @@ export default async function HomePage({ params }: Props) {
           <PulseWidget data={pulseData} locale={locale} asHeading={false} />
         </div>
       )}
+
+      {/* Regulation map, directly under Pulse. Mobile-only for the same reason
+          Pulse is: the desktop homepage has no bottom rail to attach to, and
+          repeating a card there would need a grid slot rather than a stack. */}
+      <div className="lg:hidden mt-4">
+        <RegulationWidget locale={locale} />
+      </div>
     </div>
   );
 }
