@@ -210,6 +210,13 @@ html {
      that while leaving vertical scroll and the sticky header intact. */
   overflow-x: clip;
   max-width: 100%;
+  /* `overflow-x: clip` останавливает прокрутку, но не жест. Горизонтальный
+     свайп двумя пальцами по трекпаду, которому не за что зацепиться внутри
+     страницы, уходит браузеру — и тот уводит её вбок как «назад по истории»,
+     с резиновым отскоком. Со стороны это читается как «сайт ездит влево-вправо».
+     Гасим цепочку на корне: жест остаётся внутри страницы. Побочный эффект
+     осознанный — свайп «назад» на этом сайте больше не сработает. */
+  overscroll-behavior-x: none;
 }
 
 /* The nav row only appears from md up, so the header is taller there. */
@@ -226,6 +233,17 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.2s ease, color 0.2s ease;
   overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+/* Боковые ленты — карусели, фильтры тем, ряды карточек. Докрутив такую ленту
+   до края, жест по умолчанию передаётся дальше наверх и в итоге тому же
+   браузеру. `contain` оставляет его внутри ленты. Селектор по классу Tailwind,
+   чтобы правило само распространялось на новые ленты и не пришлось править
+   полтора десятка компонентов. */
+[class~="overflow-x-auto"],
+[class~="overflow-x-scroll"] {
+  overscroll-behavior-x: contain;
 }
 
 h1, h2, h3, h4, h5, h6, p, li, a {
