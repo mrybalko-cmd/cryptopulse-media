@@ -196,11 +196,14 @@ export default async function NewsDetailPage({ params }: Props) {
           in the same round trip. */}
       {news.coverImage && (() => {
         const dims = sanityImageDimensions(news.coverImage) ?? { width: 1200, height: 630 };
+        // База 768 равна ширине колонки текста; вариант 2x даёт 1536.
+        // Прежняя база 1536 порождала 2x на 3072 px — вчетверо больше нужного,
+        // и это был самый тяжёлый файл, который телефон скачивал со страницы.
         return (
           <div className="rounded-[20px] overflow-hidden mb-8 bg-background">
             <img
-              src={sanityImageTransform(news.coverImage, { width: 1536 })!}
-              srcSet={sanityImageSrcSet(news.coverImage, { width: 1536 })}
+              src={sanityImageTransform(news.coverImage, { width: 768 })!}
+              srcSet={sanityImageSrcSet(news.coverImage, { width: 768 })}
               alt={news.coverImageAlt || (locale === 'ru' ? `Обложка новости: ${news.title}` : `News cover: ${news.title}`)}
               width={dims.width}
               height={dims.height}

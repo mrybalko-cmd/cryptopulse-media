@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Calendar, User } from 'lucide-react';
+import { sanityImageTransform } from '@/lib/sanityImage';
 import RichText from './RichText';
 import CommentSection from './CommentSection';
 import PopularList from './PopularList';
@@ -104,8 +105,12 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
           <div key={item._id} className="mt-12 pt-8 border-t border-border">
             {item.coverImage && (
               <div className="rounded-lg overflow-hidden mb-6">
+                {/* Обложка шла сюда оригиналом: GROQ отдаёт coverImage.asset->url,
+                    а это PNG на 4800×2520. Лента показывается только на телефоне,
+                    где картинка рисуется примерно в 358 px, поэтому 800 закрывает
+                    и экраны с двойной плотностью. */}
                 <img
-                  src={item.coverImage}
+                  src={sanityImageTransform(item.coverImage, { width: 800 })}
                   alt={item.coverImageAlt || item.title}
                   className="w-full h-auto"
                   loading="lazy"
