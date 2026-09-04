@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Mail } from 'lucide-react';
-import { CONTACT_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
+import { ADVERTISING_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import FooterNavGroup from '@/components/layout/FooterNavGroup';
 import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
@@ -168,7 +168,7 @@ export default async function Footer() {
             <li>
               <address className="not-italic">
                 <a
-                  href={`mailto:${CONTACT_EMAIL}`}
+                  href={`mailto:${ADVERTISING_EMAIL}`}
                   className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
                 >
                   <Mail size={13} aria-hidden="true" />
