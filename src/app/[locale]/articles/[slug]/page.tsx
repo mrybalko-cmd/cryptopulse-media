@@ -10,6 +10,7 @@ import { ArrowLeft, Clock, Calendar } from 'lucide-react';
 import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
+import PreferOnGoogle from '@/components/ui/PreferOnGoogle';
 import LikeButton from '@/components/ui/LikeButton';
 import ArticleBadge from '@/components/ui/ArticleBadge';
 import ArticleCard from '@/components/ui/ArticleCard';
@@ -258,6 +259,9 @@ export default async function ArticlePage({ params }: Props) {
           <LikeButton id={article._id} locale={locale} initialLikes={article.likes || 0} />
         </div>
       </div>
+
+      {/* Выбрать нас предпочитаемым источником в Google — после шапки, до текста */}
+      <PreferOnGoogle locale={locale} />
 
       {/* Share (mobile) — after header, before body */}
       <div className="lg:hidden mb-6">

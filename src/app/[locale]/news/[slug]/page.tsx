@@ -13,6 +13,7 @@ import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
+import PreferOnGoogle from '@/components/ui/PreferOnGoogle';
 import LikeButton from '@/components/ui/LikeButton';
 import NewsCard from '@/components/ui/NewsCard';
 import ArticleBadge from '@/components/ui/ArticleBadge';
@@ -268,6 +269,9 @@ export default async function NewsDetailPage({ params }: Props) {
           <LikeButton id={news._id} locale={locale} initialLikes={news.likes || 0} />
         </div>
       </div>
+
+      {/* Выбрать нас предпочитаемым источником в Google — после шапки, до текста */}
+      <PreferOnGoogle locale={locale} />
 
       {/* Share (mobile) — after header, before body */}
       <div className="lg:hidden mb-6">
