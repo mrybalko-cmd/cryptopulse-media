@@ -61,12 +61,12 @@ export const SITE_NAME = `${SITE_BRAND}${SITE_ZONE}`;
 /**
  * Editorial inbox, published in schema.org and the RSS feed.
  *
- * Written out rather than derived from SITE_HOST: derived, it would have
- * become info@intokened.com the moment the site moved, advertising a mailbox
- * that does not exist. Point it at info@ on the new domain once that mailbox
- * is real and its SPF/DKIM/DMARC are set.
+ * Долго стоял личный адрес: домен переехал раньше, чем появился ящик,
+ * и выводить info@ было нельзя — письма бы никуда не пришли. Ящик заведён
+ * в Workspace 04.09.2026, SPF и DKIM на домене стоят, так что адрес стал
+ * доменным.
  */
-export const SITE_EMAIL = 'mrybalko@icloud.com';
+export const SITE_EMAIL = 'info@intokened.com';
 
 /**
  * Hosts the site used to live on.

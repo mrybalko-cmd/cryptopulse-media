@@ -1,5 +1,7 @@
 import { SITE_BRAND } from '@/lib/site';
-export const CONTACT_EMAIL = 'mrybalko@icloud.com';
+/** Общий ящик редакции: приватность, дисклеймер, безопасность, редполитика,
+ *  поля managingEditor и webMaster в RSS. Реклама живёт отдельно, ниже. */
+export const CONTACT_EMAIL = 'info@intokened.com';
 /** Отдельный ящик для рекламодателей, заведён в Workspace на своём домене.
  *  CONTACT_EMAIL выше остаётся редакционным и остальных страниц не меняет. */
 export const ADVERTISING_EMAIL = 'advertising@intokened.com';
