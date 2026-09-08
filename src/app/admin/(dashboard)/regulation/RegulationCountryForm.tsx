@@ -1,6 +1,7 @@
 import type { AdminRegulationCountryDoc, RegPageText } from '@/lib/admin/data';
 import SlugInput from '../_shared/SlugInput';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 
 const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
 const areaCls = `${inputCls} leading-relaxed`;
@@ -267,6 +268,7 @@ export default function RegulationCountryForm({
           </div>
 
           <SubmitButton>{country ? 'Сохранить' : 'Добавить страну'}</SubmitButton>
+          <SavedMark />
         </div>
       </div>
     </form>

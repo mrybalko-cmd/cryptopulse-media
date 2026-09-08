@@ -1,19 +1,23 @@
 import type { Metadata } from 'next';
+import { stripInlineLinks } from '@/lib/inlineLinks';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE, titleText, truncateDesc } from '@/lib/metadata';
-import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
+import { GLOSSARY_BASELINE } from '@/lib/glossary';
+import { getCryptoGlossary } from '@/lib/glossaryData';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateStaticParams() {
+  const GLOSSARY = await getCryptoGlossary();
   return GLOSSARY.map(term => ({ slug: term.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const GLOSSARY = await getCryptoGlossary();
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const term = GLOSSARY.find(t => t.slug === slug);
@@ -22,7 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const name = term.term[loc];
-  const definition = term.definition[loc];
+  // Разметка ссылок — оформление. В описание страницы, Open Graph
+  // и разметку JSON-LD она попадать не должна: там читатель и робот
+  // увидели бы «[текст](адрес)» вместо текста.
+  const definition = stripInlineLinks(term.definition[loc]);
 
   // The brand suffix costs 20 of the 60 usable characters, which left 13 for
   // the term itself — "RLHF (обучение с подкреплением…)" ran to 104. On a
@@ -52,6 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function GlossaryTermPage({ params }: Props) {
+  const GLOSSARY = await getCryptoGlossary();
   const { locale, slug } = await params;
   const term = GLOSSARY.find(t => t.slug === slug);
   if (!term) notFound();
@@ -59,7 +67,10 @@ export default async function GlossaryTermPage({ params }: Props) {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const name = term.term[loc];
-  const definition = term.definition[loc];
+  // Разметка ссылок — оформление. В описание страницы, Open Graph
+  // и разметку JSON-LD она попадать не должна: там читатель и робот
+  // увидели бы «[текст](адрес)» вместо текста.
+  const definition = stripInlineLinks(term.definition[loc]);
 
   // The set's baseline is the honest floor for when this text first existed;
   // a term rewritten since then carries its own date.

@@ -1,5 +1,4 @@
-import { GLOSSARY } from '@/lib/glossary';
-import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { getCryptoGlossary, getAiGlossary } from '@/lib/glossaryData';
 import { PULSE_WEIGHTS, PULSE_ZONES } from '@/lib/pulseMath';
 import { SITE_EMAIL, SITE_NAME, SITE_URL } from '@/lib/site';
 
@@ -19,6 +18,8 @@ export const revalidate = 86400;
  * in full.
  */
 export async function GET() {
+  const GLOSSARY = await getCryptoGlossary();
+  const AI_GLOSSARY = await getAiGlossary();
   const glossaryLines = GLOSSARY.map(
     t => `- [${t.term.en}](${BASE}/en/glossary/${t.slug}): ${t.definition.en}`
   ).join('\n');

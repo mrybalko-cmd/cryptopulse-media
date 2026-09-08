@@ -143,7 +143,7 @@ export async function createExchangeAction(formData: FormData) {
   ]);
   const doc = await createExchange(input, logoAssetId);
   revalidateTag('exchanges', { expire: 0 });
-  redirect(`/admin/exchanges/${doc._id}`);
+  redirect(`/admin/exchanges/${doc._id}?saved=1`);
 }
 
 export async function updateExchangeAction(
@@ -160,7 +160,7 @@ export async function updateExchangeAction(
   ]);
   await updateExchange(id, input, logoAssetId);
   revalidateTag('exchanges', { expire: 0 });
-  redirect(`/admin/exchanges/${id}`);
+  redirect(`/admin/exchanges/${id}?saved=1`);
 }
 
 export async function deleteExchangeAction(id: string) {

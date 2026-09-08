@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminNewsById, fetchAuthorOptions, fetchTranslationCandidates } from '@/lib/admin/data';
+import { fetchGlossaryOptions } from '@/lib/admin/glossary';
 import { updateNewsAction, deleteNewsAction } from '../actions';
 import NewsForm from '../NewsForm';
 import { Eye } from 'lucide-react';
@@ -8,6 +9,7 @@ import DeleteButton from '../../_shared/DeleteButton';
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('news');
+  const glossaryOptions = await fetchGlossaryOptions();
   const { id } = await params;
   const news = await fetchAdminNewsById(id);
   if (!news) notFound();
@@ -44,7 +46,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
           <DeleteButton action={boundDelete} confirmMessage={`Удалить новость «${news.title}» безвозвратно? Это действие нельзя отменить.`} />
         </div>
       </div>
-      <NewsForm news={news} authors={authors} translationCandidates={translationCandidates} action={boundAction} />
+      <NewsForm news={news} authors={authors} translationCandidates={translationCandidates} action={boundAction} glossaryOptions={glossaryOptions} />
     </div>
   );
 }

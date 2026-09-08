@@ -1,3 +1,4 @@
+import type { GlossaryPickerOption } from '@/lib/admin/glossary';
 import type { AdminNewsDoc, AdminAuthorOption } from '@/lib/admin/data';
 import { pragueLocalInput } from '@/lib/admin/timezone';
 import SlugInput from '../_shared/SlugInput';
@@ -5,6 +6,7 @@ import ImageField from '../_shared/ImageField';
 import CoverImageField from '../_shared/CoverImageField';
 import RichTextEditor from '../_shared/RichTextEditor';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 import ChipPicker from '../_shared/ChipPicker';
 import TagChipsInput from '../_shared/TagChipsInput';
 import LanguageTabs from '../_shared/LanguageTabs';
@@ -38,11 +40,13 @@ export default function NewsForm({
   authors,
   translationCandidates,
   action,
+  glossaryOptions,
 }: {
   news?: AdminNewsDoc;
   authors: AdminAuthorOption[];
   translationCandidates: { _id: string; title: string; coverImage: string | null }[];
   action: (formData: FormData) => void;
+  glossaryOptions?: GlossaryPickerOption[];
 }) {
   return (
     <form action={action} className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6 items-start">
@@ -102,7 +106,7 @@ export default function NewsForm({
 
         <div className="mb-5">
           <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Текст новости</div>
-          <RichTextEditor name="body" originalBlocks={news?.body} rows={16} />
+          <RichTextEditor name="body" originalBlocks={news?.body} rows={16} glossaryOptions={glossaryOptions} />
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-5">
@@ -188,6 +192,7 @@ export default function NewsForm({
           >
             {news ? 'Сохранить и опубликовать' : 'Опубликовать'}
           </SubmitButton>
+          <SavedMark />
         </div>
       </div>
 

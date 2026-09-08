@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
 import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
-import { GLOSSARY, GLOSSARY_BASELINE } from '@/lib/glossary';
-import { AI_GLOSSARY, AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
+import { GLOSSARY_BASELINE } from '@/lib/glossary';
+import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
+import { getCryptoGlossary, getAiGlossary } from '@/lib/glossaryData';
 import { COINS } from '@/lib/coins';
 import { TOPIC_SLUGS, NEWS_TOPIC_SLUGS } from '@/lib/topics';
 import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/sitemapRoutes';
@@ -19,6 +20,10 @@ const BASE = SITE_URL;
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Термины читаются из базы, иначе добавленный через админку термин
+  // не попал бы в карту сайта до следующего деплоя.
+  const GLOSSARY = await getCryptoGlossary();
+  const AI_GLOSSARY = await getAiGlossary();
   const [
     articlesRu, articlesEn, newsRu, newsEn, authors,
     articleTopicsRu, articleTopicsEn, newsTopicsRu, newsTopicsEn,

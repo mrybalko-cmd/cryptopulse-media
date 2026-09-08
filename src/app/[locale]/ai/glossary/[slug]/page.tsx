@@ -1,19 +1,23 @@
 import type { Metadata } from 'next';
+import { stripInlineLinks } from '@/lib/inlineLinks';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE, titleText, truncateDesc } from '@/lib/metadata';
-import { AI_GLOSSARY, AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
+import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
+import { getAiGlossary } from '@/lib/glossaryData';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import GlossaryTermBody from '@/components/ui/GlossaryTermBody';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateStaticParams() {
+  const AI_GLOSSARY = await getAiGlossary();
   return AI_GLOSSARY.map(term => ({ slug: term.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const AI_GLOSSARY = await getAiGlossary();
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const term = AI_GLOSSARY.find(t => t.slug === slug);
@@ -22,7 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const name = term.term[loc];
-  const definition = term.definition[loc];
+  // Разметка ссылок — оформление. В описание страницы, Open Graph
+  // и разметку JSON-LD она попадать не должна: там читатель и робот
+  // увидели бы «[текст](адрес)» вместо текста.
+  const definition = stripInlineLinks(term.definition[loc]);
 
   // Same reasoning as the crypto glossary: term first, no brand suffix, clamped.
   const title = titleText(
@@ -49,6 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AiGlossaryTermPage({ params }: Props) {
+  const AI_GLOSSARY = await getAiGlossary();
   const { locale, slug } = await params;
   const term = AI_GLOSSARY.find(t => t.slug === slug);
   if (!term) notFound();
@@ -56,7 +64,10 @@ export default async function AiGlossaryTermPage({ params }: Props) {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const name = term.term[loc];
-  const definition = term.definition[loc];
+  // Разметка ссылок — оформление. В описание страницы, Open Graph
+  // и разметку JSON-LD она попадать не должна: там читатель и робот
+  // увидели бы «[текст](адрес)» вместо текста.
+  const definition = stripInlineLinks(term.definition[loc]);
 
 
   const jsonLd = {

@@ -25,7 +25,7 @@ export async function createCalendarEventAction(formData: FormData) {
   const iconFile = formData.get('icon') as File | null;
   const iconAssetId = iconFile && iconFile.size > 0 ? await uploadImageAsset(iconFile) : undefined;
   const doc = await createCalendarEvent(input, iconAssetId);
-  redirect(`/admin/calendar/${doc._id}`);
+  redirect(`/admin/calendar/${doc._id}?saved=1`);
 }
 
 export async function updateCalendarEventAction(id: string, formData: FormData) {
@@ -34,7 +34,7 @@ export async function updateCalendarEventAction(id: string, formData: FormData) 
   const iconFile = formData.get('icon') as File | null;
   const iconAssetId = iconFile && iconFile.size > 0 ? await uploadImageAsset(iconFile) : undefined;
   await updateCalendarEvent(id, input, iconAssetId);
-  redirect(`/admin/calendar/${id}`);
+  redirect(`/admin/calendar/${id}?saved=1`);
 }
 
 export async function deleteCalendarEventAction(id: string) {

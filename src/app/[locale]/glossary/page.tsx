@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
-import { GLOSSARY } from '@/lib/glossary';
+import { getCryptoGlossary } from '@/lib/glossaryData';
 import { SITE_NAME } from '@/lib/site';
 
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const GLOSSARY = await getCryptoGlossary();
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function GlossaryPage({ params }: Props) {
+  const GLOSSARY = await getCryptoGlossary();
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = (isRu ? 'ru' : 'en') as 'ru' | 'en';

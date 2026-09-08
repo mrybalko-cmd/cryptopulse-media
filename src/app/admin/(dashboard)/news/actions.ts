@@ -72,7 +72,7 @@ export async function createNewsAction(formData: FormData) {
   ]);
   const doc = await createNews(input, coverImageAssetId, ogImageAssetId);
   revalidateTag('news', { expire: 0 });
-  redirect(`/admin/news/${doc._id}`);
+  redirect(`/admin/news/${doc._id}?saved=1`);
 }
 
 export async function updateNewsAction(id: string, originalBody: PortableTextBlock[] | undefined, formData: FormData) {
@@ -84,7 +84,7 @@ export async function updateNewsAction(id: string, originalBody: PortableTextBlo
   ]);
   await updateNews(id, input, coverImageAssetId, ogImageAssetId);
   revalidateTag('news', { expire: 0 });
-  redirect(`/admin/news/${id}`);
+  redirect(`/admin/news/${id}?saved=1`);
 }
 
 export async function deleteNewsAction(id: string) {
@@ -140,7 +140,7 @@ export async function restoreNewsRevisionAction(formData: FormData) {
   const revisionId = String(formData.get('revisionId'));
   await restoreRevision(id, revisionId);
   revalidateTag('news', { expire: 0 });
-  redirect(`/admin/news/${id}`);
+  redirect(`/admin/news/${id}?saved=1`);
 }
 
 export async function duplicateNewsAction(formData: FormData) {
@@ -148,5 +148,5 @@ export async function duplicateNewsAction(formData: FormData) {
   const id = String(formData.get('id'));
   const newId = await duplicateNews(id);
   revalidateTag('news', { expire: 0 });
-  redirect(`/admin/news/${newId}`);
+  redirect(`/admin/news/${newId}?saved=1`);
 }

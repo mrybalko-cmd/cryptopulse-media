@@ -310,12 +310,27 @@ function collectImageMarkers(text: string): ImageMarker[] {
   return items.sort((a, b) => a.pos - b.pos);
 }
 
+interface GlossaryOption {
+  _id: string; kind: 'crypto' | 'ai'; slug: string;
+  termRu: string; termEn: string; aliasesRu: string[]; aliasesEn: string[];
+}
+
+/** Язык материала берём из самой формы: у новостей и статей это поле
+ *  `language`, у описаний биржи язык зашит в имя поля (descriptionRu/En).
+ *  Так пикер не требует прокидывать локаль через каждое место вызова. */
+function localeOf(el: HTMLTextAreaElement | null, name: string): 'ru' | 'en' {
+  const sel = el?.closest('form')?.querySelector('[name="language"]') as HTMLSelectElement | null;
+  if (sel?.value === 'en' || sel?.value === 'ru') return sel.value;
+  return /En$/.test(name) ? 'en' : 'ru';
+}
+
 export default function RichTextEditor({
   name,
   originalBlocks,
   rows = 16,
   simple = false,
   hidePreview = false,
+  glossaryOptions,
 }: {
   name: string;
   /** Original Portable Text blocks — supplies both the initial text (via
@@ -326,10 +341,23 @@ export default function RichTextEditor({
   simple?: boolean;
   /** Hides the rendered-preview panel below the textarea. */
   hidePreview?: boolean;
+  /** Термины глоссария для кнопки «ссылка на термин». Приходят со страницы,
+   *  которая и так ходит в базу: отдельный запрос из браузера зависел бы
+   *  от куки сессии и на первой же проверке ответил 401. */
+  glossaryOptions?: GlossaryOption[];
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(() => blocksToText(originalBlocks));
   const [imageSlots, setImageSlots] = useState<number[]>([]);
+  // Выбор термина глоссария для ссылки. Список тянется один раз при первом
+  // открытии: он небольшой и меняется редко, держать его в пропсах каждого
+  // места, где стоит редактор, было бы дороже.
+  const [glossOpen, setGlossOpen] = useState(false);
+  const [glossQuery, setGlossQuery] = useState('');
+  const [glossOptions, setGlossOptions] = useState<GlossaryOption[] | null>(glossaryOptions ?? null);
+  // Выделение теряется, как только фокус уходит в поле поиска, поэтому границы
+  // запоминаем в момент нажатия кнопки и восстанавливаем перед вставкой.
+  const glossRange = useRef<{ start: number; end: number; text: string }>({ start: 0, end: 0, text: '' });
   // slot index -> object URL of the picked file, so both the live preview and
   // the manager panel can show the real picture before it's uploaded on save.
   const [imageFiles, setImageFiles] = useState<Record<number, string>>({});
@@ -442,6 +470,26 @@ export default function RichTextEditor({
         >
           🔗
         </ToolbarButton>
+        <ToolbarButton
+          title="Ссылка на термин глоссария"
+          onClick={() => {
+            const el = ref.current;
+            if (!el) return;
+            const start = el.selectionStart, end = el.selectionEnd;
+            const text = el.value.slice(start, end).trim();
+            glossRange.current = { start, end, text };
+            setGlossQuery(text);
+            setGlossOpen(true);
+            if (!glossOptions && !glossaryOptions) {
+              fetch('/api/admin/glossary-options', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(d => setGlossOptions(d.options || []))
+                .catch(() => setGlossOptions([]));
+            }
+          }}
+        >
+          📖
+        </ToolbarButton>
         {!simple && (
           <>
             <ToolbarButton title="Заголовок H1" onClick={() => { if (ref.current) { insertLinePrefix(ref.current, '# '); sync(); } }}>H1</ToolbarButton>
@@ -510,6 +558,87 @@ export default function RichTextEditor({
         )}
       </div>
 
+      {glossOpen && (
+        <div className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] overflow-hidden mb-2">
+          <div className="flex items-center justify-between px-3 py-2 bg-[var(--admin-bg-alt)] border-b border-[var(--admin-border)]">
+            <span className="text-[12px] font-bold">Ссылка на термин глоссария</span>
+            <button type="button" className="text-[11px] font-bold text-[var(--admin-text-dim)]"
+              onClick={() => setGlossOpen(false)}>закрыть</button>
+          </div>
+          <div className="p-3 flex flex-col gap-2">
+            {glossRange.current.text ? (
+              <span className="text-[11px] text-[var(--admin-text-dim)]">
+                Ссылка встанет на «<b className="text-[var(--admin-text)]">{glossRange.current.text}</b>».
+              </span>
+            ) : (
+              <span className="text-[11px] text-amber-400">
+                Ничего не выделено — вставится название термина.
+              </span>
+            )}
+            <input
+              autoFocus
+              className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2 text-[13px] text-[var(--admin-text)] focus:border-[var(--admin-focus)] focus:outline-none"
+              value={glossQuery}
+              placeholder="Найти термин"
+              onChange={e => setGlossQuery(e.target.value)}
+            />
+            {glossOptions === null ? (
+              <span className="text-[12px] text-[var(--admin-text-dim)]">Загружаю список…</span>
+            ) : (() => {
+              const q = glossQuery.trim().toLowerCase();
+              // Ищем и по словоформам: редактор выделяет «стейблкоины»,
+              // а термин называется «стейблкоин».
+              const hit = (o: GlossaryOption) =>
+                !q ||
+                o.termRu.toLowerCase().includes(q) || o.termEn.toLowerCase().includes(q) ||
+                o.slug.includes(q) ||
+                o.aliasesRu.some(a => a.toLowerCase().includes(q)) ||
+                o.aliasesEn.some(a => a.toLowerCase().includes(q));
+              const found = glossOptions.filter(hit).slice(0, 10);
+              if (!found.length) {
+                return <span className="text-[12px] text-[var(--admin-text-dim)]">Ничего не нашлось.</span>;
+              }
+              return (
+                <div className="border border-[var(--admin-border)] rounded-lg divide-y divide-[var(--admin-border)] overflow-hidden">
+                  {found.map(o => {
+                    const loc = localeOf(ref.current, name);
+                    const base = o.kind === 'ai' ? 'ai/glossary' : 'glossary';
+                    const path = `/${loc}/${base}/${o.slug}`;
+                    return (
+                      <button
+                        key={o._id} type="button"
+                        className="w-full text-left px-3 py-2 hover:bg-[var(--admin-input)] flex items-center gap-2"
+                        onClick={() => {
+                          const el = ref.current;
+                          if (!el) return;
+                          const { start, end, text } = glossRange.current;
+                          el.focus();
+                          if (text) {
+                            el.selectionStart = start; el.selectionEnd = end;
+                            wrapSelection(el, '[', `](${path})`);
+                          } else {
+                            const label = loc === 'ru' ? o.termRu : o.termEn;
+                            el.selectionStart = el.selectionEnd = start;
+                            insertAtCursor(el, `[${label}](${path})`);
+                          }
+                          sync();
+                          setGlossOpen(false);
+                        }}
+                      >
+                        <span className="flex-1 text-[12.5px]">
+                          {loc === 'ru' ? o.termRu : o.termEn}
+                          <span className="text-[var(--admin-text-dim)]"> · {loc === 'ru' ? o.termEn : o.termRu}</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--admin-text-dim)]">{path}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
       <textarea
         ref={ref}
         name={name}

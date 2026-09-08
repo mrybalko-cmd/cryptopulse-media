@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminArticleById, fetchAuthorOptions, fetchTranslationCandidates } from '@/lib/admin/data';
+import { fetchGlossaryOptions } from '@/lib/admin/glossary';
 import { updateArticleAction, deleteArticleAction } from '../actions';
 import ArticleForm from '../ArticleForm';
 import { Eye } from 'lucide-react';
@@ -8,6 +9,7 @@ import DeleteButton from '../../_shared/DeleteButton';
 
 export default async function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('articles');
+  const glossaryOptions = await fetchGlossaryOptions();
   const { id } = await params;
   const article = await fetchAdminArticleById(id);
   if (!article) notFound();
@@ -44,7 +46,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
           <DeleteButton action={boundDelete} confirmMessage={`Удалить статью «${article.title}» безвозвратно? Это действие нельзя отменить.`} />
         </div>
       </div>
-      <ArticleForm article={article} authors={authors} translationCandidates={translationCandidates} action={boundAction} />
+      <ArticleForm article={article} authors={authors} translationCandidates={translationCandidates} action={boundAction} glossaryOptions={glossaryOptions} />
     </div>
   );
 }

@@ -60,6 +60,11 @@ export interface GlossarySection {
 export interface GlossaryTerm {
   slug: string;
   term: Bilingual;
+  /** Ссылка на названии термина: партнёрское или клиентское размещение.
+   *  Живёт отдельным полем, а не разметкой внутри `term`, потому что это же
+   *  значение уходит в заголовок вкладки, в JSON-LD и в списки — там скобки
+   *  оказались бы на виду. */
+  termLink?: { url: string; rel?: 'nofollow' | 'dofollow' };
   /** The short, self-contained answer. Stays short on purpose: it is the
    *  schema description, the meta description, and the passage an assistant
    *  lifts when it cites the page. Expansion belongs in `sections`. */

@@ -68,7 +68,7 @@ export async function createRegulationCountryAction(formData: FormData) {
   }
   const doc = await createRegulationCountry(input);
   publishNow();
-  redirect(`/admin/regulation/${doc._id}`);
+  redirect(`/admin/regulation/${doc._id}?saved=1`);
 }
 
 export async function updateRegulationCountryAction(id: string, formData: FormData) {
@@ -79,7 +79,7 @@ export async function updateRegulationCountryAction(id: string, formData: FormDa
   }
   await updateRegulationCountry(id, input);
   publishNow();
-  redirect(`/admin/regulation/${id}`);
+  redirect(`/admin/regulation/${id}?saved=1`);
 }
 
 export async function deleteRegulationCountryAction(id: string) {

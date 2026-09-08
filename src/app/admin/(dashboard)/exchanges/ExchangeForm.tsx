@@ -3,6 +3,7 @@ import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import RichTextEditor from '../_shared/RichTextEditor';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 import ProductsRepeater from './ProductsRepeater';
 import BadgesRepeater from './BadgesRepeater';
 import RegionsRepeater from './RegionsRepeater';
@@ -163,6 +164,7 @@ export default function ExchangeForm({
       <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
         {exchange ? 'Сохранить' : 'Создать биржу'}
       </SubmitButton>
+          <SavedMark />
     </form>
   );
 }

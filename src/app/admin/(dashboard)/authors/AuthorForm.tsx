@@ -2,6 +2,7 @@ import type { AdminAuthorDoc } from '@/lib/admin/data';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 
 const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
 const labelCls = 'text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block';
@@ -74,6 +75,7 @@ export default function AuthorForm({
       <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
         {author ? 'Сохранить' : 'Создать автора'}
       </SubmitButton>
+          <SavedMark />
     </form>
   );
 }

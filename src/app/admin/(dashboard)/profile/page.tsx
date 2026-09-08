@@ -2,6 +2,7 @@ import { getAdminSession } from '@/lib/admin/auth';
 import { redirect } from 'next/navigation';
 import { changeOwnPasswordAction } from './actions';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 import PasswordField from '../_shared/PasswordField';
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -43,6 +44,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
           <SubmitButton className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
             Сохранить пароль
           </SubmitButton>
+          <SavedMark param="success" />
         </form>
       </div>
     </div>

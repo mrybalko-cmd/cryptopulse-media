@@ -3,6 +3,7 @@ import { fetchAdminHomeSettings, fetchAuthorOptions, fetchAllMaterialOptions } f
 import { updateHomeSettingsAction } from './actions';
 import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 
 const HOME_AUTHOR_SLOTS = 4;
 
@@ -62,6 +63,7 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
         <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           Сохранить
         </SubmitButton>
+          <SavedMark param="success" />
       </form>
     </div>
   );

@@ -27,7 +27,7 @@ export async function createAuthorAction(formData: FormData) {
   const photoFile = formData.get('photo') as File | null;
   const photoAssetId = photoFile && photoFile.size > 0 ? await uploadImageAsset(photoFile) : undefined;
   const doc = await createAuthor(input, photoAssetId);
-  redirect(`/admin/authors/${doc._id}`);
+  redirect(`/admin/authors/${doc._id}?saved=1`);
 }
 
 export async function updateAuthorAction(id: string, formData: FormData) {
@@ -36,7 +36,7 @@ export async function updateAuthorAction(id: string, formData: FormData) {
   const photoFile = formData.get('photo') as File | null;
   const photoAssetId = photoFile && photoFile.size > 0 ? await uploadImageAsset(photoFile) : undefined;
   await updateAuthor(id, input, photoAssetId);
-  redirect(`/admin/authors/${id}`);
+  redirect(`/admin/authors/${id}?saved=1`);
 }
 
 export async function deleteAuthorAction(id: string) {

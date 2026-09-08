@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { inlineLinks, stripInlineLinks } from '@/lib/inlineLinks';
 import { Check } from 'lucide-react';
 import { CATEGORY_LABELS, type GlossaryTerm } from '@/lib/glossary';
 
@@ -37,12 +38,14 @@ export function relatedTerms(term: GlossaryTerm, all: GlossaryTerm[], limit = 6)
 
 /** Rough reading time from the term's own words, both locales counted alike. */
 export function termWordCount(term: GlossaryTerm, loc: 'ru' | 'en'): number {
-  const parts: string[] = [term.definition[loc]];
+  // Ссылки — оформление, а не содержание: в поиск и описания они
+  // попадать не должны, иначе читатель увидит скобки и адрес.
+  const parts: string[] = [stripInlineLinks(term.definition[loc])];
   for (const s of term.sections ?? []) {
     parts.push(s.heading[loc]);
-    for (const p of s.paragraphs ?? []) parts.push(p[loc]);
-    for (const b of s.bullets ?? []) parts.push(b.title[loc], b.text[loc]);
-    if (s.example) parts.push(s.example.setup[loc], s.example.outcome[loc]);
+    for (const p of s.paragraphs ?? []) parts.push(stripInlineLinks(p[loc]));
+    for (const b of s.bullets ?? []) parts.push(stripInlineLinks(b.title[loc]), stripInlineLinks(b.text[loc]));
+    if (s.example) parts.push(stripInlineLinks(s.example.setup[loc]), stripInlineLinks(s.example.outcome[loc]));
   }
   return parts.join(' ').split(/\s+/).filter(Boolean).length;
 }
@@ -57,7 +60,26 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
   return (
     <>
       <h1 className="text-[27px] sm:text-[34px] font-extrabold text-foreground leading-[1.14] -tracking-[0.025em] text-balance mb-4">
-        {term.term[loc]}
+        {term.termLink?.url ? (
+          // Партнёрское размещение на названии термина. Внешняя ссылка по
+          // умолчанию nofollow: передавать вес по оплаченной ссылке нельзя.
+          <a
+            href={term.termLink.url}
+            target={term.termLink.url.startsWith('/') ? undefined : '_blank'}
+            rel={
+              term.termLink.url.startsWith('/')
+                ? undefined
+                : term.termLink.rel === 'dofollow'
+                  ? 'noopener noreferrer'
+                  : 'nofollow noopener noreferrer'
+            }
+            className="hover:text-article-accent transition-colors"
+          >
+            {term.term[loc]}
+          </a>
+        ) : (
+          term.term[loc]
+        )}
       </h1>
 
       <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-muted mb-6">
@@ -92,7 +114,7 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
           aria-hidden
         />
         <p className="relative text-base sm:text-[17.5px] leading-[1.6] text-foreground max-w-[62ch]">
-          {term.definition[loc]}
+          {inlineLinks(term.definition[loc])}
         </p>
       </div>
 
@@ -104,7 +126,7 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
 
           {section.paragraphs && (
             <div className="text-[15px] leading-[1.75] text-muted max-w-[70ch] flex flex-col gap-3">
-              {section.paragraphs.map((p, j) => <p key={j}>{p[loc]}</p>)}
+              {section.paragraphs.map((p, j) => <p key={j}>{inlineLinks(p[loc])}</p>)}
             </div>
           )}
 
@@ -112,7 +134,7 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
             <>
               <div className="border border-border rounded-2xl overflow-hidden max-w-[56ch]">
                 <p className="px-3 sm:px-4 py-3 text-[13.5px] leading-[1.65] text-muted border-b border-border">
-                  {section.example.setup[loc]}
+                  {inlineLinks(section.example.setup[loc])}
                 </p>
                 <table className="w-full border-collapse text-[12.5px] sm:text-[13.5px]">
                   <tbody>
@@ -140,7 +162,7 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
                 </table>
               </div>
               <p className="mt-3 text-[15px] leading-[1.7] text-muted max-w-[70ch]">
-                {section.example.outcome[loc]}
+                {inlineLinks(section.example.outcome[loc])}
               </p>
             </>
           )}
@@ -151,8 +173,8 @@ export default function GlossaryTermBody({ term, all, locale, base }: Props) {
                 <li key={j} className="grid grid-cols-[auto_1fr] gap-3 text-[15px] leading-[1.7] text-muted">
                   <Check className="w-[17px] h-[17px] mt-1 shrink-0 text-accent" aria-hidden />
                   <span>
-                    <b className="block text-foreground font-bold">{b.title[loc]}</b>
-                    {b.text[loc]}
+                    <b className="block text-foreground font-bold">{inlineLinks(b.title[loc])}</b>
+                    {inlineLinks(b.text[loc])}
                   </span>
                 </li>
               ))}

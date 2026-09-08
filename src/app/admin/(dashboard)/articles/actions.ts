@@ -70,7 +70,7 @@ export async function createArticleAction(formData: FormData) {
   ]);
   const doc = await createArticle(input, coverImageAssetId, ogImageAssetId);
   revalidateTag('articles', { expire: 0 });
-  redirect(`/admin/articles/${doc._id}`);
+  redirect(`/admin/articles/${doc._id}?saved=1`);
 }
 
 export async function updateArticleAction(id: string, originalBody: PortableTextBlock[] | undefined, formData: FormData) {
@@ -82,7 +82,7 @@ export async function updateArticleAction(id: string, originalBody: PortableText
   ]);
   await updateArticle(id, input, coverImageAssetId, ogImageAssetId);
   revalidateTag('articles', { expire: 0 });
-  redirect(`/admin/articles/${id}`);
+  redirect(`/admin/articles/${id}?saved=1`);
 }
 
 export async function deleteArticleAction(id: string) {
@@ -138,7 +138,7 @@ export async function restoreArticleRevisionAction(formData: FormData) {
   const revisionId = String(formData.get('revisionId'));
   await restoreRevision(id, revisionId);
   revalidateTag('articles', { expire: 0 });
-  redirect(`/admin/articles/${id}`);
+  redirect(`/admin/articles/${id}?saved=1`);
 }
 
 export async function duplicateArticleAction(formData: FormData) {
@@ -146,5 +146,5 @@ export async function duplicateArticleAction(formData: FormData) {
   const id = String(formData.get('id'));
   const newId = await duplicateArticle(id);
   revalidateTag('articles', { expire: 0 });
-  redirect(`/admin/articles/${newId}`);
+  redirect(`/admin/articles/${newId}?saved=1`);
 }

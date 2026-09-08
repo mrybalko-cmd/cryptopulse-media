@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import GlossaryFilter from '@/components/ui/GlossaryFilter';
-import { AI_GLOSSARY } from '@/lib/aiGlossary';
+import { getAiGlossary } from '@/lib/glossaryData';
 import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const AI_GLOSSARY = await getAiGlossary();
   const { locale } = await params;
   setRequestLocale(locale);
   const isRu = locale === 'ru';
@@ -29,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AiGlossaryPage({ params }: Props) {
+  const AI_GLOSSARY = await getAiGlossary();
   const { locale } = await params;
   const isRu = locale === 'ru';
   const loc = (isRu ? 'ru' : 'en') as 'ru' | 'en';
