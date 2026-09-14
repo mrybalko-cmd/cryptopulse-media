@@ -63,6 +63,35 @@ async function parseNewsInput(formData: FormData, originalBody: PortableTextBloc
   };
 }
 
+
+/**
+ * Сброс кэша после правки материала.
+ *
+ * Ленты, счётчики и «Популярное» сидят на общем теге и обновляются мгновенно —
+ * это дёшево, таких кэшей единицы. А страница самого материала читает кэш
+ * с постраничным тегом, и его мы НЕ сбрасываем оптом: пока он висел на общем
+ * теге, одно сохранение помечало устаревшими все 1768 новостей, и каждая
+ * пересобиралась при первом обращении. Вместо этого сбрасываем ровно один
+ * адрес — тот, который правили.
+ */
+function publishNews(language?: string, slug?: string) {
+  revalidateTag('news', { expire: 0 });
+  if (!language || !slug) return;
+  // Персональный тег материала — без него страница пересобралась бы
+  // со старым текстом: revalidatePath сбрасывает отрисовку,
+  // но данные под ней остались бы в кэше ещё до пяти минут.
+  revalidateTag(`news:${language}:${slug}`, { expire: 0 });
+  revalidatePath(`/${language}/news/${slug}`);
+}
+
+/** Редкие действия — удаление, снятие с публикации, восстановление. Здесь
+ *  адрес известен не всегда, а происходят они считаные разы в неделю,
+ *  поэтому можно позволить себе общий сброс постраничного тега. */
+function publishNewsWide() {
+  revalidateTag('news', { expire: 0 });
+  revalidateTag('news-item', { expire: 0 });
+}
+
 export async function createNewsAction(formData: FormData) {
   await requireAdminPermission('news');
   const [input, coverImageAssetId, ogImageAssetId] = await Promise.all([
@@ -71,7 +100,7 @@ export async function createNewsAction(formData: FormData) {
     uploadIfPresent(formData, 'seoOgImage'),
   ]);
   const doc = await createNews(input, coverImageAssetId, ogImageAssetId);
-  revalidateTag('news', { expire: 0 });
+  publishNews(input.language, input.slug);
   redirect(`/admin/news/${doc._id}?saved=1`);
 }
 
@@ -83,7 +112,7 @@ export async function updateNewsAction(id: string, originalBody: PortableTextBlo
     uploadIfPresent(formData, 'seoOgImage'),
   ]);
   await updateNews(id, input, coverImageAssetId, ogImageAssetId);
-  revalidateTag('news', { expire: 0 });
+  publishNews(input.language, input.slug);
   redirect(`/admin/news/${id}?saved=1`);
 }
 
@@ -92,7 +121,7 @@ export async function deleteNewsAction(id: string) {
   const doc = await fetchAdminNewsById(id);
   await deleteNews(id);
   await logActivity(session, { action: 'delete', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   redirect('/admin/news');
 }
 
@@ -105,7 +134,7 @@ export async function deleteNewsFromListAction(formData: FormData) {
   const doc = await fetchAdminNewsById(id);
   await deleteNews(id);
   await logActivity(session, { action: 'delete', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   revalidatePath('/admin/news');
 }
 
@@ -115,7 +144,7 @@ export async function unpublishNewsAction(formData: FormData) {
   const doc = await fetchAdminNewsById(id);
   await unpublishDocument(id);
   await logActivity(session, { action: 'unpublish', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   revalidatePath('/admin/news');
 }
 
@@ -125,7 +154,7 @@ export async function republishNewsAction(formData: FormData) {
   const doc = await fetchAdminNewsById(id);
   await republishDocument(id);
   await logActivity(session, { action: 'republish', entityType: 'news', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   revalidatePath('/admin/news');
 }
 
@@ -139,7 +168,7 @@ export async function restoreNewsRevisionAction(formData: FormData) {
   const id = String(formData.get('id'));
   const revisionId = String(formData.get('revisionId'));
   await restoreRevision(id, revisionId);
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   redirect(`/admin/news/${id}?saved=1`);
 }
 
@@ -147,6 +176,6 @@ export async function duplicateNewsAction(formData: FormData) {
   await requireAdminPermission('news');
   const id = String(formData.get('id'));
   const newId = await duplicateNews(id);
-  revalidateTag('news', { expire: 0 });
+  publishNewsWide();
   redirect(`/admin/news/${newId}?saved=1`);
 }

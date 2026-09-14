@@ -59,8 +59,9 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/articles/${slug}`);
     } else {
-      revalidatePath('/ru/articles/[slug]', 'page');
-      revalidatePath('/en/articles/[slug]', 'page');
+      // Локаль не передали — сбрасываем постраничный тег вместо обхода
+      // всего маршрута. Раньше эта строка помечала устаревшими все статьи.
+      revalidateTag('article-item', { expire: 0 });
       revalidatePath('/ru', 'page');
       revalidatePath('/en', 'page');
       // No locale given — slug is only valid for one language, so we can't
@@ -94,8 +95,11 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/news/${slug}`);
     } else {
-      revalidatePath('/ru/news/[slug]', 'page');
-      revalidatePath('/en/news/[slug]', 'page');
+      // Локаль не передали — адрес одной страницы не построить. Раньше здесь
+      // сбрасывался ВЕСЬ маршрут новостей, то есть все 1768 страниц.
+      // Теперь сбрасываем постраничный тег: результат тот же, но это один
+      // явный вызов, а не обход маршрута, и видно, что ветка аварийная.
+      revalidateTag('news-item', { expire: 0 });
       revalidatePath('/ru', 'page');
       revalidatePath('/en', 'page');
       // No locale given — slug is only valid for one language, so we can't

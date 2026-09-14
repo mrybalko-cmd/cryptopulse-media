@@ -61,6 +61,28 @@ async function parseArticleInput(formData: FormData, originalBody: PortableTextB
   };
 }
 
+
+/**
+ * То же разделение, что и в новостях: ленты сбрасываем всегда, а страницу
+ * материала — только ту, которую правили. Общий сброс постраничного тега
+ * помечал устаревшими все статьи разом и оплачивался перезаписью каждой.
+ */
+function publishArticle(language?: string, slug?: string) {
+  revalidateTag('articles', { expire: 0 });
+  if (!language || !slug) return;
+  // Персональный тег материала — без него страница пересобралась бы
+  // со старым текстом: revalidatePath сбрасывает отрисовку,
+  // но данные под ней остались бы в кэше ещё до пяти минут.
+  revalidateTag(`article:${language}:${slug}`, { expire: 0 });
+  revalidatePath(`/${language}/articles/${slug}`);
+}
+
+/** Редкие действия, где адрес известен не всегда. */
+function publishArticleWide() {
+  revalidateTag('articles', { expire: 0 });
+  revalidateTag('article-item', { expire: 0 });
+}
+
 export async function createArticleAction(formData: FormData) {
   await requireAdminPermission('articles');
   const [input, coverImageAssetId, ogImageAssetId] = await Promise.all([
@@ -69,7 +91,7 @@ export async function createArticleAction(formData: FormData) {
     uploadIfPresent(formData, 'seoOgImage'),
   ]);
   const doc = await createArticle(input, coverImageAssetId, ogImageAssetId);
-  revalidateTag('articles', { expire: 0 });
+  publishArticle(input.language, input.slug);
   redirect(`/admin/articles/${doc._id}?saved=1`);
 }
 
@@ -81,7 +103,7 @@ export async function updateArticleAction(id: string, originalBody: PortableText
     uploadIfPresent(formData, 'seoOgImage'),
   ]);
   await updateArticle(id, input, coverImageAssetId, ogImageAssetId);
-  revalidateTag('articles', { expire: 0 });
+  publishArticle(input.language, input.slug);
   redirect(`/admin/articles/${id}?saved=1`);
 }
 
@@ -90,7 +112,7 @@ export async function deleteArticleAction(id: string) {
   const doc = await fetchAdminArticleById(id);
   await deleteArticle(id);
   await logActivity(session, { action: 'delete', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   redirect('/admin/articles');
 }
 
@@ -103,7 +125,7 @@ export async function deleteArticleFromListAction(formData: FormData) {
   const doc = await fetchAdminArticleById(id);
   await deleteArticle(id);
   await logActivity(session, { action: 'delete', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   revalidatePath('/admin/articles');
 }
 
@@ -113,7 +135,7 @@ export async function unpublishArticleAction(formData: FormData) {
   const doc = await fetchAdminArticleById(id);
   await unpublishDocument(id);
   await logActivity(session, { action: 'unpublish', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   revalidatePath('/admin/articles');
 }
 
@@ -123,7 +145,7 @@ export async function republishArticleAction(formData: FormData) {
   const doc = await fetchAdminArticleById(id);
   await republishDocument(id);
   await logActivity(session, { action: 'republish', entityType: 'article', entityTitle: doc?.title ?? id, entityId: id });
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   revalidatePath('/admin/articles');
 }
 
@@ -137,7 +159,7 @@ export async function restoreArticleRevisionAction(formData: FormData) {
   const id = String(formData.get('id'));
   const revisionId = String(formData.get('revisionId'));
   await restoreRevision(id, revisionId);
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   redirect(`/admin/articles/${id}?saved=1`);
 }
 
@@ -145,6 +167,6 @@ export async function duplicateArticleAction(formData: FormData) {
   await requireAdminPermission('articles');
   const id = String(formData.get('id'));
   const newId = await duplicateArticle(id);
-  revalidateTag('articles', { expire: 0 });
+  publishArticleWide();
   redirect(`/admin/articles/${newId}?saved=1`);
 }

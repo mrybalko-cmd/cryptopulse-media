@@ -194,8 +194,10 @@ export const fetchArticles = unstable_cache(
   { revalidate: FEED_CACHE_SECONDS, tags: ['articles'] }
 );
 
-export const fetchArticleBySlug = unstable_cache(
-  async (slug: string, locale: string) => {
+/** То же, что у новостей: персональный тег на каждый материал. */
+export const fetchArticleBySlug = (slug: string, locale: string) =>
+  unstable_cache(
+    async () => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
     try {
       return await client.fetch(
@@ -213,9 +215,9 @@ export const fetchArticleBySlug = unstable_cache(
       return null;
     }
   },
-  ['fetchArticleBySlug'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
-);
+    ['fetchArticleBySlug', locale, slug],
+    { revalidate: READ_CACHE_SECONDS, tags: ['article-item', `article:${locale}:${slug}`] },
+  )();
 
 export const fetchSanityNews = unstable_cache(
   async ({ limit = 10, locale = 'ru', offset = 0 }: FetchArticlesOptions = {}) => {
@@ -314,8 +316,20 @@ export async function searchContent(query: string, locale: string) {
   }
 }
 
-export const fetchNewsBySlug = unstable_cache(
-  async (slug: string, locale: string) => {
+/**
+ * Материал по адресу. Кэш строится на каждый вызов, чтобы получить СВОЙ тег
+ * вида `news:ru:slug`.
+ *
+ * Иначе не сходилось: общий тег `news` сбрасывал все 1768 страниц при каждом
+ * сохранении (6,17 млн платных перезаписей при 1,66 млн чтений), а один только
+ * `revalidatePath` без сброса данных пересобирал бы страницу со старым текстом,
+ * потому что данные под ней остались бы в кэше ещё до пяти минут.
+ * Персональный тег даёт ровно то, что нужно: правим один материал — протухает
+ * один материал.
+ */
+export const fetchNewsBySlug = (slug: string, locale: string) =>
+  unstable_cache(
+    async () => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
     try {
       return await client.fetch(
@@ -333,9 +347,9 @@ export const fetchNewsBySlug = unstable_cache(
       return null;
     }
   },
-  ['fetchNewsBySlug'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
-);
+    ['fetchNewsBySlug', locale, slug],
+    { revalidate: READ_CACHE_SECONDS, tags: ['news-item', `news:${locale}:${slug}`] },
+  )();
 
 // Single chronologically-previous article/news, full body included — powers
 // the mobile infinite feed (client-fetched per scroll, never part of the
@@ -520,7 +534,14 @@ export const fetchRelatedArticles = unstable_cache(
     }
   },
   ['fetchRelatedArticles'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['articles'] }
+  // Тег постраничный, не общий: им помечены кэши, которые читает КАЖДАЯ
+  // страница материала. Пока они висели на общем теге, одно сохранение
+  // в админке помечало устаревшими все 1768 новостей разом, и дальше
+  // каждая пересобиралась при первом обращении. За период это дало
+  // 6,17 млн платных перезаписей при 1,66 млн чтений — 3,7 записи
+  // на чтение. Ленты и счётчики остались на общем теге и по-прежнему
+  // обновляются мгновенно.
+  { revalidate: READ_CACHE_SECONDS, tags: ['article-item'] }
 );
 
 export const fetchRelatedNews = unstable_cache(
@@ -539,7 +560,14 @@ export const fetchRelatedNews = unstable_cache(
     }
   },
   ['fetchRelatedNews'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['news'] }
+  // Тег постраничный, не общий: им помечены кэши, которые читает КАЖДАЯ
+  // страница материала. Пока они висели на общем теге, одно сохранение
+  // в админке помечало устаревшими все 1768 новостей разом, и дальше
+  // каждая пересобиралась при первом обращении. За период это дало
+  // 6,17 млн платных перезаписей при 1,66 млн чтений — 3,7 записи
+  // на чтение. Ленты и счётчики остались на общем теге и по-прежнему
+  // обновляются мгновенно.
+  { revalidate: READ_CACHE_SECONDS, tags: ['news-item'] }
 );
 
 export interface PopularItem {
