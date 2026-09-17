@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap } from '@/lib/sanity';
+import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
 import { GLOSSARY_BASELINE } from '@/lib/glossary';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [
     articlesRu, articlesEn, newsRu, newsEn, authors,
     articleTopicsRu, articleTopicsEn, newsTopicsRu, newsTopicsEn,
-    exchanges,
+    exchanges, noIndexKeys,
   ] = await Promise.all([
     fetchArticles({ limit: 500, locale: 'ru' }),
     fetchArticles({ limit: 500, locale: 'en' }),
@@ -39,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchTopicStats('news', 'ru'),
     fetchTopicStats('news', 'en'),
     fetchExchangeSlugsForSitemap(),
+    fetchNoIndexKeys(),
   ]);
 
   // ── Dating policy ──────────────────────────────────────────────────────────
@@ -139,14 +140,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]),
   ];
 
+  // Галка «noIndex» в админке убирает материал из карты сайта, но не из лент:
+  // читатель его видит, поисковику мы его не предлагаем. См. fetchNoIndexKeys.
+  const indexable = (type: 'article' | 'news', locale: string) =>
+    (m: Material) => !noIndexKeys.has(`${type}:${locale}:${m.slug.current}`);
+
   const articlePages = [
-    ...(articlesRu as Material[]).map((a) => ({
+    ...(articlesRu as Material[]).filter(indexable('article', 'ru')).map((a) => ({
       url: `${BASE}/ru/articles/${a.slug.current}`,
       lastModified: contentDate(a),
       changeFrequency: 'daily' as const,
       priority: 0.8,
     })),
-    ...(articlesEn as Material[]).map((a) => ({
+    ...(articlesEn as Material[]).filter(indexable('article', 'en')).map((a) => ({
       url: `${BASE}/en/articles/${a.slug.current}`,
       lastModified: contentDate(a),
       changeFrequency: 'daily' as const,
@@ -155,13 +161,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const newsPages = [
-    ...(newsRu as Material[]).map((n) => ({
+    ...(newsRu as Material[]).filter(indexable('news', 'ru')).map((n) => ({
       url: `${BASE}/ru/news/${n.slug.current}`,
       lastModified: contentDate(n),
       changeFrequency: 'hourly' as const,
       priority: 0.9,
     })),
-    ...(newsEn as Material[]).map((n) => ({
+    ...(newsEn as Material[]).filter(indexable('news', 'en')).map((n) => ({
       url: `${BASE}/en/news/${n.slug.current}`,
       lastModified: contentDate(n),
       changeFrequency: 'hourly' as const,

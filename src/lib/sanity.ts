@@ -1140,6 +1140,30 @@ export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; 
   }
 }
 
+/**
+ * Материалы, закрытые от индексации галкой «noIndex» в админке.
+ *
+ * Карта сайта говорит поисковику «эту страницу стоит обойти», а мета-тег на
+ * самой странице — «не индексируй». Вместе это противоречие: обход впустую, а
+ * в новостной карте ещё и рекламный материал в ленте Google News, что бьёт по
+ * оценке всего раздела. 17.09.2026 в таком виде лежал партнёрский перевод
+ * finance.ua, обе языковые версии.
+ *
+ * Из лент материал при этом убирать нельзя, читатель его видеть должен, — так
+ * что фильтр живёт здесь и применяется только к картам сайта.
+ */
+export async function fetchNoIndexKeys(): Promise<Set<string>> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return new Set();
+  try {
+    const rows: { _type: string; language: string; slug: string }[] = await client.fetch(
+      `*[_type in ["article", "news"] && seo.noIndex == true]{ _type, language, "slug": slug.current }`,
+    );
+    return new Set(rows.filter(r => r.slug).map(r => `${r._type}:${r.language}:${r.slug}`));
+  } catch {
+    return new Set();
+  }
+}
+
 function extractDomain(url?: string): string | null {
   if (!url) return null;
   try {

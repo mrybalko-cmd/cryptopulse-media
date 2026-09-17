@@ -30,7 +30,11 @@ async function fetchRecentNews(): Promise<NewsItem[]> {
   try {
     const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     return await client.fetch(
-      `*[_type in ["news", "article"] && publishedAt <= now() && publishedAt >= $since] | order(publishedAt desc) [0...1000] {
+      // seo.noIndex убирает материал отсюда: предлагать Google News страницу,
+      // которая сама себе ставит noindex, — противоречие, а рекламный материал
+      // в новостной ленте ещё и бьёт по оценке раздела.
+      `*[_type in ["news", "article"] && publishedAt <= now() && publishedAt >= $since
+         && seo.noIndex != true] | order(publishedAt desc) [0...1000] {
         _type, slug, title, language, publishedAt
       }`,
       { since: twoDaysAgo }

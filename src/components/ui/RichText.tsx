@@ -105,9 +105,13 @@ export default function RichText({
             </Link>
           );
         }
+        // sponsored — метка платного размещения, её Google просит на рекламе и
+        // партнёрских ссылках вместо простого nofollow. Пишем обе: sponsored
+        // понимает Google, nofollow понимают все остальные.
         const relParts = [
           'noopener', 'noreferrer',
-          ...(value?.rel === 'nofollow' ? ['nofollow'] : []),
+          ...(value?.rel === 'sponsored' ? ['sponsored', 'nofollow']
+            : value?.rel === 'nofollow' ? ['nofollow'] : []),
         ];
         return (
           <a

@@ -817,3 +817,31 @@ html.light .prose-invert {
    поэтому в светлой теме берём тон темнее — цвет один, значение читаемое. */
 .own-mark { color: #ffc93c; line-height: 0; }
 html.light .own-mark { color: #d99a00; }
+
+/* ── тот же знак, но в заголовке материала ─────────────────────────────────
+   В <h1> молния стояла отдельным <span>, то есть первым потомком заголовка
+   был элемент, а не текст. Упрощённые парсеры берут первый текстовый узел и
+   читают такой заголовок пустым: Ahrefs в обходе 14.09.2026 отметил «H1 tag
+   missing or empty» ровно на тех материалах, где включён ownBadge. Google
+   разбирает h1 целиком и позиции от этого не страдали, но пустой заголовок
+   видели все остальные, кто нас разбирает.
+
+   Здесь та же молния рисуется псевдоэлементом: геометрия совпала до пикселя
+   (18×18, отступ 6px, базовая линия −1.8px при кегле 30px), а первым потомком
+   h1 стал текст заголовка. Заодно из читаемого вслух заголовка ушло
+   «Наш материал», которое диктор произносил перед каждым названием.
+
+   Контур молнии тот же, что в BoltIcon и в знаке: src/lib/brandMark.tsx */
+.own-mark-lead::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: -0.06em;
+  margin-right: 0.375rem;
+  line-height: 0;
+  background-color: #ffc93c;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cpath%20d='M40%206%20L16%2036%20L30%2036%20L24%2058%20L48%2028%20L34%2028%20Z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cpath%20d='M40%206%20L16%2036%20L30%2036%20L24%2058%20L48%2028%20L34%2028%20Z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+html.light .own-mark-lead::before { background-color: #d99a00; }

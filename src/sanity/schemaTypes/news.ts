@@ -134,11 +134,12 @@ export const newsType = defineType({
                     name: 'rel',
                     type: 'string',
                     title: 'Link relationship',
-                    description: 'Dofollow passes SEO value to the linked page; nofollow tells search engines not to.',
+                    description: 'Dofollow passes SEO value to the linked page; nofollow tells search engines not to; sponsored marks a paid placement — Google asks for this one on ads and affiliate links.',
                     options: {
                       list: [
                         { title: 'Dofollow', value: 'dofollow' },
                         { title: 'Nofollow', value: 'nofollow' },
+                        { title: 'Sponsored (реклама)', value: 'sponsored' },
                       ],
                       layout: 'radio',
                     },

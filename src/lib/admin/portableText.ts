@@ -16,6 +16,7 @@
 //   **bold** *italic* __underline__ ~~strike~~ `code` {+large+} {-small-}
 //   [text](url)            -> dofollow link (default)
 //   [text](url "nofollow") -> nofollow link
+//   [text](url "sponsored") -> платное размещение (rel="sponsored nofollow")
 //   [[quote:author|source|style|text]] -> quoteBlock (author/source/style may be empty)
 //   [[youtube:URL]] / [[tweet:URL]] / [[facebook:URL]] -> embeds
 //   [[img:N]]               -> newly-uploaded image (N = file input slot index)
@@ -55,7 +56,7 @@ function wrapMarks(span: Span, markDefs: MarkDef[]): string {
   for (const mark of marks) {
     const def = markDefs.find(d => d._key === mark);
     if (def && def._type === 'link' && def.href) {
-      const flag = def.rel === 'nofollow' ? ' "nofollow"' : '';
+      const flag = def.rel === 'nofollow' || def.rel === 'sponsored' ? ` "${def.rel}"` : '';
       text = `[${text}](${def.href}${flag})`;
     }
   }
@@ -117,7 +118,7 @@ export function blocksToText(blocks: PortableTextBlock[] | undefined): string {
 // tried before the single-char ones (*) that could otherwise match first.
 // Link group is now 3 captures (text, url, optional nofollow/dofollow flag)
 // so every mark group below it shifts up by one vs. the pre-nofollow version.
-const INLINE_RE = /\[([^\]]+)\]\(([^()\s]+)(?:\s+"(nofollow|dofollow)")?\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\{\+([^}]+)\+\}|\{-([^}]+)-\}|\*([^*]+)\*|`([^`]+)`/g;
+const INLINE_RE = /\[([^\]]+)\]\(([^()\s]+)(?:\s+"(nofollow|dofollow|sponsored)")?\)|\*\*([^*]+)\*\*|__([^_]+)__|~~([^~]+)~~|\{\+([^}]+)\+\}|\{-([^}]+)-\}|\*([^*]+)\*|`([^`]+)`/g;
 
 function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
   const markDefs: MarkDef[] = [];
@@ -136,7 +137,7 @@ function parseInline(content: string): { spans: Span[]; markDefs: MarkDef[] } {
     }
     if (match[1] !== undefined) {
       const key = randomKey();
-      markDefs.push({ _key: key, _type: 'link', href: match[2], ...(match[3] === 'nofollow' ? { rel: 'nofollow' } : {}) });
+      markDefs.push({ _key: key, _type: 'link', href: match[2], ...(match[3] === 'nofollow' || match[3] === 'sponsored' ? { rel: match[3] } : {}) });
       spans.push({ _type: 'span', _key: randomKey(), text: match[1], marks: [key] });
     } else if (match[4] !== undefined) {
       spans.push({ _type: 'span', _key: randomKey(), text: match[4], marks: ['strong'] });

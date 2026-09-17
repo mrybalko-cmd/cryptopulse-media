@@ -3,7 +3,6 @@ export const revalidate = 300;
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import ViewCount from '@/components/ui/ViewCount';
-import OwnMark from '@/components/ui/OwnMark';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react';
@@ -58,7 +57,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: pageTitle(title),
     description,
     keywords: news.seo?.keywords,
-    ...(news.seo?.noIndex && { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } }),
+    // follow остаётся true: закрываем от индексации саму страницу, а не
+    // ссылки с неё. При follow: false внутренние ссылки материала —
+    // глоссарий, похожие, боковая колонка — переставали что-либо
+    // передавать. Рекламная ссылка внутри текста закрыта отдельно,
+    // через rel="sponsored". Так же сделано на страницах бирж.
+    ...(news.seo?.noIndex && { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }),
     alternates: {
       canonical: canonicalUrl,
       languages: {
@@ -227,8 +231,10 @@ export default async function NewsDetailPage({ params }: Props) {
           {locale === 'ru' ? 'Важное' : 'Breaking News'}
         </div>
       )}
-      <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4">
-        {news.ownBadge && <OwnMark locale={locale} size={18} className="align-[-0.06em] mr-1.5" />}
+      {/* Знак «наш материал» рисует .own-mark-lead::before, а не вложенный
+          элемент: иначе первым потомком h1 оказывается не текст и часть
+          парсеров читает заголовок пустым. Подробности в globals.css. */}
+      <h1 className={`text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-4${news.ownBadge ? ' own-mark-lead' : ''}`}>
         {news.title}
       </h1>
 
