@@ -130,8 +130,33 @@ export default async function LocaleLayout({ children, params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
-        <Script id="ga-init" strategy="lazyOnload">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}</Script>
+        {/* Счётчик подключается отсюда, а не отдельным тегом: перед загрузкой
+            надо отсеять ферму безголовых браузеров. В сентябре 2026 она давала
+            1030 сессий из 2141 за 28 дней — все из Сингапура, все прямые, и
+            1001 из них с экраном 1280x1200. Монитора такого размера не
+            существует, как и квадратного 1366x1366: это размер окна по
+            умолчанию у headless-браузера. Отчёты показывали 82% прямых заходов,
+            которых на самом деле не было.
+
+            Фильтры GA4 такое не ловят: там есть только внутренний трафик по IP
+            и разработческий, ни страны, ни разрешения. IP фермы мы не знаем, и
+            они меняются. Поэтому режем на входе — роботу просто не отдаём тег.
+
+            Живого читателя это не заденет: обе пары значений как размер экрана
+            не встречаются. Подробности в памяти, project_intokened_ga4. */}
+        <Script id="ga-init" strategy="lazyOnload">{`(function(){
+  var s = window.screen || {};
+  if ((s.width === 1280 && s.height === 1200) || (s.width === 1366 && s.height === 1366)) return;
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', '${GA_ID}');
+  var el = document.createElement('script');
+  el.async = true;
+  el.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_ID}';
+  document.head.appendChild(el);
+})();`}</Script>
         <Script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} strategy="lazyOnload" />
         {/* Включено в панели Vercel с 13.07.2026, но до 01.09 не собирало:
             включить функцию — половина дела, клиентский компонент нужно
