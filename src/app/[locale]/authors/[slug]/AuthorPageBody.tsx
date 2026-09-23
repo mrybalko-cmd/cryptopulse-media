@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Mail } from 'lucide-react';
 import AuthorFeedItem from '@/components/ui/AuthorFeedItem';
 import Pagination from '@/components/ui/Pagination';
 import type { AuthorFeedItem as AuthorFeedItemType } from '@/lib/sanity';
+import { authorName } from '@/lib/authorName';
 
 type Author = {
   name: string;
@@ -17,6 +18,8 @@ type Author = {
   linkedin?: string;
   facebook?: string;
   twitter?: string;
+  instagram?: string;
+  website?: string;
 };
 
 type Props = {
@@ -31,6 +34,7 @@ type Props = {
 
 export default function AuthorPageBody({ locale, slug, author, items, total, page, pageSize }: Props) {
   const isRu = locale === 'ru';
+  const display = authorName(author, locale);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
@@ -47,11 +51,11 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
       <div className="flex flex-col sm:flex-row gap-6 bg-card border border-border rounded-2xl p-6 sm:p-8 mb-10">
         {author.photo ? (
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shrink-0 border-2 border-border self-center sm:self-start">
-            <Image src={author.photo} alt={isRu ? `Фото автора ${author.name}` : `Photo of ${author.name}`} width={128} height={128} className="w-full h-full object-cover" />
+            <Image src={author.photo} alt={isRu ? `Фото автора ${display}` : `Photo of ${display}`} width={128} height={128} className="w-full h-full object-cover" />
           </div>
         ) : (
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shrink-0 bg-accent/10 border-2 border-border flex items-center justify-center self-center sm:self-start">
-            <span className="text-4xl font-bold text-accent">{author.name.charAt(0)}</span>
+            <span className="text-4xl font-bold text-accent">{display.charAt(0)}</span>
           </div>
         )}
 
@@ -60,7 +64,7 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
             {isRu ? 'Автор' : 'Author'}
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-            {author.name}
+            {display}
             {page > 1 && <span className="text-muted font-normal text-lg ml-2">— {locale === 'ru' ? 'страница' : 'page'} {page}</span>}
           </h1>
           {(isRu ? author.roleRu : author.roleEn) && (
@@ -70,7 +74,8 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
             <p className="text-sm text-muted leading-relaxed mb-4">{isRu ? author.bioRu : author.bioEn}</p>
           )}
 
-          {(author.email || author.telegram || author.linkedin || author.facebook || author.twitter) && (
+          {(author.email || author.telegram || author.linkedin || author.facebook
+            || author.twitter || author.instagram || author.website) && (
             <div className="flex items-center gap-2 flex-wrap">
               {author.email && (
                 <a href={`mailto:${author.email}`}
@@ -101,6 +106,18 @@ export default function AuthorPageBody({ locale, slug, author, items, total, pag
                 <a href={author.twitter} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">
                   <ExternalLink size={11} /> X / Twitter
+                </a>
+              )}
+              {author.instagram && (
+                <a href={author.instagram} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">
+                  <ExternalLink size={11} /> Instagram
+                </a>
+              )}
+              {author.website && (
+                <a href={author.website} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent border border-border hover:border-accent/40 rounded-lg px-3 py-1.5 transition-colors">
+                  <ExternalLink size={11} /> {isRu ? 'Сайт' : 'Website'}
                 </a>
               )}
             </div>

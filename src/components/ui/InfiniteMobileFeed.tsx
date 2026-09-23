@@ -8,6 +8,7 @@ import CommentSection from './CommentSection';
 import PopularList from './PopularList';
 import SidebarBanner from './SidebarBanner';
 import type { PopularItem, SidebarBannerItem } from '@/lib/sanity';
+import { authorName, type AuthorNameFields } from '@/lib/authorName';
 
 interface FeedItem {
   _id: string;
@@ -20,7 +21,7 @@ interface FeedItem {
   coverImage?: string;
   coverImageAlt?: string;
   commentsEnabled?: boolean;
-  author?: { name: string; slug?: string };
+  author?: AuthorNameFields & { slug?: string };
 }
 
 interface Props {
@@ -129,7 +130,7 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
               {item.author?.name && (
                 <span className="flex items-center gap-1.5">
                   <User size={12} />
-                  {item.author.name}
+                  {authorName(item.author, locale)}
                 </span>
               )}
               <span className="flex items-center gap-1.5">

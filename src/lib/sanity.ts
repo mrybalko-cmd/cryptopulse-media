@@ -207,7 +207,7 @@ export const fetchArticleBySlug = (slug: string, locale: string) =>
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, instagram, website, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -339,7 +339,7 @@ export const fetchNewsBySlug = (slug: string, locale: string) =>
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
           "translation": translationRef->{language, "slug": slug.current},
-          "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+          "author": author->{name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, instagram, website, "photo": photo.asset->url}
         }`,
         { slug, locale }
       );
@@ -364,7 +364,7 @@ export async function fetchPreviousItem(type: 'article' | 'news', locale: string
         sourceName, sourceUrl, breaking,
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt,
-        "author": author->{name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, "photo": photo.asset->url}
+        "author": author->{name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, instagram, website, "photo": photo.asset->url}
       }`,
       { type, locale, before: beforePublishedAt }
     );
@@ -589,9 +589,13 @@ export const fetchAuthors = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(
-        `*[_type == "author"] | order(name asc) {
-          _id, _updatedAt, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
-          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter
+        // hidden != true, а не !hidden: у девяти карточек из десяти поля
+        // просто нет, и отрицание отсутствующего значения в GROQ даёт null,
+        // то есть вычеркнуло бы всех. Отсюда же скрытые не попадают в карту
+        // сайта — она берёт этот же запрос.
+        `*[_type == "author" && hidden != true] | order(name asc) {
+          _id, _updatedAt, name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter, instagram, website
         }`
       );
     } catch {
@@ -607,9 +611,12 @@ export const fetchAuthorBySlug = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
     try {
       return await client.fetch(
+        // Скрытого автора эта страница по-прежнему отдаёт: на неё ведут
+        // ссылки из его материалов, а скрытие убирает из витрины, а не с сайта.
         `*[_type == "author" && slug.current == $slug][0] {
-          _id, name, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
-          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter
+          _id, name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter, instagram, website,
+          "hidden": coalesce(hidden, false)
         }`,
         { slug }
       );
@@ -667,6 +674,11 @@ export const fetchAuthorFeed = unstable_cache(
 export interface AuthorWithLatest {
   _id: string;
   name: string;
+  firstNameRu?: string;
+  lastNameRu?: string;
+  firstNameEn?: string;
+  lastNameEn?: string;
+  hidden?: boolean;
   slug: string;
   roleRu?: string;
   roleEn?: string;
@@ -705,6 +717,11 @@ export const fetchHomeSettings = unstable_cache(
           "featuredAuthors": featuredAuthors[] {
             "_id": author->_id,
             "name": author->name,
+            "firstNameRu": author->firstNameRu,
+            "lastNameRu": author->lastNameRu,
+            "firstNameEn": author->firstNameEn,
+            "lastNameEn": author->lastNameEn,
+            "hidden": coalesce(author->hidden, false),
             "slug": author->slug.current,
             "roleRu": author->roleRu,
             "roleEn": author->roleEn,
@@ -719,7 +736,11 @@ export const fetchHomeSettings = unstable_cache(
         showNews: doc.showNews ?? true,
         showArticles: doc.showArticles ?? true,
         showAuthorColumns: doc.showAuthorColumns ?? true,
-        featuredAuthors: (doc.featuredAuthors || []).filter((a: AuthorWithLatest) => a._id && a.latest),
+        // Скрытый автор выпадает из подборки на главной, даже если редактор
+        // поставил его туда раньше. Иначе «скрыт» означало бы «скрыт везде,
+        // кроме самого заметного места на сайте».
+        featuredAuthors: (doc.featuredAuthors || [])
+          .filter((a: AuthorWithLatest) => a._id && a.latest && !a.hidden),
       };
     } catch {
       return fallback;

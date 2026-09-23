@@ -7,6 +7,7 @@ import { buildOg, buildTwitter, BASE, truncateDesc } from '@/lib/metadata';
 import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from './AuthorPageBody';
 import { SITE_NAME } from '@/lib/site';
+import { authorName } from '@/lib/authorName';
 
 export const AUTHOR_PAGE_SIZE = 20;
 
@@ -23,13 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!author) return {};
   const isRu = locale === 'ru';
   const role = (isRu ? author.roleRu : author.roleEn) || '';
-  const title = `${author.name}${role ? ` — ${role}` : ''}`;
+  const display = authorName(author, locale);
+  const title = `${display}${role ? ` — ${role}` : ''}`;
   const bio = isRu ? author.bioRu : author.bioEn;
   const description = bio
     ? truncateDesc(bio)
     : isRu
-    ? `Материалы автора ${author.name} на ${SITE_NAME}`
-    : `Articles by ${author.name} on ${SITE_NAME}`;
+    ? `Материалы автора ${display} на ${SITE_NAME}`
+    : `Articles by ${display} on ${SITE_NAME}`;
   return {
     title,
     description,
@@ -57,7 +59,7 @@ export default async function AuthorPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: author.name,
+    name: authorName(author, locale),
     ...(author.photo && { image: author.photo }),
     ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
     worksFor: { '@type': 'Organization', name: SITE_NAME, url: BASE },

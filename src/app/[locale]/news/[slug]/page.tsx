@@ -26,6 +26,7 @@ import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '
 import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import BoltIcon from '@/components/ui/BoltIcon';
+import { authorName } from '@/lib/authorName';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -143,7 +144,7 @@ export default async function NewsDetailPage({ params }: Props) {
     inLanguage: locale,
     ...(wordCount > 0 && { wordCount }),
     author: news.author
-      ? { '@type': 'Person', name: news.author.name.trim(), url: `${SITE_URL}/${locale}/authors/${news.author.slug}` }
+      ? { '@type': 'Person', name: authorName(news.author, locale), url: `${SITE_URL}/${locale}/authors/${news.author.slug}` }
       : { '@type': 'Organization', '@id': `${SITE_URL}/#organization` },
     publisher: { '@id': `${SITE_URL}/#organization` },
     mainEntityOfPage: `${SITE_URL}/${locale}/news/${slug}`,
@@ -248,7 +249,7 @@ export default async function NewsDetailPage({ params }: Props) {
                 className="hover:text-accent transition-colors"
                 rel="author"
               >
-                {news.author.name}
+                {authorName(news.author, locale)}
               </a>
             ) : (
               <span rel="author">{news.author?.name || SITE_NAME}</span>

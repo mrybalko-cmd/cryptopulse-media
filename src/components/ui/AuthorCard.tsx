@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
+import { authorName, type AuthorNameFields } from '@/lib/authorName';
 
-interface Author {
+interface Author extends AuthorNameFields {
   name: string;
   slug?: string;
   roleRu?: string;
@@ -15,6 +16,8 @@ interface Author {
   linkedin?: string;
   facebook?: string;
   twitter?: string;
+  instagram?: string;
+  website?: string;
 }
 
 interface Props {
@@ -24,7 +27,9 @@ interface Props {
 
 export default function AuthorCard({ author, locale }: Props) {
   const isRu = locale === 'ru';
-  const hasSocials = author.email || author.telegram || author.linkedin || author.facebook || author.twitter;
+  const display = authorName(author, locale);
+  const hasSocials = author.email || author.telegram || author.linkedin
+    || author.facebook || author.twitter || author.instagram || author.website;
   const authorHref = author.slug ? `/${locale}/authors/${author.slug}` : undefined;
 
   return (
@@ -33,7 +38,7 @@ export default function AuthorCard({ author, locale }: Props) {
         <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 border-border">
           <Image
             src={author.photo}
-            alt={author.name}
+            alt={display}
             width={64}
             height={64}
             className="w-full h-full object-cover"
@@ -42,7 +47,7 @@ export default function AuthorCard({ author, locale }: Props) {
       ) : (
         <div className="w-16 h-16 rounded-full shrink-0 bg-article-accent-tint border-2 border-border flex items-center justify-center">
           <span className="text-2xl font-bold text-article-accent">
-            {author.name.charAt(0)}
+            {display.charAt(0)}
           </span>
         </div>
       )}
@@ -53,10 +58,10 @@ export default function AuthorCard({ author, locale }: Props) {
         </p>
         {authorHref ? (
           <Link href={authorHref} className="font-bold text-foreground text-sm hover:text-article-accent transition-colors">
-            {author.name}
+            {display}
           </Link>
         ) : (
-          <p className="font-bold text-foreground text-sm">{author.name}</p>
+          <p className="font-bold text-foreground text-sm">{display}</p>
         )}
         {(isRu ? author.roleRu : author.roleEn) && (
           <p className="text-xs text-article-accent mb-2">{isRu ? author.roleRu : author.roleEn}</p>
@@ -95,6 +100,18 @@ export default function AuthorCard({ author, locale }: Props) {
               <a href={author.twitter} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
                 X / Twitter
+              </a>
+            )}
+            {author.instagram && (
+              <a href={author.instagram} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
+                Instagram
+              </a>
+            )}
+            {author.website && (
+              <a href={author.website} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
+                {isRu ? 'Сайт' : 'Website'}
               </a>
             )}
           </div>

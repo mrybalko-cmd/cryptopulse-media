@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Eye, PenLine } from 'lucide-react';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import type { AuthorWithLatest } from '@/lib/sanity';
+import { authorName } from '@/lib/authorName';
 
 /**
  * Clear glass, not a tinted card. The pane carries almost no fill of its own
@@ -41,7 +42,8 @@ function Halos() {
   );
 }
 
-function Avatar({ author, size }: { author: AuthorWithLatest; size: number }) {
+function Avatar({ author, size, locale }: { author: AuthorWithLatest; size: number; locale: string }) {
+  const display = authorName(author, locale);
   const ring = {
     width: size,
     height: size,
@@ -51,7 +53,7 @@ function Avatar({ author, size }: { author: AuthorWithLatest; size: number }) {
     return (
       <span className="relative block shrink-0 rounded-full p-[2px] shadow-[0_4px_14px_rgba(0,0,0,0.28)]" style={ring}>
         <span className="flex h-full w-full items-center justify-center rounded-full bg-card text-sm font-bold text-muted">
-          {author.name.charAt(0)}
+          {display.charAt(0)}
         </span>
       </span>
     );
@@ -60,7 +62,7 @@ function Avatar({ author, size }: { author: AuthorWithLatest; size: number }) {
     <span className="relative block shrink-0 rounded-full p-[2px] shadow-[0_4px_14px_rgba(0,0,0,0.28)]" style={ring}>
       <Image
         src={sanityImageTransform(author.photo, { width: size * 2 })!}
-        alt={author.name}
+        alt={display}
         width={size}
         height={size}
         className="h-full w-full rounded-full object-cover"
@@ -183,12 +185,12 @@ export default function AuthorColumns({
                   className={`flex items-start gap-3 ${i > 0 ? 'mt-3 border-t border-[var(--glass-edge)] pt-3' : ''}`}
                 >
                   <Link href={`/${locale}/authors/${author.slug}`} className="shrink-0">
-                    <Avatar author={author} size={42} />
+                    <Avatar author={author} size={42} locale={locale} />
                   </Link>
                   <div className="min-w-0 flex-1">
                     <Link href={`/${locale}/authors/${author.slug}`} className="block">
                       <span className="block truncate text-[11px] font-extrabold uppercase tracking-[0.05em] text-foreground">
-                        {author.name}
+                        {authorName(author, locale)}
                       </span>
                       {role && <span className="mt-px block truncate text-[10.5px] text-muted">{role}</span>}
                     </Link>
@@ -211,10 +213,10 @@ export default function AuthorColumns({
                 }`}
               >
                 <Link href={`/${locale}/authors/${author.slug}`} className="mb-3.5 flex items-center gap-[11px]">
-                  <Avatar author={author} size={50} />
+                  <Avatar author={author} size={50} locale={locale} />
                   <span className="min-w-0">
                     <span className="block truncate text-xs font-extrabold uppercase tracking-[0.05em] text-foreground">
-                      {author.name}
+                      {authorName(author, locale)}
                     </span>
                     {role && <span className="mt-px block truncate text-[11px] text-muted">{role}</span>}
                   </span>

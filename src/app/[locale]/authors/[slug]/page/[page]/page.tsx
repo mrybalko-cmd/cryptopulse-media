@@ -8,6 +8,7 @@ import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
 import AuthorPageBody from '../../AuthorPageBody';
 import { AUTHOR_PAGE_SIZE } from '../../page';
 import { SITE_NAME } from '@/lib/site';
+import { authorName } from '@/lib/authorName';
 
 // Page 1 lives at /authors/[slug] itself; this route only serves page >= 2 —
 // same crawlable-pagination pattern as /articles/page/[n] and /news/page/[n].
@@ -28,7 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!author) return {};
   const isRu = locale === 'ru';
   const role = (isRu ? author.roleRu : author.roleEn) || '';
-  const title = `${author.name}${role ? ` — ${role}` : ''} — ${isRu ? 'страница' : 'page'} ${page}`;
+  const display = authorName(author, locale);
+  const title = `${display}${role ? ` — ${role}` : ''} — ${isRu ? 'страница' : 'page'} ${page}`;
   const bio = isRu ? author.bioRu : author.bioEn;
   // Bio text is identical across every page in this author's pagination
   // series — append the page number so each page's description is unique
@@ -37,8 +39,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = bio
     ? `${bio.slice(0, 155 - pageSuffix.length)}${pageSuffix}`
     : isRu
-    ? `Материалы автора ${author.name} на ${SITE_NAME}${pageSuffix}`
-    : `Articles by ${author.name} on ${SITE_NAME}${pageSuffix}`;
+    ? `Материалы автора ${display} на ${SITE_NAME}${pageSuffix}`
+    : `Articles by ${display} on ${SITE_NAME}${pageSuffix}`;
   return {
     title,
     description,
@@ -72,7 +74,7 @@ export default async function AuthorDeepPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: author.name,
+    name: authorName(author, locale),
     ...(author.photo && { image: author.photo }),
     ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
     worksFor: { '@type': 'Organization', name: SITE_NAME, url: BASE },

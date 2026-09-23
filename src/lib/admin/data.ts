@@ -182,10 +182,15 @@ export interface AdminAuthorOption {
   photo: string | null;
   roleRu?: string;
   roleEn?: string;
+  hidden?: boolean;
 }
 
 export async function fetchAuthorOptions(): Promise<AdminAuthorOption[]> {
-  return client.fetch(`*[_type == "author"] | order(name asc){ _id, name, "photo": photo.asset->url, roleRu, roleEn }`);
+  // Скрытые остаются в выборе: скрытие убирает автора из витрины, а не
+  // запрещает им подписывать материалы.
+  return client.fetch(`*[_type == "author"] | order(coalesce(hidden, false) asc, name asc){
+    _id, name, "photo": photo.asset->url, roleRu, roleEn, "hidden": coalesce(hidden, false)
+  }`);
 }
 
 export interface AdminAuthorDoc {
@@ -193,6 +198,10 @@ export interface AdminAuthorDoc {
   name: string;
   slug: string;
   photo: string | null;
+  firstNameRu?: string;
+  lastNameRu?: string;
+  firstNameEn?: string;
+  lastNameEn?: string;
   roleRu?: string;
   roleEn?: string;
   bioRu?: string;
@@ -201,16 +210,29 @@ export interface AdminAuthorDoc {
   linkedin?: string;
   facebook?: string;
   twitter?: string;
+  instagram?: string;
+  website?: string;
   email?: string;
+  hidden?: boolean;
+  materials?: number;
 }
 
 const AUTHOR_DOC_PROJECTION = `
   _id, name, "slug": slug.current, "photo": photo.asset->url,
-  roleRu, roleEn, bioRu, bioEn, telegram, linkedin, facebook, twitter, email
+  firstNameRu, lastNameRu, firstNameEn, lastNameEn,
+  roleRu, roleEn, bioRu, bioEn,
+  telegram, linkedin, facebook, twitter, instagram, website, email,
+  "hidden": coalesce(hidden, false)
 `;
 
 export async function fetchAdminAuthors(): Promise<AdminAuthorDoc[]> {
-  return client.fetch(`*[_type == "author"] | order(name asc){ ${AUTHOR_DOC_PROJECTION} }`);
+  // Число материалов нужно прямо в списке: без него не видно, кого можно
+  // удалить, а кого база не отдаст из-за входящих ссылок. Скрытые уходят
+  // в конец, чтобы не путались с рабочими.
+  return client.fetch(`*[_type == "author"] | order(coalesce(hidden, false) asc, name asc){
+    ${AUTHOR_DOC_PROJECTION},
+    "materials": count(*[_type in ["news", "article"] && author._ref == ^._id])
+  }`);
 }
 
 export async function fetchAdminAuthorById(id: string): Promise<AdminAuthorDoc | null> {
@@ -220,6 +242,13 @@ export async function fetchAdminAuthorById(id: string): Promise<AdminAuthorDoc |
 export interface AuthorInput {
   name: string;
   slug: string;
+  firstNameRu?: string;
+  lastNameRu?: string;
+  firstNameEn?: string;
+  lastNameEn?: string;
+  hidden?: boolean;
+  instagram?: string;
+  website?: string;
   roleRu?: string;
   roleEn?: string;
   bioRu?: string;
@@ -235,6 +264,13 @@ function authorSetFields(input: AuthorInput) {
   return {
     name: input.name,
     slug: { _type: 'slug' as const, current: input.slug },
+    firstNameRu: input.firstNameRu || undefined,
+    lastNameRu: input.lastNameRu || undefined,
+    firstNameEn: input.firstNameEn || undefined,
+    lastNameEn: input.lastNameEn || undefined,
+    hidden: Boolean(input.hidden),
+    instagram: input.instagram || undefined,
+    website: input.website || undefined,
     roleRu: input.roleRu || undefined,
     roleEn: input.roleEn || undefined,
     bioRu: input.bioRu || undefined,

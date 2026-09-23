@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { fetchAuthors } from '@/lib/sanity';
 import { Users } from 'lucide-react';
 import { SITE_NAME } from '@/lib/site';
+import { authorName, authorInitial } from '@/lib/authorName';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -84,7 +85,7 @@ export default async function AuthorsPage({ params }: Props) {
                   <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 border-border group-hover:border-accent/40 transition-colors">
                     <Image
                       src={author.photo}
-                      alt={author.name}
+                      alt={authorName(author, locale)}
                       width={64}
                       height={64}
                       className="w-full h-full object-cover"
@@ -92,12 +93,12 @@ export default async function AuthorsPage({ params }: Props) {
                   </div>
                 ) : (
                   <div className="w-16 h-16 rounded-full shrink-0 bg-accent/10 border-2 border-border flex items-center justify-center">
-                    <span className="text-2xl font-bold text-accent">{author.name.charAt(0)}</span>
+                    <span className="text-2xl font-bold text-accent">{authorInitial(author, locale)}</span>
                   </div>
                 )}
                 <div className="min-w-0">
                   <p className="font-bold text-foreground group-hover:text-accent transition-colors truncate">
-                    {author.name}
+                    {authorName(author, locale)}
                   </p>
                   {(isRu ? author.roleRu : author.roleEn) && (
                     <p className="text-xs text-accent mt-0.5 truncate">

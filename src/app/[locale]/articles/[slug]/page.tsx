@@ -24,6 +24,7 @@ import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
 import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '@/lib/sanityImage';
 import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { authorName } from '@/lib/authorName';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -144,7 +145,7 @@ export default async function ArticlePage({ params }: Props) {
     inLanguage: locale,
     ...(wordCount > 0 && { wordCount }),
     author: article.author
-      ? { '@type': 'Person', name: article.author.name.trim(), url: `${SITE_URL}/${locale}/authors/${article.author.slug}` }
+      ? { '@type': 'Person', name: authorName(article.author, locale), url: `${SITE_URL}/${locale}/authors/${article.author.slug}` }
       : { '@type': 'Organization', '@id': `${SITE_URL}/#organization` },
     publisher: { '@id': `${SITE_URL}/#organization` },
     mainEntityOfPage: `${SITE_URL}/${locale}/articles/${slug}`,
@@ -243,7 +244,7 @@ export default async function ArticlePage({ params }: Props) {
                 className="hover:text-accent transition-colors"
                 rel="author"
               >
-                {article.author.name}
+                {authorName(article.author, locale)}
               </a>
             ) : (
               <span rel="author">{article.author?.name || SITE_NAME}</span>

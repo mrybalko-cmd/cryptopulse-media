@@ -9,6 +9,13 @@ function parseInput(formData: FormData): AuthorInput {
   return {
     name: String(formData.get('name') || ''),
     slug: String(formData.get('slug') || ''),
+    firstNameRu: String(formData.get('firstNameRu') || ''),
+    lastNameRu: String(formData.get('lastNameRu') || ''),
+    firstNameEn: String(formData.get('firstNameEn') || ''),
+    lastNameEn: String(formData.get('lastNameEn') || ''),
+    hidden: formData.get('hidden') === 'on',
+    instagram: String(formData.get('instagram') || ''),
+    website: String(formData.get('website') || ''),
     roleRu: String(formData.get('roleRu') || ''),
     roleEn: String(formData.get('roleEn') || ''),
     bioRu: String(formData.get('bioRu') || ''),
