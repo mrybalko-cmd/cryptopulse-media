@@ -4,6 +4,12 @@ import { SITE_HOST, SITE_URL } from '@/lib/site';
 
 const BASE = SITE_URL;
 
+// Метка версии маршрута. Возвращается в ответе, чтобы можно было убедиться,
+// какой код сейчас живёт на сайте. 24.09.2026 сброс кэша «срабатывал», но
+// страница пересобиралась со старым текстом, и полчаса ушло на догадки —
+// выкатился ли нужный коммит. Теперь это один запрос.
+const ROUTE_VERSION = '2026-09-24-per-page-tags';
+
 async function pingIndexNow(urls: string[]) {
   const key = process.env.INDEXNOW_KEY;
   if (!key || urls.length === 0) return;
@@ -135,7 +141,7 @@ export async function POST(request: NextRequest) {
     void Promise.all([pingIndexNow(urlsToIndex), pingGoogleSitemap()]);
   }
 
-  return NextResponse.json({ revalidated: true, pinged: urlsToIndex, at: new Date().toISOString() });
+  return NextResponse.json({ revalidated: true, version: ROUTE_VERSION, pinged: urlsToIndex, at: new Date().toISOString() });
 }
 
 export async function GET(request: NextRequest) {
