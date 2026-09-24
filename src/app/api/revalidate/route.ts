@@ -55,6 +55,12 @@ export async function POST(request: NextRequest) {
     revalidatePath('/sitemap.xml');
     revalidatePath('/news-sitemap.xml');
     if (locale) {
+      // Персональный тег материала обязателен, а не желателен. revalidatePath
+      // сбрасывает только отрисовку: без этой строки страница пересобралась
+      // бы, прочитала данные из кэша и показала СТАРЫЙ текст. Пока окно
+      // данных было пять минут, это сходило с рук. С 24.09.2026 окно час,
+      // и старый текст держался бы час.
+      revalidateTag(`article:${locale}:${slug}`, { expire: 0 });
       revalidatePath(`/${locale}/articles/${slug}`);
       revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/articles/${slug}`);
@@ -72,6 +78,13 @@ export async function POST(request: NextRequest) {
     revalidatePath('/en/articles', 'page');
     revalidatePath('/ru/ai', 'page');
     revalidatePath('/en/ai', 'page');
+  // Тег `popular` здесь сбрасывать НЕЛЬЗЯ, хотя рука тянется. «Популярное»
+  // стоит в боковой колонке каждого материала, и его сброс пометил бы
+  // устаревшими все 2200 страниц архива — ровно та рассылка пересборок, из-за
+  // которой счёт за сентябрь дошёл до $20 по одной строке. Смысла в нём тоже
+  // нет: список строится по просмотрам, а у только что вышедшего материала их
+  // ноль. Блок обновится сам по своему окну.
+
   } else if (type === 'regulation') {
     // Country data and the long country pages. Scripts that write straight to
     // Sanity bypass the admin's own revalidation, so without this the map and
@@ -91,6 +104,9 @@ export async function POST(request: NextRequest) {
     revalidatePath('/sitemap.xml');
     revalidatePath('/news-sitemap.xml');
     if (locale) {
+      // См. комментарий в ветке статей: без персонального тега страница
+      // пересоберётся со старым текстом и продержит его час.
+      revalidateTag(`news:${locale}:${slug}`, { expire: 0 });
       revalidatePath(`/${locale}/news/${slug}`);
       revalidatePath(`/${locale}`, 'page');
       urlsToIndex.push(`${BASE}/${locale}/news/${slug}`);
