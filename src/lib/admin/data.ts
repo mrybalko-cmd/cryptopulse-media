@@ -214,6 +214,13 @@ export interface AdminAuthorDoc {
   website?: string;
   email?: string;
   hidden?: boolean;
+  entityKind?: 'person' | 'organization';
+  sponsored?: boolean;
+  haloColor?: 'violet' | 'cyan' | 'pink';
+  sortOrder?: number;
+  placementFrom?: string;
+  placementTo?: string;
+  rubrics?: string[];
   materials?: number;
 }
 
@@ -222,7 +229,13 @@ const AUTHOR_DOC_PROJECTION = `
   firstNameRu, lastNameRu, firstNameEn, lastNameEn,
   roleRu, roleEn, bioRu, bioEn,
   telegram, linkedin, facebook, twitter, instagram, website, email,
-  "hidden": coalesce(hidden, false)
+  "hidden": coalesce(hidden, false),
+  "entityKind": coalesce(entityKind, "person"),
+  "sponsored": coalesce(sponsored, false),
+  "haloColor": coalesce(haloColor, "violet"),
+  "sortOrder": coalesce(sortOrder, 100),
+  placementFrom, placementTo,
+  "rubrics": rubrics[]->_id
 `;
 
 export async function fetchAdminAuthors(): Promise<AdminAuthorDoc[]> {
@@ -258,6 +271,13 @@ export interface AuthorInput {
   facebook?: string;
   twitter?: string;
   email?: string;
+  entityKind?: 'person' | 'organization';
+  sponsored?: boolean;
+  haloColor?: 'violet' | 'cyan' | 'pink';
+  sortOrder?: number;
+  placementFrom?: string;
+  placementTo?: string;
+  rubrics?: string[];
 }
 
 function authorSetFields(input: AuthorInput) {
@@ -280,6 +300,17 @@ function authorSetFields(input: AuthorInput) {
     facebook: input.facebook || undefined,
     twitter: input.twitter || undefined,
     email: input.email || undefined,
+    entityKind: input.entityKind || 'person',
+    sponsored: Boolean(input.sponsored),
+    haloColor: input.haloColor || 'violet',
+    sortOrder: Number.isFinite(input.sortOrder) ? input.sortOrder : 100,
+    placementFrom: input.placementFrom || undefined,
+    placementTo: input.placementTo || undefined,
+    // _key обязателен у каждого элемента массива, иначе Studio показывает
+    // «Missing keys» и молча не даёт редактировать поле руками.
+    rubrics: (input.rubrics || []).map(id => ({
+      _type: 'reference' as const, _ref: id, _key: id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20),
+    })),
   };
 }
 
@@ -1828,4 +1859,106 @@ export async function regulationIso2Taken(iso2: string, exceptId?: string): Prom
     { iso2: iso2.toUpperCase(), exceptId: exceptId ?? 'none' }
   );
   return Boolean(found);
+}
+
+/* ── Рубрики раздела авторов ────────────────────────────────────────────── */
+
+export interface AdminRubricDoc {
+  _id: string;
+  titleRu: string;
+  titleEn: string;
+  slug: string;
+  visibility: 'auto' | 'always' | 'never';
+  order: number;
+  note?: string;
+  used?: number;
+}
+
+export async function fetchAdminRubrics(): Promise<AdminRubricDoc[]> {
+  // Сколько карточек в рубрике — видно сразу: при «авто» пустая рубрика
+  // уходит с сайта, и без этого числа непонятно, почему её там нет.
+  return client.fetch(`*[_type == "authorRubric"] | order(coalesce(order, 100) asc){
+    _id, titleRu, titleEn, "slug": slug.current,
+    "visibility": coalesce(visibility, "auto"),
+    "order": coalesce(order, 100), note,
+    "used": count(*[_type == "author" && references(^._id)])
+  }`);
+}
+
+export interface RubricInput {
+  titleRu: string;
+  titleEn: string;
+  slug: string;
+  visibility: 'auto' | 'always' | 'never';
+  order: number;
+  note?: string;
+}
+
+function rubricSetFields(input: RubricInput) {
+  return {
+    titleRu: input.titleRu,
+    titleEn: input.titleEn,
+    slug: { _type: 'slug' as const, current: input.slug },
+    visibility: input.visibility,
+    order: Number.isFinite(input.order) ? input.order : 100,
+    note: input.note || undefined,
+  };
+}
+
+export async function createRubric(input: RubricInput) {
+  return writeClient.create({ _type: 'authorRubric', ...rubricSetFields(input) });
+}
+
+export async function updateRubric(id: string, input: RubricInput) {
+  await writeClient.patch(id).set(rubricSetFields(input)).commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteRubric(id: string) {
+  // База не отдаст документ, на который кто-то ссылается, и сообщит об этом
+  // ошибкой без имён. Снимаем рубрику с карточек сами: она принадлежит нам,
+  // а участник остаётся на месте.
+  const authors = await client.fetch<{ _id: string }[]>(
+    `*[_type == "author" && references($id)]{_id}`, { id }
+  );
+  for (const a of authors) {
+    await writeClient.patch(a._id).unset([`rubrics[_ref=="${id}"]`]).commit({ autoGenerateArrayKeys: false });
+  }
+  await writeClient.delete(id);
+  return authors.length;
+}
+
+/* ── Настройки страницы авторов ─────────────────────────────────────────── */
+
+export interface AuthorsPageInput {
+  headingRu?: string; headingEn?: string;
+  ledeRu?: string; ledeEn?: string;
+  seoTitleRu?: string; seoTitleEn?: string;
+  seoDescriptionRu?: string; seoDescriptionEn?: string;
+  sort: 'manual' | 'materials' | 'alphabet';
+}
+
+export async function fetchAuthorsPageDoc(): Promise<(AuthorsPageInput & { _id?: string }) | null> {
+  return client.fetch(`*[_type == "authorsPage"][0]{
+    _id, headingRu, headingEn, ledeRu, ledeEn,
+    seoTitleRu, seoTitleEn, seoDescriptionRu, seoDescriptionEn,
+    "sort": coalesce(sort, "manual")
+  }`);
+}
+
+export async function saveAuthorsPage(input: AuthorsPageInput) {
+  // Документ один на сайт, с постоянным _id: createIfNotExists не заводит
+  // второй такой же, а патч не падает на пустой базе.
+  const id = 'authorsPage';
+  await writeClient.createIfNotExists({ _id: id, _type: 'authorsPage' });
+  await writeClient.patch(id).set({
+    headingRu: input.headingRu || undefined,
+    headingEn: input.headingEn || undefined,
+    ledeRu: input.ledeRu || undefined,
+    ledeEn: input.ledeEn || undefined,
+    seoTitleRu: input.seoTitleRu || undefined,
+    seoTitleEn: input.seoTitleEn || undefined,
+    seoDescriptionRu: input.seoDescriptionRu || undefined,
+    seoDescriptionEn: input.seoDescriptionEn || undefined,
+    sort: input.sort,
+  }).commit({ autoGenerateArrayKeys: false });
 }

@@ -1,4 +1,4 @@
-import type { AdminAuthorDoc } from '@/lib/admin/data';
+import type { AdminAuthorDoc, AdminRubricDoc } from '@/lib/admin/data';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import SubmitButton from '../_shared/SubmitButton';
@@ -7,13 +7,21 @@ import SavedMark from '../_shared/SavedMark';
 const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
 const labelCls = 'text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block';
 
+/** Для input type="datetime-local": ISO из базы, но без зоны и секунд. */
+function forInput(iso?: string) {
+  return iso ? iso.slice(0, 16) : '';
+}
+
 export default function AuthorForm({
   author,
+  rubrics,
   action,
 }: {
   author?: AdminAuthorDoc;
+  rubrics: AdminRubricDoc[];
   action: (formData: FormData) => void;
 }) {
+  const chosen = new Set(author?.rubrics || []);
   return (
     <form action={action} className="max-w-2xl">
       <div className="grid grid-cols-[120px_1fr] gap-5 mb-5">
@@ -104,6 +112,106 @@ export default function AuthorForm({
           <label className={labelCls}>✉ Email</label>
           <input name="email" type="email" defaultValue={author?.email} className={inputCls} />
         </div>
+      </div>
+
+      <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Витрина участников</h2>
+      <div className="border border-[var(--admin-border)] rounded-xl p-4 mb-5 grid gap-5">
+        <div>
+          <label className={labelCls}>Человек или организация</label>
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { v: 'person', t: 'Человек', h: 'круглое фото, разметка Person' },
+              { v: 'organization', t: 'Организация', h: 'плитка с логотипом, разметка Organization' },
+            ].map(o => (
+              <label key={o.v} className="flex-1 min-w-[190px] flex items-start gap-2.5 border border-[var(--admin-border)]
+                rounded-lg px-3 py-2.5 cursor-pointer has-[:checked]:border-cyan-500/50">
+                <input type="radio" name="entityKind" value={o.v} required
+                  defaultChecked={(author?.entityKind || 'person') === o.v}
+                  className="mt-0.5 w-4 h-4 accent-cyan-500 shrink-0" />
+                <span>
+                  <span className="block text-[12.5px] font-bold">{o.t}</span>
+                  <span className="block text-[11px] text-[var(--admin-text-dim)] mt-0.5">{o.h}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>Рубрики</label>
+          {rubrics.length === 0 ? (
+            <p className="text-[11.5px] text-[var(--admin-text-dim)]">
+              Рубрик пока нет. Их можно завести на странице «Рубрики» в разделе авторов.
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {rubrics.map(r => (
+                  <label key={r._id} className="flex items-center gap-2 border border-[var(--admin-border)]
+                    rounded-lg px-3 py-2 cursor-pointer text-[12.5px] has-[:checked]:border-cyan-500/50">
+                    <input type="checkbox" name="rubrics" value={r._id} defaultChecked={chosen.has(r._id)}
+                      className="w-4 h-4 accent-cyan-500 shrink-0" />
+                    {r.titleRu}
+                    {r.visibility === 'never' && (
+                      <span className="text-[10px] text-[var(--admin-text-dim)]">только внутри</span>
+                    )}
+                  </label>
+                ))}
+              </div>
+              <p className="text-[11px] text-[var(--admin-text-dim)] mt-2">
+                Первая отмеченная печатается плашкой на карточке. Участник попадает в каждый
+                из отмеченных фильтров.
+              </p>
+            </>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Ореол за карточкой</label>
+            <select name="haloColor" defaultValue={author?.haloColor || 'violet'} className={inputCls}>
+              <option value="violet">Фиолетовый</option>
+              <option value="cyan">Бирюзовый</option>
+              <option value="pink">Розовый</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Порядок в списке</label>
+            <input name="sortOrder" type="number" defaultValue={author?.sortOrder ?? 100} className={inputCls} />
+            <p className="text-[11px] text-[var(--admin-text-dim)] mt-1.5">
+              Чем меньше число, тем выше карточка. Работает при сортировке «вручную».
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Размещение с</label>
+            <input name="placementFrom" type="datetime-local"
+              defaultValue={forInput(author?.placementFrom)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Размещение по</label>
+            <input name="placementTo" type="datetime-local"
+              defaultValue={forInput(author?.placementTo)} className={inputCls} />
+            <p className="text-[11px] text-[var(--admin-text-dim)] mt-1.5">
+              Пусто — без срока. После этой даты карточка уходит с витрины сама.
+            </p>
+          </div>
+        </div>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" name="sponsored" defaultChecked={author?.sponsored}
+            className="mt-0.5 w-4 h-4 accent-cyan-500 shrink-0" />
+          <span>
+            <span className="block text-[13px] font-bold">Платное размещение</span>
+            <span className="block text-[11px] text-[var(--admin-text-dim)] leading-relaxed mt-0.5">
+              Читателю ничего не показывается. Ссылки участника уходят наружу с пометкой
+              rel=&quot;sponsored&quot;: этого требует Google от оплаченных ссылок, и без неё
+              страдают позиции всего сайта, а не только карточки.
+            </span>
+          </span>
+        </label>
       </div>
 
       <label className="flex items-start gap-3 border border-[var(--admin-border)] rounded-xl p-4 mb-6 cursor-pointer">

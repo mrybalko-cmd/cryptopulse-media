@@ -6,10 +6,11 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE, truncateDesc } from '@/lib/metadata';
-import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
+import { fetchAuthorBySlug, fetchAuthorFeed, fetchAuthorStats } from '@/lib/sanity';
 import AuthorPageBody from './AuthorPageBody';
 import { SITE_NAME } from '@/lib/site';
 import { authorName } from '@/lib/authorName';
+import { authorJsonLd } from '@/lib/authorJsonLd';
 
 export const AUTHOR_PAGE_SIZE = 20;
 
@@ -51,32 +52,24 @@ export default async function AuthorPage({ params }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
-  const [author, feed] = await Promise.all([
+  const [author, feed, stats] = await Promise.all([
     fetchAuthorBySlug(slug),
     fetchAuthorFeed(slug, locale, AUTHOR_PAGE_SIZE, 0),
+    fetchAuthorStats(slug, locale),
   ]);
 
   if (!author) notFound();
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: authorName(author, locale),
-    ...(author.photo && { image: author.photo }),
-    ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
-    worksFor: { '@type': 'Organization', name: SITE_NAME, url: BASE },
-    url: `${BASE}/${locale}/authors/${slug}`,
-  };
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(authorJsonLd(author, locale, slug, isRu)) }} />
       <AuthorPageBody
         locale={locale}
         slug={slug}
         author={author}
         items={feed.items}
-        total={feed.total}
+        stats={stats}
         page={1}
         pageSize={AUTHOR_PAGE_SIZE}
       />

@@ -20,6 +20,76 @@ export const authorType = defineType({
       options: { source: 'name', maxLength: 64 },
       validation: Rule => Rule.required(),
     }),
+    // Человек или организация. Не рубрика и не настройка вида: от этого поля
+    // зависит и круглое фото против плитки с логотипом, и какая разметка
+    // уходит в поисковик — Person или Organization. Поэтому оно отдельное,
+    // обязательное и не редактируется наравне с рубриками.
+    defineField({
+      name: 'entityKind',
+      title: 'Человек или организация',
+      type: 'string',
+      initialValue: 'person',
+      options: {
+        list: [
+          { title: 'Человек — круглое фото, разметка Person', value: 'person' },
+          { title: 'Организация — плитка с логотипом, разметка Organization', value: 'organization' },
+        ],
+        layout: 'radio',
+      },
+      validation: Rule => Rule.required(),
+    }),
+    defineField({
+      name: 'rubrics',
+      title: 'Рубрики',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'authorRubric' }] }],
+      description: 'Первая печатается плашкой на карточке. Внутренние рубрики в плашку не идут',
+    }),
+    defineField({
+      name: 'haloColor',
+      title: 'Цвет ореола за карточкой',
+      type: 'string',
+      initialValue: 'violet',
+      options: {
+        list: [
+          { title: 'Фиолетовый', value: 'violet' },
+          { title: 'Бирюзовый', value: 'cyan' },
+          { title: 'Розовый', value: 'pink' },
+        ],
+        layout: 'radio',
+      },
+      description: 'Три цвета палитры сайта. Свободный цвет не даём: он рано или поздно окажется кислотным',
+    }),
+    defineField({
+      name: 'sortOrder',
+      title: 'Порядок в списке',
+      type: 'number',
+      initialValue: 100,
+      description: 'Чем меньше число, тем выше карточка',
+    }),
+    defineField({
+      name: 'sponsored',
+      title: 'Платное размещение',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Читателю ничего не показывается. Ссылки такого участника уходят наружу ' +
+        'с пометкой rel="sponsored" — этого требует Google от оплаченных ссылок, ' +
+        'и без неё страдают позиции всего сайта, а не только карточки.',
+    }),
+    defineField({
+      name: 'placementFrom',
+      title: 'Размещение с',
+      type: 'datetime',
+      description: 'Для платных карточек. Пусто — без срока',
+    }),
+    defineField({
+      name: 'placementTo',
+      title: 'Размещение по',
+      type: 'datetime',
+      description: 'После этой даты карточка уходит с сайта. Пусто — без срока',
+    }),
+
     // Написание по языкам — надстройка над полем name, а не замена ему.
     // В базе есть авторы без фамилии («Maks», под которым 1818 материалов,
     // «Jonathan») и авторы, которые вообще не люди («Intokened.com»,

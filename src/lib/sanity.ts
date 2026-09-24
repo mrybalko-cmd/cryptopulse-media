@@ -608,8 +608,12 @@ export const fetchAuthors = unstable_cache(
         // hidden != true, а не !hidden: у девяти карточек из десяти поля
         // просто нет, и отрицание отсутствующего значения в GROQ даёт null,
         // то есть вычеркнуло бы всех. Отсюда же скрытые не попадают в карту
-        // сайта — она берёт этот же запрос.
-        `*[_type == "author" && hidden != true] | order(name asc) {
+        // сайта — она берёт этот же запрос. По той же причине здесь стоит
+        // и срок размещения: условие обязано совпадать с fetchAuthorCards,
+        // иначе в карте сайта окажется тот, кого на витрине уже нет.
+        `*[_type == "author" && hidden != true
+           && (!defined(placementFrom) || placementFrom <= now())
+           && (!defined(placementTo) || placementTo >= now())] | order(name asc) {
           _id, _updatedAt, name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
           "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter, instagram, website
         }`
@@ -619,7 +623,120 @@ export const fetchAuthors = unstable_cache(
     }
   },
   ['fetchAuthors'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['authors'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['authors'] }
+);
+
+export interface AuthorRubric {
+  _id: string;
+  titleRu: string;
+  titleEn: string;
+  key: string;
+  visibility: 'auto' | 'always' | 'never';
+  order: number;
+}
+
+export interface AuthorCard {
+  _id: string;
+  name: string;
+  firstNameRu?: string; lastNameRu?: string;
+  firstNameEn?: string; lastNameEn?: string;
+  slug: string;
+  roleRu?: string; roleEn?: string;
+  bioRu?: string; bioEn?: string;
+  photo?: string;
+  entityKind: 'person' | 'organization';
+  haloColor: 'violet' | 'cyan' | 'pink';
+  rubrics: string[];
+  materials: number;
+  telegram?: string; linkedin?: string; facebook?: string; twitter?: string;
+  instagram?: string; website?: string; email?: string;
+}
+
+/**
+ * Карточки для раздела авторов, вместе с числом материалов у каждого.
+ *
+ * Скрытые и те, у кого истёк срок размещения, сюда не попадают: условие одно
+ * и то же и для списка, и для карты сайта, чтобы не вышло как с партнёрским
+ * материалом, который мы предлагали обойти и сами же не показывали.
+ */
+export const fetchAuthorCards = unstable_cache(
+  async (): Promise<AuthorCard[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "author" && hidden != true
+           && (!defined(placementFrom) || placementFrom <= now())
+           && (!defined(placementTo) || placementTo >= now())]
+         | order(coalesce(sortOrder, 100) asc, name asc) {
+          _id, name, firstNameRu, lastNameRu, firstNameEn, lastNameEn,
+          "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
+          "photo": photo.asset->url,
+          "entityKind": coalesce(entityKind, "person"),
+          "haloColor": coalesce(haloColor, "violet"),
+          "rubrics": rubrics[]->slug.current,
+          "materials": count(*[_type in ["news", "article"] && author._ref == ^._id]),
+          telegram, linkedin, facebook, twitter, instagram, website, email
+        }`
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchAuthorCards'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['authors'] }
+);
+
+/**
+ * Рубрики для строки фильтров.
+ *
+ * «Никогда» отсекается здесь же: такая рубрика существует только для
+ * сортировки в админке. Режим «авто» отсекается на странице, потому что
+ * зависит от числа видимых карточек, а его считает уже она.
+ */
+export const fetchAuthorRubrics = unstable_cache(
+  async (): Promise<AuthorRubric[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "authorRubric" && coalesce(visibility, "auto") != "never"]
+         | order(coalesce(order, 100) asc) {
+          _id, titleRu, titleEn, "key": slug.current,
+          "visibility": coalesce(visibility, "auto"), "order": coalesce(order, 100)
+        }`
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchAuthorRubrics'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['authors'] }
+);
+
+export interface AuthorsPageSettings {
+  headingRu?: string; headingEn?: string;
+  ledeRu?: string; ledeEn?: string;
+  seoTitleRu?: string; seoTitleEn?: string;
+  seoDescriptionRu?: string; seoDescriptionEn?: string;
+  sort: 'manual' | 'materials' | 'alphabet';
+}
+
+export const fetchAuthorsPageSettings = unstable_cache(
+  async (): Promise<AuthorsPageSettings> => {
+    const fallback: AuthorsPageSettings = { sort: 'manual' };
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return fallback;
+    try {
+      const doc = await client.fetch(`*[_type == "authorsPage"][0]{
+        headingRu, headingEn, ledeRu, ledeEn,
+        seoTitleRu, seoTitleEn, seoDescriptionRu, seoDescriptionEn,
+        "sort": coalesce(sort, "manual")
+      }`);
+      return doc || fallback;
+    } catch {
+      return fallback;
+    }
+  },
+  ['fetchAuthorsPageSettings'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['authors'] }
 );
 
 export const fetchAuthorBySlug = unstable_cache(
@@ -632,6 +749,9 @@ export const fetchAuthorBySlug = unstable_cache(
         `*[_type == "author" && slug.current == $slug][0] {
           _id, name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn,
           "photo": photo.asset->url, email, telegram, linkedin, facebook, twitter, instagram, website,
+          "entityKind": coalesce(entityKind, "person"),
+          "haloColor": coalesce(haloColor, "violet"),
+          "sponsored": coalesce(sponsored, false),
           "hidden": coalesce(hidden, false)
         }`,
         { slug }
@@ -641,7 +761,7 @@ export const fetchAuthorBySlug = unstable_cache(
     }
   },
   ['fetchAuthorBySlug'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['authors'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['authors'] }
 );
 
 export interface AuthorFeedItem {
@@ -664,19 +784,41 @@ export interface AuthorFeedItem {
 // their total output, not on hitting a per-type page boundary at different
 // times — see fetchAuthorFeed's pagination.
 export const fetchAuthorFeed = unstable_cache(
-  async (authorSlug: string, locale: string, limit = 20, offset = 0): Promise<{ items: AuthorFeedItem[]; total: number }> => {
+  async (
+    authorSlug: string,
+    locale: string,
+    limit = 20,
+    offset = 0,
+    type?: 'article' | 'news',
+    q?: string,
+  ): Promise<{ items: AuthorFeedItem[]; total: number }> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return { items: [], total: 0 };
     try {
+      // Тип и поиск отбираются здесь, а не в браузере. У самого плодовитого
+      // автора 1836 материалов: отдать их все на клиент ради фильтра нельзя,
+      // а фильтровать одну открытую страницу значит обманывать — человек
+      // ищет по всему архиву, а находит по двадцати строкам.
+      const where =
+        '_type in ["article", "news"] && author->slug.current == $slug' +
+        ' && language == $locale && publishedAt <= now()' +
+        (type ? ' && _type == $type' : '') +
+        (q ? ' && title match $q' : '');
       const result = await client.fetch(
         `{
-          "items": *[_type in ["article", "news"] && author->slug.current == $slug && language == $locale && publishedAt <= now()] | order(publishedAt desc) [$offset...$end] {
+          "items": *[${where}] | order(publishedAt desc) [$offset...$end] {
             _type, _id, title, excerpt, slug, publishedAt, readingTime, badge, views, likes,
             "coverImage": coverImage.asset->url,
             "coverImageAlt": coverImage.alt
           },
-          "total": count(*[_type in ["article", "news"] && author->slug.current == $slug && language == $locale && publishedAt <= now()])
+          "total": count(*[${where}])
         }`,
-        { slug: authorSlug, locale, offset, end: offset + limit }
+        {
+          slug: authorSlug, locale, offset, end: offset + limit,
+          ...(type ? { type } : {}),
+          // Звёздочка на конце: без неё match ищет слово целиком, и «bitco»
+          // не найдёт ни одного «bitcoin».
+          ...(q ? { q: `${q}*` } : {}),
+        }
       );
       return result;
     } catch {
@@ -684,7 +826,54 @@ export const fetchAuthorFeed = unstable_cache(
     }
   },
   ['fetchAuthorFeed'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['articles', 'news'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['articles', 'news'] }
+);
+
+export interface AuthorStats {
+  total: number;
+  articles: number;
+  news: number;
+  views: number;
+  firstAt?: string;
+}
+
+/**
+ * Пять цифр под описанием участника.
+ *
+ * Считаются в базе одним запросом, а не сложением того, что пришло на
+ * открытую страницу: в ленте лежат двадцать строк из двух тысяч, и сумма
+ * просмотров по ним была бы выдумкой. Для компании, которая покупает
+ * размещение, это единственная строка с отдачей — врать в ней нельзя.
+ */
+export const fetchAuthorStats = unstable_cache(
+  async (slug: string, locale: string): Promise<AuthorStats> => {
+    const empty: AuthorStats = { total: 0, articles: 0, news: 0, views: 0 };
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return empty;
+    const base = 'author->slug.current == $slug && language == $locale && publishedAt <= now()';
+    try {
+      const r = await client.fetch(
+        `{
+          "articles": count(*[_type == "article" && ${base}]),
+          "news": count(*[_type == "news" && ${base}]),
+          "views": math::sum(*[_type in ["article", "news"] && ${base}].views),
+          "firstAt": *[_type in ["article", "news"] && ${base}]
+            | order(publishedAt asc)[0].publishedAt
+        }`,
+        { slug, locale }
+      );
+      return {
+        total: (r?.articles || 0) + (r?.news || 0),
+        articles: r?.articles || 0,
+        news: r?.news || 0,
+        views: r?.views || 0,
+        firstAt: r?.firstAt || undefined,
+      };
+    } catch {
+      return empty;
+    }
+  },
+  ['fetchAuthorStats'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['articles', 'news'] }
 );
 
 export interface AuthorWithLatest {

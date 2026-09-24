@@ -6,11 +6,12 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import { fetchAuthorBySlug, fetchAuthorFeed } from '@/lib/sanity';
+import { fetchAuthorBySlug, fetchAuthorFeed, fetchAuthorStats } from '@/lib/sanity';
 import AuthorPageBody from '../../AuthorPageBody';
 import { AUTHOR_PAGE_SIZE } from '../../page';
 import { SITE_NAME } from '@/lib/site';
 import { authorName } from '@/lib/authorName';
+import { authorJsonLd } from '@/lib/authorJsonLd';
 
 // Page 1 lives at /authors/[slug] itself; this route only serves page >= 2 —
 // same crawlable-pagination pattern as /articles/page/[n] and /news/page/[n].
@@ -66,32 +67,26 @@ export default async function AuthorDeepPage({ params }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
-  const author = await fetchAuthorBySlug(slug);
+  const [author, stats] = await Promise.all([
+    fetchAuthorBySlug(slug),
+    fetchAuthorStats(slug, locale),
+  ]);
   if (!author) notFound();
 
   const offset = (page - 1) * AUTHOR_PAGE_SIZE;
   const feed = await fetchAuthorFeed(slug, locale, AUTHOR_PAGE_SIZE, offset);
   if (feed.items.length === 0) notFound();
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: authorName(author, locale),
-    ...(author.photo && { image: author.photo }),
-    ...(author.roleEn && { jobTitle: isRu ? author.roleRu : author.roleEn }),
-    worksFor: { '@type': 'Organization', name: SITE_NAME, url: BASE },
-    url: `${BASE}/${locale}/authors/${slug}`,
-  };
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(authorJsonLd(author, locale, slug, isRu)) }} />
       <AuthorPageBody
         locale={locale}
         slug={slug}
         author={author}
         items={feed.items}
-        total={feed.total}
+        stats={stats}
         page={page}
         pageSize={AUTHOR_PAGE_SIZE}
       />

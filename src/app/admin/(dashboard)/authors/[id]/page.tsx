@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminAuthorById } from '@/lib/admin/data';
+import { fetchAdminAuthorById, fetchAdminRubrics } from '@/lib/admin/data';
 import { updateAuthorAction, deleteAuthorAction } from '../actions';
 import AuthorForm from '../AuthorForm';
 import DeleteButton from '../../_shared/DeleteButton';
@@ -8,7 +8,7 @@ import DeleteButton from '../../_shared/DeleteButton';
 export default async function EditAuthorPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdminPermission('authors');
   const { id } = await params;
-  const author = await fetchAdminAuthorById(id);
+  const [author, rubrics] = await Promise.all([fetchAdminAuthorById(id), fetchAdminRubrics()]);
   if (!author) notFound();
 
   const boundAction = async (formData: FormData) => {
@@ -26,7 +26,7 @@ export default async function EditAuthorPage({ params }: { params: Promise<{ id:
         <h1 className="text-[19px] font-bold">{author.name}</h1>
         <DeleteButton action={boundDelete} confirmMessage={`Удалить автора «${author.name}» безвозвратно? Это действие нельзя отменить.`} />
       </div>
-      <AuthorForm author={author} action={boundAction} />
+      <AuthorForm author={author} rubrics={rubrics} action={boundAction} />
     </div>
   );
 }

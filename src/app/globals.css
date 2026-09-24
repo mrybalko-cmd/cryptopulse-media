@@ -845,3 +845,54 @@ html.light .own-mark { color: #d99a00; }
   mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cpath%20d='M40%206%20L16%2036%20L30%2036%20L24%2058%20L48%2028%20L34%2028%20Z'/%3E%3C/svg%3E") no-repeat center / contain;
 }
 html.light .own-mark-lead::before { background-color: #d99a00; }
+
+/* ── стеклянная карточка в разделе авторов ────────────────────────────────
+   Второй ярус стекла поверх цветного ореола, как в боковой колонке
+   «Популярное». Без ореола за спиной прозрачная панель неотличима от
+   обычной карточки, поэтому ореол рисуется всегда и живёт в разметке, а не
+   здесь: его цвет выбирается для каждого участника в админке.
+
+   Светлая кромка по верхнему краю отличает стекло от просто панели. */
+.author-glass {
+  background: var(--glass-clear);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--popular-shadow);
+}
+.author-glass::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-edge-lit), transparent);
+}
+
+/* Кнопки, поля и разделители поверх стекла.
+
+   В тёмной теме их рисует --glass-edge. В светлой тот же токен почти белый:
+   на белой панели такая рамка не видна вовсе, и кнопка со ссылкой партнёра
+   превращается в строчку текста. Поэтому в светлой теме кромка берётся
+   отдельно — тёмная и слабая, ровно настолько, чтобы читался край. */
+.glass-control {
+  background: var(--glass-clear-2);
+  border: 1px solid var(--glass-edge);
+}
+.glass-control:hover {
+  border-color: var(--glass-edge-lit);
+}
+html.light .glass-control {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(16, 20, 28, 0.13);
+}
+html.light .glass-control:hover {
+  border-color: rgba(16, 20, 28, 0.28);
+}
+.glass-divider {
+  border-color: var(--glass-edge);
+}
+html.light .glass-divider {
+  border-color: rgba(16, 20, 28, 0.1);
+}

@@ -29,9 +29,19 @@ export default async function AdminAuthorsPage() {
             {shown} на сайте{hidden > 0 ? ` · ${hidden} скрыто` : ''}
           </p>
         </div>
-        <Link href="/admin/authors/new" className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-4 py-2.5 shrink-0">
-          + Добавить автора
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link href="/admin/authors/rubrics"
+            className="border border-[var(--admin-border)] text-[12.5px] font-bold rounded-lg px-3.5 py-2.5 hover:border-cyan-500/40">
+            Рубрики
+          </Link>
+          <Link href="/admin/authors/settings"
+            className="border border-[var(--admin-border)] text-[12.5px] font-bold rounded-lg px-3.5 py-2.5 hover:border-cyan-500/40">
+            Страница раздела
+          </Link>
+          <Link href="/admin/authors/new" className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-4 py-2.5">
+            + Добавить
+          </Link>
+        </div>
       </div>
 
       {authors.length === 0 ? (
@@ -53,7 +63,7 @@ export default async function AdminAuthorsPage() {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-14 h-14 rounded-full overflow-hidden bg-[var(--admin-input)] border border-[var(--admin-border)] shrink-0 ${a.hidden ? 'opacity-45' : ''}`}>
+                  <div className={`w-14 h-14 ${a.entityKind === 'organization' ? 'rounded-xl' : 'rounded-full'} overflow-hidden bg-[var(--admin-input)] border border-[var(--admin-border)] shrink-0 ${a.hidden ? 'opacity-45' : ''}`}>
                     {a.photo && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={`${a.photo}?w=112&h=112&fit=crop`} alt="" className="w-full h-full object-cover" />
@@ -65,6 +75,16 @@ export default async function AdminAuthorsPage() {
                       {a.hidden && (
                         <span className="text-[10px] font-bold uppercase tracking-wide text-amber-500 bg-amber-500/12 rounded px-1.5 py-0.5 shrink-0">
                           скрыт
+                        </span>
+                      )}
+                      {a.entityKind === 'organization' && (
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--admin-text-dim)] bg-[var(--admin-input)] rounded px-1.5 py-0.5 shrink-0">
+                          компания
+                        </span>
+                      )}
+                      {a.sponsored && (
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-cyan-400 bg-cyan-500/12 rounded px-1.5 py-0.5 shrink-0">
+                          размещение
                         </span>
                       )}
                     </div>

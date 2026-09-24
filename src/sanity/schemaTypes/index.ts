@@ -19,11 +19,13 @@ import { adminUserType } from './adminUser';
 import { adminActivityLogType } from './adminActivityLog';
 import { regulationCountryType } from './regulationCountry';
 import { glossaryTermType } from './glossaryTerm';
+import { authorRubricType } from './authorRubric';
+import { authorsPageType } from './authorsPage';
 
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType, facebookEmbedType,
   sidebarBannerType, marketSnapshotType,
     coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
-  regulationCountryType, glossaryTermType,
+  regulationCountryType, glossaryTermType, authorRubricType, authorsPageType,
 ];
