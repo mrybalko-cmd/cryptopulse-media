@@ -1,4 +1,6 @@
-export const revalidate = 300;
+// Час вместо пяти минут — причина в src/app/[locale]/news/[slug]/page.tsx.
+// Правки доезжают мимо окна: админка сбрасывает теги этого раздела.
+export const revalidate = 3600;
 
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';

@@ -823,7 +823,17 @@ export const fetchPopularContent = unstable_cache(
     }
   },
   ['fetchPopularContent'],
-  { revalidate: FEED_CACHE_SECONDS, tags: ['articles', 'news'] }
+  {
+    // Собственный тег, а не ['articles', 'news'].
+    //
+    // «Популярное» стоит в боковой колонке каждого материала, и с прежними
+    // тегами любая публикация помечала устаревшими все 2200 страниц архива:
+    // пять публикаций в сутки — и весь сайт вставал в очередь на пересборку.
+    // Свежести это не добавляло: блок и так обновляется раз в минуту по
+    // собственному окну, и просмотры в нём меняются постоянно сами.
+    revalidate: FEED_CACHE_SECONDS,
+    tags: ['popular'],
+  }
 );
 
 export interface TopLikedItem {
