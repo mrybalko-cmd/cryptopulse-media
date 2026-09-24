@@ -97,13 +97,17 @@ async function load(kind: GlossaryKind): Promise<GlossaryTerm[]> {
 export const getCryptoGlossary = unstable_cache(
   () => load('crypto'),
   ['glossary-crypto'],
-  { revalidate: 300, tags: ['glossary'] },
+  // Час, а не пять минут. Термины глоссария подставляются ссылками внутрь
+  // материалов, и короткое окно здесь тянуло вниз окно самих материалов:
+  // страница пересобирается по минимуму из всех кэшей, которые читает.
+  // Правка термина в админке сбрасывает тег `glossary` и видна сразу.
+  { revalidate: 3600, tags: ['glossary'] },
 );
 
 export const getAiGlossary = unstable_cache(
   () => load('ai'),
   ['glossary-ai'],
-  { revalidate: 300, tags: ['glossary'] },
+  { revalidate: 3600, tags: ['glossary'] },
 );
 
 /** Плоский список для простановки ссылок: термин, его словоформы и адрес.
@@ -137,5 +141,5 @@ export const getGlossaryLinkTargets = unstable_cache(
     });
   },
   ['glossary-link-targets'],
-  { revalidate: 300, tags: ['glossary'] },
+  { revalidate: 3600, tags: ['glossary'] },
 );

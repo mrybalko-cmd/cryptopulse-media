@@ -151,7 +151,9 @@ export const getRegulationCountries = unstable_cache(
     }
   },
   ['regulation-countries'],
-  { revalidate: 300, tags: ['regulation'] }
+  // Час: тексты по странам меняются раз в месяцы, а правка в админке
+  // сбрасывает тег `regulation` и видна сразу.
+  { revalidate: 3600, tags: ['regulation'] }
 );
 
 /** Newest check across all countries — what `dateModified` should say. */

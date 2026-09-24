@@ -14,6 +14,22 @@ export const client = createClient({
 });
 
 const READ_CACHE_SECONDS = 300;
+
+// Окно для того, что живёт долго и меняется по команде, а не по расписанию:
+// сам материал, «похожие», баннеры, «Популярное».
+//
+// Окно страницы в Next — это минимум её собственного revalidate и всех кэшей
+// данных, которые она читает. Поэтому одного `export const revalidate = 3600`
+// на маршруте мало: пока «Популярное» стояло на 60 секундах, страницы
+// материалов пересобирались раз в минуту, что и видно было в манифесте
+// сборки. Двигать надо оба слоя сразу.
+//
+// Час безопасен, потому что каждый из этих кэшей сбрасывается по событию:
+// материал — персональным тегом при сохранении в админке, «похожие» — тегом
+// раздела, баннеры — своим тегом при правке размещения. Само по себе окно
+// ждать приходится только «Популярному», а список по просмотрам меняется
+// медленно.
+const ARCHIVE_CACHE_SECONDS = 3600;
 // Ленты и «Популярное» живут короче: их содержимое меняется чаще всего,
 // а с тегами сохранение в админке всё равно сбрасывает их мгновенно.
 const FEED_CACHE_SECONDS = 60;
@@ -95,7 +111,7 @@ export const fetchActiveBanners = unstable_cache(
     }
   },
   ['fetchActiveBanners'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['banners'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['banners'] }
 );
 
 export async function incrementBannerImpression(id: string) {
@@ -216,7 +232,7 @@ export const fetchArticleBySlug = (slug: string, locale: string) =>
     }
   },
     ['fetchArticleBySlug', locale, slug],
-    { revalidate: READ_CACHE_SECONDS, tags: ['article-item', `article:${locale}:${slug}`] },
+    { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['article-item', `article:${locale}:${slug}`] },
   )();
 
 export const fetchSanityNews = unstable_cache(
@@ -348,7 +364,7 @@ export const fetchNewsBySlug = (slug: string, locale: string) =>
     }
   },
     ['fetchNewsBySlug', locale, slug],
-    { revalidate: READ_CACHE_SECONDS, tags: ['news-item', `news:${locale}:${slug}`] },
+    { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['news-item', `news:${locale}:${slug}`] },
   )();
 
 // Single chronologically-previous article/news, full body included — powers
@@ -541,7 +557,7 @@ export const fetchRelatedArticles = unstable_cache(
   // 6,17 млн платных перезаписей при 1,66 млн чтений — 3,7 записи
   // на чтение. Ленты и счётчики остались на общем теге и по-прежнему
   // обновляются мгновенно.
-  { revalidate: READ_CACHE_SECONDS, tags: ['article-item'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['article-item'] }
 );
 
 export const fetchRelatedNews = unstable_cache(
@@ -567,7 +583,7 @@ export const fetchRelatedNews = unstable_cache(
   // 6,17 млн платных перезаписей при 1,66 млн чтений — 3,7 записи
   // на чтение. Ленты и счётчики остались на общем теге и по-прежнему
   // обновляются мгновенно.
-  { revalidate: READ_CACHE_SECONDS, tags: ['news-item'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['news-item'] }
 );
 
 export interface PopularItem {
@@ -831,7 +847,7 @@ export const fetchPopularContent = unstable_cache(
     // пять публикаций в сутки — и весь сайт вставал в очередь на пересборку.
     // Свежести это не добавляло: блок и так обновляется раз в минуту по
     // собственному окну, и просмотры в нём меняются постоянно сами.
-    revalidate: FEED_CACHE_SECONDS,
+    revalidate: ARCHIVE_CACHE_SECONDS,
     tags: ['popular'],
   }
 );
