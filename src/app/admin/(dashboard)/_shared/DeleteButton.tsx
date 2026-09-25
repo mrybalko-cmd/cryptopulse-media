@@ -3,6 +3,17 @@
 import { useFormStatus } from 'react-dom';
 import { Trash2 } from 'lucide-react';
 
+/**
+ * Только кнопка, без формы вокруг.
+ *
+ * Нужна там, где форма уже есть и в неё кладутся скрытые поля: вложенная
+ * форма в HTML недопустима, браузер её просто выбрасывает при разборе, и
+ * кнопка перестаёт отправлять что-либо.
+ */
+export function DeleteSubmitButton({ confirmMessage }: { confirmMessage: string }) {
+  return <Inner confirmMessage={confirmMessage} />;
+}
+
 function Inner({ confirmMessage }: { confirmMessage: string }) {
   const { pending } = useFormStatus();
   return (

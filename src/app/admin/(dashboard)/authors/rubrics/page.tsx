@@ -63,8 +63,20 @@ export default async function RubricsPage({
           };
           const invisible = r.visibility === 'auto' && (r.used ?? 0) === 0;
           return (
-            <form key={r._id} action={save}
-              className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] p-4">
+            <div key={r._id} className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] p-4">
+              {/* Удаление стоит ОТДЕЛЬНОЙ формой над формой правки, а не
+                  внутри неё: вложенные формы браузер выбрасывает при разборе,
+                  и кнопка «Удалить» на деле отправляла форму сохранения. */}
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-[11px] text-[var(--admin-text-dim)]">
+                  {r.used ?? 0} участник{plural(r.used ?? 0)}
+                  {invisible && ' · сейчас на сайте не видна'}
+                </span>
+                <DeleteButton action={remove}
+                  confirmMessage={`Удалить рубрику «${r.titleRu}»? Она снимется с ${r.used ?? 0} карточек, сами участники останутся.`} />
+              </div>
+
+              <form action={save}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                 <div>
                   <label className={labelCls}>Название (RU)</label>
@@ -97,20 +109,13 @@ export default async function RubricsPage({
                 ))}
               </div>
 
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <span className="text-[11px] text-[var(--admin-text-dim)]">
-                  {r.used ?? 0} участник{plural(r.used ?? 0)}
-                  {invisible && ' · сейчас на сайте не видна'}
-                </span>
-                <span className="flex items-center gap-2">
-                  <DeleteButton action={remove}
-                    confirmMessage={`Удалить рубрику «${r.titleRu}»? Она снимется с ${r.used ?? 0} карточек, сами участники останутся.`} />
+                <div className="flex justify-end">
                   <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12px] rounded-lg px-4 py-2">
                     Сохранить
                   </SubmitButton>
-                </span>
-              </div>
-            </form>
+                </div>
+              </form>
+            </div>
           );
         })}
       </div>

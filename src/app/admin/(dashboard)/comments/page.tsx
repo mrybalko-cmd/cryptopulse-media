@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
+import { DeleteSubmitButton } from '../_shared/DeleteButton';
 import { fetchAdminComments } from '@/lib/admin/data';
 import { formatPragueDate } from '@/lib/admin/timezone';
 import { approveCommentAction, rejectCommentAction, deleteCommentAction, editCommentAction } from './actions';
@@ -68,9 +69,9 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
                 {!c.approved && (
                   <form action={rejectCommentAction}><input type="hidden" name="id" value={c._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400">✕ Отклонить</button></form>
                 )}
-                <details className="ml-1">
+                <details className="ml-1 relative">
                   <summary className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-[var(--admin-border)] text-[var(--admin-text-muted)] cursor-pointer inline-block list-none">✎ Править</summary>
-                  <form action={editCommentAction} className="mt-2 flex gap-2">
+                  <form action={editCommentAction} className="absolute left-0 top-full mt-2 z-20 w-[440px] max-w-[calc(100vw-3rem)] flex gap-2 border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] p-3 shadow-xl">
                     <input type="hidden" name="id" value={c._id} />
                     <textarea name="text" defaultValue={c.text} className="flex-1 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12px]" rows={2} />
                     <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-cyan-500 text-[#06222b] self-start">Сохранить</button>
@@ -80,7 +81,7 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
                   <input type="hidden" name="id" value={c._id} />
                   <input type="hidden" name="authorName" value={c.authorName} />
                   <input type="hidden" name="text" value={c.text} />
-                  <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button>
+                  <DeleteSubmitButton confirmMessage={`Удалить комментарий безвозвратно? Это действие нельзя отменить.`} />
                 </form>
               </div>
             </div>

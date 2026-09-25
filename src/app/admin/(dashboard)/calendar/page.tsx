@@ -7,9 +7,34 @@ import { formatPragueDate } from '@/lib/admin/timezone';
 const IMPORTANCE_DOTS: Record<string, number> = { low: 1, medium: 2, high: 3 };
 const IMPORTANCE_COLOR: Record<string, string> = { low: 'var(--admin-text-dim)', medium: '#f2a93b', high: '#ef4444' };
 
-export default async function AdminCalendarPage() {
+/**
+ * Список событий.
+ *
+ * По умолчанию показываются предстоящие. Раньше список шёл сплошь по дате
+ * вверх, и восемнадцать прошедших событий закрывали собой те, с которыми
+ * работают. Прошедшие никуда не делись: они нужны и читателю на сайте, и
+ * здесь, чтобы поправить или убрать.
+ */
+export default async function AdminCalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
   await requireAdminPermission('calendar');
-  const events = await fetchAdminCalendarEvents();
+  const [all, sp] = await Promise.all([fetchAdminCalendarEvents(), searchParams]);
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const view = sp.filter === 'past' || sp.filter === 'all' ? sp.filter : 'upcoming';
+
+  const upcoming = all.filter(e => e.date >= todayISO);
+  const past = all.filter(e => e.date < todayISO);
+  // Прошедшие показываем от свежих к старым: искать там будут последнее.
+  const events = view === 'past' ? [...past].reverse() : view === 'all' ? all : upcoming;
+
+  const tabs = [
+    { key: 'upcoming', label: `Предстоящие (${upcoming.length})` },
+    { key: 'past', label: `Прошедшие (${past.length})` },
+    { key: 'all', label: `Все (${all.length})` },
+  ] as const;
 
   return (
     <div>
@@ -20,8 +45,31 @@ export default async function AdminCalendarPage() {
         </Link>
       </div>
 
+      <div className="flex gap-1.5 mb-4">
+        {tabs.map(t => (
+          <Link
+            key={t.key}
+            href={t.key === 'upcoming' ? '/admin/calendar' : `/admin/calendar?filter=${t.key}`}
+            className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full border ${
+              view === t.key
+                ? 'bg-cyan-500/15 text-cyan-400 border-transparent'
+                : 'border-[var(--admin-border)] text-[var(--admin-text-muted)]'
+            }`}
+          >
+            {t.label}
+          </Link>
+        ))}
+      </div>
+
+      <p className="text-[11.5px] text-[var(--admin-text-muted)] mb-4 max-w-[68ch]">
+        В разметку для поисковика уходят только предстоящие события. Прошедшие
+        читатель по-прежнему видит на сайте списком «прошедшие».
+      </p>
+
       {events.length === 0 ? (
-        <p className="text-[13px] text-[var(--admin-text-muted)]">Пока нет ни одного события.</p>
+        <p className="text-[13px] text-[var(--admin-text-muted)]">
+          {view === 'upcoming' ? 'Предстоящих событий нет. Самое время добавить.' : 'Пока нет ни одного события.'}
+        </p>
       ) : (
         <div className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] divide-y divide-[var(--admin-border)] max-w-3xl">
           {events.map(e => {

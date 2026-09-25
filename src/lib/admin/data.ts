@@ -1311,6 +1311,24 @@ export async function fetchAdminComments(filter: 'pending' | 'approved' | 'all' 
   return client.fetch(`*[_type == "comment" ${clause}] | order(createdAt desc){ ${COMMENT_PROJECTION} }`);
 }
 
+/**
+ * Куда ведёт комментарий: тип, slug и язык материала.
+ *
+ * Нужно действиям модерации, чтобы сбросить кэш именно той страницы, где
+ * комментарий показывается. Читается ДО мутации: после удаления ссылки уже
+ * нет, а страницу почистить всё равно надо.
+ */
+export async function fetchCommentTarget(
+  id: string,
+): Promise<{ type?: string; slug?: string; locale?: string } | null> {
+  return client.fetch(
+    `*[_type == "comment" && _id == $id][0]{
+      "type": target->_type, "slug": target->slug.current, "locale": target->language
+    }`,
+    { id },
+  );
+}
+
 export async function countPendingComments(): Promise<number> {
   return client.fetch(`count(*[_type == "comment" && approved == false])`);
 }
@@ -1350,6 +1368,18 @@ const EXCHANGE_REVIEW_PROJECTION = `
 export async function fetchAdminExchangeReviews(filter: 'pending' | 'approved' | 'all' = 'pending'): Promise<AdminExchangeReviewDoc[]> {
   const clause = filter === 'pending' ? '&& approved == false' : filter === 'approved' ? '&& approved == true' : '';
   return client.fetch(`*[_type == "exchangeReview" ${clause}] | order(createdAt desc){ ${EXCHANGE_REVIEW_PROJECTION} }`);
+}
+
+/** Slug биржи, к которой относится отзыв. Читается до мутации, см. выше. */
+export async function fetchExchangeReviewTarget(
+  id: string,
+): Promise<{ slugRu?: string; slugEn?: string } | null> {
+  return client.fetch(
+    `*[_type == "exchangeReview" && _id == $id][0]{
+      "slugRu": exchange->slugRu.current, "slugEn": exchange->slugEn.current
+    }`,
+    { id },
+  );
 }
 
 export async function countPendingExchangeReviews(): Promise<number> {
@@ -1711,6 +1741,50 @@ export async function setSubscriberActive(id: string, active: boolean): Promise<
 
 export async function deleteSubscriber(id: string): Promise<void> {
   await writeClient.delete(id);
+}
+
+export interface SubscriberInput {
+  email: string;
+  locale: 'ru' | 'en';
+  active: boolean;
+  source?: string;
+}
+
+/**
+ * Завести подписчика руками.
+ *
+ * Пригождается, когда человек просит подписать его письмом или адрес
+ * переносят из другого списка. Источник по умолчанию помечается как
+ * ручной, чтобы в выгрузке было видно, что подписка не с формы на сайте.
+ */
+export async function createSubscriber(input: SubscriberInput) {
+  const existing = await client.fetch<{ _id: string } | null>(
+    `*[_type == "emailSubscriber" && email == $email][0]{_id}`,
+    { email: input.email },
+  );
+  if (existing) throw new Error(`Адрес ${input.email} уже есть в списке.`);
+  return writeClient.create({
+    _type: 'emailSubscriber',
+    email: input.email,
+    locale: input.locale,
+    source: input.source || 'admin',
+    active: input.active,
+    subscribedAt: new Date().toISOString(),
+  });
+}
+
+export async function updateSubscriber(id: string, input: SubscriberInput): Promise<void> {
+  // Адрес проверяем на занятость другим документом: иначе правка опечатки
+  // молча создала бы дубль в рассылке.
+  const clash = await client.fetch<{ _id: string } | null>(
+    `*[_type == "emailSubscriber" && email == $email && _id != $id][0]{_id}`,
+    { email: input.email, id },
+  );
+  if (clash) throw new Error(`Адрес ${input.email} уже занят другим подписчиком.`);
+  await writeClient
+    .patch(id)
+    .set({ email: input.email, locale: input.locale, active: input.active })
+    .commit({ autoGenerateArrayKeys: false });
 }
 
 // ---------------- Regulation map ----------------

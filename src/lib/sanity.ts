@@ -414,7 +414,13 @@ export const fetchComments = unstable_cache(
   ['fetchComments'],
   // 300s like every other read. This sat at 20 — refreshing fifteen times more
   // often than anything else on the site for the sake of three comments.
-  { revalidate: READ_CACHE_SECONDS }
+  //
+  // Тег обязателен: без него одобренный в админке комментарий доезжал до
+  // материала только сам, а материал пересобирается раз в час — модератор
+  // жал «Одобрить», комментарий уходил из очереди и на странице не
+  // появлялся. Тег общий, не по каждому материалу: комментариев единицы,
+  // а раздельные теги пришлось бы вычислять в действии по ссылке.
+  { revalidate: READ_CACHE_SECONDS, tags: ['comments'] }
 );
 
 export async function isCommentingAllowed(targetId: string) {
@@ -1529,7 +1535,10 @@ export const fetchExchangeReviews = unstable_cache(
   // Same bug as fetchComments above: sat at 20s, refreshing fifteen times
   // more often than every other cached read on the site for a handful of
   // reviews per exchange page.
-  { revalidate: READ_CACHE_SECONDS }
+  //
+  // Тег по той же причине, что у комментариев: одобренный отзыв обязан
+  // появиться на странице биржи сразу, а не через час.
+  { revalidate: READ_CACHE_SECONDS, tags: ['exchange-reviews'] }
 );
 
 export async function fetchExchangeReviewSummary(exchangeId: string): Promise<{ average: number; count: number }> {

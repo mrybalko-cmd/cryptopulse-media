@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
+import { DeleteSubmitButton } from '../_shared/DeleteButton';
 import { fetchAdminExchangeReviews } from '@/lib/admin/data';
 import { formatPragueDate } from '@/lib/admin/timezone';
 import { approveExchangeReviewAction, rejectExchangeReviewAction, deleteExchangeReviewAction, editExchangeReviewAction } from './actions';
@@ -66,9 +67,9 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
                 {!r.approved && (
                   <form action={rejectExchangeReviewAction}><input type="hidden" name="id" value={r._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400">✕ Отклонить</button></form>
                 )}
-                <details className="ml-1">
+                <details className="ml-1 relative">
                   <summary className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-[var(--admin-border)] text-[var(--admin-text-muted)] cursor-pointer inline-block list-none">✎ Править</summary>
-                  <form action={editExchangeReviewAction} className="mt-2 flex gap-2">
+                  <form action={editExchangeReviewAction} className="absolute left-0 top-full mt-2 z-20 w-[440px] max-w-[calc(100vw-3rem)] flex gap-2 border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] p-3 shadow-xl">
                     <input type="hidden" name="id" value={r._id} />
                     <textarea name="text" defaultValue={r.text} className="flex-1 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12px]" rows={2} />
                     <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-cyan-500 text-[#06222b] self-start">Сохранить</button>
@@ -78,7 +79,7 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
                   <input type="hidden" name="id" value={r._id} />
                   <input type="hidden" name="authorName" value={r.authorName} />
                   <input type="hidden" name="text" value={r.text} />
-                  <button className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-red-400/70">Удалить</button>
+                  <DeleteSubmitButton confirmMessage={`Удалить отзыв безвозвратно? Это действие нельзя отменить.`} />
                 </form>
               </div>
             </div>
