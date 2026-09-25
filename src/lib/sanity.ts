@@ -490,7 +490,9 @@ export const fetchCalendarEvents = unstable_cache(
     }
   },
   ['fetchCalendarEvents'],
-  { revalidate: READ_CACHE_SECONDS }
+  // Тег обязателен: без него правка из админки доезжала до сайта только
+  // сама, когда истечёт кэш. Сбрасывать было буквально нечего.
+  { revalidate: READ_CACHE_SECONDS, tags: ['calendar'] }
 );
 
 export async function recordEventVote(eventId: string, vote: 'like' | 'dislike', ipHash: string) {

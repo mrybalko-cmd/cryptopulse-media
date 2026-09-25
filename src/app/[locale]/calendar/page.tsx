@@ -104,13 +104,26 @@ export default async function CalendarPage({ params }: Props) {
 
   const events = await fetchCalendarEvents();
 
+  // В разметку уходят только предстоящие события.
+  //
+  // Раньше уходили все, и каждому проставлялся eventStatus «состоится по
+  // плану» — включая июльские, давно прошедшие. Для поисковика это заявка,
+  // что событие ещё впереди, и она была ложной для 18 записей из 40.
+  // У schema.org нет статуса «прошло»: EventScheduled противопоставлен
+  // отмене и переносу, а не прошлому. Поэтому прошедшие события просто не
+  // описываются как события — читатель их по-прежнему видит, списком
+  // «прошедшие» ниже на странице.
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const upcoming = events.filter(e => e.date >= todayISO);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
       {
         '@type': 'ItemList',
         name: isRu ? `Криптокалендарь ${SITE_NAME}` : `${SITE_NAME} Crypto Calendar`,
-        itemListElement: events.map((e, i) => ({
+        numberOfItems: upcoming.length,
+        itemListElement: upcoming.map((e, i) => ({
           '@type': 'ListItem',
           position: i + 1,
           item: {
