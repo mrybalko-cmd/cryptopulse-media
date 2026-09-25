@@ -1310,7 +1310,7 @@ export const fetchExchanges = unstable_cache(
     }
   },
   ['fetchExchanges'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges'] }
 );
 
 export const fetchExchangeBySlug = unstable_cache(
@@ -1333,7 +1333,7 @@ export const fetchExchangeBySlug = unstable_cache(
     }
   },
   ['fetchExchangeBySlug'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges'] }
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges'] }
 );
 
 /**

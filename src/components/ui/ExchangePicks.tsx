@@ -14,6 +14,9 @@ type Pick = {
   filter: (e: ExchangeRaw) => boolean;
   /** Overrides the default "highest volume wins" when another order is the point. */
   rank?: (a: ExchangeRaw, b: ExchangeRaw) => number;
+  /** Адрес ведёт на ту же страницу с включённым фильтром. Решётка, а не
+   *  параметр запроса: параметры делали страницу динамической и лишали её
+   *  кэша, а такие адреса в индекс всё равно не попадали. */
   href: string;
 };
 
@@ -40,38 +43,38 @@ export default function ExchangePicks({ exchanges, locale }: Props) {
           q: 'Нужна площадка с лицензией в ЕС?',
           a: 'Из площадок с подтверждённой лицензией — с самым большим оборотом.',
           filter: exchangeHasLicense,
-          href: '?license=1',
+          href: '#license=1',
         },
         {
           q: 'Важно, чтобы биржа работала давно?',
           a: 'Старейшая из работающих площадок рейтинга.',
           filter: e => Boolean(e.foundedYear),
           rank: (a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999),
-          href: '?sort=year',
+          href: '#sort=year',
         },
         {
           q: 'Нужен максимальный оборот?',
           a: 'Крупнейший оборот за сутки: чем он выше, тем меньше вы теряете на проскальзывании.',
           filter: () => true,
-          href: '?sort=volume',
+          href: '#sort=volume',
         },
         {
           q: 'Нужны не только спот, но и стейкинг или карта?',
           a: 'Самый широкий набор продуктов среди лицензированных площадок.',
           filter: e => exchangeHasLicense(e) && exchangeHasProductCategory(e, 'earn'),
-          href: '?license=1&product=earn',
+          href: '#license=1&product=earn',
         },
         {
           q: 'Хотите завести деньги с карты?',
           a: 'Лицензированная площадка с прямым вводом фиата.',
           filter: e => exchangeHasLicense(e) && exchangeHasProductCategory(e, 'card'),
-          href: '?license=1&product=card',
+          href: '#license=1&product=card',
         },
         {
           q: 'Планируете покупать напрямую у людей?',
           a: 'Самая крупная P2P-площадка: больше объявлений — больше выбор контрагента.',
           filter: e => exchangeHasProductCategory(e, 'p2p'),
-          href: '?product=p2p',
+          href: '#product=p2p',
         },
       ]
     : [
@@ -79,38 +82,38 @@ export default function ExchangePicks({ exchanges, locale }: Props) {
           q: 'Need a venue licensed in the EU?',
           a: 'The largest by volume among those with a confirmed licence.',
           filter: exchangeHasLicense,
-          href: '?license=1',
+          href: '#license=1',
         },
         {
           q: 'Want an exchange that has been around?',
           a: 'The oldest venue still operating in this ranking.',
           filter: e => Boolean(e.foundedYear),
           rank: (a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999),
-          href: '?sort=year',
+          href: '#sort=year',
         },
         {
           q: 'Need the deepest liquidity?',
           a: 'The largest 24h volume: the higher it is, the less a trade costs you in slippage.',
           filter: () => true,
-          href: '?sort=volume',
+          href: '#sort=volume',
         },
         {
           q: 'Want staking or a card, not just spot?',
           a: 'The widest product range among licensed venues.',
           filter: e => exchangeHasLicense(e) && exchangeHasProductCategory(e, 'earn'),
-          href: '?license=1&product=earn',
+          href: '#license=1&product=earn',
         },
         {
           q: 'Funding from a bank card?',
           a: 'A licensed venue that takes fiat directly.',
           filter: e => exchangeHasLicense(e) && exchangeHasProductCategory(e, 'card'),
-          href: '?license=1&product=card',
+          href: '#license=1&product=card',
         },
         {
           q: 'Buying peer to peer?',
           a: 'The largest P2P venue: more listings means more choice of counterparty.',
           filter: e => exchangeHasProductCategory(e, 'p2p'),
-          href: '?product=p2p',
+          href: '#product=p2p',
         },
       ];
 
@@ -149,12 +152,15 @@ export default function ExchangePicks({ exchanges, locale }: Props) {
             key={pick.q}
             className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2 sm:gap-4 sm:items-center py-3.5 border-b border-border last:border-b-0"
           >
-            <Link href={`/${locale}/exchanges${pick.href}`} className="group block">
+            {/* Обычная ссылка, а не Link: адрес отличается только решёткой,
+                и браузеру нужно дать выстрелить hashchange, по которому
+                список пересчитывает фильтры. */}
+            <a href={`/${locale}/exchanges${pick.href}`} className="group block">
               <span className="block text-[14.5px] font-bold text-foreground transition-colors group-hover:text-[var(--title-hover)]">
                 {pick.q}
               </span>
               <span className="block text-xs text-muted leading-[1.55] mt-1">{pick.a}</span>
-            </Link>
+            </a>
 
             <Link
               href={`/${locale}/exchanges/${slugFor(winner, locale)}`}
