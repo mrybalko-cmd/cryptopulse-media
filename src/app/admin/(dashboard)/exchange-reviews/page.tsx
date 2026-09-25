@@ -1,9 +1,13 @@
 import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { DeleteSubmitButton } from '../_shared/DeleteButton';
-import { fetchAdminExchangeReviews } from '@/lib/admin/data';
+import { fetchAdminExchangeReviews, type ModerationFilter } from '@/lib/admin/data';
 import { formatPragueDate } from '@/lib/admin/timezone';
-import { approveExchangeReviewAction, rejectExchangeReviewAction, deleteExchangeReviewAction, editExchangeReviewAction } from './actions';
+import {
+  approveExchangeReviewAction, rejectExchangeReviewAction, unpublishExchangeReviewAction,
+  restoreExchangeReviewAction, deleteExchangeReviewAction, editExchangeReviewAction,
+} from './actions';
+import ModerationButton from '../_shared/ModerationButton';
 
 function formatDate(iso: string) {
   return formatPragueDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -12,12 +16,14 @@ function formatDate(iso: string) {
 export default async function AdminExchangeReviewsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   await requireAdminPermission('exchanges');
   const { filter } = await searchParams;
-  const activeFilter = filter === 'approved' || filter === 'all' ? filter : 'pending';
+  const activeFilter: ModerationFilter =
+    filter === 'approved' || filter === 'rejected' || filter === 'all' ? filter : 'pending';
   const reviews = await fetchAdminExchangeReviews(activeFilter);
 
   const tabs = [
     { key: 'pending', label: 'На модерации' },
     { key: 'approved', label: 'Одобренные' },
+    { key: 'rejected', label: 'Отклонённые' },
     { key: 'all', label: 'Все' },
   ] as const;
 
@@ -40,7 +46,11 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
       </div>
 
       {reviews.length === 0 ? (
-        <p className="text-[13px] text-[var(--admin-text-muted)]">Ничего нет в этом фильтре.</p>
+        <p className="text-[13px] text-[var(--admin-text-muted)]">
+          {activeFilter === 'pending'
+            ? 'Очередь пуста: новых отзывов на модерацию нет.'
+            : 'Ничего нет в этом фильтре.'}
+        </p>
       ) : (
         <div className="flex flex-col gap-2.5 max-w-2xl">
           {reviews.map(r => (
@@ -54,18 +64,55 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
                     → {r.exchangeName}
                   </Link>
                 )}
-                <span className="text-[10.5px] text-[var(--admin-text-muted)] ml-auto">{formatDate(r.createdAt)}</span>
+                <span className="ml-auto flex items-center gap-2 shrink-0">
+                  {activeFilter === 'all' && (
+                    <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded ${
+                      r.approved ? 'bg-green-500/12 text-green-400'
+                        : r.rejected ? 'bg-red-500/12 text-red-400'
+                        : 'bg-amber-500/12 text-amber-500'}`}>
+                      {r.approved ? 'на сайте' : r.rejected ? 'отклонён' : 'в очереди'}
+                    </span>
+                  )}
+                  <span className="text-[10.5px] text-[var(--admin-text-muted)]">{formatDate(r.createdAt)}</span>
+                </span>
               </div>
               <p className="text-[12.5px] text-[var(--admin-text-secondary)] leading-relaxed mb-2.5 whitespace-pre-wrap">{r.text}</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 {!r.approved && (
-                  <form action={approveExchangeReviewAction}><input type="hidden" name="id" value={r._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-400">✓ Одобрить</button></form>
+                  <form action={approveExchangeReviewAction}>
+                    <input type="hidden" name="id" value={r._id} />
+                    <ModerationButton pendingLabel="Одобряем…"
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-400">
+                      ✓ Одобрить
+                    </ModerationButton>
+                  </form>
                 )}
                 {r.approved && (
-                  <form action={rejectExchangeReviewAction}><input type="hidden" name="id" value={r._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-500/15 text-slate-300">Снять с публикации</button></form>
+                  <form action={unpublishExchangeReviewAction}>
+                    <input type="hidden" name="id" value={r._id} />
+                    <ModerationButton pendingLabel="Снимаем…"
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-500/15 text-slate-300">
+                      Снять с публикации
+                    </ModerationButton>
+                  </form>
                 )}
-                {!r.approved && (
-                  <form action={rejectExchangeReviewAction}><input type="hidden" name="id" value={r._id} /><button className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400">✕ Отклонить</button></form>
+                {!r.approved && !r.rejected && (
+                  <form action={rejectExchangeReviewAction}>
+                    <input type="hidden" name="id" value={r._id} />
+                    <ModerationButton pendingLabel="Отклоняем…"
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400">
+                      ✕ Отклонить
+                    </ModerationButton>
+                  </form>
+                )}
+                {r.rejected && (
+                  <form action={restoreExchangeReviewAction}>
+                    <input type="hidden" name="id" value={r._id} />
+                    <ModerationButton pendingLabel="Возвращаем…"
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-400">
+                      ↩ Вернуть в очередь
+                    </ModerationButton>
+                  </form>
                 )}
                 <details className="ml-1 relative">
                   <summary className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-[var(--admin-border)] text-[var(--admin-text-muted)] cursor-pointer inline-block list-none">✎ Править</summary>

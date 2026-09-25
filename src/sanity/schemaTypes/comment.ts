@@ -34,6 +34,19 @@ export const commentType = defineType({
       weak: true,
       description: 'Set this if the comment is a reply to another comment on the same page.',
     }),
+    // Отклонение — отдельное состояние, а не просто «не одобрено».
+    // Раньше кнопка «Отклонить» у неодобренного комментарий проставляла
+    // approved: false тому, у кого он и так false: в базе ничего не
+    // менялось, запись оставалась в очереди, и со стороны это выглядело
+    // как неработающая кнопка. Отклонённое уходит из очереди, но не
+    // удаляется — решение можно пересмотреть.
+    defineField({
+      name: 'rejected',
+      title: 'Rejected',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Отклонено модератором: не в очереди и не на сайте.',
+    }),
     defineField({
       name: 'approved',
       title: 'Approved',

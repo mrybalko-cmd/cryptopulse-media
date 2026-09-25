@@ -1291,6 +1291,7 @@ export interface AdminCommentDoc {
   authorName: string;
   text: string;
   approved: boolean;
+  rejected: boolean;
   createdAt: string;
   targetTitle: string | null;
   targetType: 'article' | 'news' | null;
@@ -1299,16 +1300,38 @@ export interface AdminCommentDoc {
 }
 
 const COMMENT_PROJECTION = `
-  _id, authorName, text, approved, createdAt,
+  _id, authorName, text, approved, "rejected": coalesce(rejected, false), createdAt,
   "targetTitle": target->title,
   "targetType": target->_type,
   "targetSlug": target->slug.current,
   "targetLocale": target->language
 `;
 
-export async function fetchAdminComments(filter: 'pending' | 'approved' | 'all' = 'pending'): Promise<AdminCommentDoc[]> {
-  const clause = filter === 'pending' ? '&& approved == false' : filter === 'approved' ? '&& approved == true' : '';
-  return client.fetch(`*[_type == "comment" ${clause}] | order(createdAt desc){ ${COMMENT_PROJECTION} }`);
+export type ModerationFilter = 'pending' | 'approved' | 'rejected' | 'all';
+
+/**
+ * Очередь модерации.
+ *
+ * «На модерации» — не одобрено И не отклонено. Без второго условия
+ * отклонённое возвращалось бы в очередь бесконечно, а кнопка «Отклонить»
+ * выглядела бы неработающей: она проставляла approved: false тому, у кого
+ * он и так false.
+ *
+ * rejected != true, а не !rejected: у записей, созданных до появления
+ * поля, его просто нет, а отрицание отсутствующего значения в GROQ даёт
+ * null и вычеркнуло бы их все.
+ */
+export function moderationClause(filter: ModerationFilter): string {
+  if (filter === 'pending') return '&& approved == false && rejected != true';
+  if (filter === 'approved') return '&& approved == true';
+  if (filter === 'rejected') return '&& rejected == true';
+  return '';
+}
+
+export async function fetchAdminComments(filter: ModerationFilter = 'pending'): Promise<AdminCommentDoc[]> {
+  return client.fetch(
+    `*[_type == "comment" ${moderationClause(filter)}] | order(createdAt desc){ ${COMMENT_PROJECTION} }`,
+  );
 }
 
 /**
@@ -1330,11 +1353,18 @@ export async function fetchCommentTarget(
 }
 
 export async function countPendingComments(): Promise<number> {
-  return client.fetch(`count(*[_type == "comment" && approved == false])`);
+  return client.fetch(`count(*[_type == "comment" && approved == false && rejected != true])`);
 }
 
+/** Одобрение снимает отклонение, иначе запись выпала бы из обоих списков. */
 export async function setCommentApproved(id: string, approved: boolean) {
-  await writeClient.patch(id).set({ approved }).commit({ autoGenerateArrayKeys: false });
+  await writeClient.patch(id).set({ approved, ...(approved ? { rejected: false } : {}) })
+    .commit({ autoGenerateArrayKeys: false });
+}
+
+export async function setCommentRejected(id: string, rejected: boolean) {
+  await writeClient.patch(id).set({ rejected, ...(rejected ? { approved: false } : {}) })
+    .commit({ autoGenerateArrayKeys: false });
 }
 
 export async function updateCommentText(id: string, text: string) {
@@ -1354,6 +1384,7 @@ export interface AdminExchangeReviewDoc {
   rating: number;
   text: string;
   approved: boolean;
+  rejected: boolean;
   createdAt: string;
   exchangeId: string | null;
   exchangeName: string | null;
@@ -1361,13 +1392,14 @@ export interface AdminExchangeReviewDoc {
 }
 
 const EXCHANGE_REVIEW_PROJECTION = `
-  _id, authorName, rating, text, approved, createdAt,
+  _id, authorName, rating, text, approved, "rejected": coalesce(rejected, false), createdAt,
   "exchangeId": exchange->_id, "exchangeName": exchange->name, "exchangeSlugRu": exchange->slugRu.current
 `;
 
-export async function fetchAdminExchangeReviews(filter: 'pending' | 'approved' | 'all' = 'pending'): Promise<AdminExchangeReviewDoc[]> {
-  const clause = filter === 'pending' ? '&& approved == false' : filter === 'approved' ? '&& approved == true' : '';
-  return client.fetch(`*[_type == "exchangeReview" ${clause}] | order(createdAt desc){ ${EXCHANGE_REVIEW_PROJECTION} }`);
+export async function fetchAdminExchangeReviews(filter: ModerationFilter = 'pending'): Promise<AdminExchangeReviewDoc[]> {
+  return client.fetch(
+    `*[_type == "exchangeReview" ${moderationClause(filter)}] | order(createdAt desc){ ${EXCHANGE_REVIEW_PROJECTION} }`,
+  );
 }
 
 /** Slug биржи, к которой относится отзыв. Читается до мутации, см. выше. */
@@ -1383,11 +1415,17 @@ export async function fetchExchangeReviewTarget(
 }
 
 export async function countPendingExchangeReviews(): Promise<number> {
-  return client.fetch(`count(*[_type == "exchangeReview" && approved == false])`);
+  return client.fetch(`count(*[_type == "exchangeReview" && approved == false && rejected != true])`);
 }
 
 export async function setExchangeReviewApproved(id: string, approved: boolean) {
-  await writeClient.patch(id).set({ approved }).commit({ autoGenerateArrayKeys: false });
+  await writeClient.patch(id).set({ approved, ...(approved ? { rejected: false } : {}) })
+    .commit({ autoGenerateArrayKeys: false });
+}
+
+export async function setExchangeReviewRejected(id: string, rejected: boolean) {
+  await writeClient.patch(id).set({ rejected, ...(rejected ? { approved: false } : {}) })
+    .commit({ autoGenerateArrayKeys: false });
 }
 
 export async function updateExchangeReviewText(id: string, text: string) {

@@ -3,8 +3,8 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
-  setExchangeReviewApproved, updateExchangeReviewText, deleteExchangeReview,
-  fetchExchangeReviewTarget,
+  setExchangeReviewApproved, setExchangeReviewRejected, updateExchangeReviewText,
+  deleteExchangeReview, fetchExchangeReviewTarget,
 } from '@/lib/admin/data';
 import { logActivity } from '@/lib/admin/activityLog';
 
@@ -18,15 +18,21 @@ import { logActivity } from '@/lib/admin/activityLog';
  * Цель читается ДО мутации: после удаления ссылки на биржу не останется.
  */
 async function publishReview(target: Awaited<ReturnType<typeof fetchExchangeReviewTarget>>) {
-  revalidateTag('exchange-reviews', { expire: 0 });
-  revalidatePath('/admin/exchange-reviews');
-  if (!target) return;
-  // У биржи свой slug на каждом языке, и совпадают они не всегда.
-  if (target.slugRu) revalidatePath(`/ru/exchanges/${target.slugRu}`);
-  if (target.slugEn) revalidatePath(`/en/exchanges/${target.slugEn}`);
-  // Средняя оценка печатается и в общем списке бирж.
-  revalidatePath('/ru/exchanges');
-  revalidatePath('/en/exchanges');
+  // В try по той же причине, что у комментариев: запись в базу уже прошла,
+  // и сорвавшийся сброс кэша не должен показывать модератору ошибку.
+  try {
+    revalidateTag('exchange-reviews', { expire: 0 });
+    revalidatePath('/admin/exchange-reviews');
+    if (!target) return;
+    // У биржи свой slug на каждом языке, и совпадают они не всегда.
+    if (target.slugRu) revalidatePath(`/ru/exchanges/${target.slugRu}`);
+    if (target.slugEn) revalidatePath(`/en/exchanges/${target.slugEn}`);
+    // Средняя оценка печатается и в общем списке бирж.
+    revalidatePath('/ru/exchanges');
+    revalidatePath('/en/exchanges');
+  } catch (e) {
+    console.error('Не удалось сбросить кэш после модерации отзыва:', e);
+  }
 }
 
 export async function approveExchangeReviewAction(formData: FormData) {
@@ -37,11 +43,30 @@ export async function approveExchangeReviewAction(formData: FormData) {
   await publishReview(target);
 }
 
+/** Отклонить: уходит из очереди в «Отклонённые», решение обратимо. */
 export async function rejectExchangeReviewAction(formData: FormData) {
   await requireAdminPermission('exchanges');
   const id = String(formData.get('id'));
   const target = await fetchExchangeReviewTarget(id);
+  await setExchangeReviewRejected(id, true);
+  await publishReview(target);
+}
+
+/** Снять с публикации: возвращает в очередь на модерацию. */
+export async function unpublishExchangeReviewAction(formData: FormData) {
+  await requireAdminPermission('exchanges');
+  const id = String(formData.get('id'));
+  const target = await fetchExchangeReviewTarget(id);
   await setExchangeReviewApproved(id, false);
+  await publishReview(target);
+}
+
+/** Вернуть отклонённое обратно в очередь. */
+export async function restoreExchangeReviewAction(formData: FormData) {
+  await requireAdminPermission('exchanges');
+  const id = String(formData.get('id'));
+  const target = await fetchExchangeReviewTarget(id);
+  await setExchangeReviewRejected(id, false);
   await publishReview(target);
 }
 
