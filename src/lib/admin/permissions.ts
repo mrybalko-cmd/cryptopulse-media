@@ -1,16 +1,22 @@
+// Подписи английские и слово в слово совпадают с боковым меню: сотрудник
+// видит «Calendar events» в форме прав и «Calendar events» в меню, а не
+// «Календарь событий» в одном месте и Calendar в другом.
+//
+// Право exchanges открывает два раздела меню — сами биржи и отзывы о них.
+// Это одна зона ответственности, поэтому подпись говорит про оба.
 export const PERMISSIONS = [
-  { key: 'news', label: 'Новости' },
-  { key: 'articles', label: 'Статьи' },
-  { key: 'banners', label: 'Баннеры' },
-  { key: 'exchanges', label: 'Криптобиржи' },
-  { key: 'comments', label: 'Комментарии' },
-  { key: 'homepage', label: 'Главная страница' },
-  { key: 'authors', label: 'Авторы' },
-  { key: 'calendar', label: 'Календарь событий' },
-  { key: 'regulation', label: 'Карта регулирования' },
-  { key: 'glossary', label: 'Глоссарий' },
+  { key: 'news', label: 'News' },
+  { key: 'articles', label: 'Articles' },
+  { key: 'banners', label: 'Banners' },
+  { key: 'exchanges', label: 'Exchanges + reviews' },
+  { key: 'comments', label: 'Comments' },
+  { key: 'homepage', label: 'Homepage' },
+  { key: 'authors', label: 'Authors' },
+  { key: 'calendar', label: 'Calendar events' },
+  { key: 'regulation', label: 'Regulation map' },
+  { key: 'glossary', label: 'Glossary' },
   { key: 'pulse', label: 'Pulse' },
-  { key: 'subscribers', label: 'Подписчики' },
+  { key: 'subscribers', label: 'Subscribers' },
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number]['key'];

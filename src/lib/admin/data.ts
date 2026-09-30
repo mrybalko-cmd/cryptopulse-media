@@ -68,6 +68,21 @@ export async function createAdminUser(input: {
  * деактивировать себя: управлять пользователями стало бы некому, а вернуть
  * доступ из админки невозможно — удаления и восстановления там нет.
  */
+/**
+ * Удалить учётную запись сотрудника.
+ *
+ * Записи журнала действий не пострадают: он хранит имя и почту строками, а
+ * не ссылкой, поэтому история остаётся читаемой и после удаления автора
+ * действий. Входящих ссылок на adminUser в базе нет вовсе (проверено
+ * 30.09.2026), так что удаление не упрётся в чужой документ.
+ *
+ * Все проверки — кого можно удалять — живут в действии, а не здесь: тут
+ * только сама операция.
+ */
+export async function deleteAdminUser(id: string): Promise<void> {
+  await writeClient.delete(id);
+}
+
 export async function countActiveOwners(): Promise<number> {
   return client.fetch<number>(
     `count(*[_type == "adminUser" && isOwner == true && active != false])`,

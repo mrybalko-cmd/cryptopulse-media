@@ -3,14 +3,24 @@ import { requireOwner } from '@/lib/admin/auth';
 import { fetchAdminUsers } from '@/lib/admin/data';
 import { PERMISSIONS } from '@/lib/admin/permissions';
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ deleted?: string }>;
+}) {
   await requireOwner();
+  const { deleted } = await searchParams;
   const users = await fetchAdminUsers();
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[19px] font-bold">Пользователи и права</h1>
+      {deleted && (
+        <p className="text-[12px] rounded-lg px-3 py-2 mb-4 bg-green-500/10 text-green-400">
+          Сотрудник удалён. Записи в журнале действий сохранены.
+        </p>
+      )}
         <Link href="/admin/users/new" className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-4 py-2.5">
           + Добавить сотрудника
         </Link>

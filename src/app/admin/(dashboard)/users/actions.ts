@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { requireOwner, hashPassword } from '@/lib/admin/auth';
 import {
   createAdminUser, updateAdminUser, updateAdminUserPassword,
-  fetchAdminUserByEmail, fetchAdminUserById, countActiveOwners,
+  fetchAdminUserByEmail, fetchAdminUserById, countActiveOwners, deleteAdminUser,
 } from '@/lib/admin/data';
 import { PERMISSIONS, type Permission } from '@/lib/admin/permissions';
 import { logActivity } from '@/lib/admin/activityLog';
@@ -69,4 +69,45 @@ export async function updateUserAction(id: string, formData: FormData) {
     entityId: id,
   });
   redirect('/admin/users');
+}
+
+/**
+ * Удалить сотрудника. Только владелец, и только не себя.
+ *
+ * Два запрета, оба про потерю доступа:
+ *
+ * Себя — потому что удаляющий тут же остался бы с валидной сессией на
+ * несуществующую запись: страницы открывались бы до истечения куки, а смена
+ * пароля и правка профиля падали бы. Плюс единственный владелец так стёр бы
+ * последний ключ от раздела.
+ *
+ * Последнего активного владельца — по той же причине, что и в правке:
+ * управлять пользователями станет некому, а вернуть права из админки
+ * неоткуда.
+ *
+ * Деактивация остаётся отдельной кнопкой и подходит, когда сотрудник ушёл,
+ * но историю его действий хочется оставить связной.
+ */
+export async function deleteUserAction(id: string) {
+  const session = await requireOwner();
+
+  if (id === session.sub) {
+    redirect(`/admin/users/${id}?error=self-delete`);
+  }
+
+  const target = await fetchAdminUserById(id);
+  if (!target) redirect('/admin/users');
+
+  if (target.isOwner && target.active !== false && (await countActiveOwners()) <= 1) {
+    redirect(`/admin/users/${id}?error=last-owner-delete`);
+  }
+
+  await deleteAdminUser(id);
+  await logActivity(session, {
+    action: 'delete',
+    entityType: 'adminUser',
+    entityTitle: `${target.name} (${target.email})`,
+    entityId: id,
+  });
+  redirect('/admin/users?deleted=1');
 }
