@@ -1,5 +1,5 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminHomeSettings, fetchAuthorOptions, fetchAllMaterialOptions } from '@/lib/admin/data';
+import { fetchAdminHomeSettings, fetchAuthorOptions, fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
 import { updateHomeSettingsAction } from './actions';
 import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
 import SubmitButton from '../_shared/SubmitButton';
@@ -10,11 +10,18 @@ const HOME_AUTHOR_SLOTS = 4;
 export default async function AdminHomepagePage({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
   await requireAdminPermission('homepage');
   const { success } = await searchParams;
-  const [settings, authors, materialsRu, materialsEn] = await Promise.all([
-    fetchAdminHomeSettings(),
+  // Сначала настройки: из них видно, чьи материалы вообще понадобятся
+  // подборщику. Тянуть весь архив, чтобы отфильтровать его в браузере до
+  // одного автора, страница больше не будет.
+  const settings = await fetchAdminHomeSettings();
+  const columnAuthorIds = [...new Set(
+    (settings.featuredAuthors || []).map(s => s.authorId).filter(Boolean) as string[],
+  )];
+
+  const [authors, materialsRu, materialsEn] = await Promise.all([
     fetchAuthorOptions(),
-    fetchAllMaterialOptions('ru'),
-    fetchAllMaterialOptions('en'),
+    fetchMaterialOptionsForAuthors('ru', columnAuthorIds),
+    fetchMaterialOptionsForAuthors('en', columnAuthorIds),
   ]);
 
   return (

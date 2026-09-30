@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import type { AdminAuthorOption, MaterialOption } from '@/lib/admin/data';
 import MaterialPicker from '../_shared/MaterialPicker';
+import { loadAuthorMaterialsAction } from './actions';
 
 const selectCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-2.5 py-2 text-[12.5px]';
 
@@ -36,6 +37,29 @@ export default function HomeAuthorColumnsEditor({
   );
   const [previewLocale, setPreviewLocale] = useState<'ru' | 'en'>('ru');
 
+  // Страница присылает материалы только тех авторов, что уже стоят в колонках.
+  // Сменили автора — его материалы подтягиваются здесь, а не приезжают заранее
+  // всем архивом. Загруженное копится, повторно не запрашивается.
+  const [extraRu, setExtraRu] = useState<MaterialOption[]>([]);
+  const [extraEn, setExtraEn] = useState<MaterialOption[]>([]);
+  const [loadingAuthor, setLoadingAuthor] = useState<string | null>(null);
+  const [, startLoad] = useTransition();
+
+  const allRu = [...materialsRu, ...extraRu];
+  const allEn = [...materialsEn, ...extraEn];
+
+  function ensureMaterials(authorId: string) {
+    if (!authorId) return;
+    if (allRu.some(m => m.authorId === authorId) || allEn.some(m => m.authorId === authorId)) return;
+    setLoadingAuthor(authorId);
+    startLoad(async () => {
+      const got = await loadAuthorMaterialsAction(authorId);
+      setExtraRu(prev => [...prev, ...got.ru]);
+      setExtraEn(prev => [...prev, ...got.en]);
+      setLoadingAuthor(null);
+    });
+  }
+
   function updateSlot(i: number, patch: Partial<Slot>) {
     setSlots(prev => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   }
@@ -55,7 +79,7 @@ export default function HomeAuthorColumnsEditor({
       const author = authors.find(a => a._id === slot.authorId);
       if (!author) return null;
       const materialId = previewLocale === 'ru' ? slot.materialRuId : slot.materialEnId;
-      const materials = previewLocale === 'ru' ? materialsRu : materialsEn;
+      const materials = previewLocale === 'ru' ? allRu : allEn;
       const material = materials.find(m => m._id === materialId);
       if (!material) return null;
       return { author, material };
@@ -68,8 +92,9 @@ export default function HomeAuthorColumnsEditor({
       <div className="flex flex-col gap-2 w-max min-w-full">
         {slots.map((slot, i) => {
           const author = authors.find(a => a._id === slot.authorId);
-          const ownMaterialsRu = materialsRu.filter(m => m.authorId === slot.authorId);
-          const ownMaterialsEn = materialsEn.filter(m => m.authorId === slot.authorId);
+          const ownMaterialsRu = allRu.filter(m => m.authorId === slot.authorId);
+          const ownMaterialsEn = allEn.filter(m => m.authorId === slot.authorId);
+          const loading = loadingAuthor === slot.authorId;
           return (
             <div key={slot.key} className="grid grid-cols-[28px_52px_262px_449px_449px] gap-2 items-center border border-[var(--admin-border)] rounded-lg p-2.5 bg-[var(--admin-panel)]">
               <div className="flex flex-col gap-0.5">
@@ -103,14 +128,19 @@ export default function HomeAuthorColumnsEditor({
               <select
                 name={`slot_authorId_${i}`}
                 value={slot.authorId}
-                onChange={e => updateSlot(i, { authorId: e.target.value, materialRuId: '', materialEnId: '' })}
+                onChange={e => {
+                  updateSlot(i, { authorId: e.target.value, materialRuId: '', materialEnId: '' });
+                  ensureMaterials(e.target.value);
+                }}
                 className={selectCls}
               >
                 <option value="">— автор —</option>
                 {authors.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
               </select>
 
-              {slot.authorId ? (
+              {slot.authorId && loading ? (
+                <div className={`${selectCls} text-[var(--admin-text-muted)]`}>— загружаем материалы —</div>
+              ) : slot.authorId ? (
                 <MaterialPicker
                   name={`slot_materialRuId_${i}`}
                   candidates={ownMaterialsRu}
@@ -122,7 +152,9 @@ export default function HomeAuthorColumnsEditor({
                 <div className={`${selectCls} text-[var(--admin-text-muted)]`}>— сначала автор —</div>
               )}
 
-              {slot.authorId ? (
+              {slot.authorId && loading ? (
+                <div className={`${selectCls} text-[var(--admin-text-muted)]`}>— загружаем материалы —</div>
+              ) : slot.authorId ? (
                 <MaterialPicker
                   name={`slot_materialEnId_${i}`}
                   candidates={ownMaterialsEn}

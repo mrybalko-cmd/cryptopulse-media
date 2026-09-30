@@ -7,7 +7,14 @@ import PulseWidget from '@/components/ui/PulseWidget';
 
 // Deliberately longer than the widget's own chart window: this is the log you
 // study the index's behaviour in, so it should outrun what the site shows.
+// Статистика по всей истории, таблица — только последние 60 строк.
+//
+// Раньше страница грузила 400 снимков со всеми полями и рисовала каждый:
+// ответ весил полтора мегабайта. На столе незаметно, на телефоне заметно
+// очень. Цифры min/max/медиана по-прежнему считаются по всей истории, её
+// для этого хватает облегчённой выборки.
 const HISTORY_LIMIT = 400;
+const TABLE_LIMIT = 60;
 
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
@@ -39,6 +46,7 @@ export default async function AdminPulsePage() {
     ? { min: Math.min(...scores), max: Math.max(...scores), med: Math.round(median(scores)) }
     : null;
   const reconstructed = history.filter((s) => s.reconstructed).length;
+  const rows = history.slice(0, TABLE_LIMIT);
 
   return (
     <div>
@@ -63,6 +71,12 @@ export default async function AdminPulsePage() {
             <>
               {' '}Из них <b className="text-[var(--admin-text)]">{reconstructed}</b> восстановлены по историческим данным
               (помечены значком <span className="text-[var(--admin-text)]">≈</span>) — это реконструкция, а не живое измерение.
+            </>
+          )}
+          {history.length > TABLE_LIMIT && (
+            <>
+              {' '}В таблице ниже — последние <b className="text-[var(--admin-text)]">{TABLE_LIMIT}</b> дней
+              из <b className="text-[var(--admin-text)]">{history.length}</b>. Цифры выше посчитаны по всей истории.
             </>
           )}
         </p>
@@ -90,7 +104,7 @@ export default async function AdminPulsePage() {
                   <span className="text-right">К-т</span>
                 </div>
 
-                {history.map((s) => {
+                {rows.map((s) => {
                   const zone = zoneMeta((s.pulseZone as never) ?? zoneOf(s.pulseScore));
                   return (
                     <div

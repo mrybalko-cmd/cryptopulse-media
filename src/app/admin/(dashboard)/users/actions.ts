@@ -2,7 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { requireOwner, hashPassword } from '@/lib/admin/auth';
-import { createAdminUser, updateAdminUser, updateAdminUserPassword, fetchAdminUserByEmail } from '@/lib/admin/data';
+import {
+  createAdminUser, updateAdminUser, updateAdminUserPassword,
+  fetchAdminUserByEmail, fetchAdminUserById, countActiveOwners,
+} from '@/lib/admin/data';
 import { PERMISSIONS, type Permission } from '@/lib/admin/permissions';
 import { logActivity } from '@/lib/admin/activityLog';
 
@@ -35,6 +38,25 @@ export async function updateUserAction(id: string, formData: FormData) {
   const active = formData.get('active') === 'on';
   const newPassword = String(formData.get('newPassword') || '');
   const permissions = parsePermissions(formData);
+
+  // Защита от самоблокировки.
+  //
+  // Владелец в системе может быть один. Сняв с себя галочку «владелец» или
+  // «активен», он теряет доступ к разделу пользователей навсегда: вернуть
+  // права из админки неоткуда, удаления и восстановления в ней нет, а
+  // раздел закрыт требованием быть владельцем. Чинилось бы только правкой
+  // документа в базе руками.
+  //
+  // Поэтому: последнего активного владельца нельзя ни разжаловать, ни
+  // выключить — ни себе, ни кому-то другому. Когда владельцев двое и
+  // больше, ограничение снимается само.
+  const target = await fetchAdminUserById(id);
+  if (target?.isOwner && target.active !== false && (!isOwner || !active)) {
+    const owners = await countActiveOwners();
+    if (owners <= 1) {
+      redirect(`/admin/users/${id}?error=last-owner`);
+    }
+  }
 
   await updateAdminUser(id, { name, isOwner, active, permissions });
   if (newPassword.length >= 8) {

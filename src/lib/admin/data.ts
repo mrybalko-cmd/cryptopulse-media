@@ -61,6 +61,19 @@ export async function createAdminUser(input: {
   });
 }
 
+/**
+ * Сколько в системе активных владельцев.
+ *
+ * Нужно, чтобы последний владелец не смог снять с себя права или
+ * деактивировать себя: управлять пользователями стало бы некому, а вернуть
+ * доступ из админки невозможно — удаления и восстановления там нет.
+ */
+export async function countActiveOwners(): Promise<number> {
+  return client.fetch<number>(
+    `count(*[_type == "adminUser" && isOwner == true && active != false])`,
+  );
+}
+
 export async function updateAdminUser(id: string, input: {
   name: string;
   isOwner: boolean;
@@ -1249,14 +1262,38 @@ export interface MaterialOption {
 // better trade than an 800+ row unbounded fetch on every /admin/homepage view.
 // Ordered by recency (not title) so the picker's default "recent 3" view
 // needs no extra client-side sort.
-export const fetchAllMaterialOptions = unstable_cache(
-  async (language: 'ru' | 'en'): Promise<MaterialOption[]> => {
-    return client.fetch(
-      `*[(_type == "article" || _type == "news") && language == $language] | order(publishedAt desc){ _id, title, "authorId": author._ref, "authorName": author->name, "coverImage": coverImage.asset->url, publishedAt }`,
-      { language }
+/**
+ * Материалы для подборщика на главной.
+ *
+ * Берём только тех авторов, что реально стоят в колонках, и только свежие.
+ * Раньше запрос тянул вообще всё: 1 192 материала на каждый язык, и страница
+ * настроек главной весила мегабайт — при том что подборщик всё равно тут же
+ * отфильтровывал список до одного автора уже в браузере.
+ *
+ * Лимит на автора щедрый: колонка на главной — это витрина свежего, и
+ * материал старше двух сотен публикаций туда не ставят. Если понадобится —
+ * поднять здесь, а не убирать.
+ */
+const MATERIAL_OPTIONS_PER_AUTHOR = 200;
+
+export const fetchMaterialOptionsForAuthors = unstable_cache(
+  async (language: 'ru' | 'en', authorIds: string[]): Promise<MaterialOption[]> => {
+    if (authorIds.length === 0) return [];
+    const out = await Promise.all(
+      authorIds.map(id =>
+        client.fetch<MaterialOption[]>(
+          `*[(_type == "article" || _type == "news") && language == $language && author._ref == $id]
+           | order(publishedAt desc)[0...${MATERIAL_OPTIONS_PER_AUTHOR}]{
+            _id, title, "authorId": author._ref, "authorName": author->name,
+            "coverImage": coverImage.asset->url, publishedAt
+          }`,
+          { language, id }
+        )
+      )
     );
+    return out.flat();
   },
-  ['admin-all-material-options'],
+  ['admin-material-options-by-author'],
   { revalidate: 180 }
 );
 
