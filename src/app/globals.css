@@ -896,3 +896,117 @@ html.light .glass-control:hover {
 html.light .glass-divider {
   border-color: rgba(16, 20, 28, 0.1);
 }
+
+/* ── Калькулятор состояний ──────────────────────────────────────────────
+   Ползунок нарисован руками: родной accent-color умеет только плоский цвет,
+   а градиент по заполненной части — то, ради чего его и меняли.
+
+   Заливка лежит отдельным слоем поверх серой дорожки, а не цветовыми стопами
+   одного градиента. Со стопами при малом значении выходила ошибка: средняя
+   точка градиента стояла на трети дорожки, и браузер подтягивал к ней конец
+   заливки — на минимуме дорожка оставалась закрашенной на треть. Доля хода
+   приходит переменной --pn (0…1), ширина считается по центру бегунка: 10px —
+   его половина. */
+.wealth-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 26px;
+  cursor: pointer;
+  width: 100%;
+}
+.wealth-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-edge);
+  background:
+    linear-gradient(90deg, #a855f7 0%, #6366f1 45%, #22d3ee 100%)
+      left center / calc(10px + (100% - 20px) * var(--pn, 0.2)) 100% no-repeat,
+    rgba(255, 255, 255, 0.07);
+}
+.wealth-range::-moz-range-track {
+  height: 8px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-edge);
+  background:
+    linear-gradient(90deg, #a855f7 0%, #6366f1 45%, #22d3ee 100%)
+      left center / calc(10px + (100% - 20px) * var(--pn, 0.2)) 100% no-repeat,
+    rgba(255, 255, 255, 0.07);
+}
+html.light .wealth-range::-webkit-slider-runnable-track,
+html.light .wealth-range::-moz-range-track {
+  background:
+    linear-gradient(90deg, #a855f7 0%, #6366f1 45%, #0891b2 100%)
+      left center / calc(10px + (100% - 20px) * var(--pn, 0.2)) 100% no-repeat,
+    rgba(16, 20, 28, 0.09);
+}
+.wealth-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-top: -7px;
+  border: 2px solid #fff;
+  background: linear-gradient(135deg, #c084fc, #7c3aed);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.6);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.wealth-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: linear-gradient(135deg, #c084fc, #7c3aed);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.6);
+}
+.wealth-range:hover::-webkit-slider-thumb {
+  transform: scale(1.08);
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.7), 0 0 0 7px rgba(168, 85, 247, 0.16);
+}
+.wealth-range:active::-webkit-slider-thumb { transform: scale(0.96); }
+.wealth-range:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .wealth-range::-webkit-slider-thumb { transition: none; }
+}
+
+/* Заливка по буквам — одна пара на всё яркое: число лет, счётчик, суммы
+   покупок и процент. Класс, а не утилита, потому что background-clip:text
+   требует прозрачного цвета текста, и пару свойств удобнее держать вместе. */
+.wealth-grad {
+  background-image: linear-gradient(90deg, #a855f7 0%, #6366f1 44%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html.light .wealth-grad {
+  background-image: linear-gradient(90deg, #7c3aed 0%, #4f46e5 44%, #0891b2 100%);
+}
+/* Заливка чуть шире текста и медленно едет: число живое, а не залитое
+   плоским цветом. Остановится у тех, кто просил меньше движения. */
+.wealth-grad-drift {
+  background-size: 200% 100%;
+  animation: wealth-shift 7s ease-in-out infinite;
+}
+@keyframes wealth-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wealth-grad-drift { animation: none; }
+}
+
+/* Точка «вживую»: пульсирующее кольцо вместо простого мигания. Единственный
+   элемент страницы, который прямо говорит, что число не застыло. */
+.wealth-dot {
+  box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.55);
+  animation: wealth-pulse 1.8s ease-out infinite;
+}
+@keyframes wealth-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.55); opacity: 1; }
+  70% { box-shadow: 0 0 0 7px rgba(168, 85, 247, 0); opacity: 0.85; }
+  100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wealth-dot { animation: none; }
+}

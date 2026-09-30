@@ -191,7 +191,7 @@ export default async function Footer() {
         <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
           <p className="text-xs text-muted">{t('disclaimerText')}</p>
           <p className="text-xs text-muted shrink-0">
-            © {new Date().getFullYear()} ${SITE_NAME} · {t('rights')}
+            © {new Date().getFullYear()} {SITE_NAME} · {t('rights')}
           </p>
         </div>
 
