@@ -93,10 +93,18 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
     ? `${yearsText} ${yearsWord(years, locale)} — столько мне копить на состояние ${billionaire.possessive.ru}. А вам?`
     : `${yearsText} ${yearsWord(years, locale)} — that is how long I would save for ${billionaire.possessive.en} fortune. And you?`;
 
+  // Ореолы лежат под всем блоком, а не только под героем: стекло такой
+  // прозрачности без подсветки за спиной неотличимо от матовой панели, и
+  // крипто-карточки с калькулятором теряли отделку первыми.
   return (
-    <div className="flex flex-col gap-4">
+    <div className="relative flex flex-col gap-4">
+      <span aria-hidden className="pointer-events-none absolute -left-[10%] top-[26%] h-[42%] w-[62%] rounded-full blur-[80px]"
+            style={{ background: 'radial-gradient(50% 50% at 50% 50%, var(--halo-violet), transparent 72%)' }} />
+      <span aria-hidden className="pointer-events-none absolute -right-[8%] top-[52%] h-[38%] w-[54%] rounded-full blur-[80px]"
+            style={{ background: 'radial-gradient(50% 50% at 50% 50%, var(--halo-cyan), transparent 72%)' }} />
+
       {/* ── герой: счётчик ────────────────────────────────────────────── */}
-      <section className="relative">
+      <section className="relative z-[1]">
         <span aria-hidden className="pointer-events-none absolute -left-[8%] -top-[26%] h-[110%] w-[58%] rounded-full blur-[64px]"
               style={{ background: 'radial-gradient(50% 50% at 50% 50%, var(--halo-violet), transparent 70%)' }} />
         <span aria-hidden className="pointer-events-none absolute -right-[6%] top-[4%] h-[86%] w-[46%] rounded-full blur-[64px]"
@@ -131,7 +139,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
             </b>
           </p>
 
-          <div className="mt-3.5 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-[var(--glass-edge)] pt-3.5 sm:flex sm:flex-wrap">
+          <div className="glass-divider mt-3.5 grid grid-cols-2 gap-x-5 gap-y-3 border-t pt-3.5 sm:flex sm:flex-wrap">
             <Speed value={formatMoney(perSecond, locale)} label={isRu ? 'в секунду' : 'per second'} />
             <Speed value={formatCompactMoney(perSecond * 3600, locale)} label={isRu ? 'в час' : 'per hour'} />
             <Speed value={formatCompactMoney(perSecond * 86400, locale)} label={isRu ? 'в сутки' : 'per day'} />
@@ -153,7 +161,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
                               motion-reduce:transform-none ${
                     on
                       ? 'border-[#a855f7]/55 shadow-[0_10px_24px_rgba(124,58,237,0.28),inset_0_1px_0_rgba(255,255,255,0.2)]'
-                      : 'border-[var(--glass-edge)] bg-[var(--glass-clear)] hover:-translate-y-px hover:border-[var(--glass-edge-lit)]'
+                      : 'glass-control hover:-translate-y-px'
                   }`}
                   style={on ? { backgroundImage: 'linear-gradient(115deg,rgba(168,85,247,0.16),rgba(34,211,238,0.12))' } : undefined}
                 >
@@ -173,7 +181,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
 
       {/* ── крипто-угол ───────────────────────────────────────────────── */}
       {crypto && btc && (
-        <section className="grid gap-3 sm:grid-cols-[1.2fr_1fr]">
+        <section className="relative z-[1] grid gap-3 sm:grid-cols-[1.2fr_1fr]">
           <Panel title={isRu ? 'Это состояние в биткоинах' : 'This fortune in bitcoin'}>
             <p className="font-extrabold leading-none tracking-[-0.035em] text-[#e0ab3a] text-[clamp(24px,5vw,34px)]">
               {formatInt(btc.coins, locale)}
@@ -200,7 +208,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
                 const times = billionaire.netWorth / c.marketCap;
                 const shown = times < 10 ? times : Math.round(times);
                 return (
-                  <li key={c.slug} className="flex items-baseline justify-between gap-3 border-b border-[var(--glass-edge)] py-2 last:border-b-0">
+                  <li key={c.slug} className="glass-divider flex items-baseline justify-between gap-3 border-b py-2 last:border-b-0">
                     <span className="text-[13px] text-muted">{isRu ? `Весь ${c.name}` : `All of ${c.name}`}</span>
                     <b className="wealth-grad shrink-0 text-[14px] font-extrabold tabular-nums">
                       {isRu
@@ -222,7 +230,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
       )}
 
       {/* ── расчёт ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-2xl border border-[var(--glass-edge)]
+      <section className="relative z-[1] overflow-hidden rounded-2xl border border-[var(--glass-edge)]
                           bg-[var(--glass-clear)] p-4 shadow-[var(--glass-shadow)]
                           backdrop-blur-[18px] sm:p-6">
         <h2 className="text-[17px] font-extrabold text-foreground sm:text-[19px]">
@@ -239,7 +247,7 @@ export default function WealthBoard({ locale, crypto }: { locale: string; crypto
             <span className="mb-1.5 block text-[12px] font-medium text-muted">
               {isRu ? 'Ваш доход в месяц' : 'Your monthly income'}
             </span>
-            <span className="flex items-center gap-1.5 rounded-xl border border-[var(--glass-edge)] bg-[var(--glass-clear-2)] px-3 py-2.5">
+            <span className="glass-control flex items-center gap-1.5 rounded-xl px-3 py-2.5">
               <span className="text-muted">$</span>
               <input
                 type="number"
