@@ -198,17 +198,22 @@ export async function fetchTopAssetPrices(coingeckoIds: string[]): Promise<Recor
 
   const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coingeckoIds.join(',')}&order=market_cap_desc&per_page=${coingeckoIds.length}&page=1&sparkline=true&price_change_percentage=24h,7d`;
 
-  // One retry, uncached. CoinGecko's free tier rate-limits, and a single 429
-  // during a build used to be enough to ship a page of blanks: the empty result
-  // is indistinguishable from "this coin has no data" by the time it reaches the
-  // template. The retry skips the cache so it cannot be answered by the same
-  // failed response that just came back.
+  // Одна повторная попытка. Бесплатный тариф CoinGecko ограничивает частоту,
+  // и одного 429 во время сборки хватало, чтобы страница уехала с пустотой:
+  // к моменту отрисовки пустой ответ неотличим от «у монеты нет данных».
+  //
+  // Повтор ходит по другому адресу, а не с cache:'no-store'. Это важнее, чем
+  // выглядит: любой no-store во время пререндера выбрасывает весь маршрут из
+  // статики. Проверено подменой источника на заведомо нерабочий — /assets и
+  // /calculators тут же превращались из ● в ƒ, и на боевом они годами
+  // отвечали no-store с вечным промахом кэша, потому что при сборке всех
+  // страниц разом лимит CoinGecko срабатывает почти наверняка. Лишний
+  // параметр в адресе даёт отдельную запись в кэше — тот же эффект «не тот же
+  // самый ответ», без потери пререндера.
   for (const attempt of [0, 1]) {
     try {
-      const res = await fetch(url, {
-        ...(attempt === 0
-          ? { next: { revalidate: ASSET_PRICE_REVALIDATE } }
-          : { cache: 'no-store' as const }),
+      const res = await fetch(attempt === 0 ? url : `${url}&retry=1`, {
+        next: { revalidate: ASSET_PRICE_REVALIDATE },
         signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
       if (!res.ok) continue;
