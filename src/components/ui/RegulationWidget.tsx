@@ -34,7 +34,19 @@ const SHORT: Partial<Record<RegStatus, { ru: string; en: string }>> = {
   banned: { ru: 'Запрещено', en: 'Banned' },
 };
 
-export default async function RegulationWidget({ locale }: { locale: string }) {
+export default async function RegulationWidget({
+  locale,
+  compact = false,
+}: {
+  locale: string;
+  /**
+   * Узкая колонка в ряду справочников. Виджет тот же — та же геометрия, те же
+   * ореолы, тот же подвал; меняются только размеры: числа с 27 пунктов до 22,
+   * а карта забирает свободную высоту вместо фиксированного соотношения,
+   * иначе под числами копится пустой провал в сотню пикселей.
+   */
+  compact?: boolean;
+}) {
   const isRu = locale === 'ru';
   const countries = await getRegulationCountries();
   if (!countries.length) return null;
@@ -77,10 +89,10 @@ export default async function RegulationWidget({ locale }: { locale: string }) {
       <span aria-hidden className="pointer-events-none absolute -bottom-[19%] left-[13%] h-[46%] w-[66%] rounded-full blur-[38px]"
             style={{ background: 'radial-gradient(50% 50% at 50% 50%, var(--halo-pink), transparent 72%)' }} />
 
-      <div className="relative z-[2] flex min-h-[323px] flex-col overflow-hidden rounded-[18px]
+      <div className={`relative z-[2] flex flex-col overflow-hidden rounded-[18px] ${compact ? 'h-full min-h-[300px]' : 'min-h-[323px]'}
                       border border-[var(--glass-line)] bg-[image:var(--glass-fill)]
                       shadow-[inset_0_1px_0_var(--glass-hi)]
-                      backdrop-blur-[22px] backdrop-saturate-150">
+                      backdrop-blur-[22px] backdrop-saturate-150`}>
         <div className="flex items-baseline justify-between gap-2 px-4 pt-[15px]">
           <b className="text-[12.5px] font-bold tracking-[0.015em] text-foreground">
             {isRu ? 'Регулирование криптовалют' : 'Crypto regulation'}
@@ -90,7 +102,10 @@ export default async function RegulationWidget({ locale }: { locale: string }) {
           </span>
         </div>
 
-        <div className="relative mt-2 w-full" style={{ aspectRatio: `${GEO.width} / ${GEO.height}` }}>
+        <div
+          className={`relative mt-2 w-full${compact ? ' min-h-[120px] flex-1' : ''}`}
+          style={compact ? undefined : { aspectRatio: `${GEO.width} / ${GEO.height}` }}
+        >
           <svg
             viewBox={`0 0 ${GEO.width} ${GEO.height}`}
             preserveAspectRatio="xMidYMid meet"
@@ -137,7 +152,7 @@ export default async function RegulationWidget({ locale }: { locale: string }) {
         <div className="mt-[11px] grid grid-cols-3 gap-1.5 px-4">
           {(['legal', 'restricted', 'banned'] as RegStatus[]).map(s => (
             <span key={s}>
-              <b className="block text-[27px] font-extrabold leading-none -tracking-[0.03em] tabular-nums text-foreground">
+              <b className={`block font-extrabold leading-none -tracking-[0.03em] tabular-nums text-foreground ${compact ? 'text-[22px]' : 'text-[27px]'}`}>
                 {counts[s]}
               </b>
               <em className="mt-[5px] block text-[9.5px] font-extrabold uppercase not-italic tracking-[0.09em] text-muted">

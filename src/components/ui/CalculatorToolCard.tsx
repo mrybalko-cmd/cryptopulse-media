@@ -123,10 +123,16 @@ export function ConverterCard({
 export function WealthCard({
   locale,
   people,
+  basis,
 }: {
   locale: string;
-  /** Top fortunes with the years each would take on a reference salary. */
+  /** Состояния и срок накопления при тех же условиях, что стоят на самой
+   *  странице по умолчанию. Если здесь считать по полной зарплате, а там по
+   *  норме сбережений, превью обещает одно число, а страница показывает
+   *  другое, вдвое большее. */
   people: { name: string; years: string; pct: number }[];
+  /** Подпись над полосами: при каких условиях посчитано. */
+  basis: string;
 }) {
   const isRu = locale === 'ru';
 
@@ -135,15 +141,15 @@ export function WealthCard({
       href={`/${locale}/calculators/wealth`}
       color="#8b5cf6"
       icon={<Scale size={17} />}
-      title={isRu ? 'Сравнение богатства' : 'Wealth Comparison'}
+      title={isRu ? 'Состояние миллиардеров' : 'Billionaire wealth'}
       description={
         isRu
-          ? 'Укажите свой доход и узнайте, сколько лет уйдёт, чтобы догнать одно из крупнейших состояний мира.'
-          : 'Enter what you earn and see how long it would take to reach one of the world’s largest fortunes.'
+          ? 'Живой счётчик пятёрки Forbes, перевод состояния в биткоины и срок накопления по вашему доходу.'
+          : 'A live counter for the Forbes top five, the fortune in bitcoin, and your own saving horizon.'
       }
       cta={isRu ? 'Открыть калькулятор' : 'Open calculator'}
     >
-      <Label>{isRu ? 'При зарплате $60 000' : 'On a $60,000 salary'}</Label>
+      <Label>{basis}</Label>
       <span className="flex flex-col gap-[7px]">
         {people.map((p) => (
           <span key={p.name} className="grid grid-cols-[52px_minmax(0,1fr)_auto] gap-2.5 items-center">
