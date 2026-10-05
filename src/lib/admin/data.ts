@@ -388,6 +388,10 @@ export interface AdminCalendarEventDoc {
   descriptionRu?: string;
   descriptionEn?: string;
   date: string;
+  time?: string;
+  endDate?: string;
+  outcomeRu?: string;
+  outcomeEn?: string;
   category: string;
   importance: 'low' | 'medium' | 'high';
   icon: string | null;
@@ -399,7 +403,8 @@ export interface AdminCalendarEventDoc {
 const CALENDAR_EVENT_PROJECTION = `
   _id, "titleRu": title.ru, "titleEn": title.en, "slug": slug.current,
   "descriptionRu": description.ru, "descriptionEn": description.en,
-  date, category, importance, "icon": icon.asset->url, sourceUrl,
+  date, time, endDate, "outcomeRu": outcome.ru, "outcomeEn": outcome.en,
+  category, importance, "icon": icon.asset->url, sourceUrl,
   "likes": coalesce(likes, 0), "dislikes": coalesce(dislikes, 0)
 `;
 
@@ -418,6 +423,10 @@ export interface CalendarEventInput {
   descriptionRu?: string;
   descriptionEn?: string;
   date: string;
+  time?: string;
+  endDate?: string;
+  outcomeRu?: string;
+  outcomeEn?: string;
   category: string;
   importance: 'low' | 'medium' | 'high';
   sourceUrl?: string;
@@ -429,6 +438,9 @@ function calendarEventSetFields(input: CalendarEventInput) {
     slug: { _type: 'slug' as const, current: input.slug },
     description: { _type: 'object' as const, ru: input.descriptionRu || undefined, en: input.descriptionEn || undefined },
     date: input.date,
+    time: input.time || undefined,
+    endDate: input.endDate || undefined,
+    outcome: { _type: 'object' as const, ru: input.outcomeRu || undefined, en: input.outcomeEn || undefined },
     category: input.category,
     importance: input.importance,
     sourceUrl: input.sourceUrl || undefined,

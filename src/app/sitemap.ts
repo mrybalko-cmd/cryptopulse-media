@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
+import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys, fetchCalendarEvents } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
 import { GLOSSARY_BASELINE } from '@/lib/glossary';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
@@ -114,6 +114,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * derived from the same data the route uses, so a sixth country cannot end
    * up live and absent from the sitemap the way a hand-kept list would allow.
    */
+  /* Страницы событий. Прошедшие остаются в карте: у них есть итог и свой
+     адрес, и поиск их уже знает. Частота обновления разная — будущее событие
+     могут перенести, прошедшему правят разве что итог. */
+  const calendarEvents = await fetchCalendarEvents();
+  const todayCal = new Date().toISOString().slice(0, 10);
+  const calendarEventPages = calendarEvents.flatMap((e) => {
+    const upcoming = e.date >= todayCal;
+    return ['ru', 'en'].map((loc) => ({
+      url: `${BASE}/${loc}/calendar/${e.slug}`,
+      lastModified: todayUtc,
+      changeFrequency: upcoming ? ('weekly' as const) : ('monthly' as const),
+      priority: upcoming ? 0.6 : 0.4,
+    }));
+  });
+
   const countryPages = (await getRegulationCountries())
     .filter(c => c.hasPage)
     .flatMap(c => [
@@ -239,5 +254,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
-  return [...staticPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  return [...staticPages, ...calendarEventPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

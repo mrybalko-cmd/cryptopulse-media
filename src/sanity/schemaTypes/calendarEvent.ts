@@ -37,6 +37,29 @@ export const calendarEventType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'time',
+      title: 'Time (optional)',
+      type: 'string',
+      description: 'Как показывать читателю: «14:00 UTC», «после закрытия рынка». Свободная строка, а не время: у половины событий точного часа не бывает.',
+    }),
+    defineField({
+      name: 'endDate',
+      title: 'End date (optional)',
+      type: 'date',
+      description: 'Для многодневных событий — конференций. Пусто означает «один день».',
+      validation: (Rule) => Rule.min(Rule.valueOfField('date')).warning('Конец раньше начала'),
+    }),
+    defineField({
+      name: 'outcome',
+      title: 'Outcome (optional)',
+      type: 'object',
+      description: 'Чем кончилось. Заполняется после даты и показывается только в архиве.',
+      fields: [
+        { name: 'ru', title: 'Russian', type: 'string' },
+        { name: 'en', title: 'English', type: 'string' },
+      ],
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
       type: 'string',

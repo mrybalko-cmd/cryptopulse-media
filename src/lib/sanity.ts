@@ -472,6 +472,12 @@ export interface CalendarEvent {
   slug: string;
   description?: { ru?: string; en?: string };
   date: string;
+  /** Свободная строка вида «14:00 UTC» — у многих событий точного часа нет. */
+  time?: string | null;
+  /** Последний день многодневного события; пусто означает «один день». */
+  endDate?: string | null;
+  /** Чем кончилось. Показывается только в архиве, после даты события. */
+  outcome?: { ru?: string; en?: string } | null;
   category: string;
   importance: 'low' | 'medium' | 'high';
   iconUrl: string | null;
@@ -486,8 +492,8 @@ export const fetchCalendarEvents = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "calendarEvent"] | order(date asc) {
-          _id, title, "slug": slug.current, description, date, category, importance,
-          "iconUrl": icon.asset->url, sourceUrl,
+          _id, title, "slug": slug.current, description, date, time, endDate, outcome,
+          category, importance, "iconUrl": icon.asset->url, sourceUrl,
           "likes": coalesce(likes, 0), "dislikes": coalesce(dislikes, 0)
         }`
       );

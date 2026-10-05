@@ -11,6 +11,9 @@ interface Props {
   /** Days from today to the event, computed once by the carousel so every card
       counts down from the same "now" and the server/client markup matches. */
   daysAway?: number;
+  /** Ближайшее событие. Заливается градиентом своей категории, чтобы первая
+      карточка читалась как главная, а не как первая из шести одинаковых. */
+  lead?: boolean;
 }
 
 function countdown(days: number | undefined, isRu: boolean): string | null {
@@ -31,7 +34,7 @@ function countdown(days: number | undefined, isRu: boolean): string | null {
   return `in ${days} days`;
 }
 
-export function CalendarEventCarouselCard({ event, locale, daysAway }: Props) {
+export function CalendarEventCarouselCard({ event, locale, daysAway, lead = false }: Props) {
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
   const title = event.title[loc];
@@ -50,20 +53,32 @@ export function CalendarEventCarouselCard({ event, locale, daysAway }: Props) {
 
   return (
     <Link
-      href={`/${locale}/calendar#${event.slug}`}
-      style={{ '--cat-soft': tint(color, 0.4) } as CSSProperties}
-      className="snap-start shrink-0 w-60 relative overflow-hidden bg-card border border-border rounded-2xl p-3.5 pl-4 flex flex-col gap-2.5 transition-all hover:border-[var(--cat-soft)] hover:shadow-lg"
+      href={`/${locale}/calendar/${event.slug}`}
+      style={
+        {
+          '--cat-soft': tint(color, 0.4),
+          ...(lead ? { background: `linear-gradient(152deg, ${tint(color, 0.16)}, var(--glass-clear-2) 64%)` } : {}),
+        } as CSSProperties
+      }
+      className={`snap-start shrink-0 w-60 relative overflow-hidden rounded-[15px] p-3.5 flex flex-col gap-2.5
+                  backdrop-blur-[14px] backdrop-saturate-150 transition-[transform,border-color]
+                  hover:-translate-y-0.5 hover:border-[var(--cat-soft)] motion-reduce:transform-none
+                  ${lead ? 'border' : 'cal-glass-soft'}`}
     >
-      <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: color }} />
 
       <div className="flex items-start justify-between gap-2.5">
         <p className="flex items-baseline gap-1.5">
-          <span className="text-[22px] font-extrabold text-foreground leading-none tabular-nums">{day}</span>
+          <span
+            className="text-[22px] font-black leading-none tracking-[-0.035em] tabular-nums"
+            style={{ color: lead ? color : 'var(--foreground)' }}
+          >
+            {day}
+          </span>
           <span className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-muted">{month}</span>
         </p>
         <span
           className="w-[30px] h-[30px] rounded-lg overflow-hidden flex items-center justify-center shrink-0 relative"
-          style={{ color, background: tint(color, 0.14) }}
+          style={{ color, background: tint(color, 0.14), border: `1px solid ${tint(color, 0.34)}` }}
         >
           {event.iconUrl ? (
             <Image src={event.iconUrl} alt="" aria-hidden="true" width={30} height={30} className="w-full h-full object-cover" />

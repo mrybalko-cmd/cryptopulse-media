@@ -45,11 +45,20 @@ export default function CalendarCarousel({ events, locale }: { events: CalendarE
         : `Next event — in ${nextIn} days`;
 
   return (
-    <section className="mb-14">
-      <div className="flex items-center justify-between gap-3 mb-5">
+    <section className="mb-14 relative overflow-hidden rounded-[20px] p-5 cal-glass backdrop-blur-[22px] backdrop-saturate-150">
+      {/* Ореол за стеклом: без него панель выглядит серой плёнкой. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -left-16 -top-20 h-[260px] w-[340px] rounded-full blur-[70px]"
+        style={{ background: 'var(--halo-cyan)', opacity: 0.4 }}
+      />
+      <div className="relative flex items-center justify-between gap-3 mb-5">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+            <span
+              className="w-[7px] h-[7px] rounded-full shrink-0"
+              style={{ background: 'linear-gradient(135deg, var(--accent), var(--violet))' }}
+            />
             <Link href={`/${locale}/calendar`} className="hover:text-accent transition-colors">
               {isRu ? 'Криптокалендарь' : 'Crypto Calendar'}
             </Link>
@@ -62,35 +71,36 @@ export default function CalendarCarousel({ events, locale }: { events: CalendarE
           <button
             onClick={() => scroll(-1)}
             aria-label={isRu ? 'Назад' : 'Previous'}
-            className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted hover:text-accent hover:border-accent/40 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-muted transition-colors cal-glass-soft hover:text-foreground"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={() => scroll(1)}
             aria-label={isRu ? 'Вперёд' : 'Next'}
-            className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted hover:text-accent hover:border-accent/40 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-muted transition-colors cal-glass-soft hover:text-foreground"
           >
             <ChevronRight size={16} />
           </button>
         </div>
       </div>
 
-      <div ref={trackRef} className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {events.map((event) => (
+      <div ref={trackRef} className="relative flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 sm:mx-0 sm:px-0">
+        {events.map((event, i) => (
           <CalendarEventCarouselCard
             key={event._id}
             event={event}
             locale={locale}
             daysAway={daysTo(event.date)}
+            lead={i === 0}
           />
         ))}
       </div>
 
-      <div className="flex justify-center mt-5">
+      <div className="relative flex justify-center mt-5">
         <Link
           href={`/${locale}/calendar`}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent text-background text-sm font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center gap-1.5 px-5 py-2.5 rounded-[11px] text-[12px] font-bold cal-gradient transition-[filter]"
         >
           {isRu ? 'Посмотреть все события' : 'View all events'}
           <ArrowRight size={14} />

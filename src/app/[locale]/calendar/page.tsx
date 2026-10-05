@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { fetchCalendarEvents } from '@/lib/sanity';
-import CalendarFilter from '@/components/ui/CalendarFilter';
+import CalendarBoard from '@/components/ui/CalendarBoard';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { SITE_NAME } from '@/lib/site';
 
@@ -74,6 +74,10 @@ const CALENDAR_GLOSSARY_LINKS = [
 ];
 
 type Props = { params: Promise<{ locale: string }> };
+
+/** Под страницей лежит unstable_cache на 300 секунд. Раньше окно страницы не
+ *  задавалось вовсе: рендеров выходило больше, а свежести столько же. */
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -163,7 +167,7 @@ export default async function CalendarPage({ params }: Props) {
               : 'Token unlocks, token sales, listings, macro reports, and other key crypto market events — with an importance rating, likes, and the option to add them to your Google Calendar.'}
           </p>
 
-          <CalendarFilter events={events} locale={locale} pageUrl={pageUrl} />
+          <CalendarBoard events={events} locale={locale} pageUrl={pageUrl} />
 
           {/* SEO copy block — approved by user 16.07.2026. Explains what the
               calendar is and why each event category matters, with real

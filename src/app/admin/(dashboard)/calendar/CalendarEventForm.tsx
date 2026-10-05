@@ -7,6 +7,7 @@ import SavedMark from '../_shared/SavedMark';
 
 const inputCls = 'w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]';
 const labelCls = 'text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block';
+const hintCls = 'text-[10.5px] text-[var(--admin-text-muted)] mt-1.5 leading-snug';
 
 const IMPORTANCE_OPTIONS = [
   { value: 'low', label: 'Низкая' },
@@ -38,19 +39,35 @@ export default function CalendarEventForm({
         <SlugInput name="slug" titleInputName="titleEn" defaultValue={event?.slug} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-5">
+      <div className="grid grid-cols-3 gap-4 mb-5">
         <div>
           <label className={labelCls}>Дата</label>
           <input name="date" type="date" defaultValue={event?.date} required className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>Категория</label>
-          <select name="category" defaultValue={event?.category ?? CATEGORY_ORDER[0]} className={inputCls}>
-            {CATEGORY_ORDER.map(cat => (
-              <option key={cat} value={cat}>{CATEGORY_LABELS[cat].ru} / {CATEGORY_LABELS[cat].en}</option>
-            ))}
-          </select>
+          <label className={labelCls}>Время (необязательно)</label>
+          <input
+            name="time"
+            defaultValue={event?.time}
+            placeholder="14:00 UTC"
+            className={inputCls}
+          />
+          <p className={hintCls}>Свободная строка: «14:00 UTC», «после закрытия рынка».</p>
         </div>
+        <div>
+          <label className={labelCls}>Последний день (необязательно)</label>
+          <input name="endDate" type="date" defaultValue={event?.endDate} className={inputCls} />
+          <p className={hintCls}>Для конференций на несколько дней. Пусто — событие на один день.</p>
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <label className={labelCls}>Категория</label>
+        <select name="category" defaultValue={event?.category ?? CATEGORY_ORDER[0]} className={inputCls}>
+          {CATEGORY_ORDER.map(cat => (
+            <option key={cat} value={cat}>{CATEGORY_LABELS[cat].ru} / {CATEGORY_LABELS[cat].en}</option>
+          ))}
+        </select>
       </div>
 
       <div className="mb-5">
@@ -75,6 +92,32 @@ export default function CalendarEventForm({
           <textarea name="descriptionEn" defaultValue={event?.descriptionEn} rows={3} className={inputCls} />
         </div>
       </div>
+
+      {/* Итог нужен только тому событию, которое уже прошло: до даты писать
+          в него нечего, и в форме нового события он только мешал бы. */}
+      <div className="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <label className={labelCls}>Итог, RU (необязательно)</label>
+          <input
+            name="outcomeRu"
+            defaultValue={event?.outcomeRu}
+            placeholder="ARB упал на 6% за двое суток"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Outcome, EN (optional)</label>
+          <input
+            name="outcomeEn"
+            defaultValue={event?.outcomeEn}
+            placeholder="ARB fell 6% in 48h"
+            className={inputCls}
+          />
+        </div>
+      </div>
+      <p className={`${hintCls} -mt-3 mb-6`}>
+        Чем кончилось событие. Показывается читателю только в архиве, после даты.
+      </p>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>

@@ -9,11 +9,15 @@ interface Props {
   event: CalendarEvent;
   locale: string;
   pageUrl: string;
+  /** Компактный ряд для карточки в списке: кнопка календаря сжимается до
+   *  значка. Полную подпись оставляем герою и странице события — сорок четыре
+   *  одинаковые синие кнопки в списке перетягивали на себя всё внимание. */
+  compact?: boolean;
 }
 
 type VoteState = 'like' | 'dislike' | null;
 
-export default function EventActions({ event, locale, pageUrl }: Props) {
+export default function EventActions({ event, locale, pageUrl, compact = false }: Props) {
   const isRu = locale === 'ru';
   const [likes, setLikes] = useState(event.likes);
   const [dislikes, setDislikes] = useState(event.dislikes);
@@ -29,7 +33,9 @@ export default function EventActions({ event, locale, pageUrl }: Props) {
     } catch {}
   }, [event._id]);
 
-  const eventUrl = `${pageUrl}#${event.slug}`;
+  // У события теперь свой адрес, поэтому копируется и отправляется он, а не
+  // якорь на общем списке.
+  const eventUrl = `${pageUrl}/${event.slug}`;
   const title = event.title[locale as 'ru' | 'en'];
   const description = event.description?.[locale as 'ru' | 'en'] || title;
 
@@ -113,10 +119,16 @@ export default function EventActions({ event, locale, pageUrl }: Props) {
         href={getGoogleCalendarUrl(title, description, event.date, event.sourceUrl)}
         target="_blank"
         rel="noopener noreferrer"
-        className="ml-auto inline-flex items-center gap-1.5 text-[10.5px] font-bold px-2.5 py-1 rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 transition-colors whitespace-nowrap"
+        aria-label={isRu ? 'В Google Календарь' : 'Add to Google Calendar'}
+        title={isRu ? 'В Google Календарь' : 'Add to Google Calendar'}
+        className={
+          compact
+            ? `${btnClass} border-accent/40 bg-accent/10 text-accent hover:bg-accent/20`
+            : 'ml-auto inline-flex items-center gap-1.5 text-[10.5px] font-bold px-2.5 py-1 rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 transition-colors whitespace-nowrap'
+        }
       >
         <CalendarPlus size={12} />
-        {isRu ? 'В Google Календарь' : 'Add to Google Calendar'}
+        {!compact && (isRu ? 'В Google Календарь' : 'Add to Google Calendar')}
       </a>
     </div>
   );

@@ -18,7 +18,7 @@ export const LISTING_PATHS = [
  *  yesterday's, so a date that advances daily is accurate rather than inflated.
  *  Coin pages under /assets are appended by the sitemap from COINS. */
 export const LIVE_DATA_PATHS = [
-  '/rates', '/assets', '/altcoin-season', '/fear-greed', '/calendar', '/pulse',
+  '/rates', '/assets', '/altcoin-season', '/fear-greed', '/calendar', '/calendar/archive', '/pulse',
 ];
 
 /** Tools whose content is the widget plus its prose — unchanged by the rates
