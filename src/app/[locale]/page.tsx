@@ -12,11 +12,12 @@ import AuthorColumns from '@/components/ui/AuthorColumns';
 import TemaDnyaCard from '@/components/ui/TemaDnyaCard';
 import OverlayArticleCard from '@/components/ui/OverlayArticleCard';
 import CalendarCarousel from '@/components/ui/CalendarCarousel';
+import HomeAuthorsWidget from '@/components/ui/HomeAuthorsWidget';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
 import RegulationWidget from '@/components/ui/RegulationWidget';
 import { fetchOwnNews } from '@/lib/news';
-import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings } from '@/lib/sanity';
+import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings, fetchHomeAuthorsWidget } from '@/lib/sanity';
 import { fetchLatestPulse } from '@/lib/pulse';
 type Props = { params: Promise<{ locale: string }> };
 
@@ -25,7 +26,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, calendarEvents, popular, settings, pulse] = await Promise.allSettled([
+  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget] = await Promise.allSettled([
     // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
     // up closer to the news/articles columns above it.
     fetchOwnNews({ limit: 16, locale }),
@@ -35,6 +36,7 @@ export default async function HomePage({ params }: Props) {
     fetchPopularContent(locale, 5),
     fetchHomeSettings(locale),
     fetchLatestPulse(),
+    fetchHomeAuthorsWidget(locale),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
@@ -292,6 +294,12 @@ export default async function HomePage({ params }: Props) {
 
       {/* Calendar */}
       <CalendarCarousel events={upcomingEvents} locale={locale} />
+
+      {/* Участники: крупная работа, три публикации и «сейчас читают».
+          Собирается в админке, пустые части подбираются сами. */}
+      {authorsWidget.status === 'fulfilled' && (
+        <HomeAuthorsWidget data={authorsWidget.value} locale={locale} />
+      )}
 
       {/* Mobile-only: Pulse widget at the very bottom of the page. Desktop
           already surfaces it within the homepage grid above, so this is

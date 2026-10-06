@@ -3,7 +3,19 @@
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { updateAdminHomeSettings, type HomeSettingsInput, fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
+import { updateAdminHomeSettings, type HomeSettingsInput, type WidgetSlotInput,
+  fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
+
+/** Слоты блока участников приходят формой парами w<prefix>_ru_N / _en_N. */
+function readSlots(formData: FormData, prefix: string, max: number): WidgetSlotInput[] {
+  const out: WidgetSlotInput[] = [];
+  for (let i = 0; i < max; i++) {
+    const ruId = String(formData.get(`${prefix}_ru_${i}`) || '');
+    const enId = String(formData.get(`${prefix}_en_${i}`) || '');
+    if (ruId || enId) out.push({ ruId, enId });
+  }
+  return out;
+}
 
 export async function updateHomeSettingsAction(formData: FormData) {
   await requireAdminPermission('homepage');
@@ -25,6 +37,13 @@ export async function updateHomeSettingsAction(formData: FormData) {
     showArticles: formData.get('showArticles') === 'on',
     showAuthorColumns: formData.get('showAuthorColumns') === 'on',
     featuredAuthors,
+    showAuthorsWidget: formData.get('showAuthorsWidget') === 'on',
+    widgetHero: {
+      ruId: String(formData.get('whero_ru_0') || ''),
+      enId: String(formData.get('whero_en_0') || ''),
+    },
+    widgetItems: readSlots(formData, 'witem', 3),
+    widgetReading: readSlots(formData, 'wread', 6),
   };
 
   await updateAdminHomeSettings(input);

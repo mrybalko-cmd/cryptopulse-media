@@ -1,7 +1,9 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminHomeSettings, fetchAuthorOptions, fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
+import { fetchAdminHomeSettings, fetchAuthorOptions, fetchMaterialOptionsForAuthors,
+  fetchRecentMaterialOptions } from '@/lib/admin/data';
 import { updateHomeSettingsAction } from './actions';
 import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
+import HomeAuthorsWidgetEditor from './HomeAuthorsWidgetEditor';
 import SubmitButton from '../_shared/SubmitButton';
 import SavedMark from '../_shared/SavedMark';
 
@@ -18,10 +20,14 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
     (settings.featuredAuthors || []).map(s => s.authorId).filter(Boolean) as string[],
   )];
 
-  const [authors, materialsRu, materialsEn] = await Promise.all([
+  const [authors, materialsRu, materialsEn, recentRu, recentEn] = await Promise.all([
     fetchAuthorOptions(),
     fetchMaterialOptionsForAuthors('ru', columnAuthorIds),
     fetchMaterialOptionsForAuthors('en', columnAuthorIds),
+    // Подборщикам блока участников нужен не архив автора, а просто свежие
+    // материалы: внутри пикера есть поиск по заголовку.
+    fetchRecentMaterialOptions('ru'),
+    fetchRecentMaterialOptions('en'),
   ]);
 
   return (
@@ -66,6 +72,14 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
           materialsEn={materialsEn}
           initialSlots={settings.featuredAuthors}
         />
+
+        <div className="mt-8 pt-7 border-t border-[var(--admin-border)]">
+          <HomeAuthorsWidgetEditor
+            settings={settings}
+            materialsRu={recentRu}
+            materialsEn={recentEn}
+          />
+        </div>
 
         <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           Сохранить

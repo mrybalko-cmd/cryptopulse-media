@@ -1250,11 +1250,17 @@ export interface AdminFeaturedAuthorSlot {
   materialEnTitle?: string;
 }
 
+export interface AdminWidgetSlot { ruId?: string; enId?: string }
+
 export interface AdminHomeSettings {
   showNews: boolean;
   showArticles: boolean;
   showAuthorColumns: boolean;
   featuredAuthors: AdminFeaturedAuthorSlot[];
+  showAuthorsWidget: boolean;
+  widgetHero: AdminWidgetSlot;
+  widgetItems: AdminWidgetSlot[];
+  widgetReading: AdminWidgetSlot[];
 }
 
 const HOME_SETTINGS_ID = 'homeSettings';
@@ -1268,10 +1274,33 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
         "authorId": author._ref, "authorName": author->name,
         "materialRuId": materialRu._ref, "materialRuTitle": materialRu->title,
         "materialEnId": materialEn._ref, "materialEnTitle": materialEn->title
-      }
+      },
+      "showAuthorsWidget": coalesce(showAuthorsWidget, true),
+      "widgetHero": { "ruId": authorsWidgetHero.ru._ref, "enId": authorsWidgetHero.en._ref },
+      "widgetItems": authorsWidgetItems[]{ "ruId": ru._ref, "enId": en._ref },
+      "widgetReading": authorsWidgetReading[]{ "ruId": ru._ref, "enId": en._ref }
     }`
   );
-  return doc ?? { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
+  return doc ?? {
+    showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [],
+    showAuthorsWidget: true, widgetHero: { ruId: '', enId: '' }, widgetItems: [], widgetReading: [],
+  };
+}
+
+/** Последние материалы для подборщиков блока участников: автор там не важен,
+ *  важен сам материал, поэтому фильтра по автору здесь нет. */
+export async function fetchRecentMaterialOptions(
+  locale: 'ru' | 'en',
+  limit = 80
+): Promise<MaterialOption[]> {
+  return client.fetch(
+    `*[_type in ["article", "news"] && language == $locale]
+      | order(publishedAt desc)[0...$limit]{
+        _id, title, "authorId": author._ref, "authorName": author->name,
+        "coverImage": coverImage.asset->url, publishedAt
+      }`,
+    { locale, limit }
+  );
 }
 
 export interface MaterialOption {
@@ -1324,11 +1353,27 @@ export const fetchMaterialOptionsForAuthors = unstable_cache(
   { revalidate: 180 }
 );
 
+/** Пара «материал на русском / материал на английском» для одного слота. */
+export interface WidgetSlotInput { ruId: string; enId: string }
+
 export interface HomeSettingsInput {
   showNews: boolean;
   showArticles: boolean;
   showAuthorColumns: boolean;
   featuredAuthors: { authorId: string; materialRuId: string; materialEnId: string }[];
+  showAuthorsWidget: boolean;
+  widgetHero: WidgetSlotInput;
+  widgetItems: WidgetSlotInput[];
+  widgetReading: WidgetSlotInput[];
+}
+
+const rndKey = () => Math.random().toString(36).slice(2, 8);
+/** Пустая ссылка в Sanity — это отсутствующее поле, а не reference на ''. */
+function slotRef(slot: WidgetSlotInput) {
+  return {
+    ...(slot.ruId ? { ru: { _type: 'reference' as const, _ref: slot.ruId } } : {}),
+    ...(slot.enId ? { en: { _type: 'reference' as const, _ref: slot.enId } } : {}),
+  };
 }
 
 export async function updateAdminHomeSettings(input: HomeSettingsInput) {
@@ -1344,6 +1389,17 @@ export async function updateAdminHomeSettings(input: HomeSettingsInput) {
       materialRu: { _type: 'reference', _ref: slot.materialRuId },
       materialEn: { _type: 'reference', _ref: slot.materialEnId },
     })),
+    // Документ пишется целиком через createOrReplace, поэтому поля виджета
+    // обязаны уходить в ту же запись: иначе первое сохранение настроек
+    // главной молча стёрло бы подборку блока участников.
+    showAuthorsWidget: input.showAuthorsWidget,
+    authorsWidgetHero: slotRef(input.widgetHero),
+    authorsWidgetItems: input.widgetItems
+      .filter((s) => s.ruId || s.enId)
+      .map((s, i) => ({ _type: 'widgetSlot', _key: `wi-${i}-${rndKey()}`, ...slotRef(s) })),
+    authorsWidgetReading: input.widgetReading
+      .filter((s) => s.ruId || s.enId)
+      .map((s, i) => ({ _type: 'readingSlot', _key: `wr-${i}-${rndKey()}`, ...slotRef(s) })),
   };
   await writeClient.createOrReplace({ _id: HOME_SETTINGS_ID, ...fields });
 }

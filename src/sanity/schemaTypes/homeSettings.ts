@@ -93,6 +93,86 @@ export const homeSettingsType = defineType({
         }),
       ],
     }),
+
+    defineField({
+      name: 'showAuthorsWidget',
+      title: 'Показывать блок авторов внизу / Show authors widget',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Блок под криптокалендарём: крупная работа, три публикации колонками и «Сейчас читают» справа.',
+    }),
+    defineField({
+      name: 'authorsWidgetHero',
+      title: 'Блок авторов · крупная работа / Authors widget · hero',
+      type: 'object',
+      description: 'Пусто = берётся последняя статья участника с обложкой. Заполнено = показывается то, что выбрали.',
+      fields: [
+        defineField({
+          name: 'ru',
+          title: 'Материал (RU)',
+          type: 'reference',
+          to: [{ type: 'article' }, { type: 'news' }],
+          options: { filter: 'language == "ru"' },
+        }),
+        defineField({
+          name: 'en',
+          title: 'Материал (EN)',
+          type: 'reference',
+          to: [{ type: 'article' }, { type: 'news' }],
+          options: { filter: 'language == "en"' },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'authorsWidgetItems',
+      title: 'Блок авторов · три публикации / Authors widget · three columns',
+      type: 'array',
+      description: 'Порядок в списке = порядок на сайте. Пусто = берутся последние работы других участников.',
+      validation: (Rule) => Rule.max(3),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'widgetSlot',
+          fields: [
+            defineField({ name: 'ru', title: 'Материал (RU)', type: 'reference',
+              to: [{ type: 'article' }, { type: 'news' }], options: { filter: 'language == "ru"' } }),
+            defineField({ name: 'en', title: 'Материал (EN)', type: 'reference',
+              to: [{ type: 'article' }, { type: 'news' }], options: { filter: 'language == "en"' } }),
+          ],
+          preview: {
+            select: { title: 'ru.title', subtitle: 'en.title' },
+            prepare({ title, subtitle }) {
+              return { title: title || 'Материал не выбран', subtitle: subtitle || '' };
+            },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'authorsWidgetReading',
+      title: 'Блок авторов · «Сейчас читают» / Authors widget · reading now',
+      type: 'array',
+      description: 'Правая колонка. Пусто = четыре материала с наибольшим числом просмотров.',
+      validation: (Rule) => Rule.max(6),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'readingSlot',
+          fields: [
+            defineField({ name: 'ru', title: 'Материал (RU)', type: 'reference',
+              to: [{ type: 'article' }, { type: 'news' }], options: { filter: 'language == "ru"' } }),
+            defineField({ name: 'en', title: 'Материал (EN)', type: 'reference',
+              to: [{ type: 'article' }, { type: 'news' }], options: { filter: 'language == "en"' } }),
+          ],
+          preview: {
+            select: { title: 'ru.title', subtitle: 'en.title' },
+            prepare({ title, subtitle }) {
+              return { title: title || 'Материал не выбран', subtitle: subtitle || '' };
+            },
+          },
+        }),
+      ],
+    }),
   ],
   preview: {
     prepare() {

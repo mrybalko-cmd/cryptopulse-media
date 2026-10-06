@@ -1602,3 +1602,125 @@ export async function createExchangeReview(input: {
     ipHash: input.ipHash,
   });
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Блок участников внизу главной.
+
+   Редактор может собрать его руками в админке, а может не трогать вовсе:
+   каждая часть, оставленная пустой, добирается автоматически. Поэтому блок
+   живой с первого дня и не превращается в пустую рамку, если про него
+   забыли.
+   ──────────────────────────────────────────────────────────────────────── */
+
+export interface WidgetMaterial {
+  _id: string;
+  _type: 'article' | 'news';
+  title: string;
+  slug: string;
+  excerpt?: string;
+  publishedAt: string;
+  views: number;
+  cover?: string;
+  author?: {
+    name: string;
+    firstNameRu?: string; lastNameRu?: string;
+    firstNameEn?: string; lastNameEn?: string;
+    slug: string;
+    roleRu?: string; roleEn?: string;
+    photo?: string;
+    entityKind?: 'person' | 'organization';
+    haloColor?: string;
+  } | null;
+}
+
+export interface HomeAuthorsWidget {
+  show: boolean;
+  hero: WidgetMaterial | null;
+  items: WidgetMaterial[];
+  reading: WidgetMaterial[];
+}
+
+const WIDGET_MATERIAL_PROJECTION = `
+  _id, _type, title, "slug": slug.current, excerpt, publishedAt,
+  "views": coalesce(views, 0), "cover": coverImage.asset->url,
+  "author": author->{
+    name, firstNameRu, lastNameRu, firstNameEn, lastNameEn,
+    "slug": slug.current, roleRu, roleEn, "photo": photo.asset->url,
+    entityKind, haloColor, "hidden": coalesce(hidden, false)
+  }
+`;
+
+export const fetchHomeAuthorsWidget = unstable_cache(
+  async (locale: string): Promise<HomeAuthorsWidget> => {
+    const empty: HomeAuthorsWidget = { show: false, hero: null, items: [], reading: [] };
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return empty;
+
+    const lang = locale === 'ru' ? 'ru' : 'en';
+    const pick = lang === 'ru' ? 'ru' : 'en';
+
+    try {
+      const data = await client.fetch(
+        `{
+          "settings": *[_type == "homeSettings"][0] {
+            "show": coalesce(showAuthorsWidget, true),
+            "hero": authorsWidgetHero.${pick}-> { ${WIDGET_MATERIAL_PROJECTION} },
+            "items": authorsWidgetItems[].${pick}-> { ${WIDGET_MATERIAL_PROJECTION} },
+            "reading": authorsWidgetReading[].${pick}-> { ${WIDGET_MATERIAL_PROJECTION} }
+          },
+          "autoHero": *[_type == "article" && language == $lang
+              && defined(coverImage.asset) && defined(author)
+              && !(coalesce(author->hidden, false))]
+            | order(publishedAt desc)[0] { ${WIDGET_MATERIAL_PROJECTION} },
+          "autoItems": *[_type == "author" && !(coalesce(hidden, false))] {
+              "m": *[_type in ["article", "news"] && language == $lang
+                  && author._ref == ^._id]
+                | order(publishedAt desc)[0] { ${WIDGET_MATERIAL_PROJECTION} }
+            }[defined(m)].m | order(publishedAt desc),
+          "autoReading": *[_type in ["article", "news"] && language == $lang]
+            | order(coalesce(views, 0) desc)[0...6] { ${WIDGET_MATERIAL_PROJECTION} }
+        }`,
+        { lang }
+      );
+
+      const s = data?.settings;
+      if (s && s.show === false) return empty;
+
+      const clean = (list: unknown): WidgetMaterial[] =>
+        ((list as WidgetMaterial[]) || []).filter((m) => m && m._id && m.title);
+
+      const hero: WidgetMaterial | null = s?.hero?._id ? s.hero : (data?.autoHero ?? null);
+
+      /* Автоподбор трёх публикаций: запрос отдаёт по одной свежей работе на
+         каждого участника, здесь остаётся отсеять автора героя. Брать просто
+         последние материалы сайта нельзя — почти все они принадлежат одному
+         новостнику, и блок про авторов стал бы его личной лентой. */
+      let items: WidgetMaterial[] = clean(s?.items);
+      if (items.length === 0) {
+        const seen = new Set<string>();
+        if (hero?.author?.slug) seen.add(hero.author.slug);
+        const picked: WidgetMaterial[] = [];
+        for (const m of clean(data?.autoItems)) {
+          const key = m.author?.slug;
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          picked.push(m);
+          if (picked.length >= 3) break;
+        }
+        items = picked;
+      }
+      items = items.slice(0, 3);
+
+      let reading = clean(s?.reading);
+      if (reading.length === 0) reading = clean(data?.autoReading).slice(0, 4);
+      // Герой не дублируется в правой колонке: один и тот же заголовок дважды
+      // в одном блоке читается как ошибка вёрстки.
+      reading = reading.filter((m) => m._id !== hero?._id).slice(0, 4);
+
+      return { show: true, hero, items, reading };
+    } catch {
+      return empty;
+    }
+  },
+  ['fetchHomeAuthorsWidget'],
+  { revalidate: READ_CACHE_SECONDS, tags: ['homeSettings', 'articles', 'news'] }
+);
