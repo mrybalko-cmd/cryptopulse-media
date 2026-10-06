@@ -28,7 +28,18 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://news.google.com",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.ahrefs.com https://news.google.com",
+      // GA4 давно шлёт события не на google-analytics.com, а на
+      // region1.analytics.google.com — другой домен, и старый список его не
+      // покрывал. Счётчик грузился, gtag отвечал, а каждый запрос молча
+      // отбивался политикой: в консоли «Refused to connect», в отчётах тишина.
+      // Туда же относятся домены Google Ads: без них не работают конверсии.
+      "connect-src 'self' " +
+        "https://www.google-analytics.com https://*.google-analytics.com " +
+        "https://analytics.google.com https://*.analytics.google.com " +
+        "https://www.googletagmanager.com " +
+        "https://www.google.com https://www.googleadservices.com " +
+        "https://*.doubleclick.net " +
+        "https://analytics.ahrefs.com https://news.google.com",
       "frame-src https://www.youtube.com https://news.google.com",
       "object-src 'none'",
       "base-uri 'self'",
