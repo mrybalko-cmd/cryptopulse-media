@@ -47,7 +47,7 @@ export const authorType = defineType({
     }),
     defineField({
       name: 'haloColor',
-      title: 'Цвет ореола за карточкой',
+      title: 'Цвет карточки',
       type: 'string',
       initialValue: 'violet',
       options: {
@@ -55,10 +55,13 @@ export const authorType = defineType({
           { title: 'Фиолетовый', value: 'violet' },
           { title: 'Бирюзовый', value: 'cyan' },
           { title: 'Розовый', value: 'pink' },
+          { title: 'Синий', value: 'blue' },
+          { title: 'Изумрудный', value: 'emerald' },
+          { title: 'Янтарный', value: 'amber' },
+          { title: 'Оранжевый', value: 'orange' },
         ],
-        layout: 'radio',
       },
-      description: 'Три цвета палитры сайта. Свободный цвет не даём: он рано или поздно окажется кислотным',
+      description: 'Семь цветов палитры сайта — те же, что у категорий календаря: каждый проверен на контраст и на тёмной теме, и на светлой. Свободный цвет не даём: он рано или поздно окажется кислотным',
     }),
     defineField({
       name: 'sortOrder',

@@ -1,4 +1,5 @@
 import type { AdminAuthorDoc, AdminRubricDoc } from '@/lib/admin/data';
+import { AUTHOR_COLOR_ORDER, AUTHOR_COLORS } from '@/lib/authorColors';
 import SlugInput from '../_shared/SlugInput';
 import ImageField from '../_shared/ImageField';
 import SubmitButton from '../_shared/SubmitButton';
@@ -120,17 +121,22 @@ export default function AuthorForm({
           <label className={labelCls}>Человек или организация</label>
           <div className="flex gap-2 flex-wrap">
             {[
-              { v: 'person', t: 'Человек', h: 'круглое фото, разметка Person' },
-              { v: 'organization', t: 'Организация', h: 'плитка с логотипом, разметка Organization' },
+              { v: 'person', t: 'Человек', h: 'портрет кругом, разметка Person', r: 'rounded-full' },
+              { v: 'organization', t: 'Организация', h: 'квадрат со скруглёнными углами, разметка Organization', r: 'rounded-[13px]' },
             ].map(o => (
               <label key={o.v} className="flex-1 min-w-[190px] flex items-start gap-2.5 border border-[var(--admin-border)]
                 rounded-lg px-3 py-2.5 cursor-pointer has-[:checked]:border-cyan-500/50">
                 <input type="radio" name="entityKind" value={o.v} required
                   defaultChecked={(author?.entityKind || 'person') === o.v}
                   className="mt-0.5 w-4 h-4 accent-cyan-500 shrink-0" />
-                <span>
-                  <span className="block text-[12.5px] font-bold">{o.t}</span>
-                  <span className="block text-[11px] text-[var(--admin-text-dim)] mt-0.5">{o.h}</span>
+                <span className="flex items-center gap-2.5">
+                  {/* Образец формы: переключатель решает, как портрет выглядит
+                      на карточке, в поиске и на странице участника. */}
+                  <span className={`w-9 h-9 shrink-0 bg-[var(--admin-input)] border border-[var(--admin-border)] ${o.r}`} />
+                  <span>
+                    <span className="block text-[12.5px] font-bold">{o.t}</span>
+                    <span className="block text-[11px] text-[var(--admin-text-dim)] mt-0.5">{o.h}</span>
+                  </span>
                 </span>
               </label>
             ))}
@@ -168,12 +174,31 @@ export default function AuthorForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Ореол за карточкой</label>
-            <select name="haloColor" defaultValue={author?.haloColor || 'violet'} className={inputCls}>
-              <option value="violet">Фиолетовый</option>
-              <option value="cyan">Бирюзовый</option>
-              <option value="pink">Розовый</option>
-            </select>
+            <label className={labelCls}>Цвет карточки</label>
+            {/* Плитками, а не списком названий: выбирать цвет по слову
+                «изумрудный» неудобно, по образцу — мгновенно. */}
+            <div className="flex gap-2 flex-wrap">
+              {AUTHOR_COLOR_ORDER.map(key => (
+                <label key={key} title={AUTHOR_COLORS[key].label.ru} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="haloColor"
+                    value={key}
+                    defaultChecked={(author?.haloColor || 'violet') === key}
+                    className="peer sr-only"
+                  />
+                  <span
+                    style={{ background: AUTHOR_COLORS[key].dark }}
+                    className="block w-9 h-9 rounded-[11px] border-2 border-transparent
+                      peer-checked:border-white peer-checked:shadow-[0_0_0_3px_rgba(255,255,255,0.14)]"
+                  />
+                </label>
+              ))}
+            </div>
+            <p className="text-[11px] text-[var(--admin-text-dim)] mt-2">
+              Уходит в шапку карточки, в должность и в заголовок страницы участника.
+              Семь цветов те же, что у категорий календаря: каждый проверен и на тёмной теме, и на светлой.
+            </p>
           </div>
           <div>
             <label className={labelCls}>Порядок в списке</label>

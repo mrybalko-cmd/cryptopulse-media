@@ -1113,3 +1113,141 @@ html.light .wealth-grad {
 @media (prefers-reduced-motion: reduce) {
   .cal-bar { transition: none; }
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Витрина участников: карточка со стеклом и цветной шапкой.
+
+   Семь цветов — те же, что у категорий календаря. Пара значений на каждый,
+   потому что один и тот же тон не держит контраст и на графите, и на белом.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --author-violet: #7c3aed;
+  --author-cyan: #0b8ba8;
+  --author-pink: #d4267c;
+  --author-blue: #2f6fd0;
+  --author-emerald: #0a8f5f;
+  --author-amber: #c07a09;
+  --author-orange: #d1600c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --author-violet: #8b5cf6;
+    --author-cyan: #06b6d4;
+    --author-pink: #ec4899;
+    --author-blue: #3b82f6;
+    --author-emerald: #10b981;
+    --author-amber: #f59e0b;
+    --author-orange: #f97316;
+  }
+}
+:root[data-theme='dark'] {
+  --author-violet: #8b5cf6;
+  --author-cyan: #06b6d4;
+  --author-pink: #ec4899;
+  --author-blue: #3b82f6;
+  --author-emerald: #10b981;
+  --author-amber: #f59e0b;
+  --author-orange: #f97316;
+}
+
+/* Карточка: стекло в три слоя. Матовая основа, блик по кромке между шапкой и
+   телом, подвал, подкрашенный цветом сферы. Тело подсвечено изнутри сверху
+   вниз — так стекло читается как толща, а не как плёнка поверх цвета. */
+.author-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(180deg, var(--glass-clear), var(--glass-clear-2));
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-edge-lit);
+  transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+}
+.author-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--c) 42%, transparent);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--c) 22%, transparent);
+}
+.author-card::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50px;
+  height: 1px;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--glass-edge-lit), transparent);
+}
+.author-cap {
+  height: 50px;
+  position: relative;
+  background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 55%, transparent));
+}
+.author-cap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 140% at 90% -20%, rgba(255, 255, 255, 0.3), transparent 60%);
+}
+.author-body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 38px 13px 0;
+  text-align: center;
+}
+.author-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 11%, transparent), transparent 62%);
+}
+.author-body > * { position: relative; }
+.author-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 13px;
+  border-top: 1px solid var(--glass-edge-lit);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c) 7%, transparent));
+}
+/* Портрет сидит на границе шапки и тела. Круг у человека, скруглённый квадрат
+   у организации — различие читается с одного взгляда и стоит ноль пикселей. */
+.author-ava {
+  position: absolute;
+  left: 50%;
+  top: 50px;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  object-fit: cover;
+  border: 3px solid var(--background);
+  background: var(--background);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+/* Выпадающие панели поиска и сфер. Карточки позиционированы и создают свои
+   слои, поэтому панель над сеткой поднимается явно. */
+.author-bar { position: relative; z-index: 60; }
+.author-pop {
+  position: absolute;
+  z-index: 70;
+  border-radius: 12px;
+  padding: 5px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  border: 1px solid var(--glass-edge-lit);
+  box-shadow: var(--glass-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .author-card { transition: none; }
+  .author-card:hover { transform: none; }
+}

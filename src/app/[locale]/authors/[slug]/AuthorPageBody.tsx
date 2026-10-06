@@ -4,7 +4,9 @@ import { ArrowLeft, Globe, Mail } from 'lucide-react';
 import { TelegramIcon, LinkedInIcon, InstagramIcon, FacebookIcon, XIcon } from '@/components/ui/socialIcons';
 import type { AuthorFeedItem as AuthorFeedItemType, AuthorStats } from '@/lib/sanity';
 import { authorName, authorInitial } from '@/lib/authorName';
+import { authorColorVar } from '@/lib/authorColors';
 import AuthorMaterials from './AuthorMaterials';
+import type { CSSProperties } from 'react';
 
 type Author = {
   name: string;
@@ -15,7 +17,7 @@ type Author = {
   photo?: string;
   entityKind?: 'person' | 'organization';
   sponsored?: boolean;
-  haloColor?: 'violet' | 'cyan' | 'pink';
+  haloColor?: 'violet' | 'cyan' | 'pink' | 'blue' | 'emerald' | 'amber' | 'orange';
   email?: string;
   telegram?: string;
   linkedin?: string;
@@ -35,11 +37,11 @@ type Props = {
   pageSize: number;
 };
 
-const HALO: Record<string, string> = {
-  violet: 'var(--halo-violet)',
-  cyan: 'var(--halo-cyan)',
-  pink: 'var(--halo-pink)',
-};
+/* Ореол собирается из цвета участника, а не из трёх заранее заданных: цветов
+   теперь семь, и держать для каждого отдельный halo-токен незачем. */
+function halo(key: string | undefined, strength: number) {
+  return `color-mix(in srgb, ${authorColorVar(key)} ${strength}%, transparent)`;
+}
 
 /** Голый адрес без протокола и завершающей косой: кнопке нужно имя, не URL. */
 function hostOf(url: string) {
@@ -92,14 +94,14 @@ export default function AuthorPageBody({ locale, slug, author, items, stats, pag
         {isRu ? 'Все авторы и партнёры' : 'All authors and partners'}
       </Link>
 
-      <div className="relative mb-11">
+      <div className="relative mb-11" style={{ '--c': authorColorVar(author.haloColor) } as CSSProperties}>
         {/* Ореолы держим внутри блока: вылезая наружу, они уводили страницу
             вбок на телефоне. Без них прозрачная панель неотличима от матовой. */}
         <span aria-hidden className="pointer-events-none absolute left-0 -top-8 w-[300px] h-[300px]
           rounded-full blur-[80px] opacity-90 z-0"
-          style={{ background: HALO[author.haloColor || 'violet'] || HALO.violet }} />
+          style={{ background: halo(author.haloColor, 48) }} />
         <span aria-hidden className="pointer-events-none absolute right-0 top-10 w-[230px] h-[230px]
-          rounded-full blur-[70px] opacity-55 z-0" style={{ background: HALO.cyan }} />
+          rounded-full blur-[70px] opacity-55 z-0" style={{ background: 'var(--halo-cyan)' }} />
 
         <div className="author-glass relative z-[1] rounded-[26px] p-6 sm:p-[30px] sm:pb-[26px] overflow-hidden">
           {/* На телефоне фото стоит рядом с именем, а не над ним: колонкой
@@ -114,7 +116,10 @@ export default function AuthorPageBody({ locale, slug, author, items, stats, pag
                 width={132} height={132}
                 className={`w-[76px] h-[76px] sm:w-[132px] sm:h-[132px] object-cover border-[3px]
                   ${isOrg ? 'rounded-[26px]' : 'rounded-full'}`}
-                style={{ borderColor: 'var(--glass-edge)' }}
+                style={{
+                  borderColor: 'var(--glass-edge)',
+                  boxShadow: `0 0 0 1px ${halo(author.haloColor, 34)}`,
+                }}
               />
             ) : (
               <span className={`w-[76px] h-[76px] sm:w-[132px] sm:h-[132px] flex items-center justify-center
@@ -134,7 +139,7 @@ export default function AuthorPageBody({ locale, slug, author, items, stats, pag
                   </span>
                 )}
               </h1>
-              {role && <p className="text-[13.5px] sm:text-[14.5px] text-accent font-semibold mt-[5px] mb-0">{role}</p>}
+              {role && <p className="text-[13.5px] sm:text-[14.5px] text-[var(--c)] font-semibold mt-[5px] mb-0">{role}</p>}
             </div>
 
             <div className="col-span-2 sm:col-span-1 sm:col-start-2 min-w-0">

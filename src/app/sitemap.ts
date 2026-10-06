@@ -10,6 +10,7 @@ import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/si
 import { PAGE_REVISIONS } from '@/lib/pageRevisions';
 import { SITE_URL } from '@/lib/site';
 import { getRegulationCountries } from '@/lib/regulation';
+import { loadAuthors } from '@/app/[locale]/authors/AuthorsView';
 
 const BASE = SITE_URL;
 
@@ -114,6 +115,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * derived from the same data the route uses, so a sixth country cannot end
    * up live and absent from the sitemap the way a hand-kept list would allow.
    */
+  /* Страницы витрины участников со второй и дальше. Первая лежит в
+     LISTING_PATHS, а эти появляются и исчезают вместе с числом участников. */
+  const { totalPages: authorsTotalPages } = await loadAuthors('en');
+  const authorPagedPages = Array.from({ length: Math.max(0, authorsTotalPages - 1) }, (_, i) => i + 2)
+    .flatMap((n) => ['ru', 'en'].map((loc) => ({
+      url: `${BASE}/${loc}/authors/page/${n}`,
+      lastModified: todayUtc,
+      changeFrequency: 'weekly' as const,
+      priority: 0.4,
+    })));
+
   /* Страницы событий. Прошедшие остаются в карте: у них есть итог и свой
      адрес, и поиск их уже знает. Частота обновления разная — будущее событие
      могут перенести, прошедшему правят разве что итог. */
@@ -254,5 +266,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
-  return [...staticPages, ...calendarEventPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

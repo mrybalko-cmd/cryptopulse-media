@@ -659,7 +659,7 @@ export interface AuthorCard {
   bioRu?: string; bioEn?: string;
   photo?: string;
   entityKind: 'person' | 'organization';
-  haloColor: 'violet' | 'cyan' | 'pink';
+  haloColor: 'violet' | 'cyan' | 'pink' | 'blue' | 'emerald' | 'amber' | 'orange';
   rubrics: string[];
   materials: number;
   telegram?: string; linkedin?: string; facebook?: string; twitter?: string;
