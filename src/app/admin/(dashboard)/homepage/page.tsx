@@ -1,6 +1,6 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminHomeSettings, fetchAuthorOptions, fetchMaterialOptionsForAuthors,
-  fetchRecentMaterialOptions } from '@/lib/admin/data';
+  fetchRecentMaterialOptions, fetchMaterialOptionsByIds } from '@/lib/admin/data';
 import { updateHomeSettingsAction } from './actions';
 import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
 import HomeAuthorsWidgetEditor from './HomeAuthorsWidgetEditor';
@@ -20,7 +20,15 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
     (settings.featuredAuthors || []).map(s => s.authorId).filter(Boolean) as string[],
   )];
 
-  const [authors, materialsRu, materialsEn, recentRu, recentEn] = await Promise.all([
+  // Уже выбранное в блоке может быть старше окна «свежих» — догружаем точечно,
+  // иначе строка в форме выглядела бы пустой.
+  const widgetPicked = [
+    settings.widgetHero?.ruId, settings.widgetHero?.enId,
+    ...(settings.widgetItems || []).flatMap(s => [s.ruId, s.enId]),
+    ...(settings.widgetReading || []).flatMap(s => [s.ruId, s.enId]),
+  ].filter((x): x is string => !!x);
+
+  const [authors, materialsRu, materialsEn, recentRu, recentEn, pickedOptions] = await Promise.all([
     fetchAuthorOptions(),
     fetchMaterialOptionsForAuthors('ru', columnAuthorIds),
     fetchMaterialOptionsForAuthors('en', columnAuthorIds),
@@ -28,7 +36,13 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
     // материалы: внутри пикера есть поиск по заголовку.
     fetchRecentMaterialOptions('ru'),
     fetchRecentMaterialOptions('en'),
+    fetchMaterialOptionsByIds(widgetPicked),
   ]);
+
+  const dedupe = (list: typeof recentRu, extra: typeof pickedOptions) => {
+    const seen = new Set(list.map(m => m._id));
+    return [...list, ...extra.filter(m => !seen.has(m._id))];
+  };
 
   return (
     <div>
@@ -76,8 +90,9 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
         <div className="mt-8 pt-7 border-t border-[var(--admin-border)]">
           <HomeAuthorsWidgetEditor
             settings={settings}
-            materialsRu={recentRu}
-            materialsEn={recentEn}
+            authors={authors}
+            materialsRu={dedupe(recentRu, pickedOptions)}
+            materialsEn={dedupe(recentEn, pickedOptions)}
           />
         </div>
 

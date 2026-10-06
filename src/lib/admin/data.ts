@@ -1287,6 +1287,21 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
   };
 }
 
+/** Материалы по списку идентификаторов: то, что уже выбрано в блоке, может
+ *  быть старше окна «свежих», и без этой догрузки строка в форме выглядела бы
+ *  пустой, хотя материал выбран. */
+export async function fetchMaterialOptionsByIds(ids: string[]): Promise<MaterialOption[]> {
+  const clean = ids.filter(Boolean);
+  if (clean.length === 0) return [];
+  return client.fetch(
+    `*[_type in ["article", "news"] && _id in $ids]{
+      _id, title, "authorId": author._ref, "authorName": author->name,
+      "coverImage": coverImage.asset->url, publishedAt
+    }`,
+    { ids: clean }
+  );
+}
+
 /** Последние материалы для подборщиков блока участников: автор там не важен,
  *  важен сам материал, поэтому фильтра по автору здесь нет. */
 export async function fetchRecentMaterialOptions(
