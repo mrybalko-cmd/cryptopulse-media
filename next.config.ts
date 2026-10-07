@@ -38,9 +38,15 @@ const nextConfig: NextConfig = {
         "https://analytics.google.com https://*.analytics.google.com " +
         "https://www.googletagmanager.com " +
         "https://www.google.com https://www.googleadservices.com " +
+        // Конверсии Google Ads уходят ещё и на локальный домен страны
+        // посетителя: чех пингует google.cz, немец google.de. Шаблон в CSP
+        // по доменной зоне не работает, поэтому страны перечислены — это те,
+        // по которым идут наши кампании.
+        "https://www.google.cz https://www.google.de https://www.google.fr https://www.google.es https://www.google.it https://www.google.nl https://www.google.pl https://www.google.pt https://www.google.ie https://www.google.se https://www.google.dk https://www.google.no https://www.google.fi https://www.google.at https://www.google.be https://www.google.gr https://www.google.ro https://www.google.bg https://www.google.hr https://www.google.si https://www.google.sk https://www.google.hu https://www.google.lv https://www.google.lt https://www.google.lu https://www.google.ch https://www.google.ee https://www.google.ca https://www.google.co.uk https://www.google.com.ua https://www.google.ae https://www.google.com.au https://www.google.com.cy https://www.google.com.mt " +
         "https://*.doubleclick.net " +
         "https://analytics.ahrefs.com https://news.google.com",
-      "frame-src https://www.youtube.com https://news.google.com",
+      // googletagmanager — кадр из <noscript> контейнера GTM.
+      "frame-src https://www.youtube.com https://news.google.com https://www.googletagmanager.com",
       "object-src 'none'",
       "base-uri 'self'",
       "frame-ancestors 'self'",

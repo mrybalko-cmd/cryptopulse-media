@@ -4,6 +4,7 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale} from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
+import { GoogleTagManager } from '@next/third-parties/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { routing } from '@/i18n/routing';
@@ -16,6 +17,7 @@ import { SITE_NAME, SITE_URL, TITLE_SUFFIX } from '@/lib/site';
 
 const BASE = SITE_URL;
 const GA_ID = 'G-8YJT9B6XFV';
+const GTM_ID = 'GTM-K7FVWR42';
 const AHREFS_KEY = '9PVWiRWYIPxrsY1xzgp+vA';
 
 // Cyrillic subset is required — half the site's content is Russian, and
@@ -109,6 +111,20 @@ export default async function LocaleLayout({ children, params }: Props) {
         />
       </head>
       <body suppressHydrationWarning className="overflow-x-clip">
+        {/* Кадр для посетителя без JS — первым в body, как требует инструкция
+            контейнера. Отслеживать им почти нечего: сам GTM и GA4 без JS не
+            работают вовсе, срабатывают только теги-пиксели. Поставлен потому,
+            что это часть штатной установки, а не ради данных. Домен добавлен
+            в frame-src: без этого политика кадр молча отбивает. */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+            title="Google Tag Manager"
+          />
+        </noscript>
         <NextIntlClientProvider messages={messages}>
           <PriceTicker />
           <Header />
@@ -150,6 +166,11 @@ export default async function LocaleLayout({ children, params }: Props) {
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
         />
+        {/* Контейнер тегов. Счётчик выше остаётся прямым вызовом gtag и в
+            контейнер не переносится: два пути до одного GA4 считали бы каждый
+            просмотр дважды. Если внутри контейнера заводится тег GA4, сначала
+            убирается ga-init и строка gtag/js выше — одно из двух, не оба. */}
+        <GoogleTagManager gtmId={GTM_ID} />
         <Script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} strategy="lazyOnload" />
         {/* Включено в панели Vercel с 13.07.2026, но до 01.09 не собирало:
             включить функцию — половина дела, клиентский компонент нужно
