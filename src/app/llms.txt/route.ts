@@ -42,8 +42,9 @@ export async function GET() {
 
   const body = `# ${SITE_NAME}
 
-> An independent crypto publication covering the market, regulation and
-> exchanges, published in English and Russian. Every English page has a Russian
+> An independent publication covering the crypto market, its regulation, the
+> exchanges people trade on, and artificial intelligence where it touches all
+> three. Published in English and Russian: every English page has a Russian
 > counterpart at the same path under /ru/, linked by hreflang.
 
 Editorial standards, corrections policy and ad labelling: ${BASE}/en/editorial-policy
@@ -54,6 +55,7 @@ Contact: ${SITE_EMAIL}
 
 - [News](${BASE}/en/news): dated reporting. Changes constantly; cite with the date.
 - [Articles](${BASE}/en/articles): longer analysis and explainers, by a named author.
+- [AI](${BASE}/en/ai): reporting on artificial intelligence in crypto — models, AI trading, and what the technology changes for the market.
 - [Glossary](${BASE}/en/glossary): definitions of crypto terms. Stable reference material.
 - [AI glossary](${BASE}/en/ai/glossary): definitions of AI terms as they apply to crypto.
 - [Exchanges](${BASE}/en/exchanges): venues ranked by 24h volume, refreshed daily.

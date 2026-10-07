@@ -17,6 +17,7 @@ import { fetchPopularContent, fetchActiveBanners } from '@/lib/sanity';
 import { fetchWealthCrypto } from '@/lib/wealthCrypto';
 import { NET_WORTH_AS_OF, PREVIOUS_AS_OF } from '@/lib/billionaires';
 import { SITE_NAME } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -117,7 +118,7 @@ export default async function WealthComparisonPage({ params }: Props) {
     inLanguage: isRu ? 'ru' : 'en',
     isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+    publisher: { '@id': ORGANIZATION_ID },
     description: isRu
       ? 'Живой счётчик состояний богатейших людей мира с переводом в биткоины и расчётом срока накопления по вашему доходу.'
       : 'A live counter for the world’s largest fortunes, converted into bitcoin, with the saving horizon calculated from your own income.',

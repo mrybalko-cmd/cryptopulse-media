@@ -3,7 +3,7 @@ import { stripInlineLinks } from '@/lib/inlineLinks';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildOg, buildTwitter, BASE, titleText, truncateDesc } from '@/lib/metadata';
+import { buildOg, buildTwitter, BASE, termTitle, truncateDesc } from '@/lib/metadata';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
 import { getAiGlossary } from '@/lib/glossaryData';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
@@ -32,12 +32,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const definition = stripInlineLinks(term.definition[loc]);
 
   // Same reasoning as the crypto glossary: term first, no brand suffix, clamped.
-  const title = titleText(
-    isRu ? `${name} — что это такое в ИИ?` : `${name} — What Is It in AI?`,
-    60,
-    0
-  );
-  const description = truncateDesc(definition);
+  const title = termTitle(name, isRu ? ' — что это такое в ИИ?' : ' — What Is It in AI?');
+  /* 250, а не общие 200: определение термина — часто одно длинное
+     предложение, и в двухсотсимвольное окно точка не попадает. Замер на 174
+     определениях: при 200 обрывались 25, при 250 — одно. */
+  const description = truncateDesc(definition, 250);
 
   return {
     title: { absolute: title },

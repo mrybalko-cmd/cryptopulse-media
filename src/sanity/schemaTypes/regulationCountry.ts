@@ -198,6 +198,19 @@ export const regulationCountryType = defineType({
       options: { dateFormat: 'DD.MM.YYYY' },
       validation: Rule => Rule.required(),
     }),
+    defineField({
+      /* Проверяющий в разметке — сигнал, который поисковик и языковая модель
+         читают как ответственность за факты. Поле необязательное и пустым
+         остаётся пустым: `reviewedBy` с выдуманным именем хуже отсутствующего,
+         потому что это заявление о проверке, которой не было. */
+      name: 'reviewedBy',
+      title: 'Кто проверял (необязательно)',
+      description:
+        'Участник, сверявший данные с источниками регулятора. Попадёт в разметку страницы как reviewedBy. ' +
+        'Оставьте пустым, если страну ведёт редакция без одного ответственного.',
+      type: 'reference',
+      to: [{ type: 'author' }],
+    }),
   ],
   orderings: [
     { title: 'По названию', name: 'nameRu', by: [{ field: 'name.ru', direction: 'asc' }] },

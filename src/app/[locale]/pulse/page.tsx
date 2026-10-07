@@ -10,6 +10,7 @@ import { fetchPopularContent } from '@/lib/sanity';
 import PulseWidget from '@/components/ui/PulseWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { SITE_BRAND } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -157,8 +158,8 @@ export default async function PulsePage({ params }: Props) {
     image: [`${BASE}/${locale}/pulse/opengraph-image`],
     datePublished: PULSE_LAUNCHED,
     ...(data?.computedAt && { dateModified: data.computedAt }),
-    author: { '@id': `${BASE}/#organization` },
-    publisher: { '@id': `${BASE}/#organization` },
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
   };
 
   const faqLd = {

@@ -35,6 +35,7 @@ import { sanityImageTransform, sanityImageSrcSet, sanityImageDimensions } from '
 import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { authorName } from '@/lib/authorName';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -156,8 +157,8 @@ export default async function ArticlePage({ params }: Props) {
     ...(wordCount > 0 && { wordCount }),
     author: article.author
       ? { '@type': 'Person', name: authorName(article.author, locale), url: `${SITE_URL}/${locale}/authors/${article.author.slug}` }
-      : { '@type': 'Organization', '@id': `${SITE_URL}/#organization` },
-    publisher: { '@id': `${SITE_URL}/#organization` },
+      : { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${SITE_URL}/${locale}/articles/${slug}`,
     // Plain schema.org, not a Subscribe-with-Google signal: it states the
     // story is not behind a paywall, which Google News reads on its own.

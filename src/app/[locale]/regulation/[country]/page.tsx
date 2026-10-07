@@ -10,6 +10,7 @@ import { client } from '@/lib/sanity';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { STATUS_META } from '@/lib/regulationData';
+import { authorName } from '@/lib/authorName';
 import { getRegulationCountries, REGION_LABELS, type RegCountry } from '@/lib/regulation';
 import {
   parseBody, parseFaq, parseFigures, parseList, parseSources, parseTimeline,
@@ -20,6 +21,7 @@ import {
   AllowedRestricted, Body, CountrySwitcher, CuriousFact, Faq, Figures,
   Related, ShortAnswer, Sources, Timeline, type Neighbour, type RelatedItem,
 } from './CountryArticle';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 const BASE = SITE_URL;
 
@@ -34,6 +36,7 @@ const T = {
     home: 'Главная', map: 'Карта регуляции', mapAll: 'вся карта →',
     lead: 'Коротко.', checked: 'проверено', fact: 'Любопытный факт',
     byline: 'Материал ведёт редакция Intokened.com',
+    reviewed: 'Данные проверил',
     allowed: 'Разрешено', restricted: 'Ограничено',
     faq: 'Частые вопросы', sources: 'Источники', related: 'Читайте по теме',
     others: 'Другие страны', allCountries: 'Все страны\nна карте',
@@ -48,6 +51,7 @@ const T = {
     home: 'Home', map: 'Regulation map', mapAll: 'full map →',
     lead: 'In short.', checked: 'checked', fact: 'Worth knowing',
     byline: 'Maintained by the Intokened.com editorial team',
+    reviewed: 'Data checked by',
     allowed: 'Allowed', restricted: 'Restricted',
     faq: 'Common questions', sources: 'Sources', related: 'Related reading',
     others: 'Other countries', allCountries: 'All countries\non the map',
@@ -157,6 +161,16 @@ export default async function CountryRegulationPage({ params }: Props) {
   const statusLabel = isRu ? meta.labelRu : meta.labelEn;
 
   const intro = pick(c, 'intro', isRu) || (isRu ? c.summary.ru : c.summary.en);
+  /* Проверяющий назначается у страны в Studio и остаётся пустым, пока его не
+     выбрали: страницу и подпись, и разметку в этом случае ведёт редакция. */
+  const reviewer = c.reviewedBy
+    ? {
+        name: authorName(c.reviewedBy, locale),
+        slug: c.reviewedBy.slug,
+        role: (isRu ? c.reviewedBy.roleRu : c.reviewedBy.roleEn) || '',
+        org: c.reviewedBy.entityKind === 'organization',
+      }
+    : null;
   const figures = parseFigures(pick(c, 'figures', isRu));
   const body = parseBody(pick(c, 'body', isRu));
   const allowed = parseList(pick(c, 'allowed', isRu));
@@ -193,17 +207,34 @@ export default async function CountryRegulationPage({ params }: Props) {
     {
       '@type': 'Article',
       headline: titleText(heading),
-      description: truncateDesc(intro),
+      // В разметке описание не режется: длину `description` схема не
+      // ограничивает, а языковой модели обрубок достаётся как факт без второй
+      // половины. Подрезка нужна только сниппету — она выше, в metadata.
+      description: intro,
       inLanguage: isRu ? 'ru-RU' : 'en-US',
       // Гид ведёт редакция, а не отдельный человек: страну перепроверяют
       // раз за разом, и подписывать её одним именем было бы неправдой.
       // Организация в роли автора — то, что схема прямо допускает.
-      author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+      author: { '@id': ORGANIZATION_ID },
+      /* Кто сверял факты. Для поисковика и языковой модели это отдельный от
+         автора сигнал: материал ведёт редакция, а проверил его названный
+         человек со своей страницей. Нет назначенного — свойства нет вовсе:
+         проверка, которой не было, в разметке хуже её отсутствия. */
+      ...(reviewer
+        ? {
+            reviewedBy: {
+              '@type': reviewer.org ? 'Organization' : 'Person',
+              name: reviewer.name,
+              url: `${BASE}/${locale}/authors/${reviewer.slug}`,
+              ...(reviewer.role ? { jobTitle: reviewer.role } : {}),
+            },
+          }
+        : {}),
       ...(c.publishedAt ? { datePublished: c.publishedAt } : {}),
       dateModified: c.checkedAt,
       image: `${url}/opengraph-image`,
       mainEntityOfPage: url,
-      publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+      publisher: { '@id': ORGANIZATION_ID },
     },
   ];
   if (faq.length) {
@@ -274,9 +305,24 @@ export default async function CountryRegulationPage({ params }: Props) {
                 </span>
                 {/* Кто отвечает за материал. Раньше на странице не было ни
                     подписи, ни автора в разметке — для темы про налоги и
-                    лицензии это самый слабый сигнал доверия из возможных. */}
+                    лицензии это самый слабый сигнал доверия из возможных.
+                    Назначен проверяющий — показываем его с ссылкой на профиль:
+                    имя, за которым стоит страница, весит больше, чем «редакция». */}
                 <span className="inline-flex items-center rounded-full px-3 py-[5px] text-[12px] font-semibold leading-[1.4] border border-[var(--glass-line)] bg-[var(--glass-hover)] text-muted shadow-[inset_0_1px_0_var(--glass-hi)]">
-                  {t.byline}
+                  {reviewer ? (
+                    <>
+                      {t.reviewed}&nbsp;
+                      <Link
+                        href={`/${locale}/authors/${reviewer.slug}`}
+                        className="font-semibold text-foreground underline decoration-dotted underline-offset-2 hover:text-accent"
+                      >
+                        {reviewer.name}
+                      </Link>
+                      {reviewer.role && <>,&nbsp;{reviewer.role}</>}
+                    </>
+                  ) : (
+                    t.byline
+                  )}
                 </span>
               </div>
             </div>

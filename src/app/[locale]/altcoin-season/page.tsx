@@ -10,6 +10,7 @@ import { fetchAltcoinSeasonIndex, type AltcoinSeasonCoin } from '@/lib/altcoinSe
 import AltcoinSeasonWidget from '@/components/ui/AltcoinSeasonWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { SITE_NAME } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -122,7 +123,7 @@ export default async function AltcoinSeasonPage({ params }: Props) {
         '@type': 'Article',
         headline: isRu ? 'Индекс альткоин-сезона' : 'Altcoin Season Index',
         url: `${BASE}/${locale}/altcoin-season`,
-        publisher: { '@type': 'Organization', name: SITE_NAME },
+        publisher: { '@id': ORGANIZATION_ID },
       },
       {
         '@type': 'FAQPage',

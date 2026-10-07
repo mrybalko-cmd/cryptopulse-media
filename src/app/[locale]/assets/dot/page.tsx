@@ -4,6 +4,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { DOT_QUOTES, DOT_FAQ, DOT_INVESTMENT_REFERENCE } from '@/lib/dotData';
 import { SITE_NAME } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'dot';
@@ -68,8 +69,8 @@ export default async function DotPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2024-01-01',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
-    publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/dot`,
   };
 

@@ -5,6 +5,7 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { SITE_NAME } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'uniswap';
@@ -48,8 +49,8 @@ export default async function UniswapPage({ params }: Props) {
     inLanguage: locale,
     datePublished: '2026-07-14',
     dateModified: new Date().toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: SITE_NAME, url: BASE },
-    publisher: { '@type': 'Organization', name: SITE_NAME, url: BASE },
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,
   };
   const faqLd = {

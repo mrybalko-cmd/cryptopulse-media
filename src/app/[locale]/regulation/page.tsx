@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { STATUS_META } from '@/lib/regulationData';
-import { getRegulationCountries, lastCheckedAt } from '@/lib/regulation';
+import { getRegulationCountries, lastCheckedAt, withoutPageText } from '@/lib/regulation';
 import RegulationClient from './RegulationClient';
 import RegulationGuide, { regulationFaq } from './RegulationGuide';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 const BASE = SITE_URL;
 
@@ -54,6 +54,8 @@ export default async function RegulationPage({ params }: Props) {
   const isRu = locale === 'ru';
 
   const countries = await getRegulationCountries();
+  /* В клиент уходит список без текстов страниц: см. withoutPageText. */
+  const forClient = withoutPageText(countries);
   const legalCount      = countries.filter(c => c.status === 'legal').length;
   const restrictedCount = countries.filter(c => c.status === 'restricted').length;
   const bannedCount     = countries.filter(c => c.status === 'banned').length;
@@ -69,16 +71,8 @@ export default async function RegulationPage({ params }: Props) {
       ? `Статус криптовалютного регулирования для ${countries.length} стран. ${legalCount} разрешают, ${restrictedCount} ограничивают, ${bannedCount} запрещают.`
       : `Cryptocurrency regulation status for ${countries.length} countries. ${legalCount} permit, ${restrictedCount} restrict, ${bannedCount} ban.`,
     url: `${BASE}/${locale}/regulation`,
-    publisher: {
-      '@type': 'Organization',
-      name: SITE_NAME,
-      url: BASE,
-    },
-    creator: {
-      '@type': 'Organization',
-      name: SITE_NAME,
-      url: BASE,
-    },
+    publisher: { '@id': ORGANIZATION_ID },
+    creator: { '@id': ORGANIZATION_ID },
     // The newest per-country check, not a date typed once and forgotten.
     dateModified: lastCheckedAt(countries),
     inLanguage: locale,
@@ -111,13 +105,13 @@ export default async function RegulationPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       {/* Разворот с картой, затем указатель всех стран */}
-      <RegulationClient locale={locale} countries={countries} />
+      <RegulationClient locale={locale} countries={forClient} />
 
       {/* Текст под картой идёт в одну колонку с рельсом «Популярное» —
           как на /assets, /rates и /exchanges */}
       <div className="reg-below grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="min-w-0">
-          <RegulationGuide locale={locale} countries={countries} />
+          <RegulationGuide locale={locale} countries={forClient} />
 
           {/* Дисклеймер внизу: он нужен, но не должен быть вторым, что видит читатель */}
           <p className="mt-8 pt-4 border-t border-border text-[11px] leading-relaxed text-muted">

@@ -49,11 +49,47 @@ export function buildTwitter(opts: {
   };
 }
 
-export function truncateDesc(text: string, max = 155): string {
-  if (!text || text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut) + '…';
+/**
+ * Описание для сниппета, обрезанное по границе предложения.
+ *
+ * Раньше здесь резалось по сто пятьдесят пятому символу, и в выдачу уходил
+ * обрывок: «…no income tax and no capital gains tax, so there is no…». В
+ * аудите 07.10.2026 так выглядели 94 страницы стран и 379 материалов. Для
+ * обычного сниппета это просто некрасиво, а языковой модели многоточие на
+ * середине фразы достаётся как факт без второй половины.
+ *
+ * Поэтому сначала ищем последнюю точку в пределах лимита и заканчиваем на
+ * ней — описание выходит короче, зато фраза целая. Многоточие остаётся только
+ * там, где в лимит не поместилось ни одного предложения.
+ *
+ * Лимит 200, а не 155, которые принято держать для сниппета. Замер на наших
+ * 694 описаниях: при 155 обрывалось 97, при 200 — шесть, а средняя длина
+ * выросла с 140 до 145 символов. Рез по предложению укорачивает описание сам,
+ * и запас нужен не для того, чтобы писать длиннее, а чтобы точка успела
+ * попасть в окно. Что не поместится в сниппет, Google подрежет сам и сделает
+ * это аккуратнее нас.
+ *
+ * Границей считается точка, за которой пробел или конец строки, но не точка
+ * после одиночной заглавной буквы: «U.S.» и «т.е.» — не конец предложения.
+ * Такой разбор отбрасывает и настоящий конец вида «…in the USA.», поэтому он
+ * лишь предпочтение: не нашлось границы — режем по слову, как прежде.
+ */
+export function truncateDesc(text: string, max = 200): string {
+  if (!text) return text;
+  const t = text.trim().replace(/\s+/g, ' ');
+  if (t.length <= max) return t;
+
+  const window = t.slice(0, max + 1);
+  const ends = [...window.matchAll(/(?<![A-ZА-ЯЁ])[.!?](?=\s|$)/g)];
+  const lastEnd = ends.length ? (ends[ends.length - 1].index as number) + 1 : -1;
+  // Половину лимита описание обязано занять: одно короткое предложение из
+  // трёх слов — хуже, чем целая мысль с многоточием.
+  if (lastEnd >= max * 0.5) return window.slice(0, lastEnd).trim();
+
+  const cut = t.slice(0, max);
+  const space = cut.lastIndexOf(' ');
+  const body = space > max * 0.6 ? cut.slice(0, space) : cut;
+  return body.replace(/[\s,;:–—-]+$/, '') + '…';
 }
 
 /**
@@ -72,9 +108,15 @@ export function truncateDesc(text: string, max = 155): string {
  * из сниппета всё равно часто убирает. Многоточие остаётся только для
  * действительно длинных заголовков, где без него не обойтись.
  *
+ * Потолок поднят с семидесяти до восьмидесяти 07.10.2026. Замер: из 2518
+ * заголовков материалов ни один не длиннее 68 символов, а из 94 заголовков
+ * стран выше семидесяти оказались два — те, где редактор написал длинную
+ * фразу, и обрывались ровно они. Восемьдесят затрагивают только их и ничего
+ * больше; что не поместится в выдачу, Google подрежет по ширине сам.
+ *
  * Передавайте сюда только текст самой страницы, без уже добавленного суффикса.
  */
-export function pageTitle(text: string, max = 60, hardMax = 70): Metadata['title'] {
+export function pageTitle(text: string, max = 60, hardMax = 80): Metadata['title'] {
   const budget = max - TITLE_SUFFIX.length;
   if (!text) return text;
   // Помещается вместе с брендом — пусть шаблон макета его и добавит.
@@ -87,10 +129,28 @@ export function pageTitle(text: string, max = 60, hardMax = 70): Metadata['title
 }
 
 /**
+ * Заголовок страницы термина.
+ *
+ * Шаблон «{термин} — что это такое в крипто?» с брендом в шестьдесят символов
+ * не влезает почти никогда, и прежний вызов с hardMax = 0 резал его всегда:
+ * в выдачу уходило «DEX (decentralized exchange) — What Is It in…», где
+ * оборвана ровно та часть, которая объясняет, что это за страница. Проверка
+ * 07.10.2026: так выглядели 33 заголовка.
+ *
+ * Шаблон целиком — 86 терминов из 87 укладываются в семьдесят символов, и
+ * столько Google показывает сам. Единственный, кто не укладывается (RLHF с
+ * расшифровкой), получает заголовком сам термин: он осмысленный и без хвоста.
+ */
+export function termTitle(name: string, tail: string): string {
+  const full = `${name}${tail}`;
+  return full.length <= 70 ? full : name;
+}
+
+/**
  * Тот же расчёт, но строкой — для мест, где нужен именно текст: заголовок в
  * микроразметке, og:title, twitter:title.
  */
-export function titleText(text: string, max = 60, hardMax = 70): string {
+export function titleText(text: string, max = 60, hardMax = 80): string {
   const t = pageTitle(text, max, hardMax);
   return typeof t === 'string' ? t : (t as { absolute: string }).absolute;
 }

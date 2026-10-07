@@ -9,6 +9,7 @@ import { fetchFearGreedIndex } from '@/lib/feargreed';
 import FearGreedWidget from '@/components/ui/FearGreedWidget';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { SITE_NAME } from '@/lib/site';
+import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -78,7 +79,7 @@ export default async function FearGreedPage({ params }: Props) {
       ? 'Индекс страха и жадности криптовалютного рынка'
       : 'Crypto Fear & Greed Index',
     url: `${BASE}/${locale}/fear-greed`,
-    publisher: { '@type': 'Organization', name: SITE_NAME },
+    publisher: { '@id': ORGANIZATION_ID },
   };
 
   const factors = isRu ? FACTORS_RU : FACTORS_EN;

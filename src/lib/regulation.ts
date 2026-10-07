@@ -35,6 +35,8 @@ export interface RegCountry extends CountryReg {
    */
   hasPage?: boolean;
   page?: RawPage;
+  /** Кто сверял данные с источниками регулятора. Пусто — значит не назначен. */
+  reviewedBy?: RegReviewer;
 }
 
 export const REGION_LABELS: Record<RegRegion, { ru: string; en: string }> = {
@@ -80,6 +82,19 @@ interface SanityRegDoc {
   publishedAt?: string;
   hasPage?: boolean;
   page?: RawPage;
+  reviewedBy?: RegReviewer;
+}
+
+/** Проверяющий страны — ровно то, что нужно разметке, без остального профиля.
+ *  Поля имени по языкам тянутся потому, что имя собирает authorName(), а не
+ *  одно поле `name`: часть профилей заполнена только по-русски. */
+export interface RegReviewer {
+  name: string;
+  slug: string;
+  entityKind?: 'person' | 'organization';
+  firstNameRu?: string | null; lastNameRu?: string | null;
+  firstNameEn?: string | null; lastNameEn?: string | null;
+  roleRu?: string | null; roleEn?: string | null;
 }
 
 /** The long-form fields, still as the editor typed them. Parsed at render. */
@@ -98,7 +113,11 @@ const QUERY = `*[_type == "regulationCountry"]{
   "detailsRu": details.ru, "detailsEn": details.en,
   "taxNoteRu": taxNote.ru, "taxNoteEn": taxNote.en,
   "factNoteRu": factNote.ru, "factNoteEn": factNote.en,
-  regulatorName, sourceUrl, checkedAt, publishedAt, hasPage, page
+  regulatorName, sourceUrl, checkedAt, publishedAt, hasPage, page,
+  "reviewedBy": reviewedBy->{
+    name, "slug": slug.current, entityKind,
+    firstNameRu, lastNameRu, firstNameEn, lastNameEn, roleRu, roleEn
+  }
 }`;
 
 function fromSanity(d: SanityRegDoc): RegCountry {
@@ -124,6 +143,7 @@ function fromSanity(d: SanityRegDoc): RegCountry {
     checkedAt: d.checkedAt,
     hasPage: Boolean(d.hasPage),
     ...(d.page ? { page: d.page } : {}),
+    ...(d.reviewedBy?.name ? { reviewedBy: d.reviewedBy } : {}),
   };
 }
 
@@ -155,6 +175,25 @@ export const getRegulationCountries = unstable_cache(
   // сбрасывает тег `regulation` и видна сразу.
   { revalidate: 3600, tags: ['regulation'] }
 );
+
+/**
+ * Тот же список, но без длинных текстов страниц.
+ *
+ * Карта и указатель — клиентские компоненты, а всё, что уходит в такой
+ * компонент пропсами, Next повторяет в разметке вторым экземпляром: сначала
+ * HTML, потом тот же объект в `<script>` для гидратации. Поле `page` держит
+ * полные статьи сорока семи стран — замер 07.10.2026: 819 КБ из 946 КБ
+ * выборки, и ровно из-за него `/en/regulation` отдавал 1,1 МБ при двадцати
+ * килобайтах читаемого текста. Ни карта, ни указатель, ни раскрывающаяся
+ * карточка это поле не читают — его читает только страница страны.
+ */
+export function withoutPageText(countries: RegCountry[]): RegCountry[] {
+  return countries.map(c => {
+    const lite = { ...c };
+    delete lite.page;
+    return lite;
+  });
+}
 
 /** Newest check across all countries — what `dateModified` should say. */
 export function lastCheckedAt(countries: RegCountry[]): string {
