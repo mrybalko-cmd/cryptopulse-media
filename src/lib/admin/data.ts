@@ -1286,8 +1286,10 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
       "widgetItems": authorsWidgetItems[]{ "ruId": ru._ref, "enId": en._ref },
       "widgetReading": authorsWidgetReading[]{ "ruId": ru._ref, "enId": en._ref },
       "showRegulationWidget": coalesce(showRegulationWidget, true),
-      "regulationCountries": regulationWidgetCountries[]->{ "id": _id, "label": name.ru },
-      "regulationRegimes": regulationWidgetRegimes[]->{ "id": _id, "label": name.ru }
+      // coalesce обязателен: у документа без этих полей GROQ отдаёт null, а не
+      // пустой массив, и страница админки падала на .map() целиком.
+      "regulationCountries": coalesce(regulationWidgetCountries[]->{ "id": _id, "label": name.ru }, []),
+      "regulationRegimes": coalesce(regulationWidgetRegimes[]->{ "id": _id, "label": name.ru }, [])
     }`
   );
   return doc ?? {

@@ -103,8 +103,8 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
             show={settings.showRegulationWidget}
             countries={regulationOptions.countries}
             regimes={regulationOptions.regimes}
-            pickedCountries={settings.regulationCountries.map(c => c.id)}
-            pickedRegimes={settings.regulationRegimes.map(r => r.id)}
+            pickedCountries={(settings.regulationCountries || []).map(c => c.id)}
+            pickedRegimes={(settings.regulationRegimes || []).map(r => r.id)}
           />
         </div>
 
