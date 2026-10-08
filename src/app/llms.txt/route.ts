@@ -42,10 +42,11 @@ export async function GET() {
 
   const body = `# ${SITE_NAME}
 
-> An independent publication covering the crypto market, its regulation, the
-> exchanges people trade on, and artificial intelligence where it touches all
-> three. Published in English and Russian: every English page has a Russian
-> counterpart at the same path under /ru/, linked by hreflang.
+> An independent international media outlet on crypto and artificial
+> intelligence. We turn complex technology trends into plain language,
+> publishing in English and Russian. We trust only primary sources, so that you
+> can trust us. Every English page has a Russian counterpart at the same path
+> under /ru/, linked by hreflang.
 
 Editorial standards, corrections policy and ad labelling: ${BASE}/en/editorial-policy
 Who writes here: ${BASE}/en/authors

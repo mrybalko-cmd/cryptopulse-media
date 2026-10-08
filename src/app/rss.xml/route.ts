@@ -85,7 +85,7 @@ export async function GET() {
   <channel>
     <title>${SITE_NAME}</title>
     <link>${BASE}</link>
-    <description>Крипто- и AI-аналитика для простых людей | Crypto &amp; AI intelligence for European investors</description>
+    <description>Независимое международное медиа о криптовалютах и искусственном интеллекте. Мы переводим сложные технологические тренды на понятный язык, создавая материалы на английском и русском. | An independent international media outlet on crypto and artificial intelligence. We turn complex technology trends into plain language, publishing in English and Russian.</description>
     <language>ru, en</language>
     <managingEditor>${CONTACT_EMAIL}</managingEditor>
     <webMaster>${CONTACT_EMAIL}</webMaster>

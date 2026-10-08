@@ -36,18 +36,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: {
+      /* Сокращение общего описания: первое предложение вместе с брендом даёт
+         89 знаков, и поисковик обрезал бы его посреди слова. Единственное
+         место, где текст приходится жать, и жмётся он до того же утверждения. */
       default: isRu
-        ? `${SITE_NAME} — новости и аналитика криптовалют`
-        : `${SITE_NAME} — Crypto News, Analysis & Asset Guides`,
+        ? 'Intokened.com — независимое медиа о крипте и ИИ'
+        : 'Intokened.com — independent media on crypto and AI',
       template: `%s${TITLE_SUFFIX}`,
     },
-    // Kept under ~150 chars (both languages) — the previous AI-aware rewrite
-    // ran to 170-179 chars, which Ahrefs flagged as "meta description too
-    // long" on every page that falls back to this default (any route
-    // without its own generateMetadata description).
+    // Первые два предложения общего описания издания, дословно. Третье
+    // («доверяем только первоисточникам») сюда не влезает: с ним выходит 243
+    // знака, а всё длиннее двухсот поисковик обрезает на середине фразы.
     description: isRu
-      ? 'Крипто- и AI-аналитика для простых людей простыми словами. Новости, статьи, гиды по активам, темы об ИИ и глоссарий терминов.'
-      : 'Crypto & AI intelligence for European investors. Breaking news, deep analysis, asset guides, AI coverage, and a glossary — all in plain language.',
+      ? 'Независимое международное медиа о криптовалютах и искусственном интеллекте. Мы переводим сложные технологические тренды на понятный язык, создавая материалы на английском и русском.'
+      : 'An independent international media outlet on crypto and artificial intelligence. We turn complex technology trends into plain language, publishing in English and Russian.',
     metadataBase: new URL(BASE),
     alternates: {
       canonical: `${BASE}/${locale}`,

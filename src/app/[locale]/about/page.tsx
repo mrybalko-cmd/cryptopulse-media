@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRu = locale === 'ru';
   const title = isRu ? 'О нас' : 'About Us';
   const description = isRu
-    ? `${SITE_NAME} — независимое крипто-медиа для русскоязычной и европейской аудитории. Новости, аналитика и образовательные материалы без лишнего шума.`
-    : `${SITE_NAME} is an independent crypto media outlet for Russian-speaking and European audiences. News, analysis and educational content without the noise.`;
+    ? 'Независимое международное медиа о криптовалютах и искусственном интеллекте. Мы переводим сложные технологические тренды на понятный язык, создавая материалы на английском и русском.'
+    : 'An independent international media outlet on crypto and artificial intelligence. We turn complex technology trends into plain language, publishing in English and Russian.';
   return {
     title,
     description,
@@ -56,9 +56,10 @@ export default async function AboutPage({ params }: Props) {
 
           <h2>Кто мы</h2>
           <p>
-            ${SITE_NAME} — независимое крипто-медиа, созданное для тех, кто хочет разобраться
-            в цифровых активах без академического занудства и без хайпа. Мы пишем о Bitcoin, Ethereum,
-            DeFi, регуляции и крипторынке в целом — на русском и английском языках.
+            Независимое международное медиа о криптовалютах и искусственном интеллекте.
+            Мы переводим сложные технологические тренды на понятный язык, создавая материалы
+            на английском и русском. Доверяем только первоисточникам, чтобы вы могли доверять
+            нам: каждый факт сверяем с сайтами регуляторов и указываем дату проверки.
           </p>
           <p>
             Сайт запущен в 2024 году и работает для аудитории из Восточной Европы, СНГ и русскоязычных
@@ -106,9 +107,10 @@ export default async function AboutPage({ params }: Props) {
 
           <h2>Who We Are</h2>
           <p>
-            ${SITE_NAME} is an independent crypto media outlet for those who want to understand
-            digital assets without academic jargon or hype. We cover Bitcoin, Ethereum, DeFi, regulation,
-            and the broader crypto market — in Russian and English.
+            An independent international media outlet on crypto and artificial intelligence.
+            We turn complex technology trends into plain language, publishing in English and
+            Russian. We trust only primary sources, so that you can trust us: every fact is
+            checked against regulator sites and carries the date of that check.
           </p>
           <p>
             Launched in 2024, we serve audiences across Eastern Europe, the CIS, and Russian-speaking

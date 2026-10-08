@@ -43,9 +43,12 @@ export function organizationSchema(locale: string) {
     '@id': ORGANIZATION_ID,
     name: SITE_NAME,
     url: BASE,
+    // Общее описание издания целиком, слово в слово. Тот же текст стоит в
+    // llms.txt, в первом абзаце «О нас» и на странице компании в LinkedIn:
+    // раньше их было десять разных, и два из них противоречили друг другу.
     description: isRu
-      ? 'Независимое издание о криптовалютах и искусственном интеллекте: новости, аналитика и справочные материалы о рынке, регулировании, биржах и технологиях ИИ.'
-      : 'An independent publication on crypto and artificial intelligence: news, analysis and reference material on the market, its regulation, exchanges and AI technology.',
+      ? 'Независимое международное медиа о криптовалютах и искусственном интеллекте. Мы переводим сложные технологические тренды на понятный язык, создавая материалы на английском и русском. Доверяем только первоисточникам, чтобы вы могли доверять нам.'
+      : 'An independent international media outlet on crypto and artificial intelligence. We turn complex technology trends into plain language, publishing in English and Russian. We trust only primary sources, so that you can trust us.',
     logo: {
       '@type': 'ImageObject',
       url: `${BASE}/brand-mark-v3.png`,
