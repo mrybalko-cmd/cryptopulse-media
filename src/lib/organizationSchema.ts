@@ -1,5 +1,6 @@
 import { BASE } from './metadata';
 import { ORGANIZATION_ID, SITE_EMAIL, SITE_NAME } from '@/lib/site';
+import { LINKEDIN_PROFILE_URL } from '@/lib/constants';
 
 export const CONTACT_EMAIL = SITE_EMAIL;
 
@@ -15,13 +16,13 @@ export { ORGANIZATION_ID };
 /**
  * Verified public profiles for schema.org `sameAs`.
  *
- * The one entry below was checked by hand on 07.10.2026 and answers 200. A
- * sameAs pointing at the wrong profile is worse than none — it hands search
- * engines a false identity claim for the brand and is hard to walk back — so
- * add a URL here only after opening it. The old CryptoPulse page is not listed:
- * it answers 301 since the rename, and a redirect is not an identity.
+ * Built from the footer's own constant rather than repeated here. Two copies
+ * of one address is how the footer ended up pointing at the retired brand
+ * while this list already named the new one. A sameAs pointing at the wrong
+ * profile hands search engines a false identity claim and is hard to walk
+ * back, so anything added here is opened by hand first.
  */
-export const SOCIAL_PROFILES: string[] = ['https://www.linkedin.com/company/intokened'];
+export const SOCIAL_PROFILES: string[] = [LINKEDIN_PROFILE_URL];
 
 /**
  * The publisher entity, as NewsMediaOrganization rather than plain Organization.
