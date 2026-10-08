@@ -10,6 +10,7 @@ import { LISTING_PATHS, LIVE_DATA_PATHS, TOOL_PATHS, INFO_PATHS } from '@/lib/si
 import { PAGE_REVISIONS } from '@/lib/pageRevisions';
 import { SITE_URL } from '@/lib/site';
 import { getRegulationCountries } from '@/lib/regulation';
+import { getLicenceRegimes } from '@/lib/licences';
 import { loadAuthors } from '@/app/[locale]/authors/AuthorsView';
 
 const BASE = SITE_URL;
@@ -148,6 +149,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { url: `${BASE}/en/regulation/${c.slug}`, lastModified: new Date(c.checkedAt), changeFrequency: 'monthly' as const, priority: 0.7 },
     ]);
 
+  /* Лицензионные режимы. Страницы живут в Sanity, поэтому перечисляются
+     отсюда, а не из списка путей: новый режим попадает в карту сайта сам. */
+  const licencePages = (await getLicenceRegimes()).flatMap(r => [
+    { url: `${BASE}/ru/regulation/licences/${r.slug}`, lastModified: new Date(r.checkedAt), changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${BASE}/en/regulation/licences/${r.slug}`, lastModified: new Date(r.checkedAt), changeFrequency: 'monthly' as const, priority: 0.7 },
+  ]);
+
   const staticPages = [
     ...LISTING_PATHS.flatMap(path => [
       { url: `${BASE}/ru${path}`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: path === '' ? 1 : 0.9 },
@@ -266,5 +274,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
-  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

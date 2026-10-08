@@ -38,8 +38,11 @@ export interface Figure {
    * the other is a hurdle, and colour is how a reader scanning six tiles tells
    * them apart. It has to be stated rather than guessed: "0%" is welcome in a
    * tax tile and alarming in an "exchanges licensed" one.
+   *
+   * `no` added 08.10.2026 for the licence pages, where a tile states an
+   * outright prohibition — an in-principle approval that may not trade.
    */
-  tone?: 'ok' | 'warn';
+  tone?: 'ok' | 'warn' | 'no';
 }
 
 export interface TimelineEvent {
@@ -100,7 +103,7 @@ export function parseFigures(raw?: string): Figure[] {
         label,
         value,
         ...(note ? { note } : {}),
-        ...(tone === 'ok' || tone === 'warn' ? { tone } : {}),
+        ...(tone === 'ok' || tone === 'warn' || tone === 'no' ? { tone } : {}),
       };
     })
     .filter((f): f is Figure => f !== null);

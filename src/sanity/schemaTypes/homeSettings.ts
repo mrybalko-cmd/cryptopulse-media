@@ -173,6 +173,31 @@ export const homeSettingsType = defineType({
         }),
       ],
     }),
+    defineField({
+      name: 'showRegulationWidget',
+      title: 'Показывать блок регуляции внизу / Show regulation widget',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Самый нижний блок главной: карта мира, выбранные страны и лицензионные режимы.',
+    }),
+    defineField({
+      /* Страна здесь одна на оба языка — у документа страны обе версии внутри,
+         в отличие от материалов, где русский и английский это разные записи. */
+      name: 'regulationWidgetCountries',
+      title: 'Блок регуляции · страны / Regulation widget · countries',
+      type: 'array',
+      description: 'Середина блока. Порядок в списке = порядок на сайте. Пусто = страны с самой свежей проверкой.',
+      validation: (Rule) => Rule.max(5),
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'regulationCountry' }] })],
+    }),
+    defineField({
+      name: 'regulationWidgetRegimes',
+      title: 'Блок регуляции · лицензии / Regulation widget · licensing',
+      type: 'array',
+      description: 'Правая колонка. Пусто = режимы по порядку из хаба.',
+      validation: (Rule) => Rule.max(4),
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'licenceRegime' }] })],
+    }),
   ],
   preview: {
     prepare() {

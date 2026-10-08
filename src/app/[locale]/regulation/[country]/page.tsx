@@ -11,6 +11,8 @@ import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { truncateDesc, pageTitle, titleText } from '@/lib/metadata';
 import { STATUS_META } from '@/lib/regulationData';
 import { authorName } from '@/lib/authorName';
+import { parseHeadline, regimeForCountry } from '@/lib/licences';
+import { RegimeInset } from '../licences/LicenceParts';
 import { getRegulationCountries, REGION_LABELS, type RegCountry } from '@/lib/regulation';
 import {
   parseBody, parseFaq, parseFigures, parseList, parseSources, parseTimeline,
@@ -180,6 +182,9 @@ export default async function CountryRegulationPage({ params }: Props) {
   const sources = parseSources(pick(c, 'sources', isRu));
   const related = await relatedItems(parseList(pick(c, 'related', isRu)), locale, isRu);
   const factNote = c.factNote && (isRu ? c.factNote.ru : c.factNote.en);
+  /* Режим этой страны, если он у нас заведён: Кипр, ОАЭ, Украина. Врезка
+     ведёт на разбор и не раздувает саму страницу страны. */
+  const regime = await regimeForCountry(c.slug);
 
   // Alphabetical within the published set, wrapping around, so the pair of
   // arrows always leads somewhere as long as more than one page exists.
@@ -338,6 +343,14 @@ export default async function CountryRegulationPage({ params }: Props) {
 
           <ShortAnswer text={intro} lead={t.lead} />
           <Figures figures={figures} />
+          {regime && (
+            <RegimeInset
+              regime={regime}
+              locale={locale}
+              stats={parseHeadline(isRu ? regime.headline?.ru : regime.headline?.en)}
+              summary={(isRu ? regime.intro?.ru : regime.intro?.en)?.split('\n')[0] ?? ''}
+            />
+          )}
           <Body blocks={body} />
           <AllowedRestricted allowed={allowed} restricted={restricted} allowedLabel={t.allowed} restrictedLabel={t.restricted} />
 

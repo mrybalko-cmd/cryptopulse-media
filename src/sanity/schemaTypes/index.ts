@@ -18,6 +18,7 @@ import { exchangeReviewType } from './exchangeReview';
 import { adminUserType } from './adminUser';
 import { adminActivityLogType } from './adminActivityLog';
 import { regulationCountryType } from './regulationCountry';
+import { licenceRegimeType } from './licenceRegime';
 import { glossaryTermType } from './glossaryTerm';
 import { authorRubricType } from './authorRubric';
 import { authorsPageType } from './authorsPage';
@@ -27,5 +28,5 @@ export const schemaTypes = [
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType, facebookEmbedType,
   sidebarBannerType, marketSnapshotType,
     coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
-  regulationCountryType, glossaryTermType, authorRubricType, authorsPageType,
+  regulationCountryType, licenceRegimeType, glossaryTermType, authorRubricType, authorsPageType,
 ];

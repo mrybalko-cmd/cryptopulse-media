@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getRegulationCountries, lastCheckedAt, withoutPageText } from '@/lib/regulation';
+import { getLicenceRegimes } from '@/lib/licences';
+import { LicenceCta } from './licences/LicenceParts';
 import RegulationClient from './RegulationClient';
 import RegulationGuide, { regulationFaq } from './RegulationGuide';
 import PopularSidebar from '@/components/ui/PopularSidebar';
@@ -56,6 +58,7 @@ export default async function RegulationPage({ params }: Props) {
   const countries = await getRegulationCountries();
   /* В клиент уходит список без текстов страниц: см. withoutPageText. */
   const forClient = withoutPageText(countries);
+  const regimes = await getLicenceRegimes();
   const legalCount      = countries.filter(c => c.status === 'legal').length;
   const restrictedCount = countries.filter(c => c.status === 'restricted').length;
   const bannedCount     = countries.filter(c => c.status === 'banned').length;
@@ -106,6 +109,12 @@ export default async function RegulationPage({ params }: Props) {
 
       {/* Разворот с картой, затем указатель всех стран */}
       <RegulationClient locale={locale} countries={forClient} />
+
+      {/* Переход к лицензиям. Стоит под картой, а не в панели над ней: там уже
+          четыре счётчика и переключатель, и пятый элемент прочитался бы ещё
+          одним фильтром. Здесь его встречает тот, кто карту просмотрел и
+          ответа про разрешение в ней не нашёл. */}
+      <LicenceCta locale={locale} regimes={regimes} />
 
       {/* Текст под картой идёт в одну колонку с рельсом «Популярное» —
           как на /assets, /rates и /exchanges */}

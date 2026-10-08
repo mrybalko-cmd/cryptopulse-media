@@ -81,6 +81,7 @@ export function Figures({ figures }: { figures: Figure[] }) {
         const colour =
           f.tone === 'ok' ? 'text-[var(--positive)]'
           : f.tone === 'warn' ? 'text-[var(--importance-medium)]'
+          : f.tone === 'no' ? 'text-[var(--negative)]'
           : numeric ? 'text-[var(--violet-2)]'
           : 'text-foreground';
         return (

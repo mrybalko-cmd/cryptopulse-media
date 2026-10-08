@@ -1261,7 +1261,13 @@ export interface AdminHomeSettings {
   widgetHero: AdminWidgetSlot;
   widgetItems: AdminWidgetSlot[];
   widgetReading: AdminWidgetSlot[];
+  showRegulationWidget: boolean;
+  regulationCountries: AdminPickOption[];
+  regulationRegimes: AdminPickOption[];
 }
+
+/** Строка подборки виджета регуляции: сам документ и его человеческое имя. */
+export interface AdminPickOption { id: string; label: string }
 
 const HOME_SETTINGS_ID = 'homeSettings';
 
@@ -1278,12 +1284,16 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
       "showAuthorsWidget": coalesce(showAuthorsWidget, true),
       "widgetHero": { "ruId": authorsWidgetHero.ru._ref, "enId": authorsWidgetHero.en._ref },
       "widgetItems": authorsWidgetItems[]{ "ruId": ru._ref, "enId": en._ref },
-      "widgetReading": authorsWidgetReading[]{ "ruId": ru._ref, "enId": en._ref }
+      "widgetReading": authorsWidgetReading[]{ "ruId": ru._ref, "enId": en._ref },
+      "showRegulationWidget": coalesce(showRegulationWidget, true),
+      "regulationCountries": regulationWidgetCountries[]->{ "id": _id, "label": name.ru },
+      "regulationRegimes": regulationWidgetRegimes[]->{ "id": _id, "label": name.ru }
     }`
   );
   return doc ?? {
     showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [],
     showAuthorsWidget: true, widgetHero: { ruId: '', enId: '' }, widgetItems: [], widgetReading: [],
+    showRegulationWidget: true, regulationCountries: [], regulationRegimes: [],
   };
 }
 
@@ -1380,6 +1390,9 @@ export interface HomeSettingsInput {
   widgetHero: WidgetSlotInput;
   widgetItems: WidgetSlotInput[];
   widgetReading: WidgetSlotInput[];
+  showRegulationWidget: boolean;
+  regulationCountryIds: string[];
+  regulationRegimeIds: string[];
 }
 
 const rndKey = () => Math.random().toString(36).slice(2, 8);
@@ -1415,6 +1428,15 @@ export async function updateAdminHomeSettings(input: HomeSettingsInput) {
     authorsWidgetReading: input.widgetReading
       .filter((s) => s.ruId || s.enId)
       .map((s, i) => ({ _type: 'readingSlot', _key: `wr-${i}-${rndKey()}`, ...slotRef(s) })),
+    // Та же ловушка, что и у блока участников: документ пишется целиком, и
+    // поле, забытое здесь, стирается первым же сохранением формы.
+    showRegulationWidget: input.showRegulationWidget,
+    regulationWidgetCountries: input.regulationCountryIds
+      .filter(Boolean)
+      .map((id, i) => ({ _type: 'reference', _ref: id, _key: `rc-${i}-${rndKey()}` })),
+    regulationWidgetRegimes: input.regulationRegimeIds
+      .filter(Boolean)
+      .map((id, i) => ({ _type: 'reference', _ref: id, _key: `rr-${i}-${rndKey()}` })),
   };
   await writeClient.createOrReplace({ _id: HOME_SETTINGS_ID, ...fields });
 }
@@ -2208,4 +2230,21 @@ export async function saveAuthorsPage(input: AuthorsPageInput) {
     seoDescriptionEn: input.seoDescriptionEn || undefined,
     sort: input.sort,
   }).commit({ autoGenerateArrayKeys: false });
+}
+
+/** Варианты для подборок виджета регуляции: страны со своей страницей и
+ *  видимые лицензионные режимы. */
+export async function fetchRegulationPickOptions(): Promise<{
+  countries: AdminPickOption[];
+  regimes: AdminPickOption[];
+}> {
+  const [countries, regimes] = await Promise.all([
+    client.fetch<AdminPickOption[]>(
+      `*[_type == "regulationCountry" && hasPage == true] | order(name.ru asc){ "id": _id, "label": name.ru }`
+    ),
+    client.fetch<AdminPickOption[]>(
+      `*[_type == "licenceRegime" && hidden != true] | order(coalesce(order, 50) asc){ "id": _id, "label": name.ru }`
+    ),
+  ]);
+  return { countries: countries ?? [], regimes: regimes ?? [] };
 }

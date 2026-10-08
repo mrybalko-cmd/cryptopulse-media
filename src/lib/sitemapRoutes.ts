@@ -11,7 +11,7 @@
 /** Listings over content. Move when new content ships, not when we deploy. */
 export const LISTING_PATHS = [
   '', '/news', '/articles', '/articles/popular', '/news/popular',
-  '/ai', '/ai/glossary', '/authors', '/exchanges',
+  '/ai', '/ai/glossary', '/authors', '/exchanges', '/regulation/licences',
 ];
 
 /** Pages whose substance IS live data — the numbers genuinely differ from

@@ -15,9 +15,10 @@ import CalendarCarousel from '@/components/ui/CalendarCarousel';
 import HomeAuthorsWidget from '@/components/ui/HomeAuthorsWidget';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
-import RegulationWidget from '@/components/ui/RegulationWidget';
+import HomeRegulationWidget from '@/components/ui/HomeRegulationWidget';
 import { fetchOwnNews } from '@/lib/news';
 import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings, fetchHomeAuthorsWidget } from '@/lib/sanity';
+import { getHomeRegulation } from '@/lib/licences';
 import { fetchLatestPulse } from '@/lib/pulse';
 type Props = { params: Promise<{ locale: string }> };
 
@@ -26,7 +27,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget] = await Promise.allSettled([
+  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget, regulationWidget] = await Promise.allSettled([
     // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
     // up closer to the news/articles columns above it.
     fetchOwnNews({ limit: 16, locale }),
@@ -37,6 +38,7 @@ export default async function HomePage({ params }: Props) {
     fetchHomeSettings(locale),
     fetchLatestPulse(),
     fetchHomeAuthorsWidget(locale),
+    getHomeRegulation(),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
@@ -310,12 +312,13 @@ export default async function HomePage({ params }: Props) {
         </div>
       )}
 
-      {/* Regulation map, directly under Pulse. Mobile-only for the same reason
-          Pulse is: the desktop homepage has no bottom rail to attach to, and
-          repeating a card there would need a grid slot rather than a stack. */}
-      <div className="lg:hidden mt-4">
-        <RegulationWidget locale={locale} />
-      </div>
+      {/* Регулирование: карта, выбранные страны и лицензионные режимы.
+          Самый нижний блок главной, как и просил владелец. Прежняя карточка
+          виджета стояла под `lg:hidden` и на десктопе не показывалась вовсе —
+          теперь блок общий для обеих ширин и заменяет её. */}
+      {regulationWidget.status === 'fulfilled' && (
+        <HomeRegulationWidget data={regulationWidget.value} locale={locale} />
+      )}
     </div>
   );
 }

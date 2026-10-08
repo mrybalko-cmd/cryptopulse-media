@@ -6,6 +6,18 @@ import { requireAdminPermission } from '@/lib/admin/auth';
 import { updateAdminHomeSettings, type HomeSettingsInput, type WidgetSlotInput,
   fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
 
+/** Подборка виджета регуляции: по одному скрытому полю на строку, порядок
+ *  задаёт сама нумерация. Пустые строки отбрасываются — редактор снимает
+ *  выбор, не удаляя строку. */
+function readPicks(formData: FormData, prefix: string, max: number): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < max; i++) {
+    const id = String(formData.get(`${prefix}_${i}`) || '');
+    if (id) out.push(id);
+  }
+  return out;
+}
+
 /** Слоты блока участников приходят формой парами w<prefix>_ru_N / _en_N. */
 function readSlots(formData: FormData, prefix: string, max: number): WidgetSlotInput[] {
   const out: WidgetSlotInput[] = [];
@@ -44,10 +56,17 @@ export async function updateHomeSettingsAction(formData: FormData) {
     },
     widgetItems: readSlots(formData, 'witem', 3),
     widgetReading: readSlots(formData, 'wread', 6),
+    showRegulationWidget: formData.get('showRegulationWidget') === 'on',
+    regulationCountryIds: readPicks(formData, 'regcountry', 5),
+    regulationRegimeIds: readPicks(formData, 'regregime', 4),
   };
 
   await updateAdminHomeSettings(input);
   revalidateTag('homeSettings', { expire: 0 });
+  // Виджет регуляции читает страны и режимы через теги раздела: без сброса
+  // правка подборки доехала бы только через час.
+  revalidateTag('regulation', { expire: 0 });
+  revalidateTag('licences', { expire: 0 });
   redirect('/admin/homepage?success=1');
 }
 
