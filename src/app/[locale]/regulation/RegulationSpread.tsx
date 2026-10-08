@@ -136,21 +136,42 @@ export default function RegulationSpread({
               );
             })}
 
-            {/* Countries below roughly 100 km across have no outline at this
-                scale. They get the same invisible discs the map has always
-                used, so "click any country" stays literally true. */}
+            {/* Countries too small to draw at this scale. Two cases, and
+                until October 2026 the code handled one of them.
+
+                No outline at all (Malta, Singapore): the disc is the country,
+                so it carries the status colour. A transparent one left Malta
+                clickable and invisible, which is the same as missing.
+
+                An outline too small to hit (Luxembourg renders 1.3 x 2.2
+                pixels): the shape is already drawn and coloured, so the disc
+                stays transparent and only widens the target. The old `return
+                null` on anything with a path skipped these entirely. */}
             {Object.entries(WORLD.targets).map(([num, [x, y]]) => {
               const c = byNum[num];
-              if (!c || WORLD.paths[num]) return null;
+              if (!c) return null;
+              const drawn = Boolean(WORLD.paths[num]);
               return (
                 <circle
                   key={`t${num}`}
                   cx={x}
                   cy={y}
-                  r={7}
-                  fill="transparent"
+                  r={drawn ? 7 : 2.6}
+                  fill={drawn ? 'transparent' : undefined}
                   data-n={c.iso2}
-                  className={matches(c) ? 'match' : ''}
+                  className={[drawn ? '' : CLS[c.status], matches(c) ? 'match' : '']
+                    .filter(Boolean)
+                    .join(' ')}
+                  onMouseMove={e => {
+                    const r = boxRef.current?.getBoundingClientRect();
+                    if (!r) return;
+                    setHover({
+                      x: e.clientX - r.left,
+                      y: e.clientY - r.top,
+                      name: isRu ? c.name.ru : c.name.en,
+                      status: c.status,
+                    });
+                  }}
                   onClick={() => setSelected(c.iso2)}
                 >
                   <title>{`${isRu ? c.name.ru : c.name.en} — ${label(c.status)}`}</title>
