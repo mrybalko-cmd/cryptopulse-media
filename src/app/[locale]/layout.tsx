@@ -93,8 +93,13 @@ export default async function LocaleLayout({ children, params }: Props) {
     ],
   };
 
+  // `light` стоит прямо в разметке, а не добавляется скриптом. Светлая тема
+  // здесь по умолчанию, и если ставить класс из JavaScript, страница успевает
+  // мигнуть графитом между отрисовкой и выполнением скрипта — первому
+  // посетителю как раз в тот момент, когда он решает, остаться ли. Скрипт в
+  // <head> ниже только снимает класс тем, кто выбрал тёмную.
   return (
-    <html lang={locale} suppressHydrationWarning className={inter.variable}>
+    <html lang={locale} suppressHydrationWarning className={`light ${inter.variable}`}>
       <head>
         {/* Only preconnect to the image CDN (the LCP hero cover). GA and Ahrefs
             load lazily below, so preconnecting to them up front is premature —
@@ -108,7 +113,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         )}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');}}catch(e){}})();`,
+            __html: `(function(){try{if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.remove('light');}}catch(e){}})();`,
           }}
         />
       </head>

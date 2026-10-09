@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
 export default function ThemeToggle({ className }: { className?: string }) {
-  const [isLight, setIsLight] = useState(false);
+  // Светлая — состояние по умолчанию: класс `light` приходит с сервера.
+  const [isLight, setIsLight] = useState(true);
 
   useEffect(() => {
     // Re-apply from localStorage on every mount, not just read the current DOM class.
@@ -16,7 +17,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
     try {
       stored = localStorage.getItem('theme');
     } catch {}
-    const shouldBeLight = stored === 'light';
+    const shouldBeLight = stored !== 'dark';
     document.documentElement.classList.toggle('light', shouldBeLight);
     setIsLight(shouldBeLight);
   }, []);
