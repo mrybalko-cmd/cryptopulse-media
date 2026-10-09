@@ -1149,27 +1149,13 @@ html.light .wealth-grad {
    потому что один и тот же тон не держит контраст и на графите, и на белом.
    ──────────────────────────────────────────────────────────────────────── */
 
+/* Переключатель темы на сайте один: класс `light` на <html>. Эти токены
+   сначала были описаны через prefers-color-scheme и [data-theme] — механизмы,
+   которых здесь нет, — и значения расходились с темой. Посетитель со светлой
+   системой видел тёмный сайт с цветами, рассчитанными на белый фон: замер
+   09.10.2026 дал #7c3aed на графите вместо #8b5cf6. Теперь как у остальных
+   токенов: в :root значения для графита, в html.light — для белого. */
 :root {
-  --author-violet: #7c3aed;
-  --author-cyan: #0b8ba8;
-  --author-pink: #d4267c;
-  --author-blue: #2f6fd0;
-  --author-emerald: #0a8f5f;
-  --author-amber: #c07a09;
-  --author-orange: #d1600c;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --author-violet: #8b5cf6;
-    --author-cyan: #06b6d4;
-    --author-pink: #ec4899;
-    --author-blue: #3b82f6;
-    --author-emerald: #10b981;
-    --author-amber: #f59e0b;
-    --author-orange: #f97316;
-  }
-}
-:root[data-theme='dark'] {
   --author-violet: #8b5cf6;
   --author-cyan: #06b6d4;
   --author-pink: #ec4899;
@@ -1177,6 +1163,15 @@ html.light .wealth-grad {
   --author-emerald: #10b981;
   --author-amber: #f59e0b;
   --author-orange: #f97316;
+}
+html.light {
+  --author-violet: #7c3aed;
+  --author-cyan: #0b8ba8;
+  --author-pink: #d4267c;
+  --author-blue: #2f6fd0;
+  --author-emerald: #0a8f5f;
+  --author-amber: #c07a09;
+  --author-orange: #d1600c;
 }
 
 /* Карточка: стекло в три слоя. Матовая основа, блик по кромке между шапкой и
