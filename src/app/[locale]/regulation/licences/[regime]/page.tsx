@@ -335,8 +335,13 @@ export default async function RegimePage({ params }: Props) {
           </p>
         </div>
 
+        {/* «Другие режимы» стоят первыми и неподвижно, «Популярное» идёт ниже и
+            забирает остаток колонки через flex-1. Без этого его коробка равна
+            его собственной высоте, и липкий блок внутри не едет: замер
+            09.10.2026 дал 1000px коробки при 1000px содержимого, ход ноль.
+            Растянуть можно только последний элемент — первый утащил бы соседа
+            на дно колонки высотой в 3761px. */}
         <aside className="flex flex-col gap-3">
-          <PopularSidebar locale={locale} />
           {others.length > 0 && (
             <div className="cal-glass rounded-[16px] p-3.5">
               <h2 className="mb-2.5 text-[13px] font-extrabold">{t.other}</h2>
@@ -359,6 +364,7 @@ export default async function RegimePage({ params }: Props) {
               ))}
             </div>
           )}
+          <PopularSidebar locale={locale} className="flex-1" />
         </aside>
       </div>
     </div>
