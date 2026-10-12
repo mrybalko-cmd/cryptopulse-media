@@ -112,6 +112,11 @@ export default async function Footer() {
               </Link>
             </li>
             <li>
+              <Link href={`/${locale}/ai/tools`} className="text-sm text-muted hover:text-foreground transition-colors">
+                {t('aiTools')}
+              </Link>
+            </li>
+            <li>
               <Link href={`/${locale}/ai/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('aiGlossary')}
               </Link>

@@ -11,6 +11,7 @@ import { PAGE_REVISIONS } from '@/lib/pageRevisions';
 import { SITE_URL } from '@/lib/site';
 import { getRegulationCountries } from '@/lib/regulation';
 import { getLicenceRegimes } from '@/lib/licences';
+import { getAiJobs, getAiServices } from '@/lib/ai';
 import { loadAuthors } from '@/app/[locale]/authors/AuthorsView';
 
 const BASE = SITE_URL;
@@ -274,5 +275,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
-  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  // Новые маршруты в sitemap автоматически не попадают — только руками.
+  const aiServicePages = (await getAiServices()).flatMap(s => [
+    { url: `${BASE}/ru/ai/tools/${s.slug}`, lastModified: s.priceCheckedAt ? new Date(s.priceCheckedAt) : new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${BASE}/en/ai/tools/${s.slug}`, lastModified: s.priceCheckedAt ? new Date(s.priceCheckedAt) : new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
+  ]);
+  const aiJobPages = (await getAiJobs()).flatMap(j => [
+    { url: `${BASE}/ru/ai/best/${j.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${BASE}/en/ai/best/${j.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
+  ]);
+  const aiHubPages = ['ru', 'en'].map(l => ({
+    url: `${BASE}/${l}/ai/tools`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8,
+  }));
+
+  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 }

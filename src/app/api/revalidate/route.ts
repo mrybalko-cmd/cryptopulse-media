@@ -105,6 +105,18 @@ export async function POST(request: NextRequest) {
     if (slug) {
       urlsToIndex.push(`${BASE}/ru/regulation/${slug}`, `${BASE}/en/regulation/${slug}`);
     }
+  } else if (type === 'ai') {
+    // Каталог AI-сервисов. Прямая запись в Sanity ревалидацию не дёргает,
+    // поэтому скрипты наполнения обязаны звать этот endpoint сами.
+    revalidateTag('ai', { expire: 0 });
+    revalidatePath('/sitemap.xml');
+    revalidatePath('/ru/ai/tools', 'page');
+    revalidatePath('/en/ai/tools', 'page');
+    revalidatePath('/ru/ai/tools/[slug]', 'page');
+    revalidatePath('/en/ai/tools/[slug]', 'page');
+    if (slug) {
+      urlsToIndex.push(`${BASE}/ru/ai/tools/${slug}`, `${BASE}/en/ai/tools/${slug}`);
+    }
   } else if (type === 'news' && slug) {
     revalidateTag('news', { expire: 0 });
     revalidatePath('/sitemap.xml');

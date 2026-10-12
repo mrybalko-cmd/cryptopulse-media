@@ -1264,6 +1264,8 @@ export interface AdminHomeSettings {
   showRegulationWidget: boolean;
   regulationCountries: AdminPickOption[];
   regulationRegimes: AdminPickOption[];
+  showAiWidget: boolean;
+  aiWidgetServices: AdminPickOption[];
 }
 
 /** Строка подборки виджета регуляции: сам документ и его человеческое имя. */
@@ -1288,6 +1290,8 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
       "showRegulationWidget": coalesce(showRegulationWidget, true),
       // coalesce обязателен: у документа без этих полей GROQ отдаёт null, а не
       // пустой массив, и страница админки падала на .map() целиком.
+      "showAiWidget": coalesce(showAiWidget, true),
+      "aiWidgetServices": coalesce(aiWidgetServices[]->{ "id": _id, "label": name }, []),
       "regulationCountries": coalesce(regulationWidgetCountries[]->{ "id": _id, "label": name.ru }, []),
       "regulationRegimes": coalesce(regulationWidgetRegimes[]->{ "id": _id, "label": name.ru }, [])
     }`
@@ -1296,6 +1300,7 @@ export async function fetchAdminHomeSettings(): Promise<AdminHomeSettings> {
     showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [],
     showAuthorsWidget: true, widgetHero: { ruId: '', enId: '' }, widgetItems: [], widgetReading: [],
     showRegulationWidget: true, regulationCountries: [], regulationRegimes: [],
+    showAiWidget: true, aiWidgetServices: [],
   };
 }
 
@@ -1395,6 +1400,8 @@ export interface HomeSettingsInput {
   showRegulationWidget: boolean;
   regulationCountryIds: string[];
   regulationRegimeIds: string[];
+  showAiWidget: boolean;
+  aiWidgetServiceIds: string[];
 }
 
 const rndKey = () => Math.random().toString(36).slice(2, 8);
@@ -1432,6 +1439,10 @@ export async function updateAdminHomeSettings(input: HomeSettingsInput) {
       .map((s, i) => ({ _type: 'readingSlot', _key: `wr-${i}-${rndKey()}`, ...slotRef(s) })),
     // Та же ловушка, что и у блока участников: документ пишется целиком, и
     // поле, забытое здесь, стирается первым же сохранением формы.
+    showAiWidget: input.showAiWidget,
+    aiWidgetServices: input.aiWidgetServiceIds
+      .filter(Boolean)
+      .map((id, i) => ({ _type: 'reference', _ref: id, _key: `ai-${i}-${rndKey()}` })),
     showRegulationWidget: input.showRegulationWidget,
     regulationWidgetCountries: input.regulationCountryIds
       .filter(Boolean)
@@ -2236,6 +2247,21 @@ export async function saveAuthorsPage(input: AuthorsPageInput) {
 
 /** Варианты для подборок виджета регуляции: страны со своей страницей и
  *  видимые лицензионные режимы. */
+/**
+ * Сервисы для подборщика логотипов виджета.
+ *
+ * В списке только те, у кого загружен логотип: ряд на главной — витрина
+ * чужих знаков, и плитка с двумя буквами в ней не работает. Предложить
+ * редактору выбрать такую значит дать ему испортить блок, не поняв, чем.
+ */
+export async function fetchAiServicePickOptions(): Promise<AdminPickOption[]> {
+  const rows = await client.fetch<AdminPickOption[]>(
+    `*[_type == "aiService" && hidden != true && defined(logo)]
+      | order(coalesce(rank, 999) asc){ "id": _id, "label": name }`
+  );
+  return rows ?? [];
+}
+
 export async function fetchRegulationPickOptions(): Promise<{
   countries: AdminPickOption[];
   regimes: AdminPickOption[];

@@ -174,6 +174,24 @@ export const homeSettingsType = defineType({
       ],
     }),
     defineField({
+      name: 'showAiWidget',
+      title: 'Показывать блок AI-сервисов / Show AI services widget',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Блок с логотипами сервисов и кнопкой в каталог. Встаёт под блоком регуляции.',
+    }),
+    defineField({
+      name: 'aiWidgetServices',
+      title: 'Блок AI · какие логотипы показывать / AI widget · which logos',
+      type: 'array',
+      description:
+        'Порядок в списке = порядок в ряду. Пусто = первые двадцать по месту ' +
+        'в рейтинге. Сервисы без загруженного логотипа в ряд не попадают: ' +
+        'плитка с двумя буквами не выполняет задачу ряда — узнать знакомое.',
+      validation: (Rule) => Rule.max(20),
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'aiService' }] })],
+    }),
+    defineField({
       name: 'showRegulationWidget',
       title: 'Показывать блок регуляции внизу / Show regulation widget',
       type: 'boolean',

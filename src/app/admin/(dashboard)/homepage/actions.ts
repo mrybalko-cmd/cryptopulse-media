@@ -59,6 +59,8 @@ export async function updateHomeSettingsAction(formData: FormData) {
     showRegulationWidget: formData.get('showRegulationWidget') === 'on',
     regulationCountryIds: readPicks(formData, 'regcountry', 5),
     regulationRegimeIds: readPicks(formData, 'regregime', 4),
+    showAiWidget: formData.get('showAiWidget') === 'on',
+    aiWidgetServiceIds: readPicks(formData, 'aiservice', 20),
   };
 
   await updateAdminHomeSettings(input);
@@ -67,6 +69,10 @@ export async function updateHomeSettingsAction(formData: FormData) {
   // правка подборки доехала бы только через час.
   revalidateTag('regulation', { expire: 0 });
   revalidateTag('licences', { expire: 0 });
+  // Блок AI читает карточки через свои теги — без сброса смена подборки
+  // логотипов доехала бы до главной только через час.
+  revalidateTag('ai', { expire: 0 });
+  revalidateTag('ai-services', { expire: 0 });
   redirect('/admin/homepage?success=1');
 }
 

@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   { key: 'regulation', label: 'Regulation map' },
   { key: 'glossary', label: 'Glossary' },
   { key: 'pulse', label: 'Pulse' },
+  { key: 'ai', label: 'AI services + filters' },
   { key: 'subscribers', label: 'Subscribers' },
 ] as const;
 

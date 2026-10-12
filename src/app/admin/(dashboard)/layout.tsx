@@ -21,6 +21,8 @@ const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[
   { href: '/admin/regulation', label: '🗺️ Regulation map', permission: 'regulation' },
   { href: '/admin/glossary', label: '📖 Glossary', permission: 'glossary' },
   { href: '/admin/pulse', label: '📈 Pulse', permission: 'pulse' },
+  { href: '/admin/ai', label: '🤖 AI services', permission: 'ai' },
+  { href: '/admin/ai/filters', label: '🎚️ AI filters', permission: 'ai' },
   { href: '/admin/subscribers', label: '✉️ Subscribers', permission: 'subscribers' },
 ];
 
@@ -50,6 +52,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {session.isOwner && (
             <>
               <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-dim)] px-2.5 pt-3.5 pb-1.5">Management</div>
+              <Link
+                href="/admin/deals"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
+              >
+                💶 Commercial deals
+              </Link>
               <Link
                 href="/admin/users"
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"

@@ -1349,3 +1349,271 @@ html.light {
 @media (prefers-reduced-motion: reduce) {
   .home-read, .home-hero img { transition: none; }
 }
+
+/* ── Каталог AI-сервисов ──────────────────────────────────────────
+   Стекло здесь трёхъярусное, как у режимов лицензий: панель фильтра —
+   верхний ярус, карточки — средний, пилюли — нижний. Размытие только
+   через backdrop-filter в этих правилах: рукописный blur на элементе
+   Tailwind вырезает, а утилиты backdrop-blur-* на псевдоэлемент не
+   повесить. */
+.ai-card,
+.ai-filters {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s, border-color .18s;
+}
+.ai-card::before,
+.ai-filters::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--glass-edge-lit);
+  pointer-events: none;
+}
+/* Ореолы за спиной: два, приглушённые. Четыре карточки в ряд с полной
+   силой превращаются в кашу — проверено на макете. */
+.ai-card::after {
+  content: "";
+  position: absolute;
+  inset: -64% 24% auto -22%;
+  height: 170px;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 80% at 28% 0%, var(--halo-cyan), transparent 72%),
+    radial-gradient(46% 74% at 74% 8%, var(--halo-violet), transparent 74%);
+  filter: blur(30px);
+  opacity: .3;
+}
+.ai-card > * { position: relative; z-index: 1; }
+.ai-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--violet) 30%, transparent);
+  box-shadow: 0 24px 52px color-mix(in srgb, var(--violet) 18%, transparent);
+}
+.ai-card:hover::after { opacity: .54; }
+
+/* Галочка «чем выделяется» и счётчик выбранного в группе — один градиент */
+.ai-tick,
+.ai-pick,
+.ai-fab {
+  background: linear-gradient(135deg, var(--accent), var(--violet));
+}
+.ai-tick { box-shadow: 0 2px 8px color-mix(in srgb, var(--violet) 30%, transparent); }
+.ai-fab { box-shadow: 0 10px 30px color-mix(in srgb, var(--violet) 46%, transparent); }
+
+/* Полоса задач: солнечный градиент на выбранной.
+   Оттенки подобраны так, чтобы белый текст держал 4.5:1 на всей длине —
+   первая попытка (#f59e0b на конце) давала 2.15:1 и была нечитаемой. */
+.ai-task {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 10%, transparent),
+    color-mix(in srgb, var(--violet) 12%, transparent));
+  border: 1px solid color-mix(in srgb, var(--violet) 20%, transparent);
+  transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s, border-color .18s;
+}
+.ai-task:hover { transform: translateY(-1px); border-color: rgba(234, 88, 12, .42); }
+.ai-task[aria-current="page"] {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #7c2d12 0%, #c2410c 48%, #a16207 100%);
+  box-shadow: 0 7px 22px rgba(234, 88, 12, .4), inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+/* Чекбокс фильтра */
+.ai-box:checked {
+  background: linear-gradient(135deg, var(--accent), var(--violet));
+  border-color: transparent;
+}
+.ai-box:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px 2.5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.ai-box { position: relative; }
+.ai-sum::-webkit-details-marker { display: none; }
+.ai-sum:hover { color: var(--foreground); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-card, .ai-task { transition: none; }
+}
+
+/* Шапка раздела AI: чёрная подложка и одна светящаяся дуга.
+   Форма взята с присланного образца, цвет — солнечный. Подложка всегда
+   тёмная независимо от темы: белый текст поверх неё читается в обеих. */
+.ai-hero { background: #05060c; min-height: 300px; display: flex; align-items: center; }
+.ai-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(120% 90% at 50% 120%, #0b0d14 0%, #050608 58%, #000 100%);
+}
+.ai-hero-arc { position: absolute; inset: -10% -6%; z-index: 1; pointer-events: none; }
+.ai-hero-vig {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(120% 96% at 50% 46%, transparent 34%, rgba(0, 0, 0, .7) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+
+/* ── Блок каталога AI на главной ─────────────────────────────────────
+   Панель без рамки: объём держат ореолы за спиной и световая кромка
+   сверху. Граница в один пиксель рядом с размытым стеклом читается как
+   чужая деталь — так же решено в хабе. */
+.aiw {
+  position: relative;
+  overflow: visible;
+  border-radius: 24px;
+  padding: 26px 24px 22px;
+  /* Тёмная тема — основная на сайте, светлая включается классом html.light. */
+  background: linear-gradient(168deg, rgba(44,44,52,.46), rgba(26,26,31,.34) 60%, rgba(30,30,36,.44));
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+}
+html.light .aiw {
+  background: linear-gradient(168deg, rgba(255,255,255,.58), rgba(255,255,255,.26) 60%, rgba(255,255,255,.40));
+}
+
+.aiw::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none; z-index: 2;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), transparent 2px);
+}
+html.light .aiw::before { background: linear-gradient(180deg, rgba(255,255,255,.92), transparent 2px); }
+
+.aiw::after {
+  content: ""; position: absolute; inset: -34% -12% -24% -12%;
+  z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(42% 56% at 18% 10%, color-mix(in srgb, #ea580c 34%, transparent), transparent 70%),
+    radial-gradient(40% 54% at 82% 24%, color-mix(in srgb, #6d28d9 32%, transparent), transparent 72%),
+    radial-gradient(44% 48% at 50% 104%, color-mix(in srgb, #0e7490 26%, transparent), transparent 70%);
+  filter: blur(46px);
+  opacity: .9;
+}
+html.light .aiw::after { opacity: .78; }
+.aiw > * { position: relative; z-index: 1; }
+
+/* Раскладка блока. На узком экране кнопка уходит под плитки: туда палец
+   дотягивается сам, и до неё читатель доходит, уже посмотрев на логотипы.
+   На широком она встаёт справа от заголовка, где её ищут глазами. */
+.aiw {
+  display: grid;
+  grid-template-areas: "title" "dock" "hint" "cta";
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  .aiw {
+    grid-template-areas: "title cta" "hint cta" "dock dock";
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+.aiw-title { grid-area: title; }
+.aiw-cta { grid-area: cta; }
+.aiw-hint { grid-area: hint; }
+.aiw-dock { grid-area: dock; }
+
+.aiw-hint { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
+@media (min-width: 640px) { .aiw-hint { margin: 6px 0 0; font-size: 13.5px; } }
+/* Подсказка по способу ввода: указатель или палец. */
+.aiw-only-fine { display: none; }
+.aiw-only-touch { display: inline; }
+@media (hover: hover) and (pointer: fine) {
+  .aiw-only-fine { display: inline; }
+  .aiw-only-touch { display: none; }
+}
+
+/* Кнопка — главное действие блока, поэтому единственная яркая точка. */
+.aiw-cta {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; margin-top: 14px; padding: 13px 18px; border-radius: 999px;
+  font-size: 14.5px; font-weight: 800; color: #fff; white-space: nowrap;
+  background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 44%, #9333ea 100%);
+  box-shadow: 0 10px 26px rgba(109,40,217,.46), inset 0 1px 0 rgba(255,255,255,.26);
+  transition: transform .18s cubic-bezier(.2,.72,.3,1), box-shadow .18s;
+}
+@media (min-width: 640px) {
+  .aiw-cta { width: auto; margin-top: 0; align-self: center; padding: 13px 24px; font-size: 15px; }
+}
+.aiw-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(109,40,217,.56), inset 0 1px 0 rgba(255,255,255,.32);
+}
+
+/* Ряд плиток. На узких экранах — покой и прокрутка с привязкой; с 640px
+   добавляется место под подскок плитки и подпись над ней. */
+/* Контейнер блочный, а ряд центрируется автоматическими полями.
+   Флексовое center при содержимом шире контейнера уводит левый край в минус,
+   и прокруткой он уже не достаётся — первая плитка пропадает совсем.
+   Автополя у блока шире родителя просто обнуляются, и ряд начинается с края.
+   `justify-content: safe center` здесь не помог: браузер приводит его к
+   обычному center. */
+.aiw-dock {
+  position: relative; display: block;
+  margin: 4px -24px 0; padding-top: 14px;
+  overflow-x: auto; scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+/* Край ряда растворяется, а не обрывается: жёсткий срез читается как
+   поломка вёрстки, мягкий — как «дальше ещё есть». */
+.aiw-dock {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+.aiw-dock::-webkit-scrollbar { display: none; }
+@media (min-width: 640px) {
+  .aiw-dock { padding-top: 44px; scroll-snap-type: none; }
+}
+
+.aiw-rail {
+  display: flex; width: max-content; margin-inline: auto;
+  padding: 0 24px 16px; list-style: none; touch-action: pan-x;
+  --aiw-ts: 66px;
+}
+@media (min-width: 640px) { .aiw-rail { --aiw-ts: clamp(58px, 6vw, 92px); padding-bottom: 10px; } }
+
+.aiw-slot { position: relative; display: flex; scroll-snap-align: center; }
+.aiw-slot:not(:first-child) { margin-left: calc(var(--aiw-ts) * -0.14); }
+@media (min-width: 640px) { .aiw-slot { pointer-events: none; } .aiw-slot > a { pointer-events: auto; } }
+
+.aiw-tile {
+  width: var(--aiw-ts); height: var(--aiw-ts); border-radius: 23%;
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  transform-origin: bottom center; will-change: transform; color: #fff;
+  font-weight: 900; letter-spacing: -.04em; font-size: calc(var(--aiw-ts) * .3);
+  box-shadow: 0 0 0 .5px rgba(0,0,0,.1), 0 2px 5px rgba(0,0,0,.2), 0 10px 22px rgba(0,0,0,.16);
+  transition: transform .13s cubic-bezier(.22,1,.36,1);
+}
+.aiw-tile img { width: 100%; height: 100%; object-fit: contain; padding: 18%; }
+.aiw-tile::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.2), transparent 58%);
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.18), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.aiw-slot > a { display: block; border-radius: 23%; }
+.aiw-slot > a:focus-visible .aiw-tile { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.aiw-tip {
+  position: absolute; left: 0; top: 6px; z-index: 9; pointer-events: none; white-space: nowrap;
+  border-radius: 9px; background: var(--foreground); color: var(--background);
+  padding: 5px 11px; font-size: 12.5px; font-weight: 700;
+  opacity: 0; transition: opacity .2s, translate .3s cubic-bezier(.22,1,.36,1);
+}
+.aiw-tip.on { opacity: 1; }
+/* На телефоне подписи нет вовсе. Приём держится на указателе: имя всплывает
+   там, где он стоит. Пальцем это превращается в ярлык, который появляется
+   под самим пальцем и исчезает вместе с касанием, — показывать нечего.
+   Обработчики там и не вешаются, это правило закрывает случай гибридных
+   устройств, где браузер отвечает «указатель есть», а в руках телефон. */
+@media (hover: none), (pointer: coarse) {
+  .aiw-tip { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aiw-tile, .aiw-cta, .aiw-tip { transition: none; }
+}

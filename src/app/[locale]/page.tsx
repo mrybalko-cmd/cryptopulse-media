@@ -16,9 +16,11 @@ import HomeAuthorsWidget from '@/components/ui/HomeAuthorsWidget';
 import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
 import HomeRegulationWidget from '@/components/ui/HomeRegulationWidget';
+import HomeAiWidget from '@/components/ui/HomeAiWidget';
 import { fetchOwnNews } from '@/lib/news';
 import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings, fetchHomeAuthorsWidget } from '@/lib/sanity';
 import { getHomeRegulation } from '@/lib/licences';
+import { getHomeAi } from '@/lib/ai';
 import { fetchLatestPulse } from '@/lib/pulse';
 type Props = { params: Promise<{ locale: string }> };
 
@@ -27,7 +29,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget, regulationWidget] = await Promise.allSettled([
+  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget, regulationWidget, aiWidget] = await Promise.allSettled([
     // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
     // up closer to the news/articles columns above it.
     fetchOwnNews({ limit: 16, locale }),
@@ -39,6 +41,7 @@ export default async function HomePage({ params }: Props) {
     fetchLatestPulse(),
     fetchHomeAuthorsWidget(locale),
     getHomeRegulation(),
+    getHomeAi(),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
@@ -318,6 +321,12 @@ export default async function HomePage({ params }: Props) {
           теперь блок общий для обеих ширин и заменяет её. */}
       {regulationWidget.status === 'fulfilled' && (
         <HomeRegulationWidget data={regulationWidget.value} locale={locale} />
+      )}
+
+      {/* Каталог AI — под регуляцией. Оба блока справочные, и вместе они
+          образуют низ главной: лента выше, справочники ниже. */}
+      {aiWidget.status === 'fulfilled' && (
+        <HomeAiWidget data={aiWidget.value} locale={locale} />
       )}
     </div>
   );

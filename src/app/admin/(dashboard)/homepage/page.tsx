@@ -1,10 +1,11 @@
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminHomeSettings, fetchAuthorOptions, fetchMaterialOptionsForAuthors,
-  fetchRecentMaterialOptions, fetchMaterialOptionsByIds, fetchRegulationPickOptions } from '@/lib/admin/data';
+  fetchRecentMaterialOptions, fetchMaterialOptionsByIds, fetchRegulationPickOptions, fetchAiServicePickOptions } from '@/lib/admin/data';
 import { updateHomeSettingsAction } from './actions';
 import HomeAuthorColumnsEditor from './HomeAuthorColumnsEditor';
 import HomeAuthorsWidgetEditor from './HomeAuthorsWidgetEditor';
 import HomeRegulationWidgetEditor from './HomeRegulationWidgetEditor';
+import HomeAiWidgetEditor from './HomeAiWidgetEditor';
 import SubmitButton from '../_shared/SubmitButton';
 import SavedMark from '../_shared/SavedMark';
 
@@ -18,6 +19,7 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
   // одного автора, страница больше не будет.
   const settings = await fetchAdminHomeSettings();
   const regulationOptions = await fetchRegulationPickOptions();
+  const aiServiceOptions = await fetchAiServicePickOptions();
   const columnAuthorIds = [...new Set(
     (settings.featuredAuthors || []).map(s => s.authorId).filter(Boolean) as string[],
   )];
@@ -105,6 +107,14 @@ export default async function AdminHomepagePage({ searchParams }: { searchParams
             regimes={regulationOptions.regimes}
             pickedCountries={(settings.regulationCountries || []).map(c => c.id)}
             pickedRegimes={(settings.regulationRegimes || []).map(r => r.id)}
+          />
+        </div>
+
+        <div className="mt-8 pt-7 border-t border-[var(--admin-border)]">
+          <HomeAiWidgetEditor
+            show={settings.showAiWidget}
+            services={aiServiceOptions}
+            picked={(settings.aiWidgetServices || []).map(s => s.id)}
           />
         </div>
 

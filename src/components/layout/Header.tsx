@@ -48,7 +48,21 @@ export default function Header() {
     { href: `/${locale}/calculators`, label: t('calculators') },
     { href: `/${locale}/calendar`, label: t('calendar') },
     { href: `/${locale}/assets`, label: t('assets') },
-    { href: `/${locale}/ai`, label: 'AI', ai: true },
+    {
+      href: `/${locale}/ai`,
+      label: 'AI',
+      ai: true,
+      // Подменю у одного пункта: каталог сервисов — справочник, а не лента,
+      // и попадать в него логично из навигации, а не с главной.
+      sub: [
+        { href: `/${locale}/ai/tools`, label: locale === 'ru' ? 'AI-компании' : 'AI companies',
+          hint: locale === 'ru' ? 'Полсотни сервисов, цены с датой сверки' : 'Fifty services, every price dated' },
+        { href: `/${locale}/ai/glossary`, label: locale === 'ru' ? 'Глоссарий' : 'Glossary',
+          hint: locale === 'ru' ? 'Термины простыми словами' : 'Plain-language terms' },
+        { href: `/${locale}/ai`, label: locale === 'ru' ? 'Лента AI' : 'AI feed',
+          hint: locale === 'ru' ? 'Новости и разборы' : 'News and analysis' },
+      ],
+    },
     { href: `/${locale}/rates`, label: t('rates') },
     { href: `/${locale}/exchanges`, label: t('exchanges') },
   ];
@@ -129,7 +143,7 @@ export default function Header() {
       >
         <ul className="max-w-7xl mx-auto px-4 sm:px-6 flex items-stretch justify-center h-11 list-none gap-0">
           {navLinks.map(link => (
-            <li key={link.href} className="flex items-stretch">
+            <li key={link.href} className="group relative flex items-stretch">
               <Link
                 href={link.href}
                 aria-current={isActive(link.href) ? 'page' : undefined}
@@ -144,6 +158,22 @@ export default function Header() {
                   <BoltIcon size={11} className="text-blue-400 -ml-0.5 shrink-0" />
                 )}
               </Link>
+              {'sub' in link && link.sub && (
+                <div
+                  className="invisible absolute left-1/2 top-full z-40 min-w-[270px] -translate-x-1/2 rounded-b-xl border border-t-0 border-border bg-background p-1.5 opacity-0 shadow-xl transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+                >
+                  {link.sub.map(item => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="flex flex-col rounded-lg px-3 py-2 hover:bg-card"
+                    >
+                      <b className="text-[13.5px] font-bold">{item.label}</b>
+                      <span className="text-[12px] leading-snug text-muted">{item.hint}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </li>
           ))}
         </ul>
