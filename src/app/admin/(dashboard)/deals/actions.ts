@@ -6,7 +6,7 @@ import { createDeal, updateDeal, deleteDeal, fetchDealById, type DealInput, type
 import { logActivity } from '@/lib/admin/activityLog';
 
 /**
- * Размещения приходят четырьмя параллельными списками — так их отдаёт форма,
+ * Размещения приходят пятью параллельными списками — так их отдаёт форма,
  * где у каждой строки одинаковые имена полей. Собираем обратно по индексу.
  *
  * Строка без суммы отбрасывается молча: это пустая строка, которую добавили
@@ -15,6 +15,7 @@ import { logActivity } from '@/lib/admin/activityLog';
  */
 function parse(formData: FormData): DealInput {
   const kinds = formData.getAll('kind').map(String) as PlacementKind[];
+  const customKinds = formData.getAll('customKind').map(String);
   const amounts = formData.getAll('amount').map(String);
   const urls = formData.getAll('url').map(String);
   const notes = formData.getAll('note').map(String);
@@ -22,6 +23,7 @@ function parse(formData: FormData): DealInput {
   const placements = kinds
     .map((kind, i) => ({
       kind,
+      customKind: customKinds[i] ?? '',
       amount: Number(String(amounts[i] ?? '').replace(',', '.')),
       url: urls[i] ?? '',
       note: notes[i] ?? '',

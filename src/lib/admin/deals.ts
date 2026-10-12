@@ -15,7 +15,7 @@ export * from './dealMath';
 
 const DEAL_FIELDS = `_id, client, dealDate, source, partner, status, paidAt, invoiceNo,
   currency, "fxToEur": coalesce(fxToEur, 1), "commissionPct": coalesce(commissionPct, 0),
-  "placements": coalesce(placements[]{ _key, kind, amount, url, note }, []), notes`;
+  "placements": coalesce(placements[]{ _key, kind, customKind, amount, url, note }, []), notes`;
 
 /**
  * Сделки за период. Границы включаются обе: пользователь, выбравший
@@ -58,6 +58,7 @@ function docFields(input: DealInput) {
       _key: p._key || `p${i}${Math.random().toString(36).slice(2, 8)}`,
       _type: 'adPlacement',
       kind: p.kind,
+      customKind: p.customKind?.trim() || undefined,
       amount: p.amount,
       url: p.url?.trim() || undefined,
       note: p.note?.trim() || undefined,

@@ -52,6 +52,16 @@ export const adPlacementType = defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
+      name: 'customKind',
+      title: 'Своё название услуги',
+      type: 'string',
+      description:
+        'Если услуги нет в списке выше или она называется у вас иначе. ' +
+        'Заполнено — показывается вместо названия из списка и становится ' +
+        'отдельной строкой в разрезе по видам размещения.',
+      validation: Rule => Rule.max(60),
+    }),
+    defineField({
       name: 'amount',
       title: 'Сумма',
       type: 'number',
@@ -72,9 +82,9 @@ export const adPlacementType = defineType({
     }),
   ],
   preview: {
-    select: { kind: 'kind', amount: 'amount', note: 'note' },
-    prepare: ({ kind, amount, note }) => ({
-      title: `${kind ?? 'размещение'} · ${amount ?? 0}`,
+    select: { kind: 'kind', custom: 'customKind', amount: 'amount', note: 'note' },
+    prepare: ({ kind, custom, amount, note }) => ({
+      title: `${custom || kind || 'размещение'} · ${amount ?? 0}`,
       subtitle: note,
     }),
   },

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireOwner } from '@/lib/admin/auth';
 import {
   fetchDeals, fetchDealRange, dealMoney, totals,
-  PLACEMENT_LABEL, SOURCE_LABEL, STATUS_LABEL,
+  placementLabel, SOURCE_LABEL, STATUS_LABEL,
 } from '@/lib/admin/deals';
 import { PRESETS, resolvePeriod, ru } from './period';
 
@@ -203,10 +203,10 @@ export default async function DealsPage({
                           <li key={p._key ?? i} className="text-[11.5px]">
                             {p.url ? (
                               <a href={p.url} target="_blank" rel="noopener" className="hover:text-cyan-400 underline decoration-dotted">
-                                {PLACEMENT_LABEL[p.kind] ?? p.kind}
+                                {placementLabel(p)}
                               </a>
                             ) : (
-                              PLACEMENT_LABEL[p.kind] ?? p.kind
+                              placementLabel(p)
                             )}
                             <span className="text-[var(--admin-text-muted)] tabular-nums">
                               {' · '}{p.amount.toLocaleString('ru-RU')} {sign}

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/admin/auth';
 import {
   fetchDeals, fetchDealRange, dealMoney, totals,
-  PLACEMENT_LABEL, SOURCE_LABEL, STATUS_LABEL,
+  placementLabel, SOURCE_LABEL, STATUS_LABEL,
 } from '@/lib/admin/deals';
 import { buildXlsx, type Cell } from '@/lib/admin/xlsx';
 import { resolvePeriod, ru } from '../period';
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         STATUS_LABEL[d.status] ?? d.status,
         d.paidAt ? ru(d.paidAt) : '',
         d.invoiceNo ?? '',
-        PLACEMENT_LABEL[p.kind] ?? p.kind,
+        placementLabel(p),
         p.url ?? '',
         p.note ?? '',
         p.amount,

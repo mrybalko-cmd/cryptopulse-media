@@ -17,6 +17,8 @@ export type PlacementKind =
 export interface Placement {
   _key?: string;
   kind: PlacementKind;
+  /** Своё название услуги. Заполнено — показывается вместо названия из списка. */
+  customKind?: string;
   amount: number;
   url?: string;
   note?: string;
@@ -50,6 +52,16 @@ export const PLACEMENT_LABEL: Record<PlacementKind, string> = {
   homeWidget: 'Виджет на главной',
   other: 'Другое',
 };
+
+/**
+ * Как размещение называется на экране и в отчёте.
+ *
+ * Своё название важнее списка: услуга, которой в списке нет, иначе
+ * схлопнулась бы в «Другое», и разрез по видам потерял бы именно ту строку,
+ * ради которой её и завели.
+ */
+export const placementLabel = (p: Pick<Placement, 'kind' | 'customKind'>): string =>
+  p.customKind?.trim() || PLACEMENT_LABEL[p.kind] || p.kind;
 
 export const SOURCE_LABEL: Record<DealSource, string> = {
   direct: 'Прямой',
@@ -106,8 +118,8 @@ export interface Totals {
   netEur: number;
   /** Разрез по валютам — без пересчёта, в том, в чём платили. */
   byCurrency: { currency: DealCurrency; gross: number; net: number; deals: number }[];
-  /** Разрез по видам размещения, в евро. */
-  byKind: { kind: PlacementKind; label: string; amountEur: number; count: number }[];
+  /** Разрез по видам размещения, в евро. Своё название — отдельной строкой. */
+  byKind: { label: string; amountEur: number; count: number }[];
   /** Разрез по источнику клиента, в евро. */
   bySource: { source: DealSource; label: string; netEur: number; deals: number }[];
 }
@@ -123,7 +135,8 @@ export function totals(deals: Deal[]): Totals {
   const live = deals.filter(d => d.status !== 'cancelled');
 
   const cur = new Map<DealCurrency, { gross: number; net: number; deals: number }>();
-  const kind = new Map<PlacementKind, { amountEur: number; count: number }>();
+  // Группируем по тому, что видит человек: своё название — своя строка.
+  const kind = new Map<string, { amountEur: number; count: number }>();
   const src = new Map<DealSource, { netEur: number; deals: number }>();
   let grossEur = 0, commissionEur = 0, netEur = 0, placements = 0;
 
@@ -142,8 +155,9 @@ export function totals(deals: Deal[]): Totals {
 
     const fx = Number(d.fxToEur) || 1;
     for (const p of d.placements ?? []) {
-      const k = kind.get(p.kind) ?? { amountEur: 0, count: 0 };
-      kind.set(p.kind, { amountEur: round2(k.amountEur + (Number(p.amount) || 0) * fx), count: k.count + 1 });
+      const label = placementLabel(p);
+      const k = kind.get(label) ?? { amountEur: 0, count: 0 };
+      kind.set(label, { amountEur: round2(k.amountEur + (Number(p.amount) || 0) * fx), count: k.count + 1 });
     }
   }
 
@@ -157,7 +171,7 @@ export function totals(deals: Deal[]): Totals {
       .map(([currency, v]) => ({ currency, ...v }))
       .sort((a, b) => b.gross - a.gross),
     byKind: [...kind.entries()]
-      .map(([k, v]) => ({ kind: k, label: PLACEMENT_LABEL[k] ?? k, ...v }))
+      .map(([label, v]) => ({ label, ...v }))
       .sort((a, b) => b.amountEur - a.amountEur),
     bySource: [...src.entries()]
       .map(([s, v]) => ({ source: s, label: SOURCE_LABEL[s] ?? s, ...v }))

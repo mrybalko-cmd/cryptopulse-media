@@ -23,7 +23,7 @@ const FIELD =
 const LABEL =
   'block text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)] mb-1.5 font-bold';
 
-interface Row { key: string; kind: PlacementKind; amount: string; url: string; note: string }
+interface Row { key: string; kind: PlacementKind; custom: string; amount: string; url: string; note: string }
 
 /** Курс по умолчанию — единица для евро: это и есть самый частый случай. */
 const DEFAULT_FX: Record<DealCurrency, string> = { EUR: '1', USD: '0.92', USDT: '0.92', USDC: '0.92' };
@@ -46,7 +46,7 @@ export default function DealForm({
   const nextKey = useRef(0);
   const newRow = (): Row => ({
     key: `new${nextKey.current++}`,
-    kind: 'banner', amount: '', url: '', note: '',
+    kind: 'banner', custom: '', amount: '', url: '', note: '',
   });
 
   const [rows, setRows] = useState<Row[]>(() =>
@@ -54,11 +54,12 @@ export default function DealForm({
       ? deal.placements.map((p, i) => ({
           key: p._key || `row${i}`,
           kind: p.kind,
+          custom: p.customKind ?? '',
           amount: String(p.amount ?? ''),
           url: p.url ?? '',
           note: p.note ?? '',
         }))
-      : [{ key: 'row0', kind: 'banner', amount: '', url: '', note: '' }]
+      : [{ key: 'row0', kind: 'banner', custom: '', amount: '', url: '', note: '' }]
   );
   const [source, setSource] = useState(deal?.source ?? 'direct');
   const [status, setStatus] = useState(deal?.status ?? 'invoiced');
@@ -136,15 +137,18 @@ export default function DealForm({
       <p className="text-[11.5px] text-[var(--admin-text-muted)] mb-3 max-w-[70ch]">
         Одна сделка может покрывать несколько форматов. Сумма сделки складывается
         из строк, поэтому отдельного поля «всего» нет — оно разъехалось бы со
-        строками при первой же правке.
+        строками при первой же правке. «Своё название» заполняется, когда услуги
+        нет в списке: оно показывается вместо вида и становится отдельной строкой
+        в разрезе по видам размещения.
       </p>
 
       <div className="border border-[var(--admin-border)] rounded-xl overflow-hidden mb-3">
         <table className="w-full text-[12.5px] border-collapse">
           <thead>
             <tr className="bg-[var(--admin-input)] text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)]">
-              <th className="text-left font-bold px-3 py-2.5 w-[190px]">Вид</th>
-              <th className="text-left font-bold px-3 py-2.5 w-[120px]">Сумма, {sign}</th>
+              <th className="text-left font-bold px-3 py-2.5 w-[170px]">Вид</th>
+              <th className="text-left font-bold px-3 py-2.5 w-[180px]">Своё название</th>
+              <th className="text-left font-bold px-3 py-2.5 w-[110px]">Сумма, {sign}</th>
               <th className="text-left font-bold px-3 py-2.5">Ссылка</th>
               <th className="text-left font-bold px-3 py-2.5">Пометка</th>
               <th className="w-[44px]" />
@@ -161,6 +165,14 @@ export default function DealForm({
                   >
                     {Object.entries(PLACEMENT_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
+                </td>
+                <td className="px-2 py-2">
+                  <input
+                    name="customKind" value={r.custom} maxLength={60}
+                    placeholder="если услуги нет в списке"
+                    aria-label={`Своё название услуги ${i + 1}`} className={FIELD}
+                    onChange={e => setRows(v => v.map(x => x.key === r.key ? { ...x, custom: e.target.value } : x))}
+                  />
                 </td>
                 <td className="px-2 py-2">
                   <input
