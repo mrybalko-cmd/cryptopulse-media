@@ -1982,39 +1982,4 @@ export const SERVICES: SeedService[] = [
     priceCheckedAt: D,
     sources: ['https://one.google.com/about/google-ai-plans/'],
   },
-  {
-    slug: 'claude-code',
-    name: 'Claude Code',
-    monogram: 'CC',
-    brandColor: '#1f1e1d',
-    job: 'code',
-    rank: 55,
-    website: 'https://claude.com/product/claude-code',
-    pricingUrl: 'https://claude.com/pricing',
-    foundedYear: 2025,
-    plans: [
-      { name: 'Входит в Claude Pro', price: 20, recommended: true, includes: { ru: 'отдельной подписки нет, $17 при оплате за год', en: 'no separate subscription, $17 billed annually' } },
-      { name: 'Входит в Claude Max', price: 100, includes: { ru: 'больше объёма, от $100', en: 'more usage, from $100' } },
-      { name: 'Оплата по объёму через API', price: null, unit: 'usage', includes: { ru: 'для тех, кому подписка не подходит', en: 'for those a subscription does not fit' } },
-    ],
-    facets: ['cagent', 'crepo', 'cdeploy', 'desktop', 'api', 'sso', 'notrain'],
-    tagline: {
-      ru: 'Агент, который работает в терминале, а не в редакторе',
-      en: 'An agent that works in the terminal, not in an editor',
-    },
-    highlight: {
-      ru: 'Живёт в терминале и не требует менять редактор: правит файлы, запускает тесты и коммитит там же, где вы и так работаете',
-      en: 'Lives in the terminal and asks you to change no editor: it edits files, runs tests and commits where you already work',
-    },
-    features: {
-      ru: ['Отдельной подписки нет — входит в тариф Claude', 'Работает в терминале, редактор менять не надо', 'Сам запускает тесты и правит падения', 'Видит весь репозиторий, а не открытый файл'],
-      en: ['No separate subscription — included with a Claude plan', 'Runs in the terminal, no editor to switch', 'Runs tests and fixes failures itself', 'Reads the whole repository, not the open file'],
-    },
-    about: {
-      ru: 'Claude Code выпустила Anthropic в 2025 году, и он занял место, которого не было у конкурентов: инструмент работает в терминале, а не внутри редактора. Разработчику не надо переносить настройки и менять привычки — агент приходит туда, где человек уже находится, читает весь репозиторий, правит файлы, запускает тесты и разбирается с падениями. Отдельной цены у него нет: он входит в любой платный тариф Claude, от двадцати долларов, и это заметно отличает его от инструментов, которые продаются сверх подписки на ассистента. Для команд, которым подписка не подходит, остаётся оплата по объёму через API.',
-      en: 'Claude Code was released by Anthropic in 2025 and took a position its rivals had left open: the tool runs in the terminal rather than inside an editor. A developer moves no settings and changes no habits — the agent comes to where the person already is, reads the whole repository, edits files, runs tests and works through failures. It carries no price of its own: it is included in every paid Claude plan from twenty dollars, which sets it apart from tools sold on top of an assistant subscription. For teams a subscription does not fit, usage billing through the API remains.',
-    },
-    priceCheckedAt: D,
-    sources: ['https://claude.com/pricing'],
-  },
 ];
