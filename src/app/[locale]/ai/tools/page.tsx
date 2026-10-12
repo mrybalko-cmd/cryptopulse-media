@@ -4,13 +4,15 @@ export const revalidate = 3600;
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { setRequestLocale } from 'next-intl/server';
-import { getAiJobs, getAiServices, facetGroupsFor, servicesForJob, pick, type Locale } from '@/lib/ai';
+import { getAiJobs, getAiServices, facetGroupsFor, servicesForJob, pick, tilesFrom, lastPriceCheck, type Locale } from '@/lib/ai';
 import { buildOg, buildTwitter, BASE, pageTitle, titleText, truncateDesc } from '@/lib/metadata';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import { SITE_NAME } from '@/lib/site';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import AiCatalogue from './AiParts';
+import HomeAiDock from '@/components/ui/HomeAiDock';
 import JobIcon from './JobIcon';
 
 interface Props {
@@ -21,7 +23,9 @@ interface Props {
 const T = {
   ru: {
     home: 'Главная', ai: 'AI', here: 'Сервисы',
-    h1: 'Какую AI-шку взять под свою задачу',
+    h1a: 'Какую AI-шку взять', h1b: 'под свою задачу',
+    ctaA: 'Выбрать задачу', ctaB: 'Посмотреть всю базу',
+    allTitle: 'Все сервисы каталога', checkedAll: 'Цены сверены',
     lede: 'Уникальный хаб по подборке AI-инструментов под вашу задачу. Используя наш фильтр, подбери идеальное решение для реализации своих проектов.',
     servicesH: 'Сервисы', filters: 'Фильтры', reset: 'Сбросить всё', close: 'Закрыть',
     details: 'Детали', review: 'Разбор', onRequest: 'по запросу',
@@ -36,7 +40,9 @@ const T = {
   },
   en: {
     home: 'Home', ai: 'AI', here: 'Services',
-    h1: 'Which AI to pick for the job in front of you',
+    h1a: 'Which AI to pick', h1b: 'for the job in front of you',
+    ctaA: 'Pick a job', ctaB: 'See the whole catalogue',
+    allTitle: 'Every service in the catalogue', checkedAll: 'Prices checked',
     lede: 'One place to match an AI tool to the job in front of you. Work the filter and the shortlist comes down to what actually fits your project.',
     servicesH: 'Services', filters: 'Filters', reset: 'Clear all', close: 'Close',
     details: 'Details', review: 'Full review', onRequest: 'on request',
@@ -121,19 +127,16 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
     ],
   };
 
+  const tiles = tilesFrom(all);
+  const checkedAt = lastPriceCheck(all);
+
   return (
-    <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6">
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
 
-      <nav aria-label="breadcrumb" className="mb-4 text-[13px] text-muted">
-        <Link href={`/${locale}`} className="hover:text-foreground">{t.home}</Link>
-        {' · '}
-        <Link href={`/${locale}/ai`} className="hover:text-foreground">{t.ai}</Link>
-        {' · '}
-        <b className="font-semibold text-foreground">{t.here}</b>
-      </nav>
-
-      <header className="ai-hero relative isolate overflow-hidden rounded-[20px]">
+      {/* Герой во всю ширину, как в утверждённом макете: тёмная подложка с
+          дугой, заголовок в две строки и два входа — в задачи и во всю базу. */}
+      <header className="ai-hero relative isolate overflow-hidden">
         <div className="ai-hero-bg" aria-hidden="true" />
         <div className="ai-hero-arc" aria-hidden="true">
           <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
@@ -156,19 +159,40 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
             <use href="#aiSweep" stroke="#fffbeb" strokeWidth="1.5" opacity=".96" />
           </svg>
         </div>
+        <div className="ai-hero-grain" aria-hidden="true" />
         <div className="ai-hero-vig" aria-hidden="true" />
-        <div className="relative z-[3] px-6 py-12 text-center sm:px-9 sm:py-16">
-          <h1 className="mx-auto max-w-[18ch] text-[clamp(30px,6vw,52px)] font-black leading-[1.06] tracking-[-.035em] text-white">
-            {t.h1}
+        <div className="relative z-[6] mx-auto w-full max-w-[880px] px-6 py-14 text-center sm:px-9">
+          <h1 className="text-[clamp(34px,7vw,74px)] font-black leading-[1.05] tracking-[-.035em] text-white [text-shadow:0_2px_34px_rgba(0,0,0,.42)]">
+            {t.h1a}
+            <br />
+            <i className="not-italic text-[#fcd34d]">{t.h1b}</i>
           </h1>
-          <p className="mx-auto mt-5 max-w-[62ch] text-[15px] text-white/85 sm:text-[17px]">{t.lede}</p>
+          <p className="mx-auto mt-5 max-w-[62ch] text-[15px] leading-relaxed text-white/85 sm:text-[17px] [text-shadow:0_1px_18px_rgba(0,0,0,.46)]">
+            {t.lede}
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <a href="#tasks" className="ai-pill">
+              {t.ctaA}
+              <ArrowRight size={16} strokeWidth={2} />
+            </a>
+            <a href="#all" className="ai-pill ai-pill-ghost">{t.ctaB}</a>
+          </div>
         </div>
       </header>
+
+      <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6">
+      <nav aria-label="breadcrumb" className="mb-4 text-[13px] text-muted">
+        <Link href={`/${locale}`} className="hover:text-foreground">{t.home}</Link>
+        {' · '}
+        <Link href={`/${locale}/ai`} className="hover:text-foreground">{t.ai}</Link>
+        {' · '}
+        <b className="font-semibold text-foreground">{t.here}</b>
+      </nav>
 
       {jobs.length > 0 && (
         <>
           <h2 className="sr-only">{t.filters}</h2>
-          <ul className="mt-5 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
+          <ul id="tasks" className="mt-5 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
             {jobs.map(j => (
               <li key={j.slug}>
                 <Link
@@ -210,6 +234,23 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
         </div>
         <PopularSidebar locale={locale} className="flex-1" />
       </div>
-    </div>
+
+      {/* Вся база одним рядом: логотипы расступаются под курсором, на телефоне
+          ряд просто листается. Второй вход для тех, кто пришёл не за задачей,
+          а посмотреть, что вообще есть. */}
+      {tiles.length > 0 && (
+        <section id="all" className="mt-12 border-t border-border pt-8">
+          <h2 className="sr-only">{t.allTitle}</h2>
+          <HomeAiDock tiles={tiles} locale={locale} />
+          {checkedAt && (
+            <p className="mt-1 text-center text-[12.5px] text-muted tabular-nums">
+              {t.checkedAll}: {all.filter(s => s.priceCheckedAt).length} / {all.length} ·{' '}
+              {checkedAt.split('-').reverse().join('.')}
+            </p>
+          )}
+        </section>
+      )}
+      </div>
+    </>
   );
 }

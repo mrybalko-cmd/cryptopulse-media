@@ -1363,8 +1363,9 @@ html.light {
   background: var(--glass-fill);
   border: 1px solid var(--glass-line);
   box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Размытия здесь нет намеренно: рукописный backdrop-filter из этого файла
+     вырезается при сборке, и на боевом computed отдавал `none`. Блюр висит
+     классами backdrop-blur-* прямо на элементах — так он доживает до браузера. */
   transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s, border-color .18s;
 }
 .ai-card::before,
@@ -1449,7 +1450,43 @@ html.light {
 /* Шапка раздела AI: чёрная подложка и одна светящаяся дуга.
    Форма взята с присланного образца, цвет — солнечный. Подложка всегда
    тёмная независимо от темы: белый текст поверх неё читается в обеих. */
-.ai-hero { background: #05060c; min-height: 300px; display: flex; align-items: center; }
+.ai-hero {
+  background: #05060c;
+  /* В макете герой занимал min(94vh, 780px) вместе со своей строкой навигации;
+     на сайте шапка живёт выше, поэтому высота меньше ровно на неё. */
+  min-height: min(86vh, 700px);
+  display: flex; align-items: center;
+}
+/* На узком экране у макета был свой потолок: 700 пикселей там съедают
+   весь первый экран целиком, и до полосы задач приходится скроллить вслепую. */
+@media (max-width: 719px) {
+  .ai-hero { min-height: min(78vh, 560px); }
+}
+/* Зерно поверх градиента: без него тёмная заливка выглядит плоской полосой. */
+.ai-hero-grain {
+  position: absolute; inset: 0; z-index: 2; opacity: .18; pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.5'/></svg>");
+  background-size: 180px 180px;
+}
+.ai-hero-vig { z-index: 3 !important; }
+/* Кнопки героя: стеклянные, на тёмном. */
+.ai-pill {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 13px 22px; border-radius: 999px;
+  font-size: 15px; font-weight: 600; color: #fff;
+  background: rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255, 255, 255, .17);
+  backdrop-filter: blur(12px);
+  transition: transform .18s cubic-bezier(.2, .72, .3, 1), background .18s, box-shadow .18s;
+}
+.ai-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, .18);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .34);
+}
+.ai-pill-ghost { background: transparent; border-color: transparent; color: rgba(255, 255, 255, .88); }
+.ai-pill-ghost:hover { color: #fff; background: rgba(255, 255, 255, .08); box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .ai-pill { transition: none; } }
 .ai-hero-bg {
   position: absolute; inset: 0; z-index: 0;
   background: radial-gradient(120% 90% at 50% 120%, #0b0d14 0%, #050608 58%, #000 100%);

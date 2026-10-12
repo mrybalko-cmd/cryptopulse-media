@@ -353,6 +353,20 @@ export const getHomeAi = unstable_cache(
   { revalidate: 3600, tags: ['homeSettings', 'ai', 'ai-services'] }
 );
 
+/** Плитки для ряда логотипов внизу хаба: все, у кого есть загруженный знак. */
+export function tilesFrom(services: AiService[]): AiTile[] {
+  return services
+    .filter(s => s.logoUrl)
+    .map(s => ({
+      slug: s.slug,
+      name: s.name,
+      monogram: s.monogram ?? '',
+      brandColor: s.brandColor ?? '#111827',
+      logoUrl: s.logoUrl ?? null,
+      logoOnDark: Boolean(s.logoOnDark),
+    }));
+}
+
 /** Последняя дата сверки по всему каталогу — для подписи в шапке раздела. */
 export function lastPriceCheck(services: AiService[]): string | null {
   const dates = services.map(s => s.priceCheckedAt).filter(Boolean) as string[];

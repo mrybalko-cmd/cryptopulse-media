@@ -71,7 +71,7 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
 
   return (
     <li className="flex">
-      <article className="ai-card relative flex w-full flex-col gap-3 overflow-hidden rounded-[14px] p-4">
+      <article className="ai-card relative flex w-full flex-col gap-3 overflow-hidden rounded-[14px] p-4 backdrop-blur-[14px] backdrop-saturate-150">
         <div className="flex items-start gap-3">
           <ServiceMark s={s} />
           <div className="min-w-0 flex-1">
@@ -264,7 +264,7 @@ export default function AiCatalogue({ locale, services, groups, t }: Props) {
       <div className="mt-5 grid gap-5 lg:grid-cols-[264px_minmax(0,1fr)]">
         <form
           aria-label={t.filters}
-          className={`ai-filters self-start rounded-[20px] p-3.5 ${
+          className={`ai-filters self-start rounded-[20px] p-3.5 backdrop-blur-[14px] backdrop-saturate-150 ${
             sheet
               ? 'fixed inset-x-0 bottom-0 z-[70] max-h-[78vh] overflow-y-auto rounded-b-none px-4 pb-6 pt-4'
               : 'hidden lg:block lg:sticky lg:top-[62px] lg:max-h-[calc(100vh-86px)] lg:overflow-y-auto'
@@ -311,7 +311,7 @@ export default function AiCatalogue({ locale, services, groups, t }: Props) {
           </div>
 
           {list.length > 0 ? (
-            <ul className="m-0 grid list-none grid-cols-1 gap-3.5 p-0 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="m-0 grid list-none grid-cols-1 gap-3.5 p-0 sm:grid-cols-2">
               {list.map(s => (
                 <Card key={s.slug} s={s} locale={locale} t={t} />
               ))}
