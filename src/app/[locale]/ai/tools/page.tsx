@@ -6,14 +6,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { setRequestLocale } from 'next-intl/server';
-import { getAiJobs, getAiServices, facetGroupsFor, allFacetGroups, servicesForJob, allServices, pick, tilesFrom, type Locale } from '@/lib/ai';
+import { getAiJobs, facetGroupsFor, allFacetGroups, allServices, tilesFrom, type Locale } from '@/lib/ai';
 import { buildOg, buildTwitter, BASE, pageTitle, titleText, truncateDesc } from '@/lib/metadata';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import { SITE_NAME } from '@/lib/site';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import AiCatalogue from './AiParts';
 import HomeAiDock from '@/components/ui/HomeAiDock';
-import JobIcon from './JobIcon';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -83,14 +82,25 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
   const locale = (raw === 'ru' ? 'ru' : 'en') as Locale;
   const t = T[locale];
 
-  const [jobs, all] = await Promise.all([getAiJobs(), getAiServices()]);
-  // Без ?job= показывается весь каталог: читатель, пришедший с главной или из
-  // меню, ещё не выбрал работу, и подсовывать ему одну задачу из десяти —
-  // значит прятать от него остальные сорок с лишним карточек.
-  const active = jobs.find(j => j.slug === jobParam) ?? null;
-  const [services, groups] = active
-    ? await Promise.all([servicesForJob(active.slug), facetGroupsFor(active.slug)])
-    : await Promise.all([allServices(), allFacetGroups()]);
+  const [jobs, all] = await Promise.all([getAiJobs(), allServices()]);
+
+  /**
+   * Весь каталог уезжает на клиент разом, и переключение задачи адрес не
+   * меняет. Читатель остаётся на /ai/tools, а не собирает в истории десяток
+   * адресов с ?job=, которые ведут на одну и ту же страницу. Для поиска это
+   * тоже чище: один адрес вместо одиннадцати с общим каноническим.
+   *
+   * Набор признаков для каждой задачи считается здесь, на сервере: правило
+   * «свои плюс общие» живёт в одном месте, и клиенту остаётся только выбрать
+   * готовый список по ключу.
+   */
+  const groupsByJob: Record<string, Awaited<ReturnType<typeof allFacetGroups>>> = {
+    '': await allFacetGroups(),
+  };
+  for (const j of jobs) groupsByJob[j.slug] = await facetGroupsFor(j.slug);
+
+  // ?job= остаётся входом: по нему приходят ссылки из подборок и меню.
+  const initialJob = jobs.some(j => j.slug === jobParam) ? (jobParam as string) : '';
 
   const url = `${BASE}/${locale}/ai/tools`;
   const ld = {
@@ -187,40 +197,17 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
         <b className="font-semibold text-foreground">{t.here}</b>
       </nav>
 
-      {jobs.length > 0 && (
-        <>
-          <h2 className="sr-only">{t.filters}</h2>
-          <ul id="tasks" className="mt-5 scroll-mt-32 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
-            <li>
-              <Link
-                href={`/${locale}/ai/tools`}
-                aria-current={active ? undefined : 'page'}
-                className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
-              >
-                <JobIcon name="grid" />
-                {t.everything}
-              </Link>
-            </li>
-            {jobs.map(j => (
-              <li key={j.slug}>
-                <Link
-                  href={`/${locale}/ai/tools?job=${j.slug}`}
-                  aria-current={active?.slug === j.slug ? 'page' : undefined}
-                  className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
-                >
-                  <JobIcon name={j.icon} />
-                  {pick(j.name, locale)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_256px] xl:gap-8">
         <div className="min-w-0">
-          {services.length > 0 ? (
-            <AiCatalogue locale={locale} services={services} groups={groups} t={t as unknown as Record<string, string>} />
+          {all.length > 0 ? (
+            <AiCatalogue
+              locale={locale}
+              services={all}
+              jobs={jobs}
+              groupsByJob={groupsByJob}
+              initialJob={initialJob}
+              t={t as unknown as Record<string, string>}
+            />
           ) : (
             <p className="mt-6 text-[14px] text-muted">{t.empty}</p>
           )}

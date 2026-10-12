@@ -4,8 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
-import type { AiFacet, AiFacetGroup, AiService, Locale } from '@/lib/ai';
+import type { AiFacet, AiFacetGroup, AiJob, AiService, Locale } from '@/lib/ai';
 import { allFacets, money, paidFrom, pick, pickList, unitLabel } from '@/lib/ai';
+import JobIcon from './JobIcon';
 
 /**
  * Фильтрация идёт на клиенте, и это осознанно.
@@ -19,8 +20,12 @@ import { allFacets, money, paidFrom, pick, pickList, unitLabel } from '@/lib/ai'
 
 interface Props {
   locale: Locale;
+  /** Весь каталог: задача выбирается здесь же, без перезагрузки страницы. */
   services: AiService[];
-  groups: AiFacetGroup[];
+  jobs: AiJob[];
+  /** Готовые наборы признаков: ключ «» — для режима «Все сервисы». */
+  groupsByJob: Record<string, AiFacetGroup[]>;
+  initialJob: string;
   t: Record<string, string>;
 }
 
@@ -226,12 +231,17 @@ function Group({
   );
 }
 
-export default function AiCatalogue({ locale, services, groups, t }: Props) {
+export default function AiCatalogue({ locale, services, jobs, groupsByJob, initialJob, t }: Props) {
+  const [job, setJob] = useState(initialJob);
   const [on, setOn] = useState<Set<string>>(new Set());
   const [sheet, setSheet] = useState(false);
 
-  const counts = useMemo(() => countFacets(services), [services]);
-  const live = useMemo(() => liveGroups(groups, counts), [groups, counts]);
+  const pool = useMemo(
+    () => (job ? services.filter(s => s.jobSlug === job) : services),
+    [services, job]
+  );
+  const counts = useMemo(() => countFacets(pool), [pool]);
+  const live = useMemo(() => liveGroups(groupsByJob[job] ?? [], counts), [groupsByJob, job, counts]);
 
   const toggle = (k: string) =>
     setOn(prev => {
@@ -242,18 +252,55 @@ export default function AiCatalogue({ locale, services, groups, t }: Props) {
     });
 
   const list = useMemo(() => {
-    if (!on.size) return services;
+    if (!on.size) return pool;
     const wanted = [...on];
-    return services.filter(s => {
+    return pool.filter(s => {
       const have = new Set(allFacets(s));
       return wanted.every(k => have.has(k));
     });
-  }, [services, on]);
+  }, [pool, on]);
+
+  /** Смена задачи сбрасывает галочки: в новой задаче признаки другие. */
+  const pickJob = (slug: string) => { setJob(slug); setOn(new Set()); };
 
   const checked = list.filter(s => s.priceCheckedAt).length;
 
   return (
     <>
+      {/* Полоса задач. Отступ сверху и снизу — не украшение: при наведении
+          чип приподнимается и отбрасывает тень, а контейнер с горизонтальной
+          прокруткой обрезает всё, что вылезло за его границы. */}
+      <h2 className="sr-only">{t.filters}</h2>
+      <ul
+        id="tasks"
+        className="mt-4 scroll-mt-32 flex list-none flex-wrap gap-2 px-0 py-1.5 overflow-x-auto sm:overflow-visible max-sm:flex-nowrap"
+      >
+        <li>
+          <button
+            type="button"
+            onClick={() => pickJob('')}
+            aria-pressed={job === ''}
+            className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
+          >
+            <JobIcon name="grid" />
+            {t.everything}
+          </button>
+        </li>
+        {jobs.map(j => (
+          <li key={j.slug}>
+            <button
+              type="button"
+              onClick={() => pickJob(j.slug)}
+              aria-pressed={job === j.slug}
+              className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
+            >
+              <JobIcon name={j.icon} />
+              {pick(j.name, locale)}
+            </button>
+          </li>
+        ))}
+      </ul>
+
       <div className="mt-5 grid gap-5 lg:grid-cols-[264px_minmax(0,1fr)]">
         <form
           aria-label={t.filters}

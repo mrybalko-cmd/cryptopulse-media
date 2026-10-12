@@ -1427,7 +1427,8 @@ html.light {
   transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s, border-color .18s;
 }
 .ai-task:hover { transform: translateY(-1px); border-color: rgba(234, 88, 12, .42); }
-.ai-task[aria-current="page"] {
+.ai-task[aria-current="page"],
+.ai-task[aria-pressed="true"] {
   color: #fff;
   border-color: transparent;
   background: linear-gradient(135deg, #7c2d12 0%, #c2410c 48%, #a16207 100%);
