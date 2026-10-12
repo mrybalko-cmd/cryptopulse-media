@@ -307,12 +307,15 @@ export default async function AiServicePage({ params }: Props) {
           {(pros.length > 0 || cons.length > 0) && (
             <section className="mt-7">
               <h2 className="mb-3 border-b border-border pb-2 text-[16px] font-extrabold tracking-tight">{t.worth}</h2>
+              {/* Пустая половина не рисуется: рамка с заголовком и без единого
+                  пункта читается как недогрузившийся блок, а не как «минусов
+                  нет». Оставшаяся половина занимает всю ширину. */}
               <div className="grid gap-3 sm:grid-cols-2">
                 {[
                   { title: t.stronger, items: pros, tone: 'text-accent' },
                   { title: t.weaker, items: cons, tone: 'text-negative' },
-                ].map(({ title, items, tone }) => (
-                  <div key={title} className="rounded-xl border border-border p-3.5">
+                ].filter(({ items }) => items.length > 0).map(({ title, items, tone }) => (
+                  <div key={title} className="rounded-xl border border-border p-3.5 sm:[&:only-child]:col-span-2">
                     <h3 className={`mb-2 text-[11px] font-extrabold uppercase tracking-[.05em] ${tone}`}>{title}</h3>
                     <ul className="m-0 list-disc pl-4 text-[13px] text-muted">
                       {items.map(i => <li key={i} className="mb-1.5 leading-[1.45]">{i}</li>)}
