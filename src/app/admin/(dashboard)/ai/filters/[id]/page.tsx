@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminAiJobById, fetchAdminAiJobs } from '@/lib/admin/aiData';
+import { fetchAdminAiJobById, fetchAdminAiJobs, fetchFacetUsage, fetchFacetUsageInJob } from '@/lib/admin/aiData';
 import AiJobForm from '../AiJobForm';
 import { updateAiJobAction, deleteAiJobAction } from '../../actions';
 import { collectTakenKeys } from '../takenKeys';
@@ -16,6 +16,7 @@ export default async function EditAiJobPage({
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const [job, jobs] = await Promise.all([fetchAdminAiJobById(id), fetchAdminAiJobs()]);
   if (!job) notFound();
+  const [usage, usageInJob] = await Promise.all([fetchFacetUsage(), fetchFacetUsageInJob(job.slug)]);
 
   return (
     <div>
@@ -35,6 +36,8 @@ export default async function EditAiJobPage({
       <AiJobForm
         job={job}
         takenKeys={collectTakenKeys(jobs, id)}
+        usage={usage}
+        usageInJob={usageInJob}
         usedBy={job.serviceCount}
         action={updateAiJobAction.bind(null, id)}
         deleteAction={deleteAiJobAction.bind(null, id)}

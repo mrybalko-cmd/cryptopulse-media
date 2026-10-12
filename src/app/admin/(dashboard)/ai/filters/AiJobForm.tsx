@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import type { AdminAiJob } from '@/lib/admin/aiData';
+import { DERIVED_FACET_KEYS, type AdminAiJob } from '@/lib/admin/aiData';
 import SubmitButton from '../../_shared/SubmitButton';
 import SavedMark from '../../_shared/SavedMark';
 
@@ -37,6 +37,8 @@ interface Group { rowKey: string; ru: string; en: string; scope: string; open: b
 export default function AiJobForm({
   job,
   takenKeys,
+  usage,
+  usageInJob,
   action,
   deleteAction,
   usedBy,
@@ -44,6 +46,10 @@ export default function AiJobForm({
   job?: AdminAiJob;
   /** Ключи, занятые в других задачах: новый не должен их повторять. */
   takenKeys: Record<string, string>;
+  /** Сколько карточек каталога отмечено признаком. */
+  usage: Record<string, number>;
+  /** Сколько из них внутри этой задачи — от этого зависит, покажется ли он. */
+  usageInJob: Record<string, number>;
   action: (formData: FormData) => void;
   deleteAction?: () => void;
   usedBy?: number;
@@ -191,6 +197,7 @@ export default function AiJobForm({
                   <th className="text-left font-bold pb-1.5 w-[150px]">Ключ</th>
                   <th className="text-left font-bold pb-1.5">Подпись · RU</th>
                   <th className="text-left font-bold pb-1.5">Подпись · EN</th>
+                  <th className="text-right font-bold pb-1.5 w-[104px]">Карточек</th>
                   <th className="w-[36px]" />
                 </tr>
               </thead>
@@ -214,6 +221,9 @@ export default function AiJobForm({
                       <td className="pr-2 py-1">
                         <input name="i_en" value={it.en} aria-label={`Подпись признака ${ii + 1}, английский`}
                           className={FIELD} onChange={e => setItem(g.rowKey, it.rowKey, { en: e.target.value })} />
+                      </td>
+                      <td className="pr-2 py-1 text-right whitespace-nowrap tabular-nums">
+                        {it.existing ? <FacetUse group={g} item={it} usage={usage} usageInJob={usageInJob} /> : <span className="text-[var(--admin-text-dim)]">—</span>}
                       </td>
                       <td className="py-1 text-center">
                         <button type="button" aria-label={`Убрать признак ${ii + 1}`}
@@ -277,6 +287,38 @@ export default function AiJobForm({
         )}
       </div>
     </form>
+  );
+}
+
+/**
+ * Сколько карточек стоит за признаком и покажется ли он в хабе.
+ *
+ * Для общей группы считается по всему каталогу, для своей — внутри задачи:
+ * общий признак может быть у двадцати компаний и у одной в этой задаче, и
+ * тогда в её фильтре он не появится.
+ */
+function FacetUse({
+  group, item, usage, usageInJob,
+}: {
+  group: Group; item: Item;
+  usage: Record<string, number>; usageInJob: Record<string, number>;
+}) {
+  // Ступени цены, бесплатный тариф и способ оплаты у карточек не хранятся —
+  // их считает код из тарифов. Нуля в галочках у них не бывает, и писать
+  // «не видно» про них значит пугать редактора пустым местом.
+  if (DERIVED_FACET_KEYS.has(item.key)) {
+    return (
+      <span className="text-[var(--admin-text-dim)]" title="Считается из тарифов карточки, галочками не ставится">
+        считается
+      </span>
+    );
+  }
+  const n = (group.scope === 'global' ? usage : usageInJob)[item.key] ?? 0;
+  if (n >= 2) return <span className="text-[var(--admin-text-muted)]">{n}</span>;
+  return (
+    <span className="text-[#f2a93b] font-semibold" title="В хабе пункт появляется, когда его отмечают минимум у двух карточек">
+      {n} · не видно
+    </span>
   );
 }
 

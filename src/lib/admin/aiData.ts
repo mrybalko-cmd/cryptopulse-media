@@ -149,6 +149,37 @@ export async function fetchFacetChoices(jobId: string | null): Promise<AdminFace
   return [...own, ...global];
 }
 
+/**
+ * Сколько карточек отмечено каждым признаком.
+ *
+ * Без этой цифры редактор правит формулировки вслепую: в хабе пункт
+ * показывается, только когда его имеют минимум две компании задачи, и признак
+ * с одной галочкой на сайте не появляется вовсе. Увидев ноль или единицу,
+ * понятно, что дело не в формулировке — признак просто некому показать.
+ */
+export async function fetchFacetUsage(): Promise<Record<string, number>> {
+  const rows = await client.fetch<{ job: string | null; facets: string[] }[]>(
+    `*[_type == "aiService" && hidden != true]{ "job": job->slug.current, "facets": coalesce(facets, []) }`
+  );
+  const out: Record<string, number> = {};
+  for (const r of rows) for (const k of r.facets) out[k] = (out[k] ?? 0) + 1;
+  return out;
+}
+
+/**
+ * То же, но в разрезе задачи: общий признак может быть у двадцати компаний
+ * каталога и у одной внутри конкретной задачи — в её фильтре он не покажется.
+ */
+export async function fetchFacetUsageInJob(jobSlug: string): Promise<Record<string, number>> {
+  const rows = await client.fetch<{ facets: string[] }[]>(
+    `*[_type == "aiService" && hidden != true && job->slug.current == $jobSlug]{ "facets": coalesce(facets, []) }`,
+    { jobSlug }
+  );
+  const out: Record<string, number> = {};
+  for (const r of rows) for (const k of r.facets) out[k] = (out[k] ?? 0) + 1;
+  return out;
+}
+
 /** Ключи, которыми распоряжается код: в форме они показаны, но не правятся. */
 export const DERIVED_FACET_KEYS = new Set(['free', 'nofree', 'cheap', 'mid', 'pricey', 'perseat', 'usage']);
 

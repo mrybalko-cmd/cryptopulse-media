@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { MouseEvent as ReactMouseEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 import type { AiFacet, AiFacetGroup, AiJob, AiService, Locale } from '@/lib/ai';
 import { allFacets, money, paidFrom, pick, pickList, unitLabel } from '@/lib/ai';
@@ -69,21 +71,53 @@ export function ServiceMark({ s, size = 44 }: { s: AiService; size?: number }) {
   );
 }
 
+/**
+ * Карточка о двух состояниях.
+ *
+ * Сложенная занимает 156 пикселей вместо 322: пятьдесят с лишним карточек в
+ * полный рост давали полотно на десять экранов, и до конца его никто не
+ * доходил. Видно то, по чему выбирают — знак, название, цена и две строки
+ * «чем выделяется»; прячется то, что нужно уже остановившемуся на карточке.
+ *
+ * Действие всегда одно и зависит от состояния: сложенная разворачивается,
+ * развёрнутая ведёт на страницу сервиса. Две цели в одном месте заставляли бы
+ * целиться, поэтому отдельной кнопки «подробнее» нет — есть подпись,
+ * объясняющая, что карточка нажимается.
+ *
+ * Карточка не обёрнута в ссылку: внутри развёрнутой живёт кнопка «Свернуть», а
+ * кнопка внутри ссылки — недопустимая вложенность. Настоящая ссылка в карточке
+ * есть — «Разбор»; по ней ходит поиск и работает открытие в новой вкладке.
+ */
 function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string, string> }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
   const plan = paidFrom(s);
   const feats = pickList(s.features, locale).slice(0, 3);
   const checked = Boolean(s.priceCheckedAt);
+  const href = `/${locale}/ai/tools/${s.slug}`;
+
+  const act = (e: ReactMouseEvent | ReactKeyboardEvent) => {
+    if ((e.target as HTMLElement).closest('[data-fold]')) return;
+    if (!open) { setOpen(true); return; }
+    router.push(href);
+  };
 
   return (
     <li className="flex">
-      {/* Ссылка обёрнута вокруг всей карточки, а не растянута псевдоэлементом.
-          Растяжка держалась на том, что ссылка не образует своего контейнера
-          позиционирования, и ломалась от любого filter или transform на ней —
-          то есть от обычной подсветки при наведении. Обёртка таких сюрпризов
-          не имеет, и ссылка в карточке остаётся одна. */}
-      <Link
-        href={`/${locale}/ai/tools/${s.slug}`}
-        className="ai-card group relative flex w-full flex-col gap-3 overflow-hidden rounded-[14px] p-4 backdrop-blur-[14px] backdrop-saturate-150"
+      <article
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        aria-label={open ? `${s.name} — ${t.review}` : `${s.name} — ${t.more}`}
+        onClick={act}
+        onKeyDown={e => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          act(e);
+        }}
+        className={`ai-card group relative flex w-full cursor-pointer flex-col gap-3 overflow-hidden rounded-[14px] p-4 backdrop-blur-[14px] backdrop-saturate-150 ${
+          open ? '' : 'ai-card-half'
+        }`}
       >
         <div className="flex items-start gap-3">
           <ServiceMark s={s} />
@@ -103,15 +137,15 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
           </div>
         </div>
 
-        <p className="m-0 flex min-h-[5.8em] items-start gap-2.5 text-[13px] font-semibold leading-[1.45]">
+        <p className="m-0 flex items-start gap-2.5 text-[13px] font-semibold leading-[1.45]">
           <span className="ai-tick mt-px grid size-[18px] shrink-0 place-items-center rounded-full">
             <Check size={11} strokeWidth={3.5} className="text-white" />
           </span>
-          <span className="line-clamp-4">{pick(s.highlight, locale)}</span>
+          <span className="ai-card-uniq line-clamp-4">{pick(s.highlight, locale)}</span>
         </p>
 
         {feats.length > 0 && (
-          <ul className="m-0 flex min-h-[2.6em] list-none flex-wrap content-start gap-1.5 p-0">
+          <ul className="ai-card-feat m-0 flex min-h-[2.6em] list-none flex-wrap content-start gap-1.5 p-0">
             {feats.map((f, i) => (
               <li
                 key={f}
@@ -127,7 +161,7 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
           </ul>
         )}
 
-        <div className="mt-auto flex items-center gap-2.5 border-t border-border pt-3 text-[12px] text-muted">
+        <div className="ai-card-foot mt-auto flex flex-wrap items-center gap-2.5 border-t border-border pt-3 text-[12px] text-muted">
           {checked ? (
             <span className="inline-flex items-center gap-1.5 font-bold text-positive">
               <Check size={13} strokeWidth={3} />
@@ -136,9 +170,28 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
           ) : (
             <span className="font-semibold text-importance-medium">{t.priceUnchecked}</span>
           )}
-          <span className="ai-go ml-auto font-extrabold">{t.review} →</span>
+          <button
+            type="button"
+            data-fold
+            onClick={() => setOpen(false)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-[11.5px] font-extrabold text-muted hover:text-foreground"
+          >
+            <ChevronDown size={12} className="rotate-180" />
+            {t.fold}
+          </button>
+          <Link href={href} className="ai-go ml-auto font-extrabold" tabIndex={-1}>
+            {t.review} →
+          </Link>
         </div>
-      </Link>
+
+        {/* Срез растворяется, а не обрывается: жёсткая граница читается как
+            поломка вёрстки, мягкая — как «дальше ещё есть». */}
+        <span className="ai-card-fade" aria-hidden="true" />
+        <span className="ai-card-more">
+          {t.more}
+          <ChevronDown size={13} />
+        </span>
+      </article>
     </li>
   );
 }
@@ -194,16 +247,18 @@ function Group({
   on,
   toggle,
   counts,
+  openAll,
 }: {
   group: AiFacetGroup;
   locale: Locale;
   on: Set<string>;
   toggle: (k: string) => void;
   counts: Map<string, number>;
+  openAll: boolean;
 }) {
   const picked = group.items.filter(i => on.has(i.key)).length;
   return (
-    <details className="border-b border-border last:border-b-0" open={group.openByDefault}>
+    <details className="border-b border-border last:border-b-0" open={openAll}>
       <summary className="ai-sum flex cursor-pointer list-none items-center gap-2.5 px-1 py-3 text-[13px] font-extrabold uppercase tracking-[.06em] text-muted">
         {pick(group.title, locale)}
         {picked > 0 && <span className="ai-pick rounded-full px-2 py-px text-[12px] font-extrabold tabular-nums text-white">{picked}</span>}
@@ -233,6 +288,7 @@ function Group({
 
 export default function AiCatalogue({ locale, services, jobs, groupsByJob, initialJob, t }: Props) {
   const [job, setJob] = useState(initialJob);
+  const [openAll, setOpenAll] = useState(false);
   const [on, setOn] = useState<Set<string>>(new Set());
   const [sheet, setSheet] = useState(false);
 
@@ -320,25 +376,47 @@ export default function AiCatalogue({ locale, services, jobs, groupsByJob, initi
               <X size={16} />
             </button>
           )}
+          {/* Шапка панели приклеена: кнопка «развернуть всё» нужна именно тогда,
+              когда список длинный и уехал вверх вместе с прокруткой. */}
+          <div className="sticky top-0 z-[4] -mx-3.5 -mt-3.5 mb-1 border-b border-border bg-background/90 px-3.5 pb-2.5 pt-3 backdrop-blur-[10px]">
+            <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
+              <b className="text-[12px] font-extrabold uppercase tracking-[.07em] text-muted">{t.filters}</b>
+              {on.size > 0 && (
+                <span className="ai-pick rounded-full px-2 py-px text-[12px] font-extrabold tabular-nums text-white">
+                  {on.size}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setOn(new Set())}
+                disabled={on.size === 0}
+                className="ml-auto shrink-0 whitespace-nowrap p-0.5 text-[12px] font-extrabold text-accent disabled:cursor-not-allowed disabled:text-muted/60"
+              >
+                {t.reset}
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpenAll(v => !v)}
+              aria-expanded={openAll}
+              className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border border-border py-2 text-[12.5px] font-extrabold hover:border-violet/40"
+            >
+              {openAll ? t.collapseAll : t.expandAll}
+              <ChevronDown size={14} className={openAll ? 'rotate-180' : undefined} />
+            </button>
+          </div>
+
           {live.map((g, i) => (
             <Group
-              key={`${pick(g.title, locale)}-${i}`}
+              key={`${pick(g.title, locale)}-${i}-${openAll}`}
               group={g}
               locale={locale}
               on={on}
               toggle={toggle}
               counts={counts}
+              openAll={openAll}
             />
           ))}
-          <button
-            type="button"
-            onClick={() => setOn(new Set())}
-            disabled={on.size === 0}
-            className="mt-3 w-full rounded-lg border border-border py-2 text-[12.5px] font-bold text-accent disabled:cursor-not-allowed disabled:border-border/60 disabled:text-muted"
-          >
-            {t.reset}
-            {on.size > 0 && ` · ${on.size}`}
-          </button>
         </form>
 
         <section id="results" aria-labelledby="ai-res" className="scroll-mt-24">

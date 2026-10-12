@@ -1667,3 +1667,25 @@ html.light .aiw::after { opacity: .78; }
 /* Свёрнутые задачи в админке: стрелка поворачивается, маркер списка убран. */
 details > summary::-webkit-details-marker { display: none; }
 details[open] > summary > span:first-child { transform: rotate(90deg); display: inline-block; }
+
+/* ── Сложенная карточка каталога ─────────────────────────────────────
+   156 пикселей вместо 322. Полный рост у полусотни карточек давал
+   полотно на десять экранов; видно остаётся то, по чему выбирают. */
+.ai-card-half { height: 156px; padding-bottom: 10px; gap: 10px; }
+.ai-card-half .ai-card-uniq { -webkit-line-clamp: 2; }
+.ai-card-half .ai-card-feat,
+.ai-card-half .ai-card-foot { display: none; }
+.ai-card-fade {
+  display: none;
+  position: absolute; left: 0; right: 0; bottom: 0; height: 52px;
+  z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent, var(--background) 80%);
+  opacity: .94;
+}
+.ai-card-half .ai-card-fade { display: block; }
+.ai-card-more {
+  position: absolute; right: 12px; bottom: 8px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 800; color: var(--muted);
+}
+.ai-card:not(.ai-card-half) .ai-card-more { display: none; }
