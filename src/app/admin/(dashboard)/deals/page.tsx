@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import { requireOwner } from '@/lib/admin/auth';
 import {
-  fetchDeals, fetchDealRange, dealMoney, totals,
+  fetchDeals, fetchDealRange, dealMoney, totals, monthlyGross,
   placementLabel, SOURCE_LABEL, STATUS_LABEL,
 } from '@/lib/admin/deals';
 import { PRESETS, resolvePeriod, ru } from './period';
+import { deleteDealAction } from './actions';
+import { DeleteSubmitButton } from '../_shared/DeleteButton';
+import DealsChart from './DealsChart';
 
 /**
  * Учёт коммерческих размещений.
@@ -14,8 +17,16 @@ import { PRESETS, resolvePeriod, ru } from './period';
  * выдать. Выручка не делится по сотрудникам.
  */
 
-const money = (n: number, cur = '€') =>
-  `${n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur}`;
+/**
+ * Базовая валюта раздела — USDT: в ней приходит оплата и в ней считается
+ * отчёт. Евро идёт второй строкой, справочно, по курсу из самой сделки.
+ *
+ * Неразрывный пробел перед валютой — намеренно: иначе «274,00» и «USDT»
+ * разъезжаются по строкам в узкой клетке таблицы.
+ */
+const money = (n: number, cur = 'USDT') =>
+  `${n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur}`.trim();
+const eur = (n: number) => money(n, '€');
 
 const STATUS_COLOR: Record<string, string> = {
   planned: 'var(--admin-text-dim)',
@@ -34,6 +45,7 @@ export default async function DealsPage({
   const period = resolvePeriod(sp, bounds);
   const deals = await fetchDeals(period.from, period.to);
   const t = totals(deals);
+  const chart = monthlyGross(deals, period.from, period.to);
 
   const query = new URLSearchParams(
     period.preset === 'custom'
@@ -66,6 +78,17 @@ export default async function DealsPage({
             + Добавить сделку
           </Link>
         </div>
+      </div>
+
+      {/* Раздел закрыт правом владельца, не индексируется и не кэшируется —
+          написано на экране, чтобы при показе чужому человеку было видно,
+          что страницу открывать не стоит. */}
+      <div className="flex items-center gap-2 flex-wrap mb-[18px] px-2.5 py-2 rounded-lg border border-amber-500/25 bg-amber-500/[0.07] text-[11px] text-amber-300/90">
+        <span className="font-extrabold text-amber-200">🔒 Коммерческая тайна.</span>
+        <span className="text-amber-200/55">
+          не индексируется и не попадает в архивы поисковиков · не кэшируется ·
+          скрыто в Sanity Studio · доступ только у владельца
+        </span>
       </div>
 
       {/* ── Период ─────────────────────────────────────────────── */}
@@ -126,14 +149,22 @@ export default async function DealsPage({
           </span>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3 mb-4">
-          <Tile label="Сумма размещений" value={money(t.grossEur)} />
-          <Tile label="Комиссия партнёрам" value={money(t.commissionEur)} dim />
-          <Tile label="Осталось нам" value={money(t.netEur)} accent />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+          <Tile label="Сумма размещений" value={t.grossUsdt} sub={`≈ ${eur(t.grossEur)} · по курсу сделок`} />
+          <Tile label="Комиссия партнёрам" value={t.commissionUsdt} sub={`≈ ${eur(t.commissionEur)}`} dim />
+          <Tile label="Осталось нам" value={t.netUsdt} sub={`≈ ${eur(t.netEur)}`} accent />
+          <Tile
+            label="Счёт выставлен, не оплачен"
+            value={t.unpaid.usdt}
+            sub={t.unpaid.count === 0 ? 'счетов: 0 · всё закрыто' : `счетов: ${t.unpaid.count} · ≈ ${eur(t.unpaid.eur)}`}
+            warn
+          />
         </div>
 
+        {t.deals > 0 && <DealsChart bars={chart.bars} trimmed={chart.trimmed} />}
+
         {t.deals > 0 && (
-          <div className="grid gap-4 md:grid-cols-3 text-[12px]">
+          <div className="grid gap-4 md:grid-cols-3 text-[12px] mt-[18px]">
             <Breakdown
               title="По валютам, без пересчёта"
               rows={t.byCurrency.map(c => ({
@@ -143,21 +174,21 @@ export default async function DealsPage({
               }))}
             />
             <Breakdown
-              title="По видам размещения, €"
-              rows={t.byKind.map(k => ({ k: k.label, v: money(k.amountEur), n: k.count }))}
+              title="По видам размещения, USDT"
+              rows={t.byKind.map(k => ({ k: k.label, v: money(k.amountUsdt, ''), n: k.count }))}
             />
             <Breakdown
-              title="Откуда клиент, €"
-              rows={t.bySource.map(s => ({ k: s.label, v: money(s.netEur), n: s.deals }))}
+              title="Откуда клиент, USDT"
+              rows={t.bySource.map(s => ({ k: s.label, v: money(s.netUsdt, ''), n: s.deals }))}
             />
           </div>
         )}
 
         <p className="text-[11px] text-[var(--admin-text-muted)] mt-4 leading-relaxed max-w-[76ch]">
-          Пересчёт в евро идёт по курсу, записанному в сделке на её дату, —
-          поэтому закрытый месяц не меняется задним числом. USDT и USDC считаются
-          как доллар: это допущение, на бирже они ходят с отклонением в доли
-          процента.
+          Заглавная валюта отчёта — USDT. Евро считается вторым курсом,
+          записанным в сделку на её дату, поэтому закрытый месяц не меняется
+          задним числом. USD и USDC приравниваются к USDT: это допущение, на
+          бирже они ходят с отклонением в доли процента.
         </p>
       </section>
 
@@ -176,8 +207,9 @@ export default async function DealsPage({
                 <th className="text-left font-bold px-3 py-2.5">Размещения</th>
                 <th className="text-right font-bold px-3 py-2.5">Сумма</th>
                 <th className="text-right font-bold px-3 py-2.5">Комиссия</th>
-                <th className="text-right font-bold px-3 py-2.5">Итог, €</th>
+                <th className="text-right font-bold px-3 py-2.5">Итог, USDT</th>
                 <th className="text-left font-bold px-3 py-2.5">Состояние</th>
+                <th className="w-[52px]" />
               </tr>
             </thead>
             <tbody>
@@ -221,7 +253,10 @@ export default async function DealsPage({
                       {d.commissionPct > 0 ? `${money(m.commission, sign)} · ${d.commissionPct}%` : '—'}
                     </td>
                     <td className="px-3 py-2.5 text-right tabular-nums whitespace-nowrap font-bold">
-                      {money(m.netEur)}
+                      {money(m.netUsdt, '')}
+                      <span className="block text-[10.5px] font-normal text-[var(--admin-text-dim)]">
+                        ≈ {eur(m.netEur)}
+                      </span>
                     </td>
                     <td className="px-3 py-2.5 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold">
@@ -235,6 +270,19 @@ export default async function DealsPage({
                         <div className="text-[10.5px] text-[var(--admin-text-dim)] tabular-nums">{ru(d.paidAt)}</div>
                       )}
                     </td>
+                    {/* Удаление прямо из списка: сорвавшуюся сделку чаще всего
+                        видно именно здесь, а не внутри её карточки. */}
+                    <td className="px-3 py-2.5 text-right">
+                      <form action={deleteDealAction.bind(null, d._id)}>
+                        <DeleteSubmitButton
+                          compact
+                          confirmMessage={
+                            `Удалить сделку «${d.client}» на ${money(m.netUsdt)} безвозвратно? ` +
+                            'Это действие нельзя отменить.'
+                          }
+                        />
+                      </form>
+                    </td>
                   </tr>
                 );
               })}
@@ -246,13 +294,33 @@ export default async function DealsPage({
   );
 }
 
-function Tile({ label, value, accent, dim }: { label: string; value: string; accent?: boolean; dim?: boolean }) {
+/**
+ * Плитка сводки: цифра в USDT крупно, евро мелким под ней.
+ *
+ * Валюта вынесена в отдельный `<span>` меньшим кеглем, а не в строку с
+ * числом: иначе четыре плитки в ряд читаются как четыре разных числа длиной
+ * в текст, и глаз перестаёт их сравнивать.
+ */
+function Tile({
+  label, value, sub, accent, dim, warn,
+}: {
+  label: string; value: number; sub: string;
+  accent?: boolean; dim?: boolean; warn?: boolean;
+}) {
+  const frame = accent
+    ? 'border-green-500/40 bg-green-500/[0.09]'
+    : warn
+      ? 'border-amber-500/35 bg-amber-500/[0.07]'
+      : 'border-[var(--admin-border)] bg-[var(--admin-bg-alt)]';
+  const num = accent ? 'text-green-400' : warn ? 'text-amber-300' : dim ? 'text-[var(--admin-text-muted)]' : '';
   return (
-    <div className={`rounded-lg px-3.5 py-3 border ${accent ? 'border-cyan-500/40 bg-cyan-500/10' : 'border-[var(--admin-border)]'}`}>
-      <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)]">{label}</div>
-      <div className={`text-[20px] font-extrabold tabular-nums mt-0.5 ${dim ? 'text-[var(--admin-text-muted)]' : ''}`}>
-        {value}
+    <div className={`rounded-xl px-3.5 py-3 border ${frame}`}>
+      <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)] font-bold">{label}</div>
+      <div className={`text-[22px] font-black tabular-nums mt-1 -tracking-[0.01em] ${num}`}>
+        {value.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <span className="text-[12px] font-extrabold text-[var(--admin-text-muted)] ml-1 tracking-normal">USDT</span>
       </div>
+      <div className="text-[11px] text-[var(--admin-text-muted)] tabular-nums mt-0.5">{sub}</div>
     </div>
   );
 }

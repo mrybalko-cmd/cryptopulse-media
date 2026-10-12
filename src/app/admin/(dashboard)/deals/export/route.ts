@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/admin/auth';
 import {
-  fetchDeals, fetchDealRange, dealMoney, totals,
+  fetchDeals, fetchDealRange, dealMoney, totals, monthlyGross,
   placementLabel, SOURCE_LABEL, STATUS_LABEL,
 } from '@/lib/admin/deals';
 import { buildXlsx, type Cell } from '@/lib/admin/xlsx';
@@ -30,13 +30,14 @@ export async function GET(request: NextRequest) {
   const period = resolvePeriod(sp, bounds);
   const deals = await fetchDeals(period.from, period.to);
   const t = totals(deals);
+  const chart = monthlyGross(deals, period.from, period.to);
 
   const rows: Cell[][] = [
     [
       'Дата', 'Клиент', 'Откуда клиент', 'Партнёр', 'Состояние', 'Оплачено',
       'Счёт', 'Вид размещения', 'Ссылка', 'Пометка', 'Сумма размещения',
-      'Валюта', 'Курс к евро', 'Сумма сделки', 'Комиссия %', 'Комиссия',
-      'Итог сделки', 'Итог сделки, €', 'Заметки',
+      'Валюта', 'Курс к USDT', 'Курс USDT → EUR', 'Сумма сделки', 'Комиссия %',
+      'Комиссия', 'Итог сделки', 'Итог сделки, USDT', 'Итог сделки, €', 'Заметки',
     ],
   ];
 
@@ -57,13 +58,15 @@ export async function GET(request: NextRequest) {
         p.note ?? '',
         p.amount,
         d.currency,
-        d.fxToEur,
+        d.fxToUsdt,
+        d.usdtToEur,
         // Итоги сделки — только в первой её строке, иначе сводная таблица
         // сложит одну сделку столько раз, сколько в ней размещений.
         first ? m.gross : '',
         first ? d.commissionPct : '',
         first ? m.commission : '',
         first ? m.net : '',
+        first ? m.netUsdt : '',
         first ? m.netEur : '',
         first ? d.notes ?? '' : '',
       ]);
@@ -74,27 +77,31 @@ export async function GET(request: NextRequest) {
   rows.push(['Итог за период', period.label, `${ru(period.from)} — ${ru(period.to)}`]);
   rows.push(['Сделок в расчёте', t.deals, 'отменённые не считаются']);
   rows.push(['Размещений', t.placements]);
-  rows.push(['Сумма размещений, €', t.grossEur]);
-  rows.push(['Комиссия партнёрам, €', t.commissionEur]);
-  rows.push(['Осталось нам, €', t.netEur]);
+  rows.push(['Сумма размещений, USDT', t.grossUsdt, `≈ ${t.grossEur} €`]);
+  rows.push(['Комиссия партнёрам, USDT', t.commissionUsdt, `≈ ${t.commissionEur} €`]);
+  rows.push(['Осталось нам, USDT', t.netUsdt, `≈ ${t.netEur} €`]);
+  rows.push(['Счёт выставлен, не оплачен, USDT', t.unpaid.usdt, `счетов: ${t.unpaid.count}`]);
   rows.push([]);
-  rows.push(['По видам размещения, €']);
-  for (const k of t.byKind) rows.push([k.label, k.amountEur, k.count]);
+  rows.push(['По видам размещения, USDT']);
+  for (const k of t.byKind) rows.push([k.label, k.amountUsdt, k.count]);
   rows.push([]);
   rows.push(['По валютам, без пересчёта']);
   for (const c of t.byCurrency) rows.push([c.currency, c.net, c.deals]);
   rows.push([]);
-  rows.push(['Откуда клиент, €']);
-  for (const s of t.bySource) rows.push([s.label, s.netEur, s.deals]);
+  rows.push(['Откуда клиент, USDT']);
+  for (const s of t.bySource) rows.push([s.label, s.netUsdt, s.deals]);
+  rows.push([]);
+  rows.push(['Поступления по месяцам, USDT']);
+  for (const b of chart.bars) rows.push([b.key, b.grossUsdt, b.deals]);
   rows.push([]);
   rows.push([
-    'Пересчёт в евро — по курсу, записанному в сделке на её дату. ' +
-      'USDT и USDC считаются как доллар.',
+    'Отчёт считается в USDT. Евро — вторая валюта, по курсу, записанному ' +
+      'в сделке на её дату. USD и USDC приравниваются к USDT.',
   ]);
 
   const file = buildXlsx(rows, {
     name: 'Размещения',
-    widths: [11, 26, 17, 18, 15, 11, 12, 22, 34, 24, 15, 9, 11, 14, 11, 12, 13, 15, 30],
+    widths: [11, 26, 17, 18, 15, 11, 12, 22, 34, 24, 15, 9, 11, 15, 14, 11, 12, 13, 16, 15, 30],
   });
 
   const name = `razmeshcheniya-${period.from}_${period.to}.xlsx`;

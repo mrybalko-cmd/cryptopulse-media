@@ -62,6 +62,28 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      // Коммерческие сделки — учётная тайна. Заголовки дублируют то, что уже
+      // закрыто правом владельца: noindex с noarchive и nosnippet, чтобы
+      // страница не попала ни в выдачу, ни в кэш-копию поисковика; no-store,
+      // чтобы её не сохранил ни прокси, ни сам браузер по кнопке «назад»;
+      // no-referrer, чтобы переход по ссылке на размещение клиента не унёс
+      // адрес отчёта на чужой сайт.
+      {
+        source: '/admin/deals/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, nosnippet, noimageindex' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, max-age=0, must-revalidate' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      },
+      {
+        source: '/admin/deals',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, nosnippet, noimageindex' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, max-age=0, must-revalidate' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      },
       {
         source: '/ru/:path*',
         headers: [{ key: 'Content-Security-Policy', value: csp }],

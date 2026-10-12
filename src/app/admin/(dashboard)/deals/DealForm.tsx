@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import SubmitButton from '../_shared/SubmitButton';
 import SavedMark from '../_shared/SavedMark';
@@ -25,8 +25,15 @@ const LABEL =
 
 interface Row { key: string; kind: PlacementKind; custom: string; amount: string; url: string; note: string }
 
-/** Курс по умолчанию — единица для евро: это и есть самый частый случай. */
-const DEFAULT_FX: Record<DealCurrency, string> = { EUR: '1', USD: '0.92', USDT: '0.92', USDC: '0.92' };
+/**
+ * Курс к USDT по умолчанию. Для доллара и его токенов — единица: это и есть
+ * самый частый случай, а расхождение в доли процента не та точность, за
+ * которой стоит ходить в биржу при каждом заведении сделки.
+ */
+const DEFAULT_FX_USDT: Record<DealCurrency, string> = { USDT: '1', USDC: '1', USD: '1', EUR: '1.09' };
+
+/** Запасной курс USDT → EUR, если биржи не ответили. */
+const FALLBACK_USDT_EUR = '0.92';
 
 export default function DealForm({
   deal,
@@ -63,14 +70,45 @@ export default function DealForm({
   );
   const [source, setSource] = useState(deal?.source ?? 'direct');
   const [status, setStatus] = useState(deal?.status ?? 'invoiced');
-  const [currency, setCurrency] = useState<DealCurrency>(deal?.currency ?? 'EUR');
-  const [fx, setFx] = useState(String(deal?.fxToEur ?? 1));
+  const [currency, setCurrency] = useState<DealCurrency>(deal?.currency ?? 'USDT');
+  const [fxUsdt, setFxUsdt] = useState(String(deal?.fxToUsdt ?? 1));
+  const [usdtEur, setUsdtEur] = useState(
+    String(deal?.usdtToEur ?? FALLBACK_USDT_EUR)
+  );
+  const [rateSource, setRateSource] = useState<'live' | 'fallback' | 'loading'>(
+    deal ? 'live' : 'loading'
+  );
   const [commission, setCommission] = useState(String(deal?.commissionPct ?? 0));
+
+  // Курс USDT → EUR у новой сделки подставляется один раз, при открытии
+  // формы, и дальше живёт в документе. Берётся медиана наших же P2P-курсов
+  // продажи USDT за евро — та цифра, по которой деньги и выводятся. Медиана,
+  // а не первая строка: одна биржа с задранным объявлением не должна
+  // определять курс всей сделки.
+  useEffect(() => {
+    if (deal) return;
+    let alive = true;
+    fetch('/api/rates/eur')
+      .then(r => (r.ok ? r.json() : null))
+      .then((data: { rates?: { rate: number }[] } | null) => {
+        if (!alive) return;
+        const nums = (data?.rates ?? []).map(r => Number(r.rate)).filter(n => n > 0).sort((a, b) => a - b);
+        if (!nums.length) { setRateSource('fallback'); return; }
+        const mid = nums.length % 2
+          ? nums[(nums.length - 1) / 2]
+          : (nums[nums.length / 2 - 1] + nums[nums.length / 2]) / 2;
+        setUsdtEur(mid.toFixed(4).replace(/0+$/, '').replace(/\.$/, ''));
+        setRateSource('live');
+      })
+      .catch(() => { if (alive) setRateSource('fallback'); });
+    return () => { alive = false; };
+  }, [deal]);
 
   const money = dealMoney({
     placements: rows.map(r => ({ kind: r.kind, amount: Number(r.amount) || 0 })),
     commissionPct: Number(commission) || 0,
-    fxToEur: Number(fx) || 1,
+    fxToUsdt: Number(fxUsdt) || 1,
+    usdtToEur: Number(usdtEur) || 0,
   });
   const sign = currency === 'EUR' ? '€' : currency;
   const fmt = (n: number, s = '€') =>
@@ -221,7 +259,7 @@ export default function DealForm({
       </button>
 
       {/* ── Деньги ─────────────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-3 mb-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
         <div>
           <label className={LABEL} htmlFor="currency">Валюта</label>
           <select
@@ -231,23 +269,42 @@ export default function DealForm({
               setCurrency(next);
               // Курс подставляется только если его ещё не правили руками:
               // перетереть введённое значение сменой валюты было бы обидно.
-              if (fx === DEFAULT_FX[currency]) setFx(DEFAULT_FX[next]);
+              if (fxUsdt === DEFAULT_FX_USDT[currency]) setFxUsdt(DEFAULT_FX_USDT[next]);
             }}
           >
-            <option value="EUR">EUR — евро</option>
-            <option value="USD">USD — доллар</option>
             <option value="USDT">USDT</option>
             <option value="USDC">USDC</option>
+            <option value="USD">USD — доллар</option>
+            <option value="EUR">EUR — евро</option>
           </select>
         </div>
         <div>
-          <label className={LABEL} htmlFor="fxToEur">Курс к евро на дату сделки</label>
+          <label className={LABEL} htmlFor="fxToUsdt">Курс к USDT</label>
           <input
-            id="fxToEur" name="fxToEur" inputMode="decimal" required value={fx}
-            className={`${FIELD} tabular-nums`} onChange={e => setFx(e.target.value)}
+            id="fxToUsdt" name="fxToUsdt" inputMode="decimal" required value={fxUsdt}
+            className={`${FIELD} tabular-nums`} onChange={e => setFxUsdt(e.target.value)}
           />
           <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">
-            Сколько евро в одной {currency}. Ставится один раз и не меняется.
+            {currency === 'EUR'
+              ? 'Сколько USDT в одном евро.'
+              : `Сколько USDT в одном ${currency} — единица.`}
+          </p>
+        </div>
+        <div>
+          <label className={LABEL} htmlFor="usdtToEur">Курс USDT → EUR</label>
+          <input
+            id="usdtToEur" name="usdtToEur" inputMode="decimal" required value={usdtEur}
+            className={`${FIELD} tabular-nums ${rateSource === 'live' && !deal ? 'border-cyan-500/40' : ''}`}
+            onChange={e => { setUsdtEur(e.target.value); setRateSource('live'); }}
+          />
+          <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">
+            {deal
+              ? 'Заморожен датой сделки. Меняйте только если курс записан неверно.'
+              : rateSource === 'loading'
+                ? 'Спрашиваем курс продажи USDT за евро…'
+                : rateSource === 'live'
+                  ? 'Подставлен по курсу продажи USDT за евро. Нужен только для справочной цифры.'
+                  : 'Биржи не ответили — стоит запасной курс, проверьте его.'}
           </p>
         </div>
         <div>
@@ -260,15 +317,26 @@ export default function DealForm({
       </div>
 
       <div className="border border-[var(--admin-border)] rounded-xl p-4 mb-5">
-        <h2 className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)] mb-2 font-bold">
+        <h2 className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)] mb-2.5 font-bold">
           Считается по ходу ввода
         </h2>
-        <dl className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2 text-[13px] m-0">
-          <Line k={`Сумма размещений (${rows.length})`} v={fmt(money.gross, sign)} />
-          <Line k="Комиссия партнёру" v={fmt(money.commission, sign)} />
-          <Line k="Остаётся нам" v={fmt(money.net, sign)} bold />
-          <Line k="То же в евро" v={fmt(money.netEur)} bold />
-        </dl>
+        <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+          <div>
+            <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-dim)] font-bold">
+              Остаётся нам
+            </div>
+            <div className="text-[25px] font-black tabular-nums tracking-tight leading-tight">
+              {money.netUsdt.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-[12.5px] font-extrabold text-[var(--admin-text-muted)] ml-1">USDT</span>
+            </div>
+          </div>
+          <dl className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2 text-[13px] m-0 flex-1 min-w-[260px]">
+            <Line k={`Сумма размещений (${rows.length})`} v={fmt(money.gross, sign)} />
+            <Line k="Комиссия партнёру" v={fmt(money.commission, sign)} />
+            {currency !== 'USDT' && <Line k={`Остаётся в ${sign}`} v={fmt(money.net, sign)} />}
+            <Line k="То же в евро" v={fmt(money.netEur)} bold />
+          </dl>
+        </div>
       </div>
 
       <div className="mb-6">
@@ -283,9 +351,18 @@ export default function DealForm({
         <SavedMark />
         <Link href="/admin/deals" className="text-[12.5px] text-[var(--admin-text-muted)]">Отмена</Link>
         {deleteAction && (
+          // Подтверждение с именем клиента и суммой: восстановить сделку
+          // неоткуда, а кнопка стоит в одном ряду с «Сохранить».
           <button
             type="submit" formAction={deleteAction}
-            className="ml-auto text-[12.5px] font-bold text-red-400 border border-red-400/30 rounded-lg px-3.5 py-2"
+            onClick={e => {
+              const ok = confirm(
+                `Удалить сделку «${deal?.client ?? ''}» на ${fmt(money.netUsdt, 'USDT')} ` +
+                'безвозвратно? Это действие нельзя отменить.'
+              );
+              if (!ok) e.preventDefault();
+            }}
+            className="ml-auto text-[12.5px] font-bold text-red-400 border border-red-400/30 rounded-lg px-3.5 py-2 hover:bg-red-500/10 hover:border-red-500/50 transition-colors"
           >
             Удалить сделку
           </button>

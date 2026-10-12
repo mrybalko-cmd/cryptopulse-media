@@ -4,9 +4,20 @@
  * Самодостаточность здесь не вкус, а условие проверяемости: эти функции
  * считают одни и те же цифры для списка, формы и выгрузки, и их надо уметь
  * прогнать, не поднимая проект. Ни один импорт отсюда наружу не ведёт.
+ *
+ * Базовая валюта отчёта — USDT: в ней приходит оплата, в ней живёт баланс, и
+ * именно её цифру надо видеть первой. Евро остаётся второй, справочной
+ * валютой, поэтому курсов в сделке два, и оба заморожены её датой:
+ *
+ *   `fxToUsdt`  — сколько USDT в одной единице валюты сделки;
+ *   `usdtToEur` — сколько евро в одном USDT на дату сделки.
+ *
+ * Заморозка — не перестраховка. Курс на сегодня пересчитывает и закрытый
+ * месяц: отчёт за сентябрь в октябре показал бы другую цифру, а сверять его
+ * с банком пришлось бы той, что была.
  */
 
-export type DealCurrency = 'EUR' | 'USD' | 'USDT' | 'USDC';
+export type DealCurrency = 'USDT' | 'USDC' | 'USD' | 'EUR';
 export type DealSource = 'direct' | 'agency' | 'agent';
 export type DealStatus = 'planned' | 'invoiced' | 'paid' | 'cancelled';
 
@@ -34,7 +45,10 @@ export interface Deal {
   paidAt?: string;
   invoiceNo?: string;
   currency: DealCurrency;
-  fxToEur: number;
+  /** Курс валюты сделки к USDT. Для USDT, USD и USDC — единица. */
+  fxToUsdt: number;
+  /** Курс USDT к евро на дату сделки. Нужен только для справочной цифры. */
+  usdtToEur: number;
   commissionPct: number;
   placements: Placement[];
   notes?: string;
@@ -83,6 +97,9 @@ export type DealInput = Omit<Deal, '_id'>;
 /** Округление до копеек в последний момент, а не на каждом шаге. */
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+const toUsdt = (d: Pick<Deal, 'fxToUsdt'>) => Number(d.fxToUsdt) || 1;
+const toEur = (d: Pick<Deal, 'usdtToEur'>) => Number(d.usdtToEur) || 0;
+
 export interface DealMoney {
   /** Сумма размещений в валюте сделки. */
   gross: number;
@@ -90,22 +107,32 @@ export interface DealMoney {
   commission: number;
   /** Что остаётся нам, в валюте сделки. */
   net: number;
-  /** То же в евро по курсу, зафиксированному датой сделки. */
+  /** То же в USDT — в ней считается весь отчёт. */
+  grossUsdt: number;
+  commissionUsdt: number;
+  netUsdt: number;
+  /** И справочно в евро, по второму курсу сделки. */
   grossEur: number;
   netEur: number;
 }
 
-export function dealMoney(d: Pick<Deal, 'placements' | 'commissionPct' | 'fxToEur'>): DealMoney {
+export function dealMoney(
+  d: Pick<Deal, 'placements' | 'commissionPct' | 'fxToUsdt' | 'usdtToEur'>
+): DealMoney {
   const gross = (d.placements ?? []).reduce((s, p) => s + (Number(p?.amount) || 0), 0);
   const commission = (gross * (Number(d.commissionPct) || 0)) / 100;
   const net = gross - commission;
-  const fx = Number(d.fxToEur) || 1;
+  const u = toUsdt(d);
+  const e = toEur(d);
   return {
     gross: round2(gross),
     commission: round2(commission),
     net: round2(net),
-    grossEur: round2(gross * fx),
-    netEur: round2(net * fx),
+    grossUsdt: round2(gross * u),
+    commissionUsdt: round2(commission * u),
+    netUsdt: round2(net * u),
+    grossEur: round2(gross * u * e),
+    netEur: round2(net * u * e),
   };
 }
 
@@ -113,15 +140,21 @@ export interface Totals {
   /** Сколько сделок вошло в расчёт. Отменённые не входят. */
   deals: number;
   placements: number;
+  grossUsdt: number;
+  commissionUsdt: number;
+  netUsdt: number;
+  /** То же в евро — вторая, справочная валюта. */
   grossEur: number;
   commissionEur: number;
   netEur: number;
+  /** Счёт выставлен, деньги не пришли. Отдельно, потому что это к взысканию. */
+  unpaid: { usdt: number; eur: number; count: number };
   /** Разрез по валютам — без пересчёта, в том, в чём платили. */
   byCurrency: { currency: DealCurrency; gross: number; net: number; deals: number }[];
-  /** Разрез по видам размещения, в евро. Своё название — отдельной строкой. */
-  byKind: { label: string; amountEur: number; count: number }[];
-  /** Разрез по источнику клиента, в евро. */
-  bySource: { source: DealSource; label: string; netEur: number; deals: number }[];
+  /** Разрез по видам размещения, в USDT. Своё название — отдельной строкой. */
+  byKind: { label: string; amountUsdt: number; count: number }[];
+  /** Разрез по источнику клиента, в USDT. */
+  bySource: { source: DealSource; label: string; netUsdt: number; deals: number }[];
 }
 
 /**
@@ -136,46 +169,121 @@ export function totals(deals: Deal[]): Totals {
 
   const cur = new Map<DealCurrency, { gross: number; net: number; deals: number }>();
   // Группируем по тому, что видит человек: своё название — своя строка.
-  const kind = new Map<string, { amountEur: number; count: number }>();
-  const src = new Map<DealSource, { netEur: number; deals: number }>();
+  const kind = new Map<string, { amountUsdt: number; count: number }>();
+  const src = new Map<DealSource, { netUsdt: number; deals: number }>();
+  let grossUsdt = 0, commissionUsdt = 0, netUsdt = 0;
   let grossEur = 0, commissionEur = 0, netEur = 0, placements = 0;
+  let unpaidUsdt = 0, unpaidEur = 0, unpaidCount = 0;
 
   for (const d of live) {
     const m = dealMoney(d);
+    grossUsdt += m.grossUsdt;
+    commissionUsdt += m.commissionUsdt;
+    netUsdt += m.netUsdt;
     grossEur += m.grossEur;
-    commissionEur += round2(m.commission * (Number(d.fxToEur) || 1));
+    commissionEur += round2(m.commission * toUsdt(d) * toEur(d));
     netEur += m.netEur;
     placements += d.placements?.length ?? 0;
+
+    if (d.status === 'invoiced') {
+      unpaidUsdt += m.netUsdt;
+      unpaidEur += m.netEur;
+      unpaidCount += 1;
+    }
 
     const c = cur.get(d.currency) ?? { gross: 0, net: 0, deals: 0 };
     cur.set(d.currency, { gross: round2(c.gross + m.gross), net: round2(c.net + m.net), deals: c.deals + 1 });
 
-    const s = src.get(d.source) ?? { netEur: 0, deals: 0 };
-    src.set(d.source, { netEur: round2(s.netEur + m.netEur), deals: s.deals + 1 });
+    const s = src.get(d.source) ?? { netUsdt: 0, deals: 0 };
+    src.set(d.source, { netUsdt: round2(s.netUsdt + m.netUsdt), deals: s.deals + 1 });
 
-    const fx = Number(d.fxToEur) || 1;
+    const u = toUsdt(d);
     for (const p of d.placements ?? []) {
       const label = placementLabel(p);
-      const k = kind.get(label) ?? { amountEur: 0, count: 0 };
-      kind.set(label, { amountEur: round2(k.amountEur + (Number(p.amount) || 0) * fx), count: k.count + 1 });
+      const k = kind.get(label) ?? { amountUsdt: 0, count: 0 };
+      kind.set(label, { amountUsdt: round2(k.amountUsdt + (Number(p.amount) || 0) * u), count: k.count + 1 });
     }
   }
 
   return {
     deals: live.length,
     placements,
+    grossUsdt: round2(grossUsdt),
+    commissionUsdt: round2(commissionUsdt),
+    netUsdt: round2(netUsdt),
     grossEur: round2(grossEur),
     commissionEur: round2(commissionEur),
     netEur: round2(netEur),
+    unpaid: { usdt: round2(unpaidUsdt), eur: round2(unpaidEur), count: unpaidCount },
     byCurrency: [...cur.entries()]
       .map(([currency, v]) => ({ currency, ...v }))
       .sort((a, b) => b.gross - a.gross),
     byKind: [...kind.entries()]
       .map(([label, v]) => ({ label, ...v }))
-      .sort((a, b) => b.amountEur - a.amountEur),
+      .sort((a, b) => b.amountUsdt - a.amountUsdt),
     bySource: [...src.entries()]
       .map(([s, v]) => ({ source: s, label: SOURCE_LABEL[s] ?? s, ...v }))
-      .sort((a, b) => b.netEur - a.netEur),
+      .sort((a, b) => b.netUsdt - a.netUsdt),
   };
 }
 
+/* ── График по месяцам ────────────────────────────────────────────── */
+
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'май', 'июн',
+  'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+
+export interface MonthBar {
+  /** 2026-09 — и ключ строки, и то, по чему сверять. */
+  key: string;
+  label: string;
+  grossUsdt: number;
+  grossEur: number;
+  deals: number;
+}
+
+/** Больше двух лет столбиками не читается, да и экран не резиновый. */
+const MAX_BARS = 24;
+
+/**
+ * Поступления по месяцам периода — ряд для графика.
+ *
+ * Пустые месяцы остаются в ряду нулями. Выкинуть их было бы короче, но тогда
+ * провал между сентябрём и декабрём выглядел бы как три подряд удачных
+ * месяца, а это ровно то, что по графику и надо увидеть.
+ */
+export function monthlyGross(deals: Deal[], from: string, to: string): {
+  bars: MonthBar[];
+  /** Ряд пришлось обрезать слева: период длиннее двух лет. */
+  trimmed: boolean;
+} {
+  const [fy, fm] = from.split('-').map(Number);
+  const [ty, tm] = to.split('-').map(Number);
+  if (!fy || !fm || !ty || !tm) return { bars: [], trimmed: false };
+
+  const multiYear = fy !== ty;
+  const acc = new Map<string, { grossUsdt: number; grossEur: number; deals: number }>();
+  for (let y = fy, m = fm; y < ty || (y === ty && m <= tm); m === 12 ? (y++, m = 1) : m++) {
+    acc.set(`${y}-${String(m).padStart(2, '0')}`, { grossUsdt: 0, grossEur: 0, deals: 0 });
+  }
+
+  for (const d of deals) {
+    if (d.status === 'cancelled') continue;
+    const key = (d.dealDate ?? '').slice(0, 7);
+    const cell = acc.get(key);
+    if (!cell) continue;
+    const m = dealMoney(d);
+    cell.grossUsdt = round2(cell.grossUsdt + m.grossUsdt);
+    cell.grossEur = round2(cell.grossEur + m.grossEur);
+    cell.deals += 1;
+  }
+
+  const all = [...acc.entries()].map(([key, v]) => {
+    const mon = MONTHS_SHORT[Number(key.slice(5)) - 1] ?? key;
+    return { key, label: multiYear ? `${mon} ${key.slice(2, 4)}` : mon, ...v };
+  });
+
+  return {
+    bars: all.length > MAX_BARS ? all.slice(-MAX_BARS) : all,
+    trimmed: all.length > MAX_BARS,
+  };
+}

@@ -13,8 +13,17 @@ export * from './dealMath';
 
 /* ── Чтение и запись ──────────────────────────────────────────────── */
 
+/**
+ * Запас на случай сделки, заведённой в обход админки (в Studio тип скрыт, но
+ * документ можно создать через API). Справочная цифра в евро у такой сделки
+ * будет приблизительной, зато отчёт не покажет ноль там, где деньги есть.
+ */
+const USDT_EUR_FALLBACK = 0.92;
+
 const DEAL_FIELDS = `_id, client, dealDate, source, partner, status, paidAt, invoiceNo,
-  currency, "fxToEur": coalesce(fxToEur, 1), "commissionPct": coalesce(commissionPct, 0),
+  currency, "fxToUsdt": coalesce(fxToUsdt, 1),
+  "usdtToEur": coalesce(usdtToEur, ${USDT_EUR_FALLBACK}),
+  "commissionPct": coalesce(commissionPct, 0),
   "placements": coalesce(placements[]{ _key, kind, customKind, amount, url, note }, []), notes`;
 
 /**
@@ -52,7 +61,8 @@ function docFields(input: DealInput) {
     paidAt: input.status === 'paid' ? input.paidAt || undefined : undefined,
     invoiceNo: input.invoiceNo?.trim() || undefined,
     currency: input.currency,
-    fxToEur: input.fxToEur,
+    fxToUsdt: input.fxToUsdt,
+    usdtToEur: input.usdtToEur,
     commissionPct: input.commissionPct,
     placements: input.placements.map((p, i) => ({
       _key: p._key || `p${i}${Math.random().toString(36).slice(2, 8)}`,
