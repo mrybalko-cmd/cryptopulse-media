@@ -7,7 +7,7 @@ import { uploadImageAsset } from '@/lib/admin/data';
 import { logActivity } from '@/lib/admin/activityLog';
 import {
   createAiService, updateAiService, deleteAiService, fetchAdminAiServiceById,
-  createAiJob, updateAiJob, deleteAiJob, fetchAdminAiJobById,
+  createAiJob, updateAiJob, deleteAiJob, fetchAdminAiJobById, findDuplicate,
   type AiServiceInput, type AiJobInput, type AdminPlan, type AdminFacetGroup,
 } from '@/lib/admin/aiData';
 import type { PlanUnit } from '@/lib/ai';
@@ -106,6 +106,15 @@ async function logo(f: FormData): Promise<string | undefined> {
 export async function createAiServiceAction(formData: FormData) {
   await requireAdminPermission('ai');
   const input = parseService(formData);
+
+  // Дубль не заводим: та же компания второй раз — это не новая карточка, а
+  // расхождение, которое потом придётся сводить руками. Редактора уводим на
+  // уже существующую запись, а не показываем ошибку без выхода.
+  const dup = await findDuplicate(input.website, input.slug);
+  if (dup) {
+    redirect(`/admin/ai/${dup._id}?dup=${dup.reason}`);
+  }
+
   const doc = await createAiService(input, await logo(formData));
   publishAi(input.slug);
   redirect(`/admin/ai/${doc._id}?saved=1`);
@@ -114,6 +123,13 @@ export async function createAiServiceAction(formData: FormData) {
 export async function updateAiServiceAction(id: string, formData: FormData) {
   await requireAdminPermission('ai');
   const input = parseService(formData);
+
+  // При правке проверка та же, но своя карточка из поиска исключается.
+  const dup = await findDuplicate(input.website, input.slug, id);
+  if (dup) {
+    redirect(`/admin/ai/${id}?clash=${dup.reason}&with=${encodeURIComponent(dup.name)}`);
+  }
+
   await updateAiService(id, input, await logo(formData));
   publishAi(input.slug);
   redirect(`/admin/ai/${id}?saved=1`);

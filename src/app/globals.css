@@ -1662,3 +1662,7 @@ html.light .aiw::after { opacity: .78; }
 @media (prefers-reduced-motion: reduce) {
   .aiw-tile, .aiw-cta, .aiw-tip { transition: none; }
 }
+
+/* Свёрнутые задачи в админке: стрелка поворачивается, маркер списка убран. */
+details > summary::-webkit-details-marker { display: none; }
+details[open] > summary > span:first-child { transform: rotate(90deg); display: inline-block; }

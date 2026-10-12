@@ -203,6 +203,40 @@ function serviceDoc(input: AiServiceInput, logoAssetId?: string) {
   };
 }
 
+/**
+ * Один и тот же сайт — одна карточка.
+ *
+ * Адрес приводится к сравнимому виду: без протокола, без www и без хвостового
+ * слеша. Иначе «https://runwayml.com/» и «runwayml.com» считались бы разными
+ * компаниями, и каталог тихо обзавёлся бы дублями, которые заметны только
+ * глазами и только потом.
+ */
+export function normaliseSite(url: string): string {
+  return url.trim().toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/\/+$/, '');
+}
+
+export interface Duplicate { _id: string; name: string; reason: 'site' | 'slug' }
+
+/** Ищет уже заведённую карточку по сайту или адресу. exceptId — своя при правке. */
+export async function findDuplicate(
+  website: string, slug: string, exceptId?: string
+): Promise<Duplicate | null> {
+  const rows = await client.fetch<{ _id: string; name: string; website: string | null; slug: string | null }[]>(
+    `*[_type == "aiService"]{ _id, name, website, "slug": slug.current }`
+  );
+  const site = normaliseSite(website);
+  const wanted = slug.trim().toLowerCase();
+  for (const r of rows) {
+    if (r._id === exceptId) continue;
+    if (wanted && r.slug === wanted) return { _id: r._id, name: r.name, reason: 'slug' };
+    if (site && r.website && normaliseSite(r.website) === site) return { _id: r._id, name: r.name, reason: 'site' };
+  }
+  return null;
+}
+
 export async function createAiService(input: AiServiceInput, logoAssetId?: string) {
   return writeClient.create({ _type: 'aiService', ...serviceDoc(input, logoAssetId) });
 }

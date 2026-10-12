@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { AdminAiService, AdminAiJob, AdminFacetGroup } from '@/lib/admin/aiData';
+import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 
 /**
  * Карточка AI-сервиса целиком.
@@ -93,7 +95,7 @@ export default function AiServiceForm({
         <div>
           <label className={LABEL} htmlFor="slug">Адрес</label>
           <input id="slug" name="slug" required defaultValue={service?.slug} className={FIELD}
-            pattern="[a-z0-9-]+" placeholder="midjourney" />
+            pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="midjourney" />
           <p className={HINT}>
             Латиницей через дефис. У опубликованной карточки менять нельзя:
             старая ссылка перестанет открываться.
@@ -376,9 +378,10 @@ export default function AiServiceForm({
       </div>
 
       <div className="flex items-center gap-3 mt-8">
-        <button type="submit" className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+        <SubmitButton className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           Сохранить
-        </button>
+        </SubmitButton>
+        <SavedMark />
         <Link href="/admin/ai" className="text-[12.5px] text-[var(--admin-text-muted)]">Отмена</Link>
         {deleteAction && (
           <button type="submit" formAction={deleteAction}

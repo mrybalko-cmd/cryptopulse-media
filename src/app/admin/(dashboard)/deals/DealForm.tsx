@@ -2,6 +2,8 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 import {
   PLACEMENT_LABEL, SOURCE_LABEL, STATUS_LABEL,
   dealMoney, type Deal, type PlacementKind, type DealCurrency,
@@ -263,9 +265,10 @@ export default function DealForm({
       </div>
 
       <div className="flex items-center gap-3">
-        <button type="submit" className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+        <SubmitButton className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           Сохранить
-        </button>
+        </SubmitButton>
+        <SavedMark />
         <Link href="/admin/deals" className="text-[12.5px] text-[var(--admin-text-muted)]">Отмена</Link>
         {deleteAction && (
           <button

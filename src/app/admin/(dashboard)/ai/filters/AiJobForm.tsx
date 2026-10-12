@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { AdminAiJob } from '@/lib/admin/aiData';
+import SubmitButton from '../../_shared/SubmitButton';
+import SavedMark from '../../_shared/SavedMark';
 
 /**
  * Задача и её признаки фильтра.
@@ -97,7 +99,7 @@ export default function AiJobForm({
         </div>
         <div>
           <label className={LABEL} htmlFor="slug">Адрес</label>
-          <input id="slug" name="slug" required defaultValue={job?.slug} pattern="[a-z0-9-]+"
+          <input id="slug" name="slug" required defaultValue={job?.slug} pattern="[a-z0-9]+(-[a-z0-9]+)*"
             className={FIELD} placeholder="video" />
           <p className={HINT}>Один на оба языка. Из него собирается адрес подборки.</p>
         </div>
@@ -251,10 +253,17 @@ export default function AiJobForm({
       </label>
 
       <div className="flex items-center gap-3 mt-7">
-        <button type="submit" disabled={broken}
-          className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5 disabled:opacity-40">
-          Сохранить
-        </button>
+        {broken ? (
+          <button type="submit" disabled
+            className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5 opacity-40">
+            Сохранить
+          </button>
+        ) : (
+          <SubmitButton className="bg-cyan-500 text-[#06222b] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+            Сохранить
+          </SubmitButton>
+        )}
+        <SavedMark />
         <Link href="/admin/ai/filters" className="text-[12.5px] text-[var(--admin-text-muted)]">Отмена</Link>
         {broken && (
           <span className="text-[11.5px] text-red-400">Поправьте ключи — пока они с ошибкой, сохранить нельзя</span>

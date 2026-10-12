@@ -10,6 +10,11 @@ import { fetchAdminAiServices, fetchAdminAiJobs } from '@/lib/admin/aiData';
  * мыслью «что у нас по видео», а не «покажи все пятьдесят». Заодно сразу
  * видно, где задача осталась с одной-двумя карточками — фильтр там почти не
  * работает.
+ *
+ * Задачи свёрнуты. Пятьдесят пять карточек подряд дают полотно на четыре
+ * экрана, в котором поиск глазами проигрывает поиску по странице. В свёрнутом
+ * виде весь каталог помещается в один экран, и до нужной компании два
+ * нажатия вместо долгой прокрутки.
  */
 export default async function AdminAiPage() {
   await requireAdminPermission('ai');
@@ -45,15 +50,20 @@ export default async function AdminAiPage() {
         const rows = services.filter(s => s.jobId === job._id);
         if (!rows.length) return null;
         return (
-          <section key={job._id} className="mb-7">
-            <h2 className="text-[13px] font-bold mb-2 flex items-baseline gap-2">
+          <details key={job._id} className="mb-2 border border-[var(--admin-border)] rounded-xl overflow-hidden">
+            <summary className="flex items-baseline gap-2 cursor-pointer list-none px-3.5 py-2.5 bg-[var(--admin-input)] text-[13px] font-bold">
+              <span className="text-[var(--admin-text-dim)] text-[10px]">▸</span>
               {job.nameRu || job.slug}
               <span className="text-[11px] font-semibold text-[var(--admin-text-muted)] tabular-nums">
                 {rows.length}
                 {rows.length < 3 && ' · фильтр здесь почти не работает'}
               </span>
-            </h2>
-            <ul className="m-0 p-0 list-none grid gap-1.5">
+              <span className="ml-auto text-[11px] font-semibold text-[var(--admin-text-dim)] tabular-nums">
+                {rows.filter(r => !r.priceCheckedAt).length > 0 && `без сверки ${rows.filter(r => !r.priceCheckedAt).length} · `}
+                {rows.filter(r => !r.logoUrl).length > 0 && `без логотипа ${rows.filter(r => !r.logoUrl).length}`}
+              </span>
+            </summary>
+            <ul className="m-0 p-2 list-none grid gap-1.5">
               {rows.map(s => (
                 <li key={s._id}>
                   <Link href={`/admin/ai/${s._id}`}
@@ -80,7 +90,7 @@ export default async function AdminAiPage() {
                 </li>
               ))}
             </ul>
-          </section>
+          </details>
         );
       })}
     </div>

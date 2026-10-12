@@ -190,7 +190,7 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
       {jobs.length > 0 && (
         <>
           <h2 className="sr-only">{t.filters}</h2>
-          <ul id="tasks" className="mt-5 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
+          <ul id="tasks" className="mt-5 scroll-mt-32 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
             <li>
               <Link
                 href={`/${locale}/ai/tools`}

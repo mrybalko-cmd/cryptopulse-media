@@ -283,15 +283,15 @@ export default function AiCatalogue({ locale, services, groups, t }: Props) {
               counts={counts}
             />
           ))}
-          {on.size > 0 && (
-            <button
-              type="button"
-              onClick={() => setOn(new Set())}
-              className="mt-2 p-1 text-[12.5px] font-bold text-accent"
-            >
-              {t.reset}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setOn(new Set())}
+            disabled={on.size === 0}
+            className="mt-3 w-full rounded-lg border border-border py-2 text-[12.5px] font-bold text-accent disabled:cursor-not-allowed disabled:border-border/60 disabled:text-muted"
+          >
+            {t.reset}
+            {on.size > 0 && ` · ${on.size}`}
+          </button>
         </form>
 
         <section id="results" aria-labelledby="ai-res" className="scroll-mt-24">
