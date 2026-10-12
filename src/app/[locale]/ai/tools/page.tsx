@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { setRequestLocale } from 'next-intl/server';
-import { getAiJobs, getAiServices, facetGroupsFor, servicesForJob, pick, tilesFrom, lastPriceCheck, type Locale } from '@/lib/ai';
+import { getAiJobs, getAiServices, facetGroupsFor, allFacetGroups, servicesForJob, allServices, pick, tilesFrom, type Locale } from '@/lib/ai';
 import { buildOg, buildTwitter, BASE, pageTitle, titleText, truncateDesc } from '@/lib/metadata';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 import { SITE_NAME } from '@/lib/site';
@@ -25,7 +25,7 @@ const T = {
     home: 'Главная', ai: 'AI', here: 'Сервисы',
     h1a: 'Какую AI-шку взять', h1b: 'под свою задачу',
     ctaA: 'Выбрать задачу', ctaB: 'Посмотреть всю базу',
-    allTitle: 'Все сервисы каталога', checkedAll: 'Цены сверены',
+    allTitle: 'Все сервисы каталога', everything: 'Все сервисы',
     lede: 'Уникальный хаб по подборке AI-инструментов под вашу задачу. Используя наш фильтр, подбери идеальное решение для реализации своих проектов.',
     servicesH: 'Сервисы', filters: 'Фильтры', reset: 'Сбросить всё', close: 'Закрыть',
     details: 'Детали', review: 'Разбор', onRequest: 'по запросу',
@@ -34,7 +34,6 @@ const T = {
     emptyA: 'Под эти условия ничего нет',
     emptyB: 'Снимите часть галочек — узкие признаки отсекают больше всего.',
     empty: 'Сервисы пока не заведены.',
-    collection: 'Разбор задачи',
     title: 'AI-сервисы: что выбрать под свою задачу',
     desc: 'Каталог AI-инструментов по задачам: генерация видео и изображений, расшифровка, озвучка, код. Тарифы сверены с официальными прайсами, у каждой цены стоит дата проверки.',
   },
@@ -42,7 +41,7 @@ const T = {
     home: 'Home', ai: 'AI', here: 'Services',
     h1a: 'Which AI to pick', h1b: 'for the job in front of you',
     ctaA: 'Pick a job', ctaB: 'See the whole catalogue',
-    allTitle: 'Every service in the catalogue', checkedAll: 'Prices checked',
+    allTitle: 'Every service in the catalogue', everything: 'All services',
     lede: 'One place to match an AI tool to the job in front of you. Work the filter and the shortlist comes down to what actually fits your project.',
     servicesH: 'Services', filters: 'Filters', reset: 'Clear all', close: 'Close',
     details: 'Details', review: 'Full review', onRequest: 'on request',
@@ -51,7 +50,6 @@ const T = {
     emptyA: 'Nothing matches that',
     emptyB: 'Clear a box or two — the narrow facets rule out the most.',
     empty: 'No services published yet.',
-    collection: 'The full write-up',
     title: 'AI tools: what to pick for the job you have',
     desc: 'A catalogue of AI tools by job: video and image generation, transcription, voice-over, code. Plans are checked against the official pricing pages and every price carries the date it was checked.',
   },
@@ -86,12 +84,13 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
   const t = T[locale];
 
   const [jobs, all] = await Promise.all([getAiJobs(), getAiServices()]);
-  // Задача из адреса, иначе первая в полосе. Адрес ?job= нужен ссылкам из
-  // подборок и меню: читатель приходит сразу в нужную работу.
-  const active = jobs.find(j => j.slug === jobParam) ?? jobs[0];
+  // Без ?job= показывается весь каталог: читатель, пришедший с главной или из
+  // меню, ещё не выбрал работу, и подсовывать ему одну задачу из десяти —
+  // значит прятать от него остальные сорок с лишним карточек.
+  const active = jobs.find(j => j.slug === jobParam) ?? null;
   const [services, groups] = active
     ? await Promise.all([servicesForJob(active.slug), facetGroupsFor(active.slug)])
-    : [[], []];
+    : await Promise.all([allServices(), allFacetGroups()]);
 
   const url = `${BASE}/${locale}/ai/tools`;
   const ld = {
@@ -128,7 +127,6 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
   };
 
   const tiles = tilesFrom(all);
-  const checkedAt = lastPriceCheck(all);
 
   return (
     <>
@@ -175,7 +173,7 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
               {t.ctaA}
               <ArrowRight size={16} strokeWidth={2} />
             </a>
-            <a href="#all" className="ai-pill ai-pill-ghost">{t.ctaB}</a>
+            <Link href={`/${locale}/ai/tools#results`} className="ai-pill ai-pill-ghost">{t.ctaB}</Link>
           </div>
         </div>
       </header>
@@ -193,6 +191,16 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
         <>
           <h2 className="sr-only">{t.filters}</h2>
           <ul id="tasks" className="mt-5 flex list-none flex-wrap gap-2 overflow-x-auto p-0 max-sm:flex-nowrap">
+            <li>
+              <Link
+                href={`/${locale}/ai/tools`}
+                aria-current={active ? undefined : 'page'}
+                className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
+              >
+                <JobIcon name="grid" />
+                {t.everything}
+              </Link>
+            </li>
             {jobs.map(j => (
               <li key={j.slug}>
                 <Link
@@ -207,21 +215,6 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
             ))}
           </ul>
         </>
-      )}
-
-      {/* Связь с подборкой. Хаб даёт фильтр и предлагает выбирать самому,
-          подборка — готовый список с объяснением порядка. Без этой ссылки
-          вторая страница существовала бы только для поиска, а читатель до неё
-          не добирался. */}
-      {active && (
-        <p className="mt-3 text-[13px]">
-          <Link
-            href={`/${locale}/ai/best/${active.slug}`}
-            className="font-extrabold text-accent hover:underline"
-          >
-            {t.collection}: {pick(active.name, locale).toLowerCase()} →
-          </Link>
-        </p>
       )}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_256px] xl:gap-8">
@@ -242,12 +235,6 @@ export default async function AiToolsPage({ params, searchParams }: Props) {
         <section id="all" className="mt-12 border-t border-border pt-8">
           <h2 className="sr-only">{t.allTitle}</h2>
           <HomeAiDock tiles={tiles} locale={locale} />
-          {checkedAt && (
-            <p className="mt-1 text-center text-[12.5px] text-muted tabular-nums">
-              {t.checkedAll}: {all.filter(s => s.priceCheckedAt).length} / {all.length} ·{' '}
-              {checkedAt.split('-').reverse().join('.')}
-            </p>
-          )}
         </section>
       )}
       </div>

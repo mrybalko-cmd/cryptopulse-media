@@ -1377,6 +1377,14 @@ html.light {
   background: var(--glass-edge-lit);
   pointer-events: none;
 }
+/* «Разбор» — градиентная подпись, а не ссылка: ссылкой стала вся карточка. */
+.ai-go {
+  background: linear-gradient(135deg, #0e7490 0%, #6d28d9 52%, #9333ea 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ai-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Ореолы за спиной: два, приглушённые. Четыре карточки в ряд с полной
    силой превращаются в кашу — проверено на макете. */
 .ai-card::after {
@@ -1636,7 +1644,7 @@ html.light .aiw::after { opacity: .78; }
 .aiw-slot > a:focus-visible .aiw-tile { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .aiw-tip {
-  position: absolute; left: 0; top: 6px; z-index: 9; pointer-events: none; white-space: nowrap;
+  position: absolute; left: 0; top: 2px; z-index: 200; pointer-events: none; white-space: nowrap;
   border-radius: 9px; background: var(--foreground); color: var(--background);
   padding: 5px 11px; font-size: 12.5px; font-weight: 700;
   opacity: 0; transition: opacity .2s, translate .3s cubic-bezier(.22,1,.36,1);

@@ -71,7 +71,15 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
 
   return (
     <li className="flex">
-      <article className="ai-card relative flex w-full flex-col gap-3 overflow-hidden rounded-[14px] p-4 backdrop-blur-[14px] backdrop-saturate-150">
+      {/* Ссылка обёрнута вокруг всей карточки, а не растянута псевдоэлементом.
+          Растяжка держалась на том, что ссылка не образует своего контейнера
+          позиционирования, и ломалась от любого filter или transform на ней —
+          то есть от обычной подсветки при наведении. Обёртка таких сюрпризов
+          не имеет, и ссылка в карточке остаётся одна. */}
+      <Link
+        href={`/${locale}/ai/tools/${s.slug}`}
+        className="ai-card group relative flex w-full flex-col gap-3 overflow-hidden rounded-[14px] p-4 backdrop-blur-[14px] backdrop-saturate-150"
+      >
         <div className="flex items-start gap-3">
           <ServiceMark s={s} />
           <div className="min-w-0 flex-1">
@@ -87,16 +95,6 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
             <span className="text-[12px] text-muted">
               {plan ? unitLabel(plan.unit, locale) : t.onRequest}
             </span>
-            {s.pricingUrl && (
-              <a
-                href={s.pricingUrl}
-                rel="sponsored nofollow noopener"
-                target="_blank"
-                className="mt-1 block text-[12px] font-extrabold text-accent hover:underline"
-              >
-                {t.details} ↗
-              </a>
-            )}
           </div>
         </div>
 
@@ -133,14 +131,9 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
           ) : (
             <span className="font-semibold text-importance-medium">{t.priceUnchecked}</span>
           )}
-          <Link
-            href={`/${locale}/ai/tools/${s.slug}`}
-            className="ml-auto font-extrabold text-accent hover:underline"
-          >
-            {t.review} →
-          </Link>
+          <span className="ai-go ml-auto font-extrabold">{t.review} →</span>
         </div>
-      </article>
+      </Link>
     </li>
   );
 }
@@ -301,7 +294,7 @@ export default function AiCatalogue({ locale, services, groups, t }: Props) {
           )}
         </form>
 
-        <section aria-labelledby="ai-res">
+        <section id="results" aria-labelledby="ai-res" className="scroll-mt-24">
           <div className="mb-4 flex flex-wrap items-baseline gap-3">
             <h2 id="ai-res" className="text-[19px] font-extrabold tracking-tight">{t.servicesH}</h2>
             <span className="text-[13.5px] tabular-nums text-muted" aria-live="polite">

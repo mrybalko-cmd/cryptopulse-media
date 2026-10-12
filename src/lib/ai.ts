@@ -214,17 +214,24 @@ export const matchesFacets = (s: AiService, wanted: string[]): boolean => {
  * сравнивает деньги, и список, отсортированный по чему-то ещё, заставляет его
  * делать это глазами.
  */
+export function sortServices(list: AiService[]): AiService[] {
+  return [...list].sort((a, b) => {
+    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    const pa = paidFrom(a)?.price ?? Number.POSITIVE_INFINITY;
+    const pb = paidFrom(b)?.price ?? Number.POSITIVE_INFINITY;
+    if (pa !== pb) return pa - pb;
+    return (a.rank ?? 999) - (b.rank ?? 999);
+  });
+}
+
 export async function servicesForJob(jobSlug: string): Promise<AiService[]> {
   const all = await getAiServices();
-  return all
-    .filter(s => s.jobSlug === jobSlug)
-    .sort((a, b) => {
-      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
-      const pa = paidFrom(a)?.price ?? Number.POSITIVE_INFINITY;
-      const pb = paidFrom(b)?.price ?? Number.POSITIVE_INFINITY;
-      if (pa !== pb) return pa - pb;
-      return (a.rank ?? 999) - (b.rank ?? 999);
-    });
+  return sortServices(all.filter(s => s.jobSlug === jobSlug));
+}
+
+/** Весь каталог в том же порядке, что и внутри задачи. */
+export async function allServices(): Promise<AiService[]> {
+  return sortServices(await getAiServices());
 }
 
 export async function serviceBySlug(slug: string): Promise<AiService | null> {
@@ -254,6 +261,30 @@ export async function facetGroupsFor(jobSlug: string): Promise<AiFacetGroup[]> {
       if (seen.has(id)) continue;
       seen.add(id);
       global.push(g);
+    }
+  }
+  return [...own, ...global];
+}
+
+/**
+ * Группы признаков для режима «Все сервисы»: свои у каждой задачи плюс общие.
+ *
+ * Список получается длинным, и это не страшно: правило отображения в хабе
+ * оставит только те пункты, под которые подпадает минимум две компании, и не
+ * больше семи на группу. Своя группа задачи, где таких пунктов не набралось,
+ * просто не покажется.
+ */
+export async function allFacetGroups(): Promise<AiFacetGroup[]> {
+  const jobs = await getAiJobs();
+  const seen = new Set<string>();
+  const own: AiFacetGroup[] = [];
+  const global: AiFacetGroup[] = [];
+  for (const job of jobs) {
+    for (const g of job.facetGroups) {
+      const id = g.items.map(i => i.key).join(',');
+      if (seen.has(id)) continue;
+      seen.add(id);
+      (g.scope === 'global' ? global : own).push(g);
     }
   }
   return [...own, ...global];
