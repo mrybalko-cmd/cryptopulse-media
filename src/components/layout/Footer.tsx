@@ -1,11 +1,24 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
-import { Mail } from 'lucide-react';
 import { ADVERTISING_EMAIL, LINKEDIN_PROFILE_URL } from '@/lib/constants';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import FooterNavGroup from '@/components/layout/FooterNavGroup';
+import FooterTopButton from '@/components/layout/FooterTopButton';
 import { SITE_BRAND, SITE_NAME, SITE_ZONE } from '@/lib/site';
 import BrandMarkSvg from '@/components/ui/BrandMarkSvg';
+
+/**
+ * Футер: знак с абзацем о проекте, шесть колонок ссылок, строка иконок и подпись.
+ *
+ * Двадцать ссылок разложены по смыслу, а не по одному длинному столбцу:
+ * «Инструменты» — то, чем считают, «Справочники» — то, где смотрят. AI стоит
+ * отдельной колонкой, потому что это теперь самостоятельный раздел, а не
+ * ещё один инструмент.
+ *
+ * Абзац о проекте — тот же текст, что стоит на странице «О нас», в RSS и в
+ * llms.txt. Он живёт в словаре, чтобы четвёртая копия не разъехалась с
+ * остальными тремя при первой же правке.
+ */
 
 // The official "in" glyph, drawn rather than pulled from an icon set: lucide
 // has no brand marks, and LinkedIn's guidelines do not allow redrawing it.
@@ -17,9 +30,19 @@ function LinkedInLogo({ size = 16 }: { size?: number }) {
   );
 }
 
+/** Ссылка колонки: подпись и адрес, остальное одинаково у всех двадцати. */
+function L({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <li>
+      <Link href={href} className="ft-link">{children}</Link>
+    </li>
+  );
+}
+
 export default async function Footer() {
   const t = await getTranslations('footer');
   const locale = await getLocale();
+  const year = new Date().getFullYear();
 
   return (
     <footer className="border-t border-border mt-20" aria-label="Site footer">
@@ -31,172 +54,108 @@ export default async function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-        {/* Single column on mobile (accordion groups), 4-column grid on desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-6">
+        {/* Знак и абзац о проекте */}
+        <div className="flex flex-wrap items-start gap-x-7 gap-y-4 py-8">
+          <Link href={`/${locale}`} className="inline-flex shrink-0 items-center gap-1.5">
+            <BrandMarkSvg className="h-5 w-auto shrink-0" />
+            <span className="text-[15px] font-semibold">
+              {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
+            </span>
+          </Link>
+          <p className="m-0 min-w-0 flex-1 basis-80 text-[13px] leading-relaxed text-muted">
+            {t('blurb')}
+          </p>
+        </div>
 
-          {/* Brand — extra bottom margin on mobile so the first accordion
-              below doesn't crowd the follow button */}
-          <div className="mb-6 lg:mb-0">
-            <Link href={`/${locale}`} className="inline-flex items-center gap-1 mb-3">
-              <BrandMarkSvg className="h-5 w-auto shrink-0" />
-              <span className="font-semibold text-sm">
-                {SITE_BRAND}<span className="text-muted">{SITE_ZONE}</span>
-              </span>
-            </Link>
-            <p className="text-muted text-xs leading-relaxed max-w-52 mb-4">{t('tagline')}</p>
-            <a
-              href={LINKEDIN_PROFILE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-lg border border-border px-3 py-2 hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/[0.07] transition-colors group max-w-52"
-            >
-              {/* Brand blue rather than the site accent: LinkedIn asks that the
-                  mark keep its own colour, and one saturated square reads as a
-                  logo where a graphite circle read as another icon. */}
-              <span className="w-7 h-7 rounded-[7px] bg-[#0A66C2] text-white flex items-center justify-center shrink-0 shadow-[0_1px_3px_rgba(10,102,194,0.45)] group-hover:shadow-[0_2px_8px_rgba(10,102,194,0.55)] transition-shadow">
-                <LinkedInLogo size={13} />
-              </span>
-              <span className="flex flex-col leading-tight min-w-0">
-                <span className="text-xs font-semibold text-foreground truncate">{t('followLinkedIn')}</span>
-                <span className="text-[11px] text-muted truncate">{t('followLinkedInHandle')}</span>
-              </span>
-            </a>
-          </div>
+        <div className="border-t border-dashed border-border" />
 
-          {/* Content */}
+        {/* Шесть колонок. Ниже lg каждая превращается в раскрывающийся пункт:
+            шесть столбцов на телефоне легли бы в шесть экранов подряд. */}
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 py-8 sm:grid-cols-2 lg:grid-cols-6">
+
           <FooterNavGroup title={t('content')}>
-            <li>
-              <Link href={`/${locale}/news`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('news')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/articles`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('articles')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/authors`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('authors')}
-              </Link>
-            </li>
+            <L href={`/${locale}/news`}>{t('news')}</L>
+            <L href={`/${locale}/articles`}>{t('articles')}</L>
+            <L href={`/${locale}/authors`}>{t('authors')}</L>
           </FooterNavGroup>
 
-          {/* Tools */}
           <FooterNavGroup title={t('tools')}>
-            <li>
-              <Link href={`/${locale}/calculators`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('calculators')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/calculators/wealth`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('wealthCalc')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/calculators/converter`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('converter')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/assets`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('assets')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('glossary')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/ai/tools`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('aiTools')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/ai/glossary`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('aiGlossary')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/calendar`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('calendar')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/regulation`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('regulation')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/faq`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('faq')}
-              </Link>
-            </li>
+            <L href={`/${locale}/calculators`}>{t('calculators')}</L>
+            <L href={`/${locale}/calculators/converter`}>{t('converter')}</L>
+            <L href={`/${locale}/calculators/wealth`}>{t('wealthCalc')}</L>
+            <L href={`/${locale}/calendar`}>{t('calendar')}</L>
           </FooterNavGroup>
 
-          {/* Legal */}
-          <FooterNavGroup title={t('legal')}>
-            <li>
-              <Link href={`/${locale}/about`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('aboutUs')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/advertising`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('advertising')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/editorial-policy`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('editorialPolicy')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/privacy`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('privacy')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/disclaimer`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('disclaimer')}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/security`} className="text-sm text-muted hover:text-foreground transition-colors">
-                {t('security')}
-              </Link>
-            </li>
+          <FooterNavGroup title={t('refs')}>
+            <L href={`/${locale}/assets`}>{t('assets')}</L>
+            <L href={`/${locale}/glossary`}>{t('glossary')}</L>
+            <L href={`/${locale}/regulation`}>{t('regulation')}</L>
+            <L href={`/${locale}/faq`}>{t('faq')}</L>
+          </FooterNavGroup>
+
+          <FooterNavGroup title={t('aiGroup')}>
+            <L href={`/${locale}/ai/tools`}>{t('aiTools')}</L>
+            <L href={`/${locale}/ai/glossary`}>{t('aiGlossary')}</L>
+          </FooterNavGroup>
+
+          <FooterNavGroup title={t('project')}>
+            <L href={`/${locale}/about`}>{t('aboutUs')}</L>
+            <L href={`/${locale}/advertising`}>{t('advertising')}</L>
+            <L href={`/${locale}/editorial-policy`}>{t('editorialPolicy')}</L>
             <li>
               <address className="not-italic">
-                <a
-                  href={`mailto:${ADVERTISING_EMAIL}`}
-                  className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
-                >
-                  <Mail size={13} aria-hidden="true" />
-                  {t('contact')}
-                </a>
+                <a href={`mailto:${ADVERTISING_EMAIL}`} className="ft-link">{t('contact')}</a>
               </address>
             </li>
           </FooterNavGroup>
 
+          <FooterNavGroup title={t('legal')}>
+            <L href={`/${locale}/privacy`}>{t('privacy')}</L>
+            <L href={`/${locale}/disclaimer`}>{t('disclaimer')}</L>
+            <L href={`/${locale}/security`}>{t('security')}</L>
+          </FooterNavGroup>
+
         </div>
+
+        <div className="border-t border-dashed border-border" />
+
+        {/* Строка иконок. Только то, что у нас действительно есть и работает. */}
+        <div className="flex flex-wrap justify-center gap-2.5 pt-7">
+          <a
+            href={LINKEDIN_PROFILE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('followLinkedIn')}
+            title={t('followLinkedIn')}
+            className="ft-sq ft-sq-li"
+          >
+            <LinkedInLogo size={17} />
+          </a>
+          <a href={`mailto:${ADVERTISING_EMAIL}`} aria-label={t('email')} title={t('email')} className="ft-sq">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <rect x="2.5" y="5" width="19" height="14" rx="3" />
+              <path d="m3.5 7 8.5 6 8.5-6" />
+            </svg>
+          </a>
+          <a href="/rss.xml" aria-label={t('rss')} title={t('rss')} className="ft-sq">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+              <path d="M5 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+              <path d="M5 12a7 7 0 0 1 7 7M5 5a14 14 0 0 1 14 14" />
+            </svg>
+          </a>
+          <FooterTopButton label={t('toTop')} />
+        </div>
+
+        <p className="mx-auto mt-6 max-w-[80ch] text-center text-xs leading-relaxed text-muted">
+          © {year} {SITE_NAME} · {t('rights')} {t('disclaimerText')}
+        </p>
 
         {/* Ad disclosure — relevant now that the sidebar can show partner banners */}
-        <div className="mt-10 border border-dashed border-border rounded-lg px-4 py-3">
-          <p className="text-xs text-muted leading-relaxed">
+        <div className="mb-10 mt-6 rounded-lg border border-dashed border-border px-4 py-3">
+          <p className="text-xs leading-relaxed text-muted">
             <span className="font-semibold text-foreground">{t('disclosureTitle')}</span> {t('disclosureText')}
-          </p>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
-          <p className="text-xs text-muted">{t('disclaimerText')}</p>
-          <p className="text-xs text-muted shrink-0">
-            © {new Date().getFullYear()} {SITE_NAME} · {t('rights')}
           </p>
         </div>
 

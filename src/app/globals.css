@@ -1417,6 +1417,42 @@ html.light {
 .ai-strip { scrollbar-width: none; }
 .ai-strip::-webkit-scrollbar { display: none; }
 
+/* ── Футер ────────────────────────────────────────────────────────────
+   Ссылки и плитки приподнимаются на наведении: это единственное движение в
+   футере, и оно же показывает, что строка нажимается. Под системной
+   настройкой «уменьшить движение» подъём выключается, цвет остаётся. */
+.ft-link {
+  display: inline-block;
+  padding: 4px 0;
+  font-size: 13.5px;
+  color: var(--muted);
+  transition: transform .16s cubic-bezier(.2, .72, .3, 1), color .16s;
+}
+.ft-link:hover { color: var(--foreground); transform: translateY(-2px); }
+
+.ft-sq {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: grid; place-items: center;
+  border: 1px dashed var(--border);
+  color: var(--foreground); background: var(--background);
+  transition: transform .16s cubic-bezier(.2, .72, .3, 1), border-color .16s, box-shadow .16s;
+}
+.ft-sq:hover {
+  transform: translateY(-3px);
+  border-style: solid; border-color: transparent;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+/* LinkedIn держит свой фирменный синий: гайдлайн не разрешает перекрашивать
+   знак, да и один насыщенный квадрат в ряду читается как логотип, а графитовый
+   читался бы как ещё одна иконка. */
+.ft-sq-li { background: #0A66C2; border-color: transparent; color: #fff; }
+.ft-sq-li:hover { box-shadow: 0 10px 22px rgba(10, 102, 194, .45); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-link, .ft-sq { transition: color .16s, border-color .16s; }
+  .ft-link:hover, .ft-sq:hover { transform: none; }
+}
+
 /* ── Плашка редакции на карточке каталога ─────────────────────────────
    Яркая заливка с тёмным текстом: так она читается и на жёлтом, и на
    голубом, и одинаково держится в светлой и тёмной теме — цвет не зависит

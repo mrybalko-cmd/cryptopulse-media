@@ -67,7 +67,14 @@
     "subscribeTitle": "The crypto essentials — once a week in your inbox",
     "subscribeSubtitle": "No spam, unsubscribe anytime",
     "disclosureTitle": "Advertising disclosure:",
-    "disclosureText": "Some pages and the sidebar may show partner banners — always marked \"Ad\". They don't affect the editorial independence of our news and articles."
+    "disclosureText": "Some pages and the sidebar may show partner banners — always marked \"Ad\". They don't affect the editorial independence of our news and articles.",
+    "blurb": "An independent international media outlet on crypto and artificial intelligence. We turn complex technology trends into plain language, publishing in English and Russian. We trust only primary sources, so that you can trust us.",
+    "refs": "Reference",
+    "aiGroup": "AI",
+    "project": "About",
+    "toTop": "Back to top",
+    "rss": "RSS feed",
+    "email": "Email us"
   },
   "legal": {
     "privacyTitle": "Privacy Policy",
