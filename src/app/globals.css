@@ -194,6 +194,11 @@ html.light {
   --color-border: var(--border);
   --color-card: var(--card);
   --color-accent: var(--accent);
+  /* Фиолетовый уже стоял в разметке четырьмя классами — text-violet,
+     bg-violet/10, border-violet/40 — но в палитру его забыли завести, и все
+     четыре молча не красили ничего. Классы Tailwind на несуществующий цвет
+     не падают и не предупреждают: они просто не превращаются ни во что. */
+  --color-violet: var(--violet);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
   --color-article-accent: var(--article-accent);
