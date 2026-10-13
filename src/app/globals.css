@@ -1639,7 +1639,8 @@ html.light .aiw::after { opacity: .78; }
    раньше расходились и градиентом, и радиусом, и ростом. Рост теперь 40 —
    столько же, сколько у кнопок в самом каталоге. */
 .aiw-cta,
-.home-authors-cta {
+.home-authors-cta,
+.home-cal-cta {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; margin-top: 14px; height: 40px; padding: 0 20px; border-radius: 999px;
   font-size: 13.5px; font-weight: 800; color: #fff; white-space: nowrap;
@@ -1647,16 +1648,20 @@ html.light .aiw::after { opacity: .78; }
   box-shadow: 0 8px 20px rgba(109,40,217,.42), inset 0 1px 0 rgba(255,255,255,.26);
   transition: transform .18s cubic-bezier(.2,.72,.3,1), box-shadow .18s;
 }
+/* Кнопка календаря стоит по центру своего блока, а не в колонке, поэтому
+   растягиваться на всю ширину ей незачем. */
+.home-cal-cta { width: auto; }
 @media (min-width: 640px) {
   .aiw-cta { width: auto; margin-top: 0; align-self: center; padding: 0 22px; }
 }
 .aiw-cta:hover,
-.home-authors-cta:hover {
+.home-authors-cta:hover,
+.home-cal-cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 32px rgba(109,40,217,.52), inset 0 1px 0 rgba(255,255,255,.32);
 }
 @media (prefers-reduced-motion: reduce) {
-  .aiw-cta, .home-authors-cta { transition: none; }
+  .aiw-cta, .home-authors-cta, .home-cal-cta { transition: none; }
 }
 
 /* Ряд плиток. На узких экранах — покой и прокрутка с привязкой; с 640px

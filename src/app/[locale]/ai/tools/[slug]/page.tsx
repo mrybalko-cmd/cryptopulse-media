@@ -11,7 +11,7 @@ import {
 } from '@/lib/ai';
 import { buildOg, buildTwitter, BASE, pageTitle, titleText, truncateDesc } from '@/lib/metadata';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_EMAIL, SITE_NAME } from '@/lib/site';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import { ServiceMark } from '../AiParts';
 
@@ -29,7 +29,7 @@ const T = {
     rank: 'Место в рейтинге a16z', onRequest: 'по запросу',
     ask: 'Есть вопросы или замечания?',
     askBody: 'Напишите нам — разберёмся и поправим. Если это ваш сервис, пришлите правку, мы проверим и обновим дату.',
-    write: 'Написать', sponsored: 'Платное размещение',
+    write: 'Написать', mailSubject: 'Правка по карточке', sponsored: 'Платное размещение',
   },
   en: {
     home: 'Home', ai: 'AI', tools: 'Services',
@@ -42,7 +42,7 @@ const T = {
     rank: 'a16z ranking', onRequest: 'on request',
     ask: 'Questions or corrections?',
     askBody: 'Write to us and we will sort it out. If this is your service, send a correction and we will check it and update the date.',
-    write: 'Write to us', sponsored: 'Paid placement',
+    write: 'Write to us', mailSubject: 'Correction for the card', sponsored: 'Paid placement',
   },
 } as const;
 
@@ -188,7 +188,7 @@ export default async function AiServicePage({ params }: Props) {
                 {job && (
                   <Link
                     href={`/${locale}/ai/tools?job=${job.slug}`}
-                    className="mt-2.5 inline-block text-[12.5px] font-bold text-accent hover:underline"
+                    className="mt-2.5 inline-block text-[12.5px] font-bold text-violet hover:underline"
                   >
                     {pick(job.name, locale)} →
                   </Link>
@@ -343,12 +343,16 @@ export default async function AiServicePage({ params }: Props) {
             <p className="m-0 min-w-0 flex-1 basis-72">
               <b className="font-extrabold">{t.ask}</b> {t.askBody}
             </p>
-            <Link
-              href={`/${locale}/about`}
-              className="rounded-[10px] border border-border px-4 py-2 text-[13px] font-bold hover:border-accent hover:text-accent"
+            {/* Прямо на почту, а не на страницу «О нас»: человек уже готов
+                написать, и ещё один переход ради адреса его только тормозит.
+                Название сервиса уходит в тему письма — иначе правку
+                приходится искать по тексту. */}
+            <a
+              href={`mailto:${SITE_EMAIL}?subject=${encodeURIComponent(`${t.mailSubject}: ${s.name}`)}`}
+              className="rounded-[10px] border border-border px-4 py-2 text-[13px] font-bold hover:border-violet hover:text-violet"
             >
               {t.write}
-            </Link>
+            </a>
           </aside>
 
           {jobs.length > 0 && (

@@ -100,7 +100,7 @@ export default function CalendarCarousel({ events, locale }: { events: CalendarE
       <div className="relative flex justify-center mt-5">
         <Link
           href={`/${locale}/calendar`}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-[11px] text-[12px] font-bold cal-gradient transition-[filter]"
+          className="home-cal-cta"
         >
           {isRu ? 'Посмотреть все события' : 'View all events'}
           <ArrowRight size={14} />

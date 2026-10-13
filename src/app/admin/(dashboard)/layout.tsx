@@ -53,12 +53,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <>
               <div className="text-[10px] uppercase tracking-wide text-[var(--admin-text-dim)] px-2.5 pt-3.5 pb-1.5">Management</div>
               <Link
-                href="/admin/deals"
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
-              >
-                💶 Commercial deals
-              </Link>
-              <Link
                 href="/admin/users"
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-semibold text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)] hover:text-[var(--admin-text)] transition-colors"
               >
