@@ -47,11 +47,10 @@ export default async function Footer() {
   return (
     <footer className="border-t border-border mt-20" aria-label="Site footer">
 
-      {/* Subscribe bar — full-bleed strip above the column grid */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <EmailSubscribeForm locale={locale} source="footer" variant="footer" />
-        </div>
+      {/* Подписка. Серой полосы вокруг больше нет: панель сама стеклянная,
+          и плашка за её спиной глушила бы и ореолы, и прозрачность. */}
+      <div className="mx-auto max-w-7xl px-4 pb-2 pt-8 sm:px-6">
+        <EmailSubscribeForm locale={locale} source="footer" variant="footer" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

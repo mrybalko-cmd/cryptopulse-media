@@ -79,6 +79,8 @@
   --halo-violet: color-mix(in srgb, #8b5cf6 62%, transparent);
   --halo-cyan: color-mix(in srgb, #06b6d4 48%, transparent);
   --halo-pink: color-mix(in srgb, #ec4899 26%, transparent);
+  --crack-line: rgba(255, 255, 255, .78);
+  --crack-glow: rgba(255, 255, 255, .3);
 
   /* Clear glass — a second, far more transparent tier than --glass-fill above.
      Used where the panel is meant to be seen *through* rather than read as a
@@ -155,6 +157,8 @@ html.light {
   --halo-violet: color-mix(in srgb, #7c3aed 30%, transparent);
   --halo-cyan: color-mix(in srgb, #0891b2 24%, transparent);
   --halo-pink: color-mix(in srgb, #db2777 14%, transparent);
+  --crack-line: rgba(124, 58, 237, .72);
+  --crack-glow: rgba(124, 58, 237, .22);
 
   /* On white the pane sits *lighter* than the page rather than darker, so the
      clear tier inverts: more fill, a white edge, and much softer halos. */
@@ -1416,6 +1420,121 @@ html.light {
    ней читается как оборванный элемент. Листание остаётся, полоса уходит. */
 .ai-strip { scrollbar-width: none; }
 .ai-strip::-webkit-scrollbar { display: none; }
+
+/* ── Блок подписки ────────────────────────────────────────────────────
+   Один вид на весь сайт: футер, низ новости и низ статьи. Два яруса стекла —
+   плотная панель и прозрачные поле с кнопкой, — а за панелью три ореола.
+   Без света за собой стекло неотличимо от плашки. */
+.sub-wrap { position: relative; isolation: isolate; }
+.sub-halo {
+  position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+  filter: blur(58px);
+}
+.sub-halo-a { width: 320px; height: 190px; left: -40px; top: -50px; background: var(--halo-violet); }
+.sub-halo-b { width: 300px; height: 180px; right: -30px; bottom: -55px; background: var(--halo-cyan); }
+.sub-halo-c { width: 240px; height: 150px; left: 44%; bottom: -60px; background: var(--halo-pink); }
+
+.sub-pane {
+  position: relative; z-index: 2;
+  border-radius: 16px; padding: 20px 22px;
+  border: 1px solid var(--glass-line);
+  background: var(--glass-fill);
+  box-shadow: var(--glass-shadow);
+}
+/* Подсвеченная верхняя кромка — то, что отличает стекло от заливки. */
+.sub-pane::after {
+  content: ""; position: absolute; left: 22px; right: 22px; top: 0; height: 1px; z-index: 3;
+  background: linear-gradient(90deg, transparent, var(--glass-edge-lit), transparent);
+  pointer-events: none;
+}
+
+.sub-field {
+  height: 42px; border-radius: 11px; padding: 0 13px;
+  font-size: 13px; color: var(--foreground);
+  border: 1px solid var(--glass-edge); outline: none;
+  background: linear-gradient(180deg, var(--glass-clear), var(--glass-clear-2));
+  transition: border-color .16s, box-shadow .16s, opacity .3s;
+}
+.sub-field::placeholder { color: var(--muted); }
+.sub-field:focus {
+  border-color: color-mix(in srgb, var(--violet) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 16%, transparent);
+}
+.sub-sent .sub-field { opacity: .45; }
+
+.sub-cta {
+  position: relative; height: 42px; padding: 0 20px; border-radius: 11px;
+  flex: none; cursor: pointer; font-size: 13px; font-weight: 700;
+  color: var(--foreground); white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--violet) 55%, transparent);
+  background: linear-gradient(180deg, var(--glass-clear), var(--glass-clear-2));
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--violet) 22%, transparent),
+              inset 0 1px 0 var(--glass-edge-lit);
+  transition: transform .16s cubic-bezier(.2, .72, .3, 1), box-shadow .16s, border-color .16s;
+  /* Трещины живут внутри кнопки и за её край не выходят. */
+  overflow: hidden;
+}
+.sub-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--violet) 80%, transparent);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--violet) 34%, transparent),
+              inset 0 1px 0 var(--glass-edge-lit);
+}
+.sub-cta:disabled { cursor: default; }
+
+/* Подпись и галочка делят одно место: иначе кнопка меняет ширину и строка
+   прыгает в тот самый момент, когда человек смотрит на ответ. */
+.sub-face {
+  position: relative; z-index: 3;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+}
+.sub-lbl { transition: opacity .18s; }
+.sub-cta[data-sent] .sub-lbl { opacity: 0; }
+.sub-ok {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  opacity: 0; font-weight: 800;
+  /* На тёмной берётся светлый оттенок: обычный фиолетовый тонет в стекле. */
+  color: var(--violet-2);
+}
+html.light .sub-ok { color: var(--violet); }
+.sub-cta[data-sent] .sub-ok { animation: sub-ok-in .32s .26s cubic-bezier(.2, .72, .3, 1) forwards; }
+@keyframes sub-ok-in { from { opacity: 0; transform: scale(.82) } to { opacity: 1; transform: none } }
+.sub-ok svg path { stroke-dasharray: 22; stroke-dashoffset: 22; }
+.sub-cta[data-sent] .sub-ok svg path { animation: sub-tick .34s .32s cubic-bezier(.3, .7, .3, 1) forwards; }
+@keyframes sub-tick { to { stroke-dashoffset: 0 } }
+
+.sub-cracks { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.sub-cracks svg { width: 100%; height: 100%; display: block; overflow: hidden; }
+.sub-cracks path {
+  fill: none; stroke: var(--crack-line); stroke-width: 1;
+  stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: var(--len); stroke-dashoffset: var(--len);
+  filter: drop-shadow(0 0 2px var(--crack-glow));
+  animation-name: sub-draw; animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(.2, .8, .3, 1);
+}
+@keyframes sub-draw { to { stroke-dashoffset: 0 } }
+/* После ответа сервера трещины притихают: кнопка остаётся треснувшей, но
+   «Готово» под ними читается. */
+.sub-calm { opacity: .45; transition: opacity .5s .2s; }
+
+.sub-flash {
+  position: absolute; inset: 0; z-index: 1; border-radius: 11px; opacity: 0;
+  background: radial-gradient(60% 120% at var(--fx, 50%) var(--fy, 50%),
+    var(--glass-edge-lit), transparent 70%);
+  animation: sub-flash .34s ease-out forwards;
+}
+@keyframes sub-flash { 0% { opacity: 0 } 22% { opacity: .75 } 100% { opacity: 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sub-cta { transition: none; }
+  .sub-cta:hover:not(:disabled) { transform: none; }
+  .sub-flash { animation: none; opacity: 0; }
+  .sub-cracks path { animation-duration: 0s !important; animation-delay: 0s !important; }
+  .sub-cta[data-sent] .sub-ok,
+  .sub-cta[data-sent] .sub-ok svg path { animation-duration: .01s; }
+}
 
 /* ── Футер ────────────────────────────────────────────────────────────
    Ссылки и плитки приподнимаются на наведении: это единственное движение в
