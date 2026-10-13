@@ -230,6 +230,34 @@ export const aiServiceType = defineType({
         '«Фильтры и задачи», здесь только отмечается. Непроверенное не отмечаем.',
     }),
 
+    defineField(
+      bilingualString(
+        'badgeText',
+        'Плашка на карточке',
+        'Короткое слово от редакции поверх карточки в каталоге: «выбор редакции», ' +
+        '«новинка», «дёшево». Пусто — плашки нет. На странице самого сервиса не ' +
+        'показывается: там она ничего не выделяет, выделять уже некого.'
+      )
+    ),
+    defineField({
+      name: 'badgeColor',
+      title: 'Цвет плашки',
+      type: 'string',
+      group: 'text',
+      initialValue: 'yellow',
+      options: {
+        list: [
+          { title: 'Жёлтая', value: 'yellow' },
+          { title: 'Оранжевая', value: 'orange' },
+          { title: 'Розовая', value: 'pink' },
+          { title: 'Синяя', value: 'blue' },
+          { title: 'Голубая', value: 'cyan' },
+          { title: 'Зелёная', value: 'green' },
+          { title: 'Фиолетовая', value: 'violet' },
+        ],
+      },
+      description: 'Текст на плашке всегда тёмный — так он читается на любом из цветов и в обеих темах сайта.',
+    }),
     defineField(bilingualString('tagline', 'Подзаголовок', 'Одна строка под названием на карточке.')),
     defineField(
       bilingualString(

@@ -1417,6 +1417,39 @@ html.light {
 .ai-strip { scrollbar-width: none; }
 .ai-strip::-webkit-scrollbar { display: none; }
 
+/* ── Плашка редакции на карточке каталога ─────────────────────────────
+   Яркая заливка с тёмным текстом: так она читается и на жёлтом, и на
+   голубом, и одинаково держится в светлой и тёмной теме — цвет не зависит
+   от темы вовсе. Наклон в четыре градуса, чтобы читалась наклейкой, а не
+   ещё одним полем разметки.
+
+   Рост 24 пикселя, кегль 11,5 — тот же, что у подписей «в месяц» и «цена
+   сверена». Плашка встаёт в один ряд с мелким текстом карточки и не спорит
+   с названием компании. */
+.ai-badge {
+  display: inline-flex; align-items: center; line-height: 1.2;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: -.01em;
+  color: #17181c; white-space: nowrap; pointer-events: none;
+  transform: rotate(4deg);
+  box-shadow: 0 4px 11px var(--badge-sh), inset 0 1px 0 rgba(255, 255, 255, .5);
+  transition: transform .18s cubic-bezier(.2, .72, .3, 1);
+}
+/* Карточка приподнимается при наведении, и плашка обязана ехать с ней:
+   иначе она отклеивается и висит в воздухе. */
+.ai-card:hover + .ai-badge { transform: rotate(4deg) translateY(-3px); }
+@media (prefers-reduced-motion: reduce) {
+  .ai-badge { transition: none; }
+}
+
+.ai-badge-yellow { background: linear-gradient(135deg, #fde047, #facc15); --badge-sh: rgba(250, 204, 21, .5); }
+.ai-badge-orange { background: linear-gradient(135deg, #fb923c, #f97316); --badge-sh: rgba(249, 115, 22, .5); }
+.ai-badge-pink   { background: linear-gradient(135deg, #fda4d4, #f472b6); --badge-sh: rgba(244, 114, 182, .5); }
+.ai-badge-blue   { background: linear-gradient(135deg, #60a5fa, #3b82f6); --badge-sh: rgba(59, 130, 246, .5); }
+.ai-badge-cyan   { background: linear-gradient(135deg, #67e8f9, #22d3ee); --badge-sh: rgba(34, 211, 238, .5); }
+.ai-badge-green  { background: linear-gradient(135deg, #86efac, #4ade80); --badge-sh: rgba(74, 222, 128, .5); }
+.ai-badge-violet { background: linear-gradient(135deg, #c4b5fd, #a78bfa); --badge-sh: rgba(167, 139, 250, .5); }
+
 /* ── Поиск и кнопки каталога ──────────────────────────────────────────
    Один рост у всего, что нажимается: 40 пикселей, один радиус, один кегль.
    До этого в одном ряду стояли поиск 50, задачи 38 и выпадашки 34, и ряд

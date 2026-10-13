@@ -37,6 +37,8 @@ export interface AdminAiService {
   plans: AdminPlan[];
   facets: string[];
   tagline: Bi;
+  badgeText: Bi;
+  badgeColor: string;
   highlight: Bi;
   features: BiList;
   about: Bi;
@@ -85,6 +87,7 @@ const SERVICE_PROJECTION = `_id, name, "slug": coalesce(slug.current, ""),
     "unit": coalesce(unit, "month"), "includes": coalesce(includes, {}), "recommended": coalesce(recommended, false) }, []),
   "facets": coalesce(facets, []),
   "tagline": coalesce(tagline, {}), "highlight": coalesce(highlight, {}),
+  "badgeText": coalesce(badgeText, {}), "badgeColor": coalesce(badgeColor, "yellow"),
   "features": coalesce(features, {}), "about": coalesce(about, {}),
   "pros": coalesce(pros, {}), "cons": coalesce(cons, {}),
   "seoTitle": coalesce(seoTitle, {}), "seoDescription": coalesce(seoDescription, {}),
@@ -224,6 +227,8 @@ function serviceDoc(input: AiServiceInput, logoAssetId?: string) {
     about: bi(input.about),
     pros: list(input.pros),
     cons: list(input.cons),
+    badgeText: bi(input.badgeText),
+    badgeColor: input.badgeColor || 'yellow',
     seoTitle: bi(input.seoTitle),
     seoDescription: bi(input.seoDescription),
     priceCheckedAt: input.priceCheckedAt || undefined,

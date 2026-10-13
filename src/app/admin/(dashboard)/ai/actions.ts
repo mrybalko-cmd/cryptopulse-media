@@ -83,6 +83,8 @@ function parseService(f: FormData): AiServiceInput {
     plans,
     facets: f.getAll('facets').map(String),
     tagline: { ru: str(f, 'tagline_ru'), en: str(f, 'tagline_en') },
+    badgeText: { ru: str(f, 'badgeText_ru'), en: str(f, 'badgeText_en') },
+    badgeColor: str(f, 'badgeColor') || 'yellow',
     highlight: { ru: str(f, 'highlight_ru'), en: str(f, 'highlight_en') },
     features: { ru: lines(f, 'features_ru'), en: lines(f, 'features_en') },
     about: { ru: str(f, 'about_ru'), en: str(f, 'about_en') },

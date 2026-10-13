@@ -68,6 +68,9 @@ export interface AiService {
   plans: AiPlan[];
   facets: string[];
   tagline?: Bi;
+  /** Плашка редакции. Живёт только в каталоге, на странице сервиса её нет. */
+  badgeText?: Bi;
+  badgeColor?: string;
   highlight?: Bi;
   features?: BiList;
   about?: Bi;
@@ -98,7 +101,8 @@ const SERVICE_QUERY = `*[_type == "aiService" && hidden != true]{
   rank, website, pricingUrl, foundedYear,
   "plans": coalesce(plans[]{ name, price, currency, unit, includes, recommended }, []),
   "facets": coalesce(facets, []),
-  tagline, highlight, features, about, pros, cons, seoTitle, seoDescription,
+  tagline, badgeText, "badgeColor": coalesce(badgeColor, "yellow"),
+  highlight, features, about, pros, cons, seoTitle, seoDescription,
   priceCheckedAt, "sources": coalesce(sources, []),
   "reviewedBy": reviewedBy->{ name, "slug": slug.current, entityKind },
   sponsored, pinned

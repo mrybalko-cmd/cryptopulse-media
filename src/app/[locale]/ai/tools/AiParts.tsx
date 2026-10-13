@@ -105,6 +105,11 @@ function Card({
   const checked = Boolean(s.priceCheckedAt);
   const href = `/${locale}/ai/tools/${s.slug}`;
 
+  // Плашка живёт на обёртке, а не внутри карточки: у карточки обрезка по
+  // краю, и уголок срезал бы наклейку. Стоит после <article> намеренно —
+  // соседний селектор поднимает её вместе с карточкой при наведении.
+  const badge = pick(s.badgeText, locale).trim();
+
   const act = (e: ReactMouseEvent | ReactKeyboardEvent) => {
     if ((e.target as HTMLElement).closest('[data-fold]')) return;
     if (!open) { setOpen(true); return; }
@@ -112,7 +117,7 @@ function Card({
   };
 
   return (
-    <li className={hidden ? 'hidden' : 'flex'}>
+    <li className={`relative ${hidden ? 'hidden' : 'flex'}`}>
       <article
         role="button"
         tabIndex={0}
@@ -201,6 +206,11 @@ function Card({
           <ChevronDown size={13} />
         </span>
       </article>
+      {badge && (
+        <span className={`ai-badge ai-badge-${s.badgeColor || 'yellow'} absolute -top-2 right-1 z-[3] sm:-right-1.5`}>
+          {badge}
+        </span>
+      )}
     </li>
   );
 }

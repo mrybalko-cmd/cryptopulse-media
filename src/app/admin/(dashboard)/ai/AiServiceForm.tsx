@@ -338,6 +338,37 @@ export default function AiServiceForm({
           Русский и английский пишутся отдельно, не переводом друг друга.
         </p>
         <Bilingual id="tagline" label="Подзаголовок" hint="Одна строка под названием на карточке." value={service?.tagline} />
+
+        {/* Плашка редакции. Два поля вместо одного: слово на карточке короткое,
+            и перевод у него свой — «выбор редакции» и «editor\u2019s pick» пишутся
+            по-разному, а не подставляются одно вместо другого. */}
+        <Bilingual
+          id="badgeText"
+          label="Плашка на карточке"
+          hint="Короткое слово поверх карточки в каталоге: «выбор редакции», «новинка», «дёшево». Пусто — плашки нет. На странице самого сервиса не показывается."
+          value={service?.badgeText}
+        />
+        <div className="mb-5 max-w-[320px]">
+          <label className={LABEL} htmlFor="badgeColor">Цвет плашки</label>
+          <select id="badgeColor" name="badgeColor" defaultValue={service?.badgeColor ?? 'yellow'} className={FIELD}>
+            {BADGE_COLORS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+          </select>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            {BADGE_COLORS.map(c => (
+              <span
+                key={c.key}
+                title={c.label}
+                className="rounded-full px-2.5 py-1 text-[11px] font-extrabold text-[#17181c]"
+                style={{ background: c.swatch }}
+              >
+                {c.label}
+              </span>
+            ))}
+          </div>
+          <p className={HINT}>
+            Текст на плашке всегда тёмный — так он читается на любом из цветов и в обеих темах сайта.
+          </p>
+        </div>
         <Bilingual id="highlight" label="Чем выделяется" rows={2}
           hint="Одна фраза про то, что умеет только этот сервис. Карточка без неё бессмысленна: всё остальное есть у соседей."
           value={service?.highlight} />
@@ -393,6 +424,17 @@ export default function AiServiceForm({
     </form>
   );
 }
+
+/** Цвета плашки. Те же семь, что заведены в схеме и нарисованы в globals.css. */
+const BADGE_COLORS = [
+  { key: 'yellow', label: 'Жёлтая', swatch: 'linear-gradient(135deg,#fde047,#facc15)' },
+  { key: 'orange', label: 'Оранжевая', swatch: 'linear-gradient(135deg,#fb923c,#f97316)' },
+  { key: 'pink', label: 'Розовая', swatch: 'linear-gradient(135deg,#fda4d4,#f472b6)' },
+  { key: 'blue', label: 'Синяя', swatch: 'linear-gradient(135deg,#60a5fa,#3b82f6)' },
+  { key: 'cyan', label: 'Голубая', swatch: 'linear-gradient(135deg,#67e8f9,#22d3ee)' },
+  { key: 'green', label: 'Зелёная', swatch: 'linear-gradient(135deg,#86efac,#4ade80)' },
+  { key: 'violet', label: 'Фиолетовая', swatch: 'linear-gradient(135deg,#c4b5fd,#a78bfa)' },
+];
 
 function Bilingual({
   id, label, hint, rows, value,
