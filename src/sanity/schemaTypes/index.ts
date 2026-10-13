@@ -21,7 +21,6 @@ import { regulationCountryType } from './regulationCountry';
 import { licenceRegimeType } from './licenceRegime';
 import { aiJobType, aiFacetType, aiFacetGroupType } from './aiJob';
 import { aiServiceType, aiPlanType } from './aiService';
-import { adDealType, adPlacementType } from './adDeal';
 import { glossaryTermType } from './glossaryTerm';
 import { authorRubricType } from './authorRubric';
 import { authorsPageType } from './authorsPage';
@@ -33,5 +32,4 @@ export const schemaTypes = [
     coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
   regulationCountryType, licenceRegimeType, glossaryTermType, authorRubricType, authorsPageType,
   aiFacetType, aiFacetGroupType, aiJobType, aiPlanType, aiServiceType,
-  adPlacementType, adDealType,
 ];

@@ -96,12 +96,34 @@ function Facts({ s, locale, t }: { s: AiService; locale: Locale; t: Record<strin
       <h2 className="m-0 px-3.5 pb-2 pt-3 text-[11px] font-extrabold uppercase tracking-[.1em] text-muted">
         {t.facts}
       </h2>
-      {rows.map(([k, v, warn]) => (
-        <div key={k} className="flex items-baseline gap-2.5 border-t border-border px-3.5 py-2 text-[12.5px]">
-          <span className="shrink-0 text-muted">{k}</span>
-          <span className={`ml-auto text-right font-bold tabular-nums ${warn ? 'text-importance-medium' : ''}`}>{v}</span>
-        </div>
-      ))}
+      {/* Короткое значение стоит в строке справа от подписи, длинное — под
+          ней. Колонка шириной 224 пикселя, и «переписка без лимита,
+          остальное с ограничениями» рядом с подписью не помещается: текст
+          вылезал за край и обрезался рамкой блока. Порог в 18 знаков
+          оставляет в строке цену, год и место в рейтинге — всё, что и
+          задумывалось читать парами. */}
+      {rows.map(([k, v, warn]) => {
+        const stacked = v.length > 18;
+        return (
+          <div
+            key={k}
+            className={`border-t border-border px-3.5 py-2 text-[12.5px] ${
+              stacked ? '' : 'flex items-baseline gap-2.5'
+            }`}
+          >
+            <span className="shrink-0 text-muted">{k}</span>
+            <span
+              className={`font-bold ${warn ? 'text-importance-medium' : ''} ${
+                stacked
+                  ? 'mt-1 block break-words leading-[1.4]'
+                  : 'ml-auto min-w-0 break-words text-right tabular-nums'
+              }`}
+            >
+              {v}
+            </span>
+          </div>
+        );
+      })}
     </aside>
   );
 }

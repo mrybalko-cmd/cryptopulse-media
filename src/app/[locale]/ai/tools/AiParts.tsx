@@ -304,8 +304,10 @@ function Hunt({
         <Search size={17} strokeWidth={2.2} />
       </span>
       <span className="relative flex h-10 min-w-0 flex-1 items-center">
+        {/* Правый край у подсказки обязателен: без него абсолютный блок берёт
+            ширину по тексту, и длинная строка уезжает под кнопку «Найти». */}
         {!value && (
-          <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center overflow-hidden">
+          <span className="ai-ph-box pointer-events-none absolute inset-y-0 left-2 right-0 flex items-center overflow-hidden">
             <Placeholder key={i} text={hints[i]} />
           </span>
         )}

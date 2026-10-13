@@ -31,10 +31,8 @@ export default defineConfig({
             S.divider(),
             ...S.documentTypeListItems()
               // homeSettings — одиночный документ, он уже стоит отдельным
-              // пунктом выше. adDeal — коммерческая тайна: сделки живут
-              // только в /admin/deals под правом владельца, а в общем списке
-              // Studio их читал бы любой, у кого есть доступ к проекту.
-              .filter((item) => !['homeSettings', 'adDeal'].includes(item.getId() ?? ''))
+              // пунктом выше.
+              .filter((item) => item.getId() !== 'homeSettings')
               .map((item) => {
                 if (item.getId() !== 'sidebarBanner') return item;
                 // Gives sidebarBanner its own "Превью на сайте" tab next to
