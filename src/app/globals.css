@@ -1328,17 +1328,6 @@ html.light {
               0 0 0 1px color-mix(in srgb, var(--c, var(--accent)) 34%, transparent);
 }
 
-.home-authors-cta {
-  color: #fff;
-  background: linear-gradient(
-    118deg,
-    color-mix(in srgb, var(--accent) 92%, #000),
-    color-mix(in srgb, var(--violet) 86%, #000)
-  );
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--violet) 30%, transparent),
-              inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-.home-authors-cta:hover { filter: brightness(1.07); }
 
 /* Колонки снизу на узком экране идут списком, и между ними нужна граница, а
    не пустота: без неё три заголовка сливаются в один абзац. */
@@ -1357,9 +1346,11 @@ html.light {
    Tailwind вырезает, а утилиты backdrop-blur-* на псевдоэлемент не
    повесить. */
 .ai-card,
-.ai-filters {
-  position: relative;
-  overflow: hidden;
+/* Стекло панели фильтра. Своего position здесь нет намеренно: положение
+   задают служебные классы прямо на элементе, а неслоёный CSS из этого файла
+   сильнее слоёных утилит и однажды уже перебил `fixed` — шторка на телефоне
+   открывалась не поверх экрана, а куском страницы на 815 пикселей ниже. */
+.ai-panel {
   background: var(--glass-fill);
   border: 1px solid var(--glass-line);
   box-shadow: var(--glass-shadow);
@@ -1369,7 +1360,7 @@ html.light {
   transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s, border-color .18s;
 }
 .ai-card::before,
-.ai-filters::before {
+.ai-panel::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -1416,6 +1407,71 @@ html.light {
 .ai-tick { box-shadow: 0 2px 8px color-mix(in srgb, var(--violet) 30%, transparent); }
 .ai-fab { box-shadow: 0 10px 30px color-mix(in srgb, var(--violet) 46%, transparent); }
 
+/* Полоса задач на телефоне листается вбок, и системная полоса прокрутки под
+   ней читается как оборванный элемент. Листание остаётся, полоса уходит. */
+.ai-strip { scrollbar-width: none; }
+.ai-strip::-webkit-scrollbar { display: none; }
+
+/* ── Поиск и кнопки каталога ──────────────────────────────────────────
+   Один рост у всего, что нажимается: 40 пикселей, один радиус, один кегль.
+   До этого в одном ряду стояли поиск 50, задачи 38 и выпадашки 34, и ряд
+   читался как три разных предмета. */
+
+.ai-hunt {
+  background: var(--card-hover);
+  border: 1px solid var(--border);
+  transition: border-color .18s, box-shadow .18s;
+}
+.ai-hunt:focus-within {
+  border-color: color-mix(in srgb, var(--violet) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 14%, transparent);
+}
+.ai-hunt-ic {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgba(20, 24, 40, .09);
+}
+
+/* Подсказка в пустом поле: буквы набегают по очереди. */
+.ai-ph {
+  display: inline-flex;
+  white-space: nowrap;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.ai-ph span {
+  display: inline-block;
+  animation: ai-letter .5s cubic-bezier(.2, .8, .3, 1) both;
+}
+@keyframes ai-letter {
+  from { opacity: 0; transform: translateY(8px) rotateX(70deg); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-ph span { animation: none; }
+}
+
+/* Главное действие: «Найти», «Показать ещё», «Сбросить всё». */
+.ai-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 0; color: #fff; font-weight: 800; white-space: nowrap; cursor: pointer;
+  background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 44%, #9333ea 100%);
+  box-shadow: 0 7px 18px rgba(109, 40, 217, .34), inset 0 1px 0 rgba(255, 255, 255, .22);
+  transition: transform .18s cubic-bezier(.2, .72, .3, 1), box-shadow .18s;
+}
+.ai-cta:hover { transform: translateY(-1px); box-shadow: 0 11px 26px rgba(109, 40, 217, .44); }
+@media (prefers-reduced-motion: reduce) { .ai-cta { transition: none; } }
+
+/* Второстепенная кнопка: «Фильтры», снятые галочки, «Сбросить» в шторке. */
+.ai-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.ai-chip:hover { border-color: color-mix(in srgb, var(--violet) 40%, transparent); }
+
 /* Полоса задач: солнечный градиент на выбранной.
    Оттенки подобраны так, чтобы белый текст держал 4.5:1 на всей длине —
    первая попытка (#f59e0b на конце) давала 2.15:1 и была нечитаемой. */
@@ -1461,15 +1517,19 @@ html.light {
    тёмная независимо от темы: белый текст поверх неё читается в обеих. */
 .ai-hero {
   background: #05060c;
-  /* В макете герой занимал min(94vh, 780px) вместе со своей строкой навигации;
-     на сайте шапка живёт выше, поэтому высота меньше ровно на неё. */
-  min-height: min(86vh, 700px);
+  /* Высота задаётся здесь, а не отступами внутри: текст занимает 313 пикселей,
+     остаток флексбокс делит поровну сверху и снизу. При 700 на этот воздух
+     уходило по 193 пикселя с каждой стороны — весь первый экран на обложку,
+     и до каталога приходилось скроллить вслепую. 560 оставляет по 120. */
+  min-height: min(70vh, 560px);
   display: flex; align-items: center;
 }
 /* На узком экране у макета был свой потолок: 700 пикселей там съедают
    весь первый экран целиком, и до полосы задач приходится скроллить вслепую. */
 @media (max-width: 719px) {
-  .ai-hero { min-height: min(78vh, 560px); }
+  /* На телефоне текст выше (заголовок переносится), поэтому воздуха изначально
+     меньше: 95 пикселей с каждой стороны. Оставляем по 60. */
+  .ai-hero { min-height: min(68vh, 490px); }
 }
 /* Зерно поверх градиента: без него тёмная заливка выглядит плоской полосой. */
 .ai-hero-grain {
@@ -1574,21 +1634,29 @@ html.light .aiw::after { opacity: .78; }
   .aiw-only-touch { display: none; }
 }
 
-/* Кнопка — главное действие блока, поэтому единственная яркая точка. */
-.aiw-cta {
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  width: 100%; margin-top: 14px; padding: 13px 18px; border-radius: 999px;
-  font-size: 14.5px; font-weight: 800; color: #fff; white-space: nowrap;
+/* Кнопка — главное действие блока, поэтому единственная яркая точка.
+   Один вид на все три блока главной: «Все авторы», «Все режимы» и каталог
+   раньше расходились и градиентом, и радиусом, и ростом. Рост теперь 40 —
+   столько же, сколько у кнопок в самом каталоге. */
+.aiw-cta,
+.home-authors-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 14px; height: 40px; padding: 0 20px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 800; color: #fff; white-space: nowrap;
   background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 44%, #9333ea 100%);
-  box-shadow: 0 10px 26px rgba(109,40,217,.46), inset 0 1px 0 rgba(255,255,255,.26);
+  box-shadow: 0 8px 20px rgba(109,40,217,.42), inset 0 1px 0 rgba(255,255,255,.26);
   transition: transform .18s cubic-bezier(.2,.72,.3,1), box-shadow .18s;
 }
 @media (min-width: 640px) {
-  .aiw-cta { width: auto; margin-top: 0; align-self: center; padding: 13px 24px; font-size: 15px; }
+  .aiw-cta { width: auto; margin-top: 0; align-self: center; padding: 0 22px; }
 }
-.aiw-cta:hover {
+.aiw-cta:hover,
+.home-authors-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 38px rgba(109,40,217,.56), inset 0 1px 0 rgba(255,255,255,.32);
+  box-shadow: 0 14px 32px rgba(109,40,217,.52), inset 0 1px 0 rgba(255,255,255,.32);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aiw-cta, .home-authors-cta { transition: none; }
 }
 
 /* Ряд плиток. На узких экранах — покой и прокрутка с привязкой; с 640px

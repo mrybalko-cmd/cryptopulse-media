@@ -260,7 +260,7 @@ export default async function HomeRegulationWidget({
             </div>
             <Link
               href={`/${locale}/regulation/licences`}
-              className="home-authors-cta mt-0.5 flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-[12px] font-extrabold"
+              className="home-authors-cta"
             >
               {isRu ? 'Все режимы' : 'All regimes'}
               <ArrowRight size={13} strokeWidth={2.4} />

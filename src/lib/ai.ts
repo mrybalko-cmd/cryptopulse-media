@@ -267,27 +267,28 @@ export async function facetGroupsFor(jobSlug: string): Promise<AiFacetGroup[]> {
 }
 
 /**
- * Группы признаков для режима «Все сервисы»: свои у каждой задачи плюс общие.
+ * Группы признаков для режима «Все сервисы» — только общие.
  *
- * Список получается длинным, и это не страшно: правило отображения в хабе
- * оставит только те пункты, под которые подпадает минимум две компании, и не
- * больше семи на группу. Своя группа задачи, где таких пунктов не набралось,
- * просто не покажется.
+ * Собственные группы задач сюда больше не идут. Они дублировали полосу задач:
+ * выбрав «Все сервисы», человек получал шестнадцать групп, двенадцать из
+ * которых повторяли кнопки прямо над фильтром. Признаки задачи появляются
+ * вместе с задачей, а до этого фильтр отвечает на вопросы, общие для всего
+ * каталога: сколько стоит, на чём работает, что с командой.
  */
 export async function allFacetGroups(): Promise<AiFacetGroup[]> {
   const jobs = await getAiJobs();
   const seen = new Set<string>();
-  const own: AiFacetGroup[] = [];
   const global: AiFacetGroup[] = [];
   for (const job of jobs) {
     for (const g of job.facetGroups) {
+      if (g.scope !== 'global') continue;
       const id = g.items.map(i => i.key).join(',');
       if (seen.has(id)) continue;
       seen.add(id);
-      (g.scope === 'global' ? global : own).push(g);
+      global.push(g);
     }
   }
-  return [...own, ...global];
+  return global;
 }
 
 /** Подпись признака по ключу — для страницы сервиса и подборок. */

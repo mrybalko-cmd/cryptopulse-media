@@ -240,7 +240,7 @@ export default function HomeAuthorsWidget({
 
           <Link
             href={`/${locale}/authors`}
-            className="home-authors-cta mt-3 flex items-center justify-center gap-1.5 rounded-xl px-4 py-3 text-[12px] font-extrabold"
+            className="home-authors-cta"
           >
             {isRu ? 'Все авторы' : 'All authors'}
             <ArrowRight size={13} strokeWidth={2.4} />

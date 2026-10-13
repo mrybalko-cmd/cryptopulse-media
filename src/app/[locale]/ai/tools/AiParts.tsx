@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent as ReactMouseEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { AiFacet, AiFacetGroup, AiJob, AiService, Locale } from '@/lib/ai';
 import { allFacets, money, paidFrom, pick, pickList, unitLabel } from '@/lib/ai';
+import { haystackOf, matches, rank, type Haystack } from '@/lib/aiSearch';
 import JobIcon from './JobIcon';
 
 /**
@@ -88,7 +89,15 @@ export function ServiceMark({ s, size = 44 }: { s: AiService; size?: number }) {
  * кнопка внутри ссылки — недопустимая вложенность. Настоящая ссылка в карточке
  * есть — «Разбор»; по ней ходит поиск и работает открытие в новой вкладке.
  */
-function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string, string> }) {
+function Card({
+  s, locale, t, hidden,
+}: {
+  s: AiService;
+  locale: Locale;
+  t: Record<string, string>;
+  /** Карточка за десятым местом: в разметке есть, на экране нет. */
+  hidden?: boolean;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const plan = paidFrom(s);
@@ -103,7 +112,7 @@ function Card({ s, locale, t }: { s: AiService; locale: Locale; t: Record<string
   };
 
   return (
-    <li className="flex">
+    <li className={hidden ? 'hidden' : 'flex'}>
       <article
         role="button"
         tabIndex={0}
@@ -241,56 +250,189 @@ function liveGroups(groups: AiFacetGroup[], counts: Map<string, number>): AiFace
   return out;
 }
 
-function Group({
-  group,
+/* ── Поиск ────────────────────────────────────────────────────────── */
+
+/**
+ * Подсказка в пустом поле: буквы набегают по очереди и строка сменяется.
+ *
+ * Анимация сделана на CSS, без библиотеки. Присланный компонент тянул за
+ * собой motion и два набора иконок — около ста двадцати килобайт на одно
+ * поле ввода; эффект тот же, а вес страницы не растёт. Под
+ * prefers-reduced-motion буквы просто появляются.
+ */
+function Placeholder({ text }: { text: string }) {
+  return (
+    <span className="ai-ph" aria-hidden="true">
+      {[...text].map((ch, i) => (
+        <span key={`${i}-${ch}`} style={{ animationDelay: `${i * 0.012}s` }}>
+          {ch === ' ' ? ' ' : ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function Hunt({
+  value,
+  onChange,
+  hints,
+  t,
+  onSubmit,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  hints: string[];
+  t: Record<string, string>;
+  onSubmit: () => void;
+}) {
+  const [i, setI] = useState(0);
+  // Подсказки крутятся только у пустого поля: поверх набранного их не видно,
+  // а таймер в это время греет батарею впустую.
+  useEffect(() => {
+    if (value || hints.length < 2) return;
+    const id = setInterval(() => setI(v => (v + 1) % hints.length), 3400);
+    return () => clearInterval(id);
+  }, [value, hints.length]);
+
+  return (
+    <form
+      role="search"
+      className="ai-hunt flex min-w-0 flex-1 items-center gap-1.5 rounded-full p-[5px] pl-[7px]"
+      onSubmit={e => { e.preventDefault(); onSubmit(); }}
+    >
+      <span className="ai-hunt-ic grid size-10 shrink-0 place-items-center rounded-full">
+        <Search size={17} strokeWidth={2.2} />
+      </span>
+      <span className="relative flex h-10 min-w-0 flex-1 items-center">
+        {!value && (
+          <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center overflow-hidden">
+            <Placeholder key={i} text={hints[i]} />
+          </span>
+        )}
+        <input
+          type="search"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          aria-label={t.searchLabel}
+          className="h-full w-full min-w-0 appearance-none border-0 bg-transparent px-2 text-[14.5px] text-foreground outline-none [&::-webkit-search-cancel-button]:hidden"
+        />
+      </span>
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={t.clearSearch}
+          className="ai-hunt-ic grid size-10 shrink-0 place-items-center rounded-full"
+        >
+          <X size={16} strokeWidth={2.4} />
+        </button>
+      )}
+      <button type="submit" className="ai-cta h-10 shrink-0 rounded-full px-[18px] text-[13.5px]">
+        {t.find}
+      </button>
+    </form>
+  );
+}
+
+/* ── Фильтр ───────────────────────────────────────────────────────── */
+
+function Facets({
+  groups,
   locale,
   on,
   toggle,
   counts,
-  openAll,
 }: {
-  group: AiFacetGroup;
+  groups: AiFacetGroup[];
   locale: Locale;
   on: Set<string>;
   toggle: (k: string) => void;
   counts: Map<string, number>;
-  openAll: boolean;
 }) {
-  const picked = group.items.filter(i => on.has(i.key)).length;
   return (
-    <details className="border-b border-border last:border-b-0" open={openAll}>
-      <summary className="ai-sum flex cursor-pointer list-none items-center gap-2.5 px-1 py-3 text-[13px] font-extrabold uppercase tracking-[.06em] text-muted">
-        {pick(group.title, locale)}
-        {picked > 0 && <span className="ai-pick rounded-full px-2 py-px text-[12px] font-extrabold tabular-nums text-white">{picked}</span>}
-        <ChevronDown size={15} className="ml-auto shrink-0 transition-transform [details[open]_&]:rotate-180" />
-      </summary>
-      <div className="px-1 pb-3.5 pt-0.5">
-        {group.items.map(f => (
-          <label key={f.key} className="flex cursor-pointer items-start gap-2.5 py-1 text-[13.5px] leading-[1.35] text-muted hover:text-foreground">
-            <input
-              type="checkbox"
-              checked={on.has(f.key)}
-              onChange={() => toggle(f.key)}
-              className="ai-box mt-px size-[17px] shrink-0 cursor-pointer appearance-none rounded-[6px] border-[1.5px] border-border bg-background"
-            />
-            <span className={on.has(f.key) ? 'font-semibold text-foreground' : undefined}>
-              {pick(f.label, locale)}
-            </span>
-            <span className="ml-auto shrink-0 pl-2 text-[12.5px] tabular-nums text-muted/70">
-              {counts.get(f.key)}
-            </span>
-          </label>
-        ))}
-      </div>
-    </details>
+    <div className="grid gap-x-7 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+      {groups.map((g, i) => (
+        <div key={`${pick(g.title, locale)}-${i}`}>
+          <h3 className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[.07em] text-muted">
+            {pick(g.title, locale)}
+          </h3>
+          {g.items.map(f => (
+            <label
+              key={f.key}
+              className="flex cursor-pointer items-start gap-2.5 py-1 text-[13.5px] leading-[1.35] text-muted hover:text-foreground"
+            >
+              <input
+                type="checkbox"
+                checked={on.has(f.key)}
+                onChange={() => toggle(f.key)}
+                className="ai-box mt-px size-[17px] shrink-0 cursor-pointer appearance-none rounded-[6px] border-[1.5px] border-border bg-background"
+              />
+              <span className={on.has(f.key) ? 'font-semibold text-foreground' : undefined}>
+                {pick(f.label, locale)}
+              </span>
+              <span className="ml-auto shrink-0 pl-2 text-[12.5px] tabular-nums text-muted/70">
+                {counts.get(f.key)}
+              </span>
+            </label>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
 
+/* ── Каталог ──────────────────────────────────────────────────────── */
+
+/** Сколько карточек видно до нажатия «Показать ещё». */
+const PAGE = 10;
+
 export default function AiCatalogue({ locale, services, jobs, groupsByJob, initialJob, t }: Props) {
   const [job, setJob] = useState(initialJob);
-  const [openAll, setOpenAll] = useState(false);
   const [on, setOn] = useState<Set<string>>(new Set());
-  const [sheet, setSheet] = useState(false);
+  const [query, setQuery] = useState('');
+  const [panel, setPanel] = useState(false);
+  const [shown, setShown] = useState(PAGE);
+  const results = useRef<HTMLElement>(null);
+
+  /** Подписи признаков по ключу — для поиска и для снятых галочек. */
+  const labels = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const groups of Object.values(groupsByJob)) {
+      for (const g of groups) for (const f of g.items) if (!m.has(f.key)) m.set(f.key, pick(f.label, locale));
+    }
+    return m;
+  }, [groupsByJob, locale]);
+
+  /**
+   * Стог сена под каждую карточку. Считается один раз на весь каталог, а не
+   * на каждое нажатие клавиши: иначе полсотни карточек пересобирались бы по
+   * сорок раз за фразу.
+   */
+  const stacks = useMemo(() => {
+    const jobName = new Map(jobs.map(j => [j.slug, pick(j.name, locale)]));
+    const m = new Map<string, Haystack>();
+    for (const s of services) {
+      m.set(
+        s.slug,
+        haystackOf({
+          name: s.name,
+          slug: s.slug,
+          text: [
+            pick(s.tagline, locale),
+            pick(s.highlight, locale),
+            ...pickList(s.features, locale),
+            ...pickList(s.pros, locale),
+            ...s.plans.map(p => p.name),
+          ].filter(Boolean),
+          tags: [
+            jobName.get(s.jobSlug ?? '') ?? '',
+            ...allFacets(s).map(k => labels.get(k) ?? ''),
+          ].filter(Boolean),
+        })
+      );
+    }
+    return m;
+  }, [services, jobs, locale, labels]);
 
   const pool = useMemo(
     () => (job ? services.filter(s => s.jobSlug === job) : services),
@@ -299,44 +441,101 @@ export default function AiCatalogue({ locale, services, jobs, groupsByJob, initi
   const counts = useMemo(() => countFacets(pool), [pool]);
   const live = useMemo(() => liveGroups(groupsByJob[job] ?? [], counts), [groupsByJob, job, counts]);
 
-  const toggle = (k: string) =>
+  /**
+   * Любая смена условий возвращает список к первым десяти: иначе человек,
+   * открывший всю базу и уточнивший запрос, видит хвост чужой выдачи.
+   * Сброс стоит в самих обработчиках, а не в эффекте: эффект на то же самое
+   * даёт лишний проход отрисовки сразу после каждого нажатия.
+   */
+  const toggle = (k: string) => {
+    setShown(PAGE);
     setOn(prev => {
       const next = new Set(prev);
       if (next.has(k)) next.delete(k);
       else next.add(k);
       return next;
     });
+  };
+
+  const search = (v: string) => { setShown(PAGE); setQuery(v); };
 
   const list = useMemo(() => {
-    if (!on.size) return pool;
     const wanted = [...on];
-    return pool.filter(s => {
-      const have = new Set(allFacets(s));
-      return wanted.every(k => have.has(k));
-    });
-  }, [pool, on]);
+    let out = wanted.length
+      ? pool.filter(s => {
+          const have = new Set(allFacets(s));
+          return wanted.every(k => have.has(k));
+        })
+      : pool;
+
+    const q = query.trim();
+    if (q) {
+      out = out
+        .filter(s => matches(stacks.get(s.slug)!, q))
+        // Сортировка устойчивая, поэтому карточки с одинаковой близостью
+        // остаются в исходном порядке каталога.
+        .sort(
+          (a, b) =>
+            rank({ name: a.name, slug: a.slug, text: [], tags: [] }, stacks.get(a.slug)!, q) -
+            rank({ name: b.name, slug: b.slug, text: [], tags: [] }, stacks.get(b.slug)!, q)
+        );
+    }
+    return out;
+  }, [pool, on, query, stacks]);
 
   /** Смена задачи сбрасывает галочки: в новой задаче признаки другие. */
-  const pickJob = (slug: string) => { setJob(slug); setOn(new Set()); };
+  const pickJob = (slug: string) => { setShown(PAGE); setJob(slug); setOn(new Set()); };
 
+  const clearAll = () => { setShown(PAGE); setOn(new Set()); setQuery(''); };
+  const dirty = on.size > 0 || query.trim().length > 0;
   const checked = list.filter(s => s.priceCheckedAt).length;
+  const hints = useMemo(
+    () => [t.searchHint, t.searchHint1, t.searchHint2, t.searchHint3].filter(Boolean),
+    [t]
+  );
 
   return (
     <>
-      {/* Полоса задач. Отступ сверху и снизу — не украшение: при наведении
-          чип приподнимается и отбрасывает тень, а контейнер с горизонтальной
-          прокруткой обрезает всё, что вылезло за его границы. */}
       <h2 className="sr-only">{t.filters}</h2>
+
+      {/* Поиск и кнопка фильтра — один ряд. Всё, что нажимается, ростом 40,
+          чтобы ряд читался как один предмет, а не как три разных. */}
+      <div className="mt-4 flex flex-wrap items-center gap-2.5">
+        <Hunt
+          value={query}
+          onChange={search}
+          hints={hints}
+          t={t}
+          onSubmit={() => results.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })}
+        />
+        {/* На широком экране кнопка стоит в ряду с поиском. На узком её место
+            занимает плавающая кнопка внизу: до верха страницы оттуда не
+            дотянуться, а палец и так внизу. */}
+        <button
+          type="button"
+          onClick={() => setPanel(v => !v)}
+          aria-expanded={panel}
+          aria-controls="ai-facets"
+          className="ai-chip hidden h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[13.5px] font-semibold lg:inline-flex"
+        >
+          <SlidersHorizontal size={15} />
+          {t.filters}
+          {on.size > 0 && <span className="ai-pick rounded-full px-1.5 text-[11px] font-extrabold tabular-nums text-white">{on.size}</span>}
+          <ChevronDown size={13} className={panel ? 'rotate-180 transition-transform' : 'transition-transform'} />
+        </button>
+      </div>
+
+      {/* Полоса задач. На узком экране листается вбок одной строкой. */}
       <ul
         id="tasks"
-        className="mt-4 scroll-mt-32 flex list-none flex-wrap gap-2 px-0 py-1.5 overflow-x-auto sm:overflow-visible max-sm:flex-nowrap"
+        className="ai-strip mt-3 scroll-mt-32 flex list-none gap-2 overflow-x-auto px-0 py-1 sm:flex-wrap sm:overflow-visible max-sm:flex-nowrap"
       >
         <li>
           <button
             type="button"
             onClick={() => pickJob('')}
             aria-pressed={job === ''}
-            className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
+            className="ai-task inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[13.5px] font-semibold"
           >
             <JobIcon name="grid" />
             {t.everything}
@@ -348,7 +547,7 @@ export default function AiCatalogue({ locale, services, jobs, groupsByJob, initi
               type="button"
               onClick={() => pickJob(j.slug)}
               aria-pressed={job === j.slug}
-              className="ai-task inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold"
+              className="ai-task inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[13.5px] font-semibold"
             >
               <JobIcon name={j.icon} />
               {pick(j.name, locale)}
@@ -357,105 +556,148 @@ export default function AiCatalogue({ locale, services, jobs, groupsByJob, initi
         ))}
       </ul>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[264px_minmax(0,1fr)]">
-        <form
-          aria-label={t.filters}
-          className={`ai-filters self-start rounded-[20px] p-3.5 backdrop-blur-[14px] backdrop-saturate-150 ${
-            sheet
-              ? 'fixed inset-x-0 bottom-0 z-[70] max-h-[78vh] overflow-y-auto rounded-b-none px-4 pb-6 pt-4'
-              : 'hidden lg:block lg:sticky lg:top-[62px] lg:max-h-[calc(100vh-86px)] lg:overflow-y-auto'
-          }`}
-        >
-          {sheet && (
-            <button
-              type="button"
-              onClick={() => setSheet(false)}
-              aria-label={t.close}
-              className="absolute right-3 top-3 rounded-lg border border-border p-1.5 text-muted"
-            >
-              <X size={16} />
-            </button>
-          )}
-          {/* Шапка панели приклеена: кнопка «развернуть всё» нужна именно тогда,
-              когда список длинный и уехал вверх вместе с прокруткой. */}
-          <div className="sticky top-0 z-[4] -mx-3.5 -mt-3.5 mb-1 border-b border-border bg-background/90 px-3.5 pb-2.5 pt-3 backdrop-blur-[10px]">
-            <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
+      {/* Панель признаков. На широком экране раскрывается на месте, на узком —
+          шторкой снизу. Положение задают служебные классы прямо здесь, а не
+          собственное правило в globals.css: оно сильнее и однажды уже
+          открывало шторку куском страницы ниже экрана. */}
+      {panel && (
+        <>
+          <div
+            className="fixed inset-0 z-[66] bg-black/40 lg:hidden"
+            onClick={() => setPanel(false)}
+            aria-hidden="true"
+          />
+          <div
+            id="ai-facets"
+            className="ai-panel fixed inset-x-0 bottom-0 z-[70] max-h-[78vh] overflow-y-auto rounded-t-[20px] p-4 pb-6 backdrop-blur-[14px] backdrop-saturate-150 lg:static lg:mt-3 lg:max-h-none lg:rounded-[20px] lg:p-5"
+          >
+            <div className="mb-3 flex items-center gap-3 lg:hidden">
+              <span className="mx-auto h-1 w-10 rounded-full bg-border" aria-hidden="true" />
+            </div>
+            <div className="mb-3 flex items-center justify-between gap-3">
               <b className="text-[12px] font-extrabold uppercase tracking-[.07em] text-muted">{t.filters}</b>
-              {on.size > 0 && (
-                <span className="ai-pick rounded-full px-2 py-px text-[12px] font-extrabold tabular-nums text-white">
-                  {on.size}
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={() => setPanel(false)}
+                aria-label={t.close}
+                className="ai-chip grid size-8 place-items-center rounded-full lg:hidden"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {live.length > 0 ? (
+              <Facets groups={live} locale={locale} on={on} toggle={toggle} counts={counts} />
+            ) : (
+              <p className="m-0 text-[13.5px] text-muted">{t.noFacets}</p>
+            )}
+
+            {/* Прилипают к низу шторки: список признаков длиннее экрана, и
+                «Показать» иначе оказывается там, куда надо ещё доскроллить. */}
+            <div className="sticky bottom-0 -mx-4 mt-4 flex gap-2.5 border-t border-border bg-background/95 px-4 pb-1 pt-3 backdrop-blur-[10px] lg:hidden">
               <button
                 type="button"
                 onClick={() => setOn(new Set())}
-                disabled={on.size === 0}
-                className="ml-auto shrink-0 whitespace-nowrap p-0.5 text-[12px] font-extrabold text-accent disabled:cursor-not-allowed disabled:text-muted/60"
+                className="ai-chip h-10 flex-1 rounded-full text-[13.5px] font-semibold"
               >
                 {t.reset}
               </button>
+              <button
+                type="button"
+                onClick={() => setPanel(false)}
+                className="ai-cta h-10 flex-1 rounded-full text-[13.5px]"
+              >
+                {t.show} {list.length}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setOpenAll(v => !v)}
-              aria-expanded={openAll}
-              className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border border-border py-2 text-[12.5px] font-extrabold hover:border-violet/40"
-            >
-              {openAll ? t.collapseAll : t.expandAll}
-              <ChevronDown size={14} className={openAll ? 'rotate-180' : undefined} />
-            </button>
           </div>
+        </>
+      )}
 
-          {live.map((g, i) => (
-            <Group
-              key={`${pick(g.title, locale)}-${i}-${openAll}`}
-              group={g}
-              locale={locale}
-              on={on}
-              toggle={toggle}
-              counts={counts}
-              openAll={openAll}
-            />
-          ))}
-        </form>
+      <section id="results" ref={results} aria-labelledby="ai-res" className="mt-4 scroll-mt-24">
+        <h2 id="ai-res" className="sr-only">{t.servicesH}</h2>
 
-        <section id="results" aria-labelledby="ai-res" className="scroll-mt-24">
-          <div className="mb-4 flex flex-wrap items-baseline gap-3">
-            <h2 id="ai-res" className="text-[19px] font-extrabold tracking-tight">{t.servicesH}</h2>
-            <span className="text-[13.5px] tabular-nums text-muted" aria-live="polite">
-              {list.length} · {t.ofWhichChecked}: {checked}
-              {on.size > 0 && ` · ${t.filtersOn}: ${on.size}`}
-            </span>
+        {/* Строка итога: сколько нашлось, что выбрано и чем всё снять. */}
+        <div className="flex flex-wrap items-center gap-2.5 border-t border-border pt-3.5">
+          <span className="text-[13.5px] tabular-nums text-muted" aria-live="polite">
+            <b className="font-extrabold text-foreground">{list.length}</b> · {t.ofWhichChecked}: {checked}
+          </span>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {[...on].map(k => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => toggle(k)}
+                className="ai-chip inline-flex h-[34px] items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold text-muted"
+              >
+                {labels.get(k) ?? k}
+                <X size={13} />
+              </button>
+            ))}
+            {dirty && (
+              <button type="button" onClick={clearAll} className="ai-cta h-[34px] rounded-full px-4 text-[12.5px]">
+                {t.reset}
+              </button>
+            )}
           </div>
+        </div>
 
-          {list.length > 0 ? (
-            <ul className="m-0 grid list-none grid-cols-1 gap-3.5 p-0 sm:grid-cols-2">
-              {list.map(s => (
-                <Card key={s.slug} s={s} locale={locale} t={t} />
+        {list.length > 0 ? (
+          <>
+            {/* Все карточки лежат в разметке всегда, скрыты только видом.
+                Робот читает каталог целиком за один заход, а человек не
+                получает полотно на десять экранов. */}
+            <ul className="m-0 mt-4 grid list-none grid-cols-1 gap-3.5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((s, i) => (
+                <Card key={s.slug} s={s} locale={locale} t={t} hidden={i >= shown} />
               ))}
             </ul>
-          ) : (
-            <div className="rounded-[14px] border border-dashed border-border p-9 text-center text-[14px] text-muted">
-              <b className="mb-1.5 block text-[16px] text-foreground">{t.emptyA}</b>
-              {t.emptyB}
-            </div>
-          )}
-        </section>
-      </div>
+            {shown < list.length && (
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShown(v => v + PAGE)}
+                  className="ai-cta inline-flex h-11 items-center gap-2 rounded-full px-6 text-[14px]"
+                >
+                  {t.showMore} {Math.min(PAGE, list.length - shown)}
+                  <ChevronDown size={15} />
+                </button>
+                <span className="text-[12.5px] tabular-nums text-muted">
+                  {t.shownOf} {shown} {t.of} {list.length}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-4 rounded-[14px] border border-dashed border-border p-9 text-center text-[14px] text-muted">
+            <b className="mb-1.5 block text-[16px] text-foreground">{t.emptyA}</b>
+            {t.emptyB}
+            {dirty && (
+              <div className="mt-4">
+                <button type="button" onClick={clearAll} className="ai-cta h-10 rounded-full px-5 text-[13.5px]">
+                  {t.reset}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
-      {sheet && (
-        <div className="fixed inset-0 z-[66] bg-black/40 lg:hidden" onClick={() => setSheet(false)} aria-hidden="true" />
+      {/* Плавающая кнопка фильтра. Прячется, пока шторка открыта: там свои
+          кнопки, а две одинаковые на экране сразу читаются как ошибка. */}
+      {!panel && (
+        <button
+          type="button"
+          onClick={() => setPanel(true)}
+          aria-expanded={false}
+          aria-controls="ai-facets"
+          className="ai-fab fixed bottom-5 left-1/2 z-[65] inline-flex h-10 -translate-x-1/2 items-center gap-2.5 rounded-full px-5 text-[13.5px] font-extrabold text-white lg:hidden"
+        >
+          <SlidersHorizontal size={16} />
+          {t.filters}
+          {on.size > 0 && ` · ${on.size}`}
+        </button>
       )}
-      <button
-        type="button"
-        onClick={() => setSheet(v => !v)}
-        aria-expanded={sheet}
-        className="ai-fab fixed bottom-5 left-1/2 z-[65] inline-flex -translate-x-1/2 items-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-extrabold text-white lg:hidden"
-      >
-        <SlidersHorizontal size={17} />
-        {t.filters}
-        {on.size > 0 && ` · ${on.size}`}
-      </button>
     </>
   );
 }
