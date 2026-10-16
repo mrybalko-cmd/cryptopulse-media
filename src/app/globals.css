@@ -1767,13 +1767,17 @@ html.light .sub-ok { color: var(--violet); }
 }
 
 /* ── Блок каталога AI на главной ─────────────────────────────────────
-   Панель без рамки: объём держат ореолы за спиной и световая кромка
-   сверху. Граница в один пиксель рядом с размытым стеклом читается как
-   чужая деталь — так же решено в хабе. */
+   Панель без рамки и без световой кромки сверху: объём держат одни
+   ореолы за спиной. Кромка была, но на светлой теме она читалась не как
+   грань стекла, а как линейка через всю ширину между этим блоком и
+   регуляцией над ним. Снизу панель заканчивается тенью плиток, которая
+   гаснет сама, — поэтому оба стыка с фоном страницы мягкие. */
 .aiw {
   position: relative;
   overflow: visible;
   border-radius: 24px;
+  /* Снизу 22px нужны только узкому экрану, где последняя — кнопка.
+     На широком внизу стоит ряд плиток, и воздух там отмеряет .aiw-rail. */
   padding: 26px 24px 22px;
   /* Тёмная тема — основная на сайте, светлая включается классом html.light. */
   background: linear-gradient(168deg, rgba(44,44,52,.46), rgba(26,26,31,.34) 60%, rgba(30,30,36,.44));
@@ -1784,12 +1788,6 @@ html.light .aiw {
   background: linear-gradient(168deg, rgba(255,255,255,.58), rgba(255,255,255,.26) 60%, rgba(255,255,255,.40));
 }
 
-.aiw::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit;
-  pointer-events: none; z-index: 2;
-  background: linear-gradient(180deg, rgba(255,255,255,.22), transparent 2px);
-}
-html.light .aiw::before { background: linear-gradient(180deg, rgba(255,255,255,.92), transparent 2px); }
 
 .aiw::after {
   content: ""; position: absolute; inset: -34% -12% -24% -12%;
@@ -1816,6 +1814,7 @@ html.light .aiw::after { opacity: .78; }
   .aiw {
     grid-template-areas: "title cta" "hint cta" "dock dock";
     grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: 4px;
   }
 }
 .aiw-title { grid-area: title; }
@@ -1873,7 +1872,7 @@ html.light .aiw::after { opacity: .78; }
    обычному center. */
 .aiw-dock {
   position: relative; display: block;
-  margin: 4px -24px 0; padding-top: 14px;
+  margin: 4px -24px -26px; padding-top: 14px;
   overflow-x: auto; scrollbar-width: none;
   scroll-snap-type: x proximity;
 }
@@ -1885,15 +1884,21 @@ html.light .aiw::after { opacity: .78; }
 }
 .aiw-dock::-webkit-scrollbar { display: none; }
 @media (min-width: 640px) {
-  .aiw-dock { padding-top: 44px; scroll-snap-type: none; }
+  /* На широком ряд стоит последним, и подтягивать под него нечего:
+     запас под тень становится нижним полем самой панели. */
+  .aiw-dock { padding-top: 44px; scroll-snap-type: none; margin-bottom: 0; }
 }
 
 .aiw-rail {
   display: flex; width: max-content; margin-inline: auto;
-  padding: 0 24px 16px; list-style: none; touch-action: pan-x;
+  /* 44px снизу — под тень плиток. Док листается вбок, то есть это
+     контейнер прокрутки, а он обрезает и по вертикали: при прежних 16px
+     тень (она уходит на 32px) заканчивалась резкой линией во всю ширину.
+     Лишнюю высоту забирает отрицательный margin дока. */
+  padding: 0 24px 44px; list-style: none; touch-action: pan-x;
   --aiw-ts: 66px;
 }
-@media (min-width: 640px) { .aiw-rail { --aiw-ts: clamp(58px, 6vw, 92px); padding-bottom: 10px; } }
+@media (min-width: 640px) { .aiw-rail { --aiw-ts: clamp(58px, 6vw, 92px); } }
 
 .aiw-slot { position: relative; display: flex; scroll-snap-align: center; }
 .aiw-slot:not(:first-child) { margin-left: calc(var(--aiw-ts) * -0.14); }
