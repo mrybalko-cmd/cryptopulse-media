@@ -59,16 +59,17 @@ export default function AuthorPageBody({ locale, slug, author, items, stats, pag
   const bio = (isRu ? author.bioRu : author.bioEn) || (isRu ? author.bioEn : author.bioRu);
   const isOrg = author.entityKind === 'organization';
 
-  // Ссылка на сайт участника подписана его доменом, а не словом «сайт»:
-  // партнёр платит за то, чтобы его адрес было видно.
   const links = [
     author.telegram && { href: author.telegram, label: 'Telegram', Icon: TelegramIcon },
     author.linkedin && { href: author.linkedin, label: 'LinkedIn', Icon: LinkedInIcon },
     author.instagram && { href: author.instagram, label: 'Instagram', Icon: InstagramIcon },
     author.facebook && { href: author.facebook, label: 'Facebook', Icon: FacebookIcon },
     author.twitter && { href: author.twitter, label: 'X', Icon: XIcon },
-    author.website && { href: author.website, label: hostOf(author.website), Icon: Globe },
   ].filter(Boolean) as { href: string; label: string; Icon: (p: { size?: number }) => React.ReactElement }[];
+
+  // Подпись у почты говорит, что кнопка делает, но не показывает адрес:
+  // в подсказке браузера он читался бы так же открыто, как в строке.
+  const mailLabel = isRu ? `Написать ${display}` : `Email ${display}`;
 
   // У даты два написания: на телефоне в колонке шириной в треть экрана
   // «July 2026» переносится на две строки и ломает ряд, цифрами — нет.
@@ -150,22 +151,40 @@ export default function AuthorPageBody({ locale, slug, author, items, stats, pag
               )}
 
               {links.length > 0 || author.email ? (
+                /* Контакты — только значки. Адрес почты и ссылки на профили
+                   больше не выводятся строкой: адрес на виду собирают
+                   рассыльщики спама, а ряд из подписей разной длины читался
+                   как список, а не как набор кнопок. Куда ведёт значок,
+                   говорит подпись для чтения с экрана и подсказка браузера. */
                 <div className="flex flex-wrap gap-[9px] mt-[22px]">
                   {links.map(({ href, label, Icon }) => (
                     <a key={label} href={href} target="_blank"
+                      aria-label={label}
+                      title={label}
                       rel={author.sponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
-                      className="glass-control inline-flex items-center gap-2 text-[13.5px] font-semibold
-                        rounded-[11px] px-3.5 py-2.5 transition-colors">
-                      <span className="text-muted flex"><Icon size={15} /></span>
-                      {label}
+                      className="glass-control grid size-11 place-items-center rounded-[11px] transition-colors">
+                      <Icon size={17} />
                     </a>
                   ))}
+                  {/* Сайт остаётся с подписью: партнёр платит за то, чтобы
+                      его домен было видно, а домен — не контакт, который
+                      собирают рассыльщики. */}
+                  {author.website && (
+                    <a href={author.website} target="_blank"
+                      rel={author.sponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
+                      className="glass-control inline-flex h-11 items-center gap-2 rounded-[11px] px-4
+                        text-[13.5px] font-semibold transition-colors">
+                      <span className="flex text-muted"><Globe size={16} /></span>
+                      {hostOf(author.website)}
+                    </a>
+                  )}
                   {author.email && (
                     <a href={`mailto:${author.email}`}
-                      className="glass-control inline-flex items-center gap-2 text-[13.5px] font-semibold
-                        rounded-[11px] px-3.5 py-2.5 transition-colors">
-                      <span className="text-muted flex"><Mail size={15} /></span>
-                      {author.email}
+                      aria-label={mailLabel}
+                      title={mailLabel}
+                      className="glass-control grid size-11 place-items-center rounded-[11px] text-muted
+                        transition-colors hover:text-foreground">
+                      <Mail size={17} />
                     </a>
                   )}
                 </div>

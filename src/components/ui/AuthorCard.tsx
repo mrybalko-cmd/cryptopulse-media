@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Mail } from 'lucide-react';
+import { Globe, Mail } from 'lucide-react';
 import { authorName, type AuthorNameFields } from '@/lib/authorName';
+import { TelegramIcon, LinkedInIcon, InstagramIcon, FacebookIcon, XIcon } from '@/components/ui/socialIcons';
 
 interface Author extends AuthorNameFields {
   name: string;
@@ -28,9 +29,34 @@ interface Props {
 export default function AuthorCard({ author, locale }: Props) {
   const isRu = locale === 'ru';
   const display = authorName(author, locale);
-  const hasSocials = author.email || author.telegram || author.linkedin
-    || author.facebook || author.twitter || author.instagram || author.website;
   const authorHref = author.slug ? `/${locale}/authors/${author.slug}` : undefined;
+
+  /** Контакты одним списком: каждый — значок, подпись только для доступности. */
+  const contacts = [
+    author.email && {
+      href: `mailto:${author.email}`,
+      label: isRu ? `Написать ${display}` : `Email ${display}`,
+      Icon: Mail,
+      external: false,
+    },
+    author.telegram && { href: author.telegram, label: 'Telegram', Icon: TelegramIcon, external: true },
+    author.linkedin && { href: author.linkedin, label: 'LinkedIn', Icon: LinkedInIcon, external: true },
+    author.facebook && { href: author.facebook, label: 'Facebook', Icon: FacebookIcon, external: true },
+    author.twitter && { href: author.twitter, label: 'X', Icon: XIcon, external: true },
+    author.instagram && { href: author.instagram, label: 'Instagram', Icon: InstagramIcon, external: true },
+    author.website && {
+      href: author.website,
+      label: isRu ? 'Сайт' : 'Website',
+      Icon: Globe,
+      external: true,
+    },
+  ].filter(Boolean) as {
+    href: string;
+    label: string;
+    Icon: (p: { size?: number }) => React.ReactElement;
+    external: boolean;
+  }[];
+  const hasSocials = contacts.length > 0;
 
   return (
     <div className="flex gap-4 rounded-xl bg-card border border-border p-5 my-8">
@@ -70,50 +96,24 @@ export default function AuthorCard({ author, locale }: Props) {
           <p className="text-xs text-muted leading-relaxed mt-1">{isRu ? author.bioRu : author.bioEn}</p>
         )}
         {hasSocials && (
-          <div className="flex items-center gap-3 mt-3 flex-wrap">
-            {author.email && (
-              <a href={`mailto:${author.email}`}
-                className="inline-flex items-center gap-1 text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5"
-                title={author.email}>
-                <Mail size={11} />
+          /* Только значки. Подписи разной длины превращали ряд в список, а
+             адрес почты в подсказке читался так же открыто, как в строке:
+             рассыльщику спама хватает и подсказки. Куда ведёт кнопка,
+             говорит подпись для чтения с экрана. */
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            {contacts.map(({ href, label, Icon, external }) => (
+              <a
+                key={label}
+                href={href}
+                aria-label={label}
+                title={label}
+                {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="grid size-7 place-items-center rounded-md border border-border text-muted
+                  transition-colors hover:border-article-accent hover:text-article-accent"
+              >
+                <Icon size={12} />
               </a>
-            )}
-            {author.telegram && (
-              <a href={author.telegram} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                Telegram
-              </a>
-            )}
-            {author.linkedin && (
-              <a href={author.linkedin} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                LinkedIn
-              </a>
-            )}
-            {author.facebook && (
-              <a href={author.facebook} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                Facebook
-              </a>
-            )}
-            {author.twitter && (
-              <a href={author.twitter} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                X / Twitter
-              </a>
-            )}
-            {author.instagram && (
-              <a href={author.instagram} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                Instagram
-              </a>
-            )}
-            {author.website && (
-              <a href={author.website} target="_blank" rel="noopener noreferrer"
-                className="text-xs text-muted hover:text-article-accent transition-colors border border-border rounded px-2 py-0.5">
-                {isRu ? 'Сайт' : 'Website'}
-              </a>
-            )}
+            ))}
           </div>
         )}
       </div>
