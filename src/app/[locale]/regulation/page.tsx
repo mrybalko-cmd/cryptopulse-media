@@ -74,8 +74,17 @@ export default async function RegulationPage({ params }: Props) {
       ? `Статус криптовалютного регулирования для ${countries.length} стран. ${legalCount} разрешают, ${restrictedCount} ограничивают, ${bannedCount} запрещают.`
       : `Cryptocurrency regulation status for ${countries.length} countries. ${legalCount} permit, ${restrictedCount} restrict, ${bannedCount} ban.`,
     url: `${BASE}/${locale}/regulation`,
-    publisher: { '@id': ORGANIZATION_ID },
-    creator: { '@id': ORGANIZATION_ID },
+    // Тип написан здесь же, а не только за `@id`. Полный узел издания живёт в
+    // другом блоке <script> (его выводит layout), и валидатор Dataset по
+    // ссылке туда не ходит: он видел объект без типа и писал «недопустимый тип
+    // объекта» в обоих полях. `@id` остаётся — связь с единым узлом не теряется.
+    publisher: { '@type': 'Organization', '@id': ORGANIZATION_ID, name: SITE_NAME },
+    creator: { '@type': 'Organization', '@id': ORGANIZATION_ID, name: SITE_NAME },
+    // Данные карты открыты: перепубликовать таблицу можно с указанием
+    // источника и ссылкой. Та же лицензия написана словами внизу страницы —
+    // машиночитаемое заявление без видимого человеку равно его отсутствию.
+    license: 'https://creativecommons.org/licenses/by/4.0/',
+    isAccessibleForFree: true,
     // The newest per-country check, not a date typed once and forgotten.
     dateModified: lastCheckedAt(countries),
     inLanguage: locale,
@@ -127,6 +136,24 @@ export default async function RegulationPage({ params }: Props) {
             {isRu
               ? 'Материал носит справочный характер и не является инвестиционной или налоговой консультацией. Законы меняются — перед решением сверьтесь с сайтом регулятора вашей страны.'
               : 'This is reference material, not investment or tax advice. Laws change — check your own regulator before acting.'}
+          </p>
+
+          {/* Лицензия словами. В разметке Dataset стоит тот же адрес: заявление
+              для робота без заявления для человека — это заявление, которое
+              невозможно проверить, открыв страницу. */}
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+            {isRu ? 'Данные карты открыты по лицензии ' : 'The map data is open under '}
+            <a
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+              rel="license noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              CC BY 4.0
+            </a>
+            {isRu
+              ? '. Берите таблицу себе: назовите источник и поставьте ссылку на эту страницу.'
+              : '. Take the table and use it anywhere; name the source and link back to this page.'}
           </p>
         </div>
         <div className="reg-rail hidden lg:block">
