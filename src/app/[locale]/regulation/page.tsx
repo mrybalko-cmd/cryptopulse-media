@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 import { getRegulationCountries, lastCheckedAt, withoutPageText } from '@/lib/regulation';
 import { getLicenceRegimes } from '@/lib/licences';
@@ -80,10 +81,11 @@ export default async function RegulationPage({ params }: Props) {
     // объекта» в обоих полях. `@id` остаётся — связь с единым узлом не теряется.
     publisher: { '@type': 'Organization', '@id': ORGANIZATION_ID, name: SITE_NAME },
     creator: { '@type': 'Organization', '@id': ORGANIZATION_ID, name: SITE_NAME },
-    // Данные карты открыты: перепубликовать таблицу можно с указанием
-    // источника и ссылкой. Та же лицензия написана словами внизу страницы —
-    // машиночитаемое заявление без видимого человеку равно его отсутствию.
-    license: 'https://creativecommons.org/licenses/by/4.0/',
+    // Условия использования — наш собственный документ, а не Creative Commons.
+    // Google требует присутствия поля, а не открытой лицензии: `license` описан
+    // как «URL или CreativeWork». Открытая лицензия безотзывна и захватила бы
+    // вместе с фактами восемь тысяч слов авторских описаний стран.
+    license: `${BASE}/${locale}/terms`,
     isAccessibleForFree: true,
     // The newest per-country check, not a date typed once and forgotten.
     dateModified: lastCheckedAt(countries),
@@ -138,22 +140,20 @@ export default async function RegulationPage({ params }: Props) {
               : 'This is reference material, not investment or tax advice. Laws change — check your own regulator before acting.'}
           </p>
 
-          {/* Лицензия словами. В разметке Dataset стоит тот же адрес: заявление
-              для робота без заявления для человека — это заявление, которое
-              невозможно проверить, открыв страницу. */}
+          {/* Происхождение данных и адрес для сообщений об ошибке. Ссылка ведёт
+              в раздел исправлений: претензию лучше встретить письмом, чем
+              оставить человека без понятного адреса. */}
           <p className="mt-2 text-[11px] leading-relaxed text-muted">
-            {isRu ? 'Данные карты открыты по лицензии ' : 'The map data is open under '}
-            <a
-              href="https://creativecommons.org/licenses/by/4.0/"
-              target="_blank"
-              rel="license noopener noreferrer"
+            {isRu
+              ? 'Данные получены от официальных регуляторов: для каждой страны указаны источник и дата сверки. Мы не несём ответственности за точность информации и рекомендуем проверять её перед принятием решений. Если вы заметили неточность, пожалуйста, '
+              : 'Our data comes from the official regulators, and every country shows its source and the date we checked it. We take no responsibility for the accuracy of this information and recommend that you verify it before making a decision. If you notice an error, please '}
+            <Link
+              href={`/${locale}/editorial-policy#corrections`}
               className="underline underline-offset-2 hover:text-foreground"
             >
-              CC BY 4.0
-            </a>
-            {isRu
-              ? '. Берите таблицу себе: назовите источник и поставьте ссылку на эту страницу.'
-              : '. Take the table and use it anywhere; name the source and link back to this page.'}
+              {isRu ? 'сообщите нам' : 'tell us'}
+            </Link>
+            .
           </p>
         </div>
         <div className="reg-rail hidden lg:block">

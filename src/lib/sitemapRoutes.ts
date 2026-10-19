@@ -30,5 +30,5 @@ export const TOOL_PATHS = [
 /** Hand-authored pages that change only when someone edits them. */
 export const INFO_PATHS = [
   '/privacy', '/disclaimer', '/advertising', '/glossary', '/faq',
-  '/security', '/editorial-policy', '/about', '/regulation',
+  '/security', '/editorial-policy', '/about', '/regulation', '/terms',
 ];

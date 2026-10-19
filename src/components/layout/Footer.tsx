@@ -114,6 +114,7 @@ export default async function Footer() {
             <L href={`/${locale}/privacy`}>{t('privacy')}</L>
             <L href={`/${locale}/disclaimer`}>{t('disclaimer')}</L>
             <L href={`/${locale}/security`}>{t('security')}</L>
+            <L href={`/${locale}/terms`}>{t('terms')}</L>
           </FooterNavGroup>
 
         </div>

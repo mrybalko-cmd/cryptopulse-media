@@ -91,7 +91,7 @@ export default async function EditorialPolicyPage({ params }: Props) {
               ответственности — в нашем {' '}<Link href={`/${locale}/disclaimer`}>Дисклеймере</Link>.
             </p>
 
-            <h2>Исправления и обновления</h2>
+            <h2 id="corrections">Исправления и обновления</h2>
             <p>
               Если вы заметили фактическую ошибку в материале редакции, напишите нам на
               {' '}{CONTACT_EMAIL} — мы оперативно проверим информацию и внесём исправления.
@@ -137,7 +137,7 @@ export default async function EditorialPolicyPage({ params }: Props) {
               limitations.
             </p>
 
-            <h2>Corrections &amp; Updates</h2>
+            <h2 id="corrections">Corrections &amp; Updates</h2>
             <p>
               If you spot a factual error in one of our editorial pieces, email us at {CONTACT_EMAIL} and
               we will review and correct it promptly.
