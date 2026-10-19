@@ -3,6 +3,7 @@ export const revalidate = 3600;
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { client } from '@/lib/sanity';
@@ -29,7 +30,7 @@ interface Props { params: Promise<{ locale: string; regime: string }> }
 const T = {
   ru: {
     home: 'Главная', map: 'Карта регуляции', hub: 'Лицензии',
-    lead: 'Коротко.', checked: 'проверено', reviewed: 'Данные проверил',
+    lead: 'Коротко.', checked: 'проверено', reviewed: 'Данные проверил', source: 'первоисточник',
     byline: 'Материал ведёт редакция Intokened.com',
     fees: 'Сколько стоит', steps: 'Как проходит заявка', timeline: 'Хронология',
     faq: 'Частые вопросы', sources: 'Источники', related: 'Читайте по теме',
@@ -40,7 +41,7 @@ const T = {
   },
   en: {
     home: 'Home', map: 'Regulation map', hub: 'Licensing',
-    lead: 'In short.', checked: 'checked', reviewed: 'Data checked by',
+    lead: 'In short.', checked: 'checked', reviewed: 'Data checked by', source: 'source',
     byline: 'Maintained by the Intokened.com editorial team',
     fees: 'What it costs', steps: 'How an application runs', timeline: 'Timeline',
     faq: 'Questions', sources: 'Sources', related: 'Read next',
@@ -234,6 +235,19 @@ export default async function RegimePage({ params }: Props) {
               <span className="inline-flex items-center rounded-full border border-[var(--glass-line)] bg-[var(--glass-hover)] px-3 py-[5px] text-[12px] font-semibold tabular-nums text-muted">
                 {t.checked} {dmy(r.checkedAt)}
               </span>
+              {/* Публикация регулятора. Дата сверки без адреса, по которому её
+                  можно перепроверить, говорит читателю только половину. */}
+              {r.sourceUrl && (
+                <a
+                  href={r.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--glass-line)] bg-[var(--glass-hover)] px-3 py-[5px] text-[12px] font-semibold text-muted transition-colors hover:text-foreground"
+                >
+                  {t.source}
+                  <ExternalLink size={11} strokeWidth={2.4} />
+                </a>
+              )}
               {/* Кто отвечает за материал. Имя со ссылкой на профиль весит
                   больше, чем «редакция», и его же видит поисковик в разметке. */}
               <span className="inline-flex items-center rounded-full border border-[var(--glass-line)] bg-[var(--glass-hover)] px-3 py-[5px] text-[12px] font-semibold text-muted">

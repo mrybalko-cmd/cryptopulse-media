@@ -54,6 +54,8 @@ export interface LicenceRegime {
   seoDescription?: Bi;
   publishedAt?: string;
   checkedAt: string;
+  /** Публикация регулятора, где описан сам режим. Пусто — ссылки ещё нет. */
+  sourceUrl?: string;
   reviewedBy?: RegimeReviewer;
 }
 
@@ -62,7 +64,7 @@ const QUERY = `*[_type == "licenceRegime" && hidden != true]{
   status, "order": coalesce(order, 50),
   "country": country->{ "slug": slug.current, "nameRu": name.ru, "nameEn": name.en },
   headline, intro, figures, feeTable, steps, body, timeline, faq, sources, related,
-  seoTitle, seoDescription, publishedAt, checkedAt,
+  seoTitle, seoDescription, publishedAt, checkedAt, sourceUrl,
   "reviewedBy": reviewedBy->{
     name, "slug": slug.current, entityKind,
     firstNameRu, lastNameRu, firstNameEn, lastNameEn, roleRu, roleEn
