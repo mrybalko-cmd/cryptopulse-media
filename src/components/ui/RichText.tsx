@@ -64,7 +64,35 @@ export default function RichText({
       ),
       quoteBlock: ({ value }: { value: any }) => {
         const { text, quoteAuthor, source, style } = value;
-        const attribution = [quoteAuthor, source].filter(Boolean).join(', ');
+        // Издательские скрипты кладут в «Источник» голый URL — показываем его
+        // коротким доменом-ссылкой, а не полной строкой адреса.
+        let sourceUrl: string | null = null;
+        let sourceHost = '';
+        if (typeof source === 'string' && /^https?:\/\//.test(source.trim())) {
+          try {
+            sourceHost = new URL(source.trim()).hostname.replace(/^www\./, '');
+            sourceUrl = source.trim();
+          } catch {}
+        }
+        const label = [quoteAuthor, sourceUrl ? null : source].filter(Boolean).join(', ');
+        const attribution = (label || sourceUrl) && (
+          <>
+            {label}
+            {sourceUrl && (
+              <>
+                {label && ' · '}
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-normal text-article-link underline decoration-article-link hover:text-article-accent hover:decoration-article-accent"
+                >
+                  {sourceHost}
+                </a>
+              </>
+            )}
+          </>
+        );
         if (style === 'accent') {
           return (
             <blockquote className="not-prose not-italic border-l-4 border-article-accent bg-article-accent-tint rounded-r-lg px-5 py-4 my-6">
