@@ -8,6 +8,7 @@ import {
   restoreCommentAction, deleteCommentAction, editCommentAction,
 } from './actions';
 import ModerationButton from '../_shared/ModerationButton';
+import SavedMark from '../_shared/SavedMark';
 
 function formatDate(iso: string) {
   return formatPragueDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -29,7 +30,10 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
 
   return (
     <div>
-      <h1 className="text-[19px] font-bold mb-6">Комментарии</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-[19px] font-bold">Комментарии</h1>
+        <SavedMark />
+      </div>
       <div className="flex gap-1.5 mb-5">
         {tabs.map(t => (
           <Link

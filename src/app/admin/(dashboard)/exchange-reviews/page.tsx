@@ -8,6 +8,7 @@ import {
   restoreExchangeReviewAction, deleteExchangeReviewAction, editExchangeReviewAction,
 } from './actions';
 import ModerationButton from '../_shared/ModerationButton';
+import SavedMark from '../_shared/SavedMark';
 
 function formatDate(iso: string) {
   return formatPragueDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -29,7 +30,10 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
 
   return (
     <div>
-      <h1 className="text-[19px] font-bold mb-1">Отзывы о биржах</h1>
+      <div className="flex items-center gap-3 mb-1">
+        <h1 className="text-[19px] font-bold">Отзывы о биржах</h1>
+        <SavedMark />
+      </div>
       <p className="text-[12.5px] text-[var(--admin-text-muted)] mb-6">Отдельно от комментариев к новостям и статьям — это отзывы, которые читатели оставляют на страницах бирж.</p>
       <div className="flex gap-1.5 mb-5">
         {tabs.map(t => (

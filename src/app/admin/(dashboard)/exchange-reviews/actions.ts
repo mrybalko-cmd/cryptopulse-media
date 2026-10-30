@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
   setExchangeReviewApproved, setExchangeReviewRejected, updateExchangeReviewText,
@@ -94,4 +95,7 @@ export async function editExchangeReviewAction(formData: FormData) {
   const target = await fetchExchangeReviewTarget(id);
   await updateExchangeReviewText(id, text);
   await publishReview(target);
+  // Та же причина, что у комментариев: форма правки всплывающая, после
+  // закрытия подтверждения не остаётся.
+  redirect('/admin/exchange-reviews?saved=1');
 }

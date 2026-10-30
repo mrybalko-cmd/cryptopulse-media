@@ -41,9 +41,11 @@ export async function createBannerAction(formData: FormData) {
   const input = parseInput(formData);
   const imageFile = formData.get('image') as File | null;
   const imageAssetId = imageFile && imageFile.size > 0 ? await uploadImageAsset(imageFile) : undefined;
-  await createBanner({ ...input, imageAssetId });
+  const doc = await createBanner({ ...input, imageAssetId });
   publishBanners();
-  redirect('/admin/banners');
+  // На список не уводим: форма возвращается с отметкой о сохранении, иначе
+  // редактор не понимает, сработала кнопка или нет, и жмёт её второй раз.
+  redirect(`/admin/banners/${doc._id}?saved=1`);
 }
 
 export async function updateBannerAction(id: string, formData: FormData) {
@@ -53,5 +55,5 @@ export async function updateBannerAction(id: string, formData: FormData) {
   const imageAssetId = imageFile && imageFile.size > 0 ? await uploadImageAsset(imageFile) : undefined;
   await updateBanner(id, { ...input, imageAssetId });
   publishBanners();
-  redirect('/admin/banners');
+  redirect(`/admin/banners/${id}?saved=1`);
 }

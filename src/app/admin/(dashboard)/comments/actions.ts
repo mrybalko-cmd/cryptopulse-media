@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
   setCommentApproved, setCommentRejected, updateCommentText, deleteComment, fetchCommentTarget,
@@ -66,6 +67,9 @@ export async function editCommentAction(formData: FormData) {
   const target = await fetchCommentTarget(id);
   await updateCommentText(id, text);
   await publishTarget(target);
+  // Правка идёт во всплывающей форме внутри списка: она закрывается, и без
+  // отметки непонятно, сохранилось ли. Редирект её и включает.
+  redirect('/admin/comments?saved=1');
 }
 
 /**

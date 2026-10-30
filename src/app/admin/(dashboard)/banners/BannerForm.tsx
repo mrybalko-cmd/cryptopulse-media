@@ -1,6 +1,7 @@
 import type { AdminBannerDoc } from '@/lib/admin/data';
 import { pragueLocalInput } from '@/lib/admin/timezone';
 import SubmitButton from '../_shared/SubmitButton';
+import SavedMark from '../_shared/SavedMark';
 
 
 
@@ -76,9 +77,12 @@ export default function BannerForm({
         </div>
       )}
 
-      <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
-        {banner ? 'Сохранить' : 'Создать баннер'}
-      </SubmitButton>
+      <div className="flex items-center gap-3">
+        <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
+          {banner ? 'Сохранить' : 'Создать баннер'}
+        </SubmitButton>
+        <SavedMark />
+      </div>
     </form>
   );
 }
