@@ -11,9 +11,16 @@ import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import PopularSidebar from '@/components/ui/PopularSidebar';
 import AssetsExplorer, { type AssetRow } from '@/components/ui/AssetsExplorer';
 import { COINS, COIN_IDS, fetchTopAssetPrices } from '@/lib/coins';
+import { coinMeta } from '@/lib/coinRegistry';
+import { getAssetCtas } from '@/lib/assetCta';
 import { SITE_NAME } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
+
+/** Ключевая фраза заголовка. Градиент тот же, что на числах в калькуляторах,
+    на карточках бирж и в конвертере — один фирменный приём на весь сайт. */
+const ACCENT_PHRASE =
+  'bg-[linear-gradient(90deg,var(--violet),var(--violet-2))] bg-clip-text text-transparent';
 
 const ASSETS_FAQ = [
   {
@@ -100,7 +107,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AssetsPage({ params }: Props) {
   const { locale } = await params;
-  const prices = await fetchTopAssetPrices(COIN_IDS);
+  // Кнопки партнёров читаются одним запросом на всю витрину и живут в своём
+  // кэше: цены обновляются раз в 15 минут, кнопки — раз в час или по сбросу
+  // метки из админки.
+  const [prices, ctas] = await Promise.all([
+    fetchTopAssetPrices(COIN_IDS),
+    getAssetCtas(locale),
+  ]);
   const isRu = locale === 'ru';
   const loc = isRu ? 'ru' : 'en';
 
@@ -130,6 +143,8 @@ export default async function AssetsPage({ params }: Props) {
       mcap: snapshot?.market_cap,
       volume: snapshot?.total_volume,
       spark,
+      color: coinMeta(coin.slug)?.color,
+      cta: ctas.get(coin.slug) ?? null,
     };
   }).sort((a, b) => (b.mcap || 0) - (a.mcap || 0));
 
@@ -189,10 +204,13 @@ export default async function AssetsPage({ params }: Props) {
           </nav>
 
           <h1 className="text-3xl sm:text-[38px] font-extrabold text-foreground leading-[1.08] tracking-tight mb-3 text-balance">
+            {/* Фирменный градиент тот же, что на числах в калькуляторах и на
+                карточках бирж: --violet → --violet-2. Своих значений не вводим,
+                оба токена переопределены для светлой темы. */}
             {isRu ? (
-              <>Каждый крупный криптоактив — <span className="text-accent">простыми словами</span></>
+              <>Каждый крупный криптоактив — <span className={ACCENT_PHRASE}>простыми словами</span></>
             ) : (
-              <>Every major crypto asset, explained in <span className="text-accent">plain words</span></>
+              <>Every major crypto asset, explained in <span className={ACCENT_PHRASE}>plain words</span></>
             )}
           </h1>
           <p className="text-muted text-sm leading-relaxed mb-7 max-w-2xl">
