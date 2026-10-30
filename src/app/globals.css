@@ -1966,3 +1966,119 @@ details[open] > summary > span:first-child { transform: rotate(90deg); display: 
   font-size: 11.5px; font-weight: 800; color: var(--muted);
 }
 .ai-card:not(.ai-card-half) .ai-card-more { display: none; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Кнопка партнёра на монете (/assets и страницы монет).
+
+   Два яруса стекла: «Купить» — плотный, «Продать» — прозрачный. Ореол цвета
+   монеты лежит отдельным слоем позади кнопки; без него прозрачная панель
+   неотличима от сплошной, см. комментарий к --glass-clear выше.
+
+   Размытие здесь НЕ пишем: рукописный backdrop-filter в сборке вырезается,
+   на элемент вешается класс backdrop-blur-* в разметке.
+
+   Изоляция живёт на обёртке .cta-wrap, не на самой кнопке: внутри
+   собственного контекста слой ореола рисуется поверх заливки, а не позади.
+   ───────────────────────────────────────────────────────────────────────── */
+.cta-wrap { position: relative; isolation: isolate; z-index: 2; display: flex; gap: 8px; }
+.cta-wrap > .coin-cta { flex: 1 1 0; min-width: 0; }
+
+.coin-cta {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 40px; padding: 0 16px; border-radius: 11px;
+  font-weight: 800; font-size: 13px; line-height: 1; letter-spacing: -0.01em;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  color: var(--cta-ink, #111);
+  border: 1px solid color-mix(in srgb, #fff 30%, transparent);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.06) 46%, rgba(0,0,0,.12)),
+    var(--cta-color, var(--accent));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.52),
+    inset 0 -2px 0 color-mix(in srgb, #000 16%, transparent),
+    0 8px 20px -6px color-mix(in srgb, var(--cta-color, var(--accent)) 48%, transparent),
+    0 2px 5px rgba(0,0,0,.26);
+  transition: transform .15s cubic-bezier(.22,.9,.3,1), box-shadow .15s, background .15s;
+}
+.coin-cta::after {
+  content: ""; position: absolute; z-index: -1; inset: -26% -7% -22%;
+  background: radial-gradient(56% 104% at 50% 14%,
+    color-mix(in srgb, var(--cta-color, var(--accent)) 62%, transparent), transparent 74%);
+  filter: blur(13px); opacity: .5; pointer-events: none;
+  transition: opacity .18s, transform .18s;
+}
+.coin-cta:hover {
+  transform: translateY(-1.5px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.62),
+    inset 0 -2px 0 color-mix(in srgb, #000 16%, transparent),
+    0 14px 28px -8px color-mix(in srgb, var(--cta-color, var(--accent)) 60%, transparent),
+    0 3px 7px rgba(0,0,0,.3);
+}
+.coin-cta:hover::after { opacity: .85; transform: scale(1.07); }
+.coin-cta:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,.26),
+    0 3px 8px -4px color-mix(in srgb, var(--cta-color, var(--accent)) 44%, transparent);
+}
+.coin-cta:focus-visible { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.coin-cta svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* Прозрачный ярус — «Продать». */
+.coin-cta-ghost {
+  color: var(--foreground);
+  background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.028));
+  border-color: color-mix(in srgb, var(--cta-color, var(--accent)) 52%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 6px 14px -8px rgba(0,0,0,.45);
+}
+.coin-cta-ghost::after { opacity: .26; filter: blur(15px); }
+.coin-cta-ghost:hover {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--cta-color, var(--accent)) 20%, transparent),
+    color-mix(in srgb, var(--cta-color, var(--accent)) 7%, transparent));
+  border-color: color-mix(in srgb, var(--cta-color, var(--accent)) 76%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 20px -10px rgba(0,0,0,.5);
+}
+html.light .coin-cta-ghost {
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.56));
+  box-shadow: inset 0 1px 0 #fff, 0 6px 14px -9px rgba(20,24,40,.45);
+}
+html.light .coin-cta::after { opacity: .34; }
+html.light .coin-cta-ghost::after { opacity: .18; }
+
+/* Размеры. Крупным ореол распускается во всю силу, тесным — поджимается,
+   иначе на карточке он заливает строку «Читать гид», а в таблице строки
+   начинают светиться друг на друга. */
+.coin-cta-full { width: 100%; height: 44px; font-size: 14px; }
+.coin-cta-lg { height: 48px; font-size: 15px; padding: 0 22px; border-radius: 13px; }
+.coin-cta-lg::after { inset: -46% -13% -34%; filter: blur(16px); opacity: .74; }
+.coin-cta-sm {
+  height: 30px; padding: 0 11px; font-size: 12px; border-radius: 9px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 color-mix(in srgb, #000 16%, transparent),
+    0 5px 12px -6px color-mix(in srgb, var(--cta-color, var(--accent)) 50%, transparent);
+}
+.coin-cta-sm::after { inset: -30% -8% -24%; filter: blur(9px); opacity: .4; }
+
+/* Пометка «Реклама». Выключена по умолчанию, включается в админке. */
+.cta-ad {
+  display: flex; justify-content: space-between; gap: 8px;
+  margin-top: 6px; font-size: 10px; color: var(--muted);
+}
+.cta-ad > span:first-child { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Карточка витрины перестаёт быть ссылкой целиком: ссылку в ссылку браузер
+   не принимает. Ссылкой остаётся «Читать гид», а её невидимый слой
+   растягивается на всю карточку, чтобы клик по пустому месту работал
+   по-прежнему. Кнопка лежит выше слоя за счёт z-index у .cta-wrap. */
+.card-stretch::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-cta, .coin-cta::after { transition: none; }
+  .coin-cta:hover { transform: none; }
+}

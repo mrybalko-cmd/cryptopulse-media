@@ -24,6 +24,7 @@ import { aiServiceType, aiPlanType } from './aiService';
 import { glossaryTermType } from './glossaryTerm';
 import { authorRubricType } from './authorRubric';
 import { authorsPageType } from './authorsPage';
+import { assetCtaType } from './assetCta';
 
 export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
@@ -32,4 +33,5 @@ export const schemaTypes = [
     coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
   regulationCountryType, licenceRegimeType, glossaryTermType, authorRubricType, authorsPageType,
   aiFacetType, aiFacetGroupType, aiJobType, aiPlanType, aiServiceType,
+  assetCtaType,
 ];

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import CoinPageShell, { type CoinQuote } from './CoinPageShell';
 import { coinMeta } from '@/lib/coinRegistry';
 import { fetchCoinMarket } from '@/lib/coinMarket';
+import { getAssetCta } from '@/lib/assetCta';
 import type { CoinGuideData } from '@/lib/coinGuides';
 
 /**
@@ -42,7 +43,12 @@ export default async function CoinGuideLayout({
 
   // Only the quote is fetched here, and it is batched across the whole
   // registry. History is loaded by the calculator after paint.
-  const market = await fetchCoinMarket(slug);
+  // Кнопка партнёра читается из того же кэша, что и витрина: отдельного
+  // запроса на монету не идёт.
+  const [market, cta] = await Promise.all([
+    fetchCoinMarket(slug),
+    getAssetCta(slug, locale),
+  ]);
 
   return (
     <CoinPageShell
@@ -50,6 +56,7 @@ export default async function CoinGuideLayout({
       slug={slug}
       meta={meta}
       market={market}
+      cta={cta && cta.places.page ? cta : null}
       tagline={tagline}
       facts={guide.stats}
       reference={guide.investmentReference}

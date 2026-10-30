@@ -192,6 +192,114 @@ export async function updateBanner(id: string, input: BannerInput) {
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 
+// ---------------- Кнопки партнёров на монетах ----------------
+
+export interface AdminAssetCtaDoc {
+  _id: string;
+  coinSlug: string;
+  active: boolean;
+  mode: 'buy' | 'sell' | 'both' | 'custom';
+  labelRu?: string;
+  labelEn?: string;
+  url: string;
+  sellUrl?: string;
+  partner?: string;
+  color?: string;
+  showAdLabel: boolean;
+  language: 'all' | 'ru' | 'en';
+  places: { cards: boolean; table: boolean; page: boolean; sticky: boolean };
+  startAt?: string;
+  endAt?: string;
+}
+
+const ASSET_CTA_PROJECTION = `
+  _id, coinSlug, mode, labelRu, labelEn, url, sellUrl, partner, color,
+  "active": coalesce(active, true),
+  "showAdLabel": coalesce(showAdLabel, false),
+  "language": coalesce(language, "all"),
+  "places": {
+    "cards":  coalesce(places.cards,  true),
+    "table":  coalesce(places.table,  true),
+    "page":   coalesce(places.page,   true),
+    "sticky": coalesce(places.sticky, true)
+  },
+  startAt, endAt
+`;
+
+export async function fetchAdminAssetCtas(): Promise<AdminAssetCtaDoc[]> {
+  return client.fetch(`*[_type == "assetCta"] | order(coinSlug asc){ ${ASSET_CTA_PROJECTION} }`);
+}
+
+export async function fetchAdminAssetCtaById(id: string): Promise<AdminAssetCtaDoc | null> {
+  return client.fetch(`*[_type == "assetCta" && _id == $id][0]{ ${ASSET_CTA_PROJECTION} }`, { id });
+}
+
+/** Занята ли монета другой кнопкой. Уникального индекса в Sanity нет. */
+export async function assetCtaSlugTaken(coinSlug: string, exceptId?: string): Promise<boolean> {
+  const id = exceptId ?? '';
+  return client.fetch(
+    `count(*[_type == "assetCta" && coinSlug == $coinSlug && _id != $id]) > 0`,
+    { coinSlug, id },
+  );
+}
+
+export interface AssetCtaInput {
+  coinSlug: string;
+  active: boolean;
+  mode: AdminAssetCtaDoc['mode'];
+  labelRu?: string;
+  labelEn?: string;
+  url: string;
+  sellUrl?: string;
+  partner?: string;
+  color?: string;
+  showAdLabel: boolean;
+  language: 'all' | 'ru' | 'en';
+  places: AdminAssetCtaDoc['places'];
+  startAt?: string;
+  endAt?: string;
+}
+
+/** Необязательные строки: пустое поле снимаем, а не пишем пустышкой. */
+const OPTIONAL_CTA_FIELDS = ['labelRu', 'labelEn', 'sellUrl', 'partner', 'color', 'startAt', 'endAt'] as const;
+
+export async function createAssetCta(input: AssetCtaInput) {
+  return writeClient.create({
+    _type: 'assetCta',
+    coinSlug: input.coinSlug,
+    active: input.active,
+    mode: input.mode,
+    url: input.url,
+    showAdLabel: input.showAdLabel,
+    language: input.language,
+    places: { _type: 'object', ...input.places },
+    ...Object.fromEntries(
+      OPTIONAL_CTA_FIELDS.filter(k => input[k]).map(k => [k, input[k]]),
+    ),
+  });
+}
+
+export async function updateAssetCta(id: string, input: AssetCtaInput) {
+  const patch = writeClient.patch(id).set({
+    coinSlug: input.coinSlug,
+    active: input.active,
+    mode: input.mode,
+    url: input.url,
+    showAdLabel: input.showAdLabel,
+    language: input.language,
+    places: { _type: 'object', ...input.places },
+  });
+  for (const k of OPTIONAL_CTA_FIELDS) {
+    if (input[k]) patch.set({ [k]: input[k] });
+    else patch.unset([k]);
+  }
+  await patch.commit({ autoGenerateArrayKeys: false });
+}
+
+export async function deleteAssetCta(id: string) {
+  await writeClient.delete(id);
+}
+
 export async function uploadImageAsset(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const asset = await writeClient.assets.upload('image', buffer, { filename: file.name });

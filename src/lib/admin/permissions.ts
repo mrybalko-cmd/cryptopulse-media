@@ -4,10 +4,14 @@
 //
 // Право exchanges открывает два раздела меню — сами биржи и отзывы о них.
 // Это одна зона ответственности, поэтому подпись говорит про оба.
+//
+// Так же устроено право banners: баннеры и кнопки партнёров на монетах —
+// одни и те же платные размещения, и делить их между разными людьми
+// незачем.
 export const PERMISSIONS = [
   { key: 'news', label: 'News' },
   { key: 'articles', label: 'Articles' },
-  { key: 'banners', label: 'Banners' },
+  { key: 'banners', label: 'Banners + coin buttons' },
   { key: 'exchanges', label: 'Exchanges + reviews' },
   { key: 'comments', label: 'Comments' },
   { key: 'homepage', label: 'Homepage' },

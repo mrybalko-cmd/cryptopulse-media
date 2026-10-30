@@ -12,6 +12,7 @@ const NAV_ITEMS: { href: string; label: string; permission: Permission | null }[
   { href: '/admin/news', label: '📰 News', permission: 'news' },
   { href: '/admin/articles', label: '📝 Articles', permission: 'articles' },
   { href: '/admin/banners', label: '🖼️ Banners', permission: 'banners' },
+  { href: '/admin/asset-cta', label: '🪙 Coin buttons', permission: 'banners' },
   { href: '/admin/exchanges', label: '🏦 Exchanges', permission: 'exchanges' },
   { href: '/admin/exchange-reviews', label: '⭐ Exchange reviews', permission: 'exchanges' },
   { href: '/admin/comments', label: '💬 Comments', permission: 'comments' },

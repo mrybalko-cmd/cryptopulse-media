@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import AssetCtaButton, { AssetCtaAdLabel } from './AssetCtaButton';
+import type { AssetCta } from '@/lib/assetCtaShared';
 import Image from 'next/image';
 import Link from 'next/link';
 import CoinInvestmentCalculator from './CoinInvestmentCalculator';
@@ -35,6 +37,7 @@ export default function CoinPageShell({
   slug,
   meta,
   market,
+  cta,
   tagline,
   facts,
   reference,
@@ -48,6 +51,8 @@ export default function CoinPageShell({
   slug: string;
   meta: CoinMeta;
   market: CoinMarket | null;
+  /** Кнопка партнёра. null — монета не продана или показ выключен. */
+  cta?: AssetCta | null;
   tagline: string;
   /** Static facts about the project — founding year, creator, supply model. */
   facts: CoinFact[];
@@ -135,6 +140,21 @@ export default function CoinPageShell({
                 <p className="text-[10.5px] text-muted mt-2 tabular-nums">
                   {isRu ? 'обновлено' : 'updated'} {quoteTime}
                 </p>
+              )}
+              {/* Кнопка партнёра идёт под ценой и над справкой: читатель уже
+                  посмотрел курс, и это момент, когда предложение уместно.
+                  Ниже по странице не повторяем — одно рекламное место. */}
+              {cta && (
+                <div className="mt-3.5 w-full sm:min-w-[260px]">
+                  <AssetCtaButton
+                    cta={cta}
+                    symbol={meta.symbol}
+                    locale={locale}
+                    fallbackColor={meta.color}
+                    size="lg"
+                  />
+                  <AssetCtaAdLabel cta={cta} locale={locale} />
+                </div>
               )}
             </div>
           )}

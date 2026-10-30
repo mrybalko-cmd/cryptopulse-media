@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { ArrowRight, LayoutGrid, List, Search, TrendingDown, TrendingUp } from 'lucide-react';
 import Sparkline from './Sparkline';
 import { SECTOR_META, SECTOR_ORDER, type AssetSector } from '@/lib/coins';
+import AssetCtaButton, { AssetCtaAdLabel } from './AssetCtaButton';
+import type { AssetCta } from '@/lib/assetCtaShared';
 
 /** Everything the listing needs, already localized and thinned server-side. */
 export interface AssetRow {
@@ -24,6 +26,10 @@ export interface AssetRow {
   mcap?: number;
   volume?: number;
   spark?: number[];
+  /** Фирменный цвет монеты — запасной, если в админке цвет не задан. */
+  color?: string;
+  /** Кнопка партнёра. Есть только у проданных монет. */
+  cta?: AssetCta | null;
 }
 
 type SortKey = 'mcap' | 'ch24' | 'ch7d' | 'price' | 'name';
@@ -103,11 +109,12 @@ function ChangeChip({ value }: { value: number }) {
 /** The three biggest assets, given room to breathe above the full catalogue. */
 function SpotlightCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en' }) {
   const isRu = locale === 'ru';
+  // Карточка перестала быть ссылкой целиком: внутри неё теперь живёт кнопка
+  // партнёра, а ссылку в ссылку браузер не принимает. Ссылкой осталось
+  // название монеты, его невидимый слой растянут на всю карточку классом
+  // card-stretch — клик по пустому месту работает как раньше.
   return (
-    <Link
-      href={`/${locale}/assets/${asset.slug}`}
-      className="group relative flex flex-col flex-1 min-w-0 overflow-hidden bg-card border border-border rounded-2xl px-[18px] pt-[18px] transition-all hover:border-accent/45 hover:-translate-y-0.5 hover:shadow-xl"
-    >
+    <div className="group relative flex flex-col flex-1 min-w-0 overflow-hidden bg-card border border-border rounded-2xl px-[18px] pt-[18px] transition-all hover:border-accent/45 hover:-translate-y-0.5 hover:shadow-xl">
       <span className="absolute top-4 right-4 w-7 h-7 rounded-[9px] border border-border flex items-center justify-center text-muted opacity-0 transition-all group-hover:opacity-100 group-hover:text-accent group-hover:border-accent/45">
         <ArrowRight size={13} />
       </span>
@@ -115,7 +122,12 @@ function SpotlightCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en'
       <div className="flex items-center gap-3 mb-4">
         <CoinLogo asset={asset} size={38} />
         <div className="min-w-0">
-          <p className="text-[15px] font-extrabold text-foreground leading-tight truncate">{asset.name}</p>
+          <Link
+            href={`/${locale}/assets/${asset.slug}`}
+            className="card-stretch block text-[15px] font-extrabold text-foreground leading-tight truncate focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            {asset.name}
+          </Link>
           <p className="text-[11px] text-muted font-semibold mt-0.5">
             {asset.symbol} · {isRu ? 'с' : 'since'} {asset.year}
           </p>
@@ -155,7 +167,20 @@ function SpotlightCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en'
           <Sparkline points={asset.spark} positive={(asset.ch7d ?? 0) >= 0} height={64} showDot />
         </div>
       )}
-    </Link>
+
+      {asset.cta && asset.cta.places.cards && (
+        <div className="pt-3.5 pb-[16px]">
+          <AssetCtaButton
+            cta={asset.cta}
+            symbol={asset.symbol}
+            locale={locale}
+            fallbackColor={asset.color || 'var(--accent)'}
+            size="full"
+          />
+          <AssetCtaAdLabel cta={asset.cta} locale={locale} />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -192,13 +217,29 @@ function AssetCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en' }) 
 
       <p className="text-[11.5px] text-muted leading-snug mt-2.5 line-clamp-2 min-h-8 hidden sm:block">{asset.tagline}</p>
 
+      {asset.cta && asset.cta.places.cards && (
+        <div className="mt-2.5">
+          <AssetCtaButton
+            cta={asset.cta}
+            symbol={asset.symbol}
+            locale={locale}
+            fallbackColor={asset.color || 'var(--accent)'}
+            size="full"
+          />
+          <AssetCtaAdLabel cta={asset.cta} locale={locale} />
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-2 mt-2.5 pt-2.5 border-t border-border/60">
         <SectorChip sector={asset.sector} locale={locale} />
         {asset.available ? (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-accent">
+          <Link
+            href={`/${locale}/assets/${asset.slug}`}
+            className="card-stretch inline-flex items-center gap-1 text-[11px] font-bold text-accent focus-visible:outline-2 focus-visible:outline-accent"
+          >
             {isRu ? 'Читать гид' : 'Read guide'}
             <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
-          </span>
+          </Link>
         ) : (
           <span className="text-[11px] text-muted">{isRu ? 'Скоро' : 'Soon'}</span>
         )}
@@ -208,15 +249,18 @@ function AssetCard({ asset, locale }: { asset: AssetRow; locale: 'ru' | 'en' }) 
 
   const shell = 'group relative flex flex-col overflow-hidden bg-card border border-border rounded-[15px] px-[15px] pt-3.5 pb-3';
 
-  return asset.available ? (
-    <Link
-      href={`/${locale}/assets/${asset.slug}`}
-      className={`${shell} transition-all hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-lg`}
+  // Ссылкой стала надпись «Читать гид» с растянутым слоем, а не вся карточка:
+  // кнопка партнёра внутри обёртки-ссылки была бы ссылкой в ссылке.
+  return (
+    <div
+      className={
+        asset.available
+          ? `${shell} transition-all hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-lg`
+          : `${shell} opacity-50`
+      }
     >
       {body}
-    </Link>
-  ) : (
-    <div className={`${shell} opacity-50`}>{body}</div>
+    </div>
   );
 }
 
@@ -224,6 +268,8 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
   const isRu = locale === 'ru';
   const th = 'text-[10px] font-extrabold uppercase tracking-wider text-muted px-3 py-2.5 border-b border-border whitespace-nowrap';
   const td = 'px-3 py-2.5 border-b border-border/50 text-[12.5px] text-foreground whitespace-nowrap tabular-nums';
+  const stickyCell =
+    'sticky right-0 bg-background shadow-[-10px_0_12px_-10px_rgba(0,0,0,0.45)]';
 
   return (
     <div className="overflow-x-auto">
@@ -240,7 +286,9 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
             <th className={`${th} text-right`}>7{isRu ? 'д' : 'd'}</th>
             <th className={`${th} text-right`}>{isRu ? 'Капитализация' : 'Market cap'}</th>
             <th className={`${th} text-right hidden md:table-cell`}>{isRu ? '7 дней' : '7-day'}</th>
-            <th className={th} />
+            {/* Последняя колонка закреплена справа: таблица листается вбок,
+                и кнопка партнёра вместе со ссылкой на гид уходили бы за край. */}
+            <th className={`${th} ${stickyCell}`} />
           </tr>
         </thead>
         <tbody>
@@ -270,10 +318,22 @@ function AssetTable({ assets, locale }: { assets: AssetRow[]; locale: 'ru' | 'en
               <td className={`${td} text-right hidden md:table-cell w-[110px]`}>
                 {asset.spark && <Sparkline points={asset.spark} positive={(asset.ch7d ?? 0) >= 0} height={26} />}
               </td>
-              <td className={`${td} text-right`}>
-                <Link href={`/${locale}/assets/${asset.slug}`} className="text-[11px] font-bold text-accent hover:underline">
-                  {isRu ? 'Гид →' : 'Guide →'}
-                </Link>
+              <td className={`${td} text-right ${stickyCell}`}>
+                <span className="inline-flex items-center gap-2.5">
+                  {asset.cta && asset.cta.places.table && (
+                    <AssetCtaButton
+                      cta={asset.cta}
+                      symbol={asset.symbol}
+                      locale={locale}
+                      fallbackColor={asset.color || 'var(--accent)'}
+                      size="sm"
+                      singleOnly
+                    />
+                  )}
+                  <Link href={`/${locale}/assets/${asset.slug}`} className="text-[11px] font-bold text-accent hover:underline">
+                    {isRu ? 'Гид →' : 'Guide →'}
+                  </Link>
+                </span>
               </td>
             </tr>
           ))}
