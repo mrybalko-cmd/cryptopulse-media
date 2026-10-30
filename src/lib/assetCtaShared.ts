@@ -17,6 +17,8 @@ export interface AssetCtaPlaces {
 }
 
 export interface AssetCta {
+  /** Нужен для счётчика кликов: ссылка ведёт на маршрут с этим ключом. */
+  _id: string;
   coinSlug: string;
   mode: CtaMode;
   labelRu?: string | null;
@@ -46,6 +48,18 @@ export function ctaHref(url: string, coinSlug: string): string {
   } catch {
     return url;
   }
+}
+
+/**
+ * Ссылка кнопки — на наш маршрут, а не сразу к партнёру.
+ *
+ * Иначе клик нечем посчитать: переход на чужой домен из браузера мы не
+ * видим. Маршрут увеличивает счётчик и отправляет дальше, подставляя адрес
+ * из документа — принимать его от клиента нельзя, это открытый редирект.
+ */
+export function ctaClickHref(id: string, which: 'buy' | 'sell', locale: string): string {
+  const lang = locale === 'ru' ? 'ru' : 'en';
+  return `/api/coin-cta-click/${id}?a=${which}&l=${lang}`;
 }
 
 /**

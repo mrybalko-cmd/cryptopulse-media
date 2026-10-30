@@ -118,6 +118,23 @@ export const assetCtaType = defineType({
     }),
     defineField({ name: 'startAt', title: 'Показывать с', type: 'datetime' }),
     defineField({ name: 'endAt', title: 'Показывать до', type: 'datetime' }),
+
+    // Счётчики. Пишет их только маршрут /api/coin-cta-click, руками не
+    // трогаем: форма эти поля не отправляет и patch их не перетирает.
+    defineField({
+      name: 'clicks',
+      title: 'Кликов по «Купить»',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
+    }),
+    defineField({
+      name: 'sellClicks',
+      title: 'Кликов по «Продать»',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
   preview: {
     select: { title: 'coinSlug', subtitle: 'partner', active: 'active' },

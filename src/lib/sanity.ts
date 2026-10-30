@@ -1,5 +1,6 @@
 import { createClient } from '@sanity/client';
 import { unstable_cache } from 'next/cache';
+import { ctaHref } from '@/lib/assetCtaShared';
 
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'placeholder',
@@ -137,6 +138,39 @@ export async function incrementBannerClick(id: string): Promise<string | null> {
       .inc({ clicks: 1 })
       .commit({ autoGenerateArrayKeys: false });
     return typeof doc.link === 'string' ? doc.link : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Клик по кнопке партнёра на монете.
+ *
+ * Адрес возвращается из самого документа, а не принимается от клиента:
+ * произвольная цель редиректа — это дыра открытого редиректа. Параметр
+ * `which` только выбирает между двумя уже записанными адресами.
+ *
+ * Метки кампании дописывает ctaHref — тот же помощник, что раньше делал
+ * это в разметке. Ссылка теперь ведёт на наш маршрут, а не к партнёру.
+ */
+export async function incrementAssetCtaClick(
+  id: string,
+  which: 'buy' | 'sell',
+): Promise<string | null> {
+  if (!process.env.SANITY_API_WRITE_TOKEN) return null;
+  const field = which === 'sell' ? 'sellClicks' : 'clicks';
+  try {
+    const doc = await writeClient
+      .patch(id)
+      .setIfMissing({ [field]: 0 })
+      .inc({ [field]: 1 })
+      .commit({ autoGenerateArrayKeys: false });
+    const raw =
+      which === 'sell' && typeof doc.sellUrl === 'string' && doc.sellUrl
+        ? doc.sellUrl
+        : doc.url;
+    if (typeof raw !== 'string' || !raw) return null;
+    return ctaHref(raw, typeof doc.coinSlug === 'string' ? doc.coinSlug : '');
   } catch {
     return null;
   }

@@ -1,4 +1,4 @@
-import { type AssetCta, ctaHref, ctaLabels, inkOn } from '@/lib/assetCtaShared';
+import { type AssetCta, ctaClickHref, ctaLabels, inkOn } from '@/lib/assetCtaShared';
 
 /**
  * Кнопка партнёра на монете.
@@ -58,8 +58,11 @@ export default function AssetCtaButton({
     ['--cta-ink' as string]: inkOn(color),
   } as React.CSSProperties;
 
-  const buyHref = ctaHref(cta.url, cta.coinSlug);
-  const sellHref = ctaHref(cta.sellUrl || cta.url, cta.coinSlug);
+  // Ссылка ведёт на наш маршрут, а не сразу к партнёру: иначе клик нечем
+  // посчитать. Маршрут увеличивает счётчик, подставляет метки кампании и
+  // отправляет дальше по адресу из документа.
+  const buyHref = ctaClickHref(cta._id, 'buy', locale);
+  const sellHref = ctaClickHref(cta._id, 'sell', locale);
 
   // sponsored — метка платного размещения, её Google просит на рекламе.
   // Пишем обе: sponsored понимает Google, nofollow понимают остальные.

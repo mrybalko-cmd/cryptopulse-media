@@ -184,6 +184,17 @@ export default function AssetCtaForm({
         Пометка «Реклама · Партнёр» под кнопкой
       </label>
 
+      {cta && (
+        <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-3.5 mb-6 flex flex-wrap gap-5 text-[11px] text-[var(--admin-text-muted)]">
+          <span>🖱 <b className="text-[var(--admin-text)]">{cta.clicks.toLocaleString('ru-RU')}</b> кликов по «Купить»</span>
+          <span>🖱 <b className="text-[var(--admin-text)]">{cta.sellClicks.toLocaleString('ru-RU')}</b> по «Продать»</span>
+          <span className="w-full text-[var(--admin-text-dim)]">
+            Считает переходы по кнопке. Показы не считаем: это потребовало бы
+            запроса с каждой карточки витрины.
+          </span>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <SubmitButton className="bg-[#22c55e] text-[#06210f] font-extrabold text-[12.5px] rounded-lg px-5 py-2.5">
           {cta ? 'Сохранить' : 'Создать кнопку'}

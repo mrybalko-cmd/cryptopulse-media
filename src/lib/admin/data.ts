@@ -210,6 +210,9 @@ export interface AdminAssetCtaDoc {
   places: { cards: boolean; table: boolean; page: boolean; sticky: boolean };
   startAt?: string;
   endAt?: string;
+  /** Пишет только /api/coin-cta-click. Форма эти поля не отправляет. */
+  clicks: number;
+  sellClicks: number;
 }
 
 const ASSET_CTA_PROJECTION = `
@@ -223,7 +226,9 @@ const ASSET_CTA_PROJECTION = `
     "page":   coalesce(places.page,   true),
     "sticky": coalesce(places.sticky, true)
   },
-  startAt, endAt
+  startAt, endAt,
+  "clicks": coalesce(clicks, 0),
+  "sellClicks": coalesce(sellClicks, 0)
 `;
 
 export async function fetchAdminAssetCtas(): Promise<AdminAssetCtaDoc[]> {
@@ -266,6 +271,8 @@ const OPTIONAL_CTA_FIELDS = ['labelRu', 'labelEn', 'sellUrl', 'partner', 'color'
 export async function createAssetCta(input: AssetCtaInput) {
   return writeClient.create({
     _type: 'assetCta',
+    clicks: 0,
+    sellClicks: 0,
     coinSlug: input.coinSlug,
     active: input.active,
     mode: input.mode,

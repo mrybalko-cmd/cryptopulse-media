@@ -18,13 +18,13 @@ import type { AssetCta } from '@/lib/assetCtaShared';
  */
 
 export type { AssetCta, AssetCtaPlaces, CtaMode } from '@/lib/assetCtaShared';
-export { ctaHref, ctaLabels, inkOn } from '@/lib/assetCtaShared';
+export { ctaHref, ctaClickHref, ctaLabels, inkOn } from '@/lib/assetCtaShared';
 
 /** Метка кэша. Админка сбрасывает её при сохранении. */
 export const ASSET_CTA_TAG = 'asset-cta';
 
 const QUERY = `*[_type == "assetCta" && active == true && defined(coinSlug) && defined(url)]{
-  coinSlug, mode, labelRu, labelEn, url, sellUrl, partner, color,
+  _id, coinSlug, mode, labelRu, labelEn, url, sellUrl, partner, color,
   "showAdLabel": coalesce(showAdLabel, false),
   "language": coalesce(language, "all"),
   "places": {

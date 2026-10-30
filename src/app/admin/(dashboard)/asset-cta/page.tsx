@@ -56,7 +56,10 @@ export default async function AdminAssetCtaPage() {
                     {c.endAt ? ` · до ${formatPragueDate(c.endAt, { day: '2-digit', month: '2-digit', year: 'numeric' })}` : ' · без срока'}
                   </div>
                 </div>
-                <span className="ml-auto flex items-center gap-2 shrink-0">
+                <span className="ml-auto flex items-center gap-4 shrink-0">
+                  <span className="text-[11px] text-[var(--admin-text-muted)]">
+                    <b className="text-[var(--admin-text)]">{(c.clicks + c.sellClicks).toLocaleString('ru-RU')}</b> кликов
+                  </span>
                   <span className="text-[11px] text-[var(--admin-text-muted)]">{status.label}</span>
                   <span className="w-2 h-2 rounded-full" style={{ background: status.color }} />
                 </span>
