@@ -43,6 +43,11 @@ export const COIN_REGISTRY: Record<string, CoinMeta> = {
   trx: { id: 'tron', symbol: 'TRX', name: 'TRON', color: '#EF0027' },
   uniswap: { id: 'uniswap', symbol: 'UNI', name: 'Uniswap', color: '#FF007A' },
   xrp: { id: 'ripple', symbol: 'XRP', name: 'XRP', color: '#23292F' },
+  zcash: { id: 'zcash', symbol: 'ZEC', name: 'Zcash', color: '#F4B728' },
+  hyperliquid: { id: 'hyperliquid', symbol: 'HYPE', name: 'Hyperliquid', color: '#97FCE4' },
+  hedera: { id: 'hedera-hashgraph', symbol: 'HBAR', name: 'Hedera', color: '#8259EF' },
+  quant: { id: 'quant-network', symbol: 'QNT', name: 'Quant', color: '#3A3A3A' },
+  bittensor: { id: 'bittensor', symbol: 'TAO', name: 'Bittensor', color: '#2B2B2B' },
 };
 
 export const COIN_SLUGS = Object.keys(COIN_REGISTRY);

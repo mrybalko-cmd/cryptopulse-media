@@ -434,4 +434,212 @@ export const COIN_GUIDES: Record<string, CoinGuideData> = {
       { slug: 'altcoin', label: { ru: 'Альткоин', en: 'Altcoin' } },
     ],
   },
+
+  zcash: {
+    stats: [
+      { label: { ru: 'Год запуска', en: 'Launched' }, value: '2016' },
+      { label: { ru: 'Создатели', en: 'Creators' }, value: 'Zooko Wilcox-O’Hearn, Electric Coin Company' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '21 000 000', en: '21,000,000' } },
+      { label: { ru: 'Консенсус', en: 'Consensus' }, value: 'Proof of Work (Equihash)' },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 169.7, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'До медвежьего рынка 2022 года', en: 'Before the 2022 bear market' } },
+      { yearsAgo: 3, year: 2023, price: 28.66, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'У нижней границы диапазона', en: 'Near the bottom of its range' } },
+      { yearsAgo: 1, year: 2025, price: 412.13, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'В разгар ралли приватных монет', en: 'In the middle of the privacy rally' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Как Zcash скрывает переводы?', en: 'What makes Zcash private?' },
+        answer: {
+          ru: 'Скрытый перевод сопровождается доказательством с нулевым разглашением: сеть убеждается, что платёж корректен, не видя ни отправителя, ни получателя, ни суммы. Скрытность включается по желанию: можно пользоваться и обычным прозрачным адресом.',
+          en: 'A shielded transaction uses a zero-knowledge proof: the network checks that the payment is valid without seeing the sender, the recipient or the amount. Privacy is optional, so you choose between a transparent and a shielded address.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего будет ZEC?', en: 'How many ZEC will ever exist?' },
+        answer: {
+          ru: '21 миллион, как и биткоинов. В обращении около 17 миллионов, а халвинги примерно раз в четыре года вдвое урезают выпуск новых монет.',
+          en: '21 million, the same cap as Bitcoin. About 17 million are in circulation, and halvings cut new issuance about every four years.',
+        },
+      },
+      {
+        question: { ru: 'Почему рекорд цены пришёлся на первый день?', en: 'Why was the all-time high on the first day?' },
+        answer: {
+          ru: 'В день запуска монет было очень мало, а желающих купить много, поэтому первые сделки прошли по цене до 3191,93 доллара. Когда предложение выросло, цена упала.',
+          en: 'On 28 October 2016 only a few coins existed and demand was high, so the first trades went through at up to 3,191.93 dollars. Supply grew within weeks and the price fell.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+      { slug: 'halving', label: { ru: 'Халвинг', en: 'Halving' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+    ],
+  },
+
+  hyperliquid: {
+    stats: [
+      { label: { ru: 'Год запуска токена', en: 'Token launch' }, value: '2024' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Jeff Yan' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '1 000 000 000', en: '1,000,000,000' } },
+      { label: { ru: 'Тип сети', en: 'Network type' }, value: { ru: 'L1 со встроенной биржей', en: 'L1 with an on-chain exchange' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 2, year: 2024, price: 3.81, label: { ru: 'При запуске (ноябрь 2024)', en: 'At launch (November 2024)' }, note: { ru: 'Цена открытия после аирдропа', en: 'Opening price after the airdrop' } },
+      { yearsAgo: 1, year: 2025, price: 43.28, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через год после запуска', en: 'A year after launch' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое Hyperliquid?', en: 'What is Hyperliquid?' },
+        answer: {
+          ru: 'Децентрализованная биржа фьючерсов на собственном блокчейне. Заявки, их исполнение и расчёты проходят в сети, а средства остаются под вашим контролем.',
+          en: 'A decentralised exchange for futures that runs on its own blockchain. Orders, matching and settlement happen on-chain, and you keep custody of your funds.',
+        },
+      },
+      {
+        question: { ru: 'Как распределили HYPE?', en: 'How was HYPE distributed?' },
+        answer: {
+          ru: '29 ноября 2024 года 310 миллионов HYPE, 31% всего выпуска, раздали пользователям биржи. Венчурных инвесторов у проекта не было, так что их доли нет.',
+          en: 'On 29 November 2024 Hyperliquid airdropped 310 million HYPE, 31% of the supply, to users. The project took no venture funding, so no investors received a share.',
+        },
+      },
+      {
+        question: { ru: 'Как комиссии биржи связаны с HYPE?', en: 'Why do people say exchange fees support HYPE?' },
+        answer: {
+          ru: 'Большая часть торговых комиссий идёт в фонд, который покупает HYPE на рынке. Больше оборот — больше покупок.',
+          en: 'Most trading fees go to an assistance fund that buys HYPE on the market, so higher trading volume means more buying.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'dex', label: { ru: 'DEX', en: 'DEX' } },
+      { slug: 'airdrop', label: { ru: 'Аирдроп', en: 'Airdrop' } },
+      { slug: 'order-book', label: { ru: 'Книга заявок', en: 'Order book' } },
+    ],
+  },
+
+  hedera: {
+    stats: [
+      { label: { ru: 'Открытие сети', en: 'Open access' }, value: '2019' },
+      { label: { ru: 'Создатели', en: 'Creators' }, value: 'Leemon Baird, Mance Harmon' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '50 000 000 000', en: '50,000,000,000' } },
+      { label: { ru: 'Тип сети', en: 'Network type' }, value: { ru: 'Хэшграф, proof of stake', en: 'Hashgraph, proof of stake' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 0.3997, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через два месяца после максимума', en: 'Two months after the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 0.0537, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'У дна цикла', en: 'Near the bottom of the cycle' } },
+      { yearsAgo: 1, year: 2025, price: 0.1964, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'После восстановления 2024–2025 годов', en: 'After the 2024 to 2025 recovery' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Hedera — это блокчейн?', en: 'Is Hedera a blockchain?' },
+        answer: {
+          ru: 'Нет, Hedera работает на хэшграфе. Узлы обмениваются историей транзакций и договариваются о порядке событий без блоков и майнеров.',
+          en: 'No, it uses a hashgraph. Nodes share transaction history with each other and reach agreement on the order of events without blocks or miners.',
+        },
+      },
+      {
+        question: { ru: 'Кто управляет Hedera?', en: 'Who runs Hedera?' },
+        answer: {
+          ru: 'Совет крупных организаций; в разное время в него входили Google, IBM, Boeing и Deutsche Telekom. Каждый участник держит узел и голосует за изменения сети.',
+          en: 'A governing council of large organisations; members have included Google, IBM, Boeing and Deutsche Telekom. Each runs a node and votes on changes to the network.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего HBAR?', en: 'How many HBAR exist?' },
+        answer: {
+          ru: 'Выпуск зафиксирован на 50 миллиардах HBAR, в обращении около 44 миллиардов.',
+          en: 'The supply is fixed at 50 billion HBAR, and about 44 billion are in circulation.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'node', label: { ru: 'Узел', en: 'Node' } },
+      { slug: 'consensus-mechanism', label: { ru: 'Консенсус', en: 'Consensus' } },
+      { slug: 'proof-of-stake', label: { ru: 'Proof of Stake', en: 'Proof of Stake' } },
+    ],
+  },
+
+  quant: {
+    stats: [
+      { label: { ru: 'Год ICO', en: 'ICO' }, value: '2018' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Gilbert Verdian' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '14 612 493', en: '14,612,493' } },
+      { label: { ru: 'Тип токена', en: 'Token type' }, value: { ru: 'ERC-20 на Ethereum', en: 'ERC-20 on Ethereum' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 274.0, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через два месяца после максимума', en: 'Two months after the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 104.3, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После спада 2022 года', en: 'After the 2022 decline' } },
+      { yearsAgo: 1, year: 2025, price: 80.05, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Во время коррекции 2025 года', en: 'During the 2025 correction' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Чем занимается Quant?', en: 'What does Quant do?' },
+        answer: {
+          ru: 'Продаёт Overledger — программу, которая связывает разные блокчейны друг с другом и с существующими банковскими системами.',
+          en: 'It sells Overledger, software that connects different blockchains with each other and with existing bank systems.',
+        },
+      },
+      {
+        question: { ru: 'Почему QNT так мало?', en: 'Why is the QNT supply so small?' },
+        answer: {
+          ru: 'Выпуск ограничен 14 612 493 QNT, в обращении около 14,56 миллиона. Токен нужен компаниям для оплаты лицензий Overledger.',
+          en: 'The supply is capped at 14,612,493 QNT, and about 14.56 million are in circulation. Companies need QNT to pay for Overledger licences.',
+        },
+      },
+      {
+        question: { ru: 'Когда QNT стоил дороже всего?', en: 'When did QNT reach its all-time high?' },
+        answer: {
+          ru: '11 сентября 2021 года, 427,42 доллара.',
+          en: 'On 11 September 2021, at 427.42 dollars.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'ico', label: { ru: 'ICO', en: 'ICO' } },
+      { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
+      { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+    ],
+  },
+
+  bittensor: {
+    stats: [
+      { label: { ru: 'Запуск основной сети', en: 'Mainnet' }, value: '2023' },
+      { label: { ru: 'Создатели', en: 'Creators' }, value: 'Jacob Steeves, Ala Shaabana' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '21 000 000', en: '21,000,000' } },
+      { label: { ru: 'Тип сети', en: 'Network type' }, value: { ru: 'L1 для машинного обучения', en: 'L1 for machine learning' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 3, year: 2023, price: 86.38, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'Через восемь месяцев после запуска сети', en: 'Eight months after mainnet' } },
+      { yearsAgo: 1, year: 2025, price: 497.3, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'За месяц до первого халвинга', en: 'A month before the first halving' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое Bittensor?', en: 'What is Bittensor?' },
+        answer: {
+          ru: 'Блокчейн, который платит TAO майнерам за работу в машинном обучении и валидаторам за её оценку. Работа идёт в подсетях, у каждой своя задача.',
+          en: 'A blockchain that pays TAO to miners who provide machine learning work and to validators who score it. Work happens in subnets, each with its own task.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего будет TAO?', en: 'How many TAO will exist?' },
+        answer: {
+          ru: '21 миллион, как и биткоинов. В обращении около 11,7 миллиона.',
+          en: '21 million, the same cap as Bitcoin. About 11.7 million are in circulation.',
+        },
+      },
+      {
+        question: { ru: 'Когда был первый халвинг TAO?', en: 'When was the first TAO halving?' },
+        answer: {
+          ru: 'В декабре 2025 года. Он урезал выпуск примерно с 7200 TAO в день до 3600.',
+          en: 'In December 2025. It cut daily issuance from about 7,200 TAO to 3,600.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'halving', label: { ru: 'Халвинг', en: 'Halving' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+      { slug: 'whitepaper', label: { ru: 'Whitepaper', en: 'Whitepaper' } },
+    ],
+  },
 };

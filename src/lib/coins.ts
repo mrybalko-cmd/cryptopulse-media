@@ -162,6 +162,31 @@ export const COINS: CoinMeta[] = [
     tagline: { ru: 'L1 на языке Move, выросший из закрытого проекта Meta Diem', en: 'A Move-language L1 that grew out of Meta\'s shuttered Diem project' },
     year: 2022, available: true, sector: 'l1',
   },
+  {
+    slug: 'zcash', coingeckoId: 'zcash', symbol: 'ZEC', icon: 'ⓩ', name: 'Zcash',
+    tagline: { ru: 'Правила эмиссии биткоина плюс скрытые переводы', en: 'Bitcoin\'s supply rules with private transactions' },
+    year: 2016, available: true, sector: 'privacy',
+  },
+  {
+    slug: 'hyperliquid', coingeckoId: 'hyperliquid', symbol: 'HYPE', icon: 'Ⓗ', name: 'Hyperliquid',
+    tagline: { ru: 'Фьючерсная биржа на собственном блокчейне', en: 'A futures exchange that runs on its own blockchain' },
+    year: 2024, available: true, sector: 'defi',
+  },
+  {
+    slug: 'hedera', coingeckoId: 'hedera-hashgraph', symbol: 'HBAR', icon: 'ℏ', name: 'Hedera',
+    tagline: { ru: 'Публичная сеть под управлением совета корпораций', en: 'A public network governed by a council of corporations' },
+    year: 2019, available: true, sector: 'l1',
+  },
+  {
+    slug: 'quant', coingeckoId: 'quant-network', symbol: 'QNT', icon: 'Ⓠ', name: 'Quant',
+    tagline: { ru: 'Программа, которая связывает блокчейны с банками', en: 'Software that connects blockchains to bank systems' },
+    year: 2018, available: true, sector: 'infra',
+  },
+  {
+    slug: 'bittensor', coingeckoId: 'bittensor', symbol: 'TAO', icon: 'τ', name: 'Bittensor',
+    tagline: { ru: 'Сеть, которая платит за машинное обучение', en: 'A network that pays for machine learning' },
+    year: 2023, available: true, sector: 'infra',
+  },
 ];
 
 export const COIN_IDS = COINS.map(c => c.coingeckoId);
