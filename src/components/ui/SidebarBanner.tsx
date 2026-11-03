@@ -2,24 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { SidebarBannerItem } from '@/lib/sanity';
+import { pickWeighted, trackBannerClickGa, useBannerImpression } from './bannerTracking';
 
 interface Props {
   banners: SidebarBannerItem[];
   locale: string;
-}
-
-// Weighted random pick — a banner with weight 3 is 3x as likely to be
-// chosen as one with weight 1. Falls back to uniform odds when all weights
-// are equal (the default), so existing behavior is unchanged unless someone
-// actually raises a weight in Studio.
-function pickWeighted(banners: SidebarBannerItem[]): SidebarBannerItem {
-  const total = banners.reduce((sum, b) => sum + (b.weight || 1), 0);
-  let r = Math.random() * total;
-  for (const b of banners) {
-    r -= b.weight || 1;
-    if (r <= 0) return b;
-  }
-  return banners[banners.length - 1];
 }
 
 // Picked client-side (not server-side) so the rotation actually changes on
@@ -29,68 +16,22 @@ function pickWeighted(banners: SidebarBannerItem[]): SidebarBannerItem {
 // 1s (a simplified MRC viewability threshold), not just present in the DOM.
 export default function SidebarBanner({ banners, locale }: Props) {
   const [chosen, setChosen] = useState<SidebarBannerItem | null>(null);
-  const trackedRef = useRef(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (banners.length === 0) return;
+    // Выбор только на клиенте: на сервере он попал бы в кэш страницы.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChosen(pickWeighted(banners));
   }, [banners]);
 
-  useEffect(() => {
-    if (!chosen) return;
-    const el = linkRef.current;
-    if (!el) return;
-
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !trackedRef.current) {
-          timer = setTimeout(() => {
-            if (trackedRef.current) return;
-            trackedRef.current = true;
-            fetch('/api/banner-view', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id: chosen._id }),
-            });
-            observer.disconnect();
-          }, 1000);
-        } else if (!entry.isIntersecting && timer) {
-          clearTimeout(timer);
-          timer = null;
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      if (timer) clearTimeout(timer);
-    };
-  }, [chosen]);
+  useBannerImpression(linkRef, chosen?._id ?? null);
 
   if (!chosen) return null;
 
-  // The link goes through our own redirect (so Sanity can count the click
-  // and resolve the destination server-side — see /api/banner-click, which
-  // deliberately never exposes the real advertiser URL to the client to
-  // avoid an open-redirect surface). GA can't see that server-side hop as
-  // an "outbound click" the way it does for a plain external href, so this
-  // fires an equivalent client-side event with the same shape GA4's own
-  // Enhanced Measurement outbound-click event uses (event name, param
-  // names) — it lands in the same click/Link URL report instead of a
-  // separate custom one. Opens in a new tab, so the current page never
-  // navigates away and the event always has time to send.
-  const trackGaClick = () => {
-    const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
-    gtag?.('event', 'click', {
-      link_url: `/api/banner-click/${chosen._id}`,
-      link_id: chosen._id,
-      link_text: chosen.title,
-      outbound: true,
-    });
-  };
+  // Клик идёт через /api/banner-click: адрес берётся на сервере из документа,
+  // а GA получает событие внешнего клика (см. trackBannerClickGa).
+  const trackGaClick = () => trackBannerClickGa(chosen._id, chosen.title);
 
   return (
     <a

@@ -207,6 +207,15 @@ export default function NewsForm({
             <input type="checkbox" name="commentsEnabled" defaultChecked={news?.commentsEnabled ?? true} />
             Комментарии включены
           </label>
+          <label className="flex items-start gap-2 text-[12.5px] mt-2">
+            <input type="checkbox" name="hideInlineBanner" defaultChecked={news?.hideInlineBanner ?? false} className="mt-[3px]" />
+            <span>
+              Без баннера в тексте
+              <span className="block text-[11px] text-[var(--admin-text-muted)]">
+                Для гостевых и партнёрских новости. С плашкой «Промо» или «Новости компании» и у партнёрского автора баннер убран и так.
+              </span>
+            </span>
+          </label>
         </div>
         {news && (
           <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-3.5">

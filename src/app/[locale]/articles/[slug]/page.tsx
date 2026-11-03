@@ -16,7 +16,7 @@ import ViewCount from '@/components/ui/ViewCount';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, Clock, Calendar } from 'lucide-react';
-import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchRelatedArticles, fetchPopularContent, fetchActiveBanners, fetchInlineBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import PreferOnGoogle from '@/components/ui/PreferOnGoogle';
@@ -26,6 +26,8 @@ import ArticleCard from '@/components/ui/ArticleCard';
 import PopularList from '@/components/ui/PopularList';
 import ArticleSidebar from '@/components/ui/ArticleSidebar';
 import SidebarBanner from '@/components/ui/SidebarBanner';
+import InlineBanner from '@/components/ui/InlineBanner';
+import { inlineBannerSlot } from '@/lib/inlineBannerSlot';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
@@ -129,6 +131,10 @@ export default async function ArticlePage({ params }: Props) {
     .filter((item) => item._id !== article._id)
     .slice(0, 7);
   const banners = await fetchActiveBanners(locale);
+  // Баннер в тексте: только в самом материале, не в мобильной ленте ниже, и
+  // не в рекламе и чужих материалах (noInlineBanner считает запрос).
+  const inlineBanners = article.noInlineBanner ? [] : await fetchInlineBanners(locale, 'article');
+  const inlineSlot = inlineBanners.length ? inlineBannerSlot(article.body) : null;
 
   // Unified with the homepage feed: 24-hour time and dot-separated DD.MM.YYYY,
   // formatted locale-independently (en-GB, h23) so RU and EN render identically.
@@ -288,7 +294,12 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Body */}
       {article.body ? (
-        <RichText value={article.body} fallbackAlt={article.title} locale={locale} />
+        <RichText
+          value={article.body}
+          fallbackAlt={article.title}
+          locale={locale}
+          insert={inlineSlot !== null ? { afterIndex: inlineSlot, node: <InlineBanner banners={inlineBanners} locale={locale} /> } : undefined}
+        />
       ) : (
         <p className="text-foreground">{article.excerpt}</p>
       )}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { PortableText, type PortableTextComponents } from '@portabletext/react';
 import { urlFor } from '@/lib/sanityImage';
@@ -14,6 +15,7 @@ export default function RichText({
   fallbackAlt,
   locale,
   compact = false,
+  insert,
 }: {
   value: any[];
   fallbackAlt: string;
@@ -22,6 +24,10 @@ export default function RichText({
   // supporting content rather than the main thing being read — e.g. an
   // exchange's "Overview" section vs. a full article.
   compact?: boolean;
+  /** Вставка между блоками текста, после value[afterIndex] (баннер в тексте).
+      Индекс выбирает inlineBannerSlot — только промежуток между абзацами,
+      поэтому разрез никогда не проходит через список. */
+  insert?: { afterIndex: number; node: ReactNode };
 }) {
   const components: PortableTextComponents = {
     types: {
@@ -167,7 +173,15 @@ export default function RichText({
       prose-blockquote:border-article-accent prose-blockquote:text-muted
       prose-code:text-accent prose-code:bg-card prose-code:px-1 prose-code:rounded
     `}>
-      <PortableText value={value} components={components} />
+      {insert && insert.afterIndex >= 0 && insert.afterIndex < value.length - 1 ? (
+        <>
+          <PortableText value={value.slice(0, insert.afterIndex + 1)} components={components} />
+          {insert.node}
+          <PortableText value={value.slice(insert.afterIndex + 1)} components={components} />
+        </>
+      ) : (
+        <PortableText value={value} components={components} />
+      )}
     </div>
   );
 }

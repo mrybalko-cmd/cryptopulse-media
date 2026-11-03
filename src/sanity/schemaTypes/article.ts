@@ -175,6 +175,13 @@ export const articleType = defineType({
       description: 'Оставьте пустым, чтобы опубликовать без подписи автора.',
     }),
     defineField({
+      name: 'hideInlineBanner',
+      title: 'Без баннера в тексте',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Рекламный баннер внутри текста не ставится. В материалах с плашкой «Промо» / «Новости компании» и у партнёрских авторов он убран автоматически.',
+    }),
+    defineField({
       name: 'commentsEnabled',
       title: 'Comments enabled / Комментарии включены',
       type: 'boolean',

@@ -57,6 +57,7 @@ async function parseArticleInput(formData: FormData, originalBody: PortableTextB
     seoNoIndex: formData.get('seoNoIndex') === 'on',
     authorId: String(formData.get('authorId') || ''),
     commentsEnabled: formData.get('commentsEnabled') === 'on',
+    hideInlineBanner: formData.get('hideInlineBanner') === 'on',
     translationRefId: String(formData.get('translationRefId') || ''),
   };
 }

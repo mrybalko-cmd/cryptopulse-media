@@ -2,6 +2,7 @@ import type { AdminBannerDoc } from '@/lib/admin/data';
 import { pragueLocalInput } from '@/lib/admin/timezone';
 import SubmitButton from '../_shared/SubmitButton';
 import SavedMark from '../_shared/SavedMark';
+import BannerImageFields from './BannerImageFields';
 
 
 
@@ -13,21 +14,13 @@ export default function BannerForm({
   action: (formData: FormData) => void;
 }) {
   return (
-    <form action={action} className="max-w-xl">
+    <form action={action} className="max-w-3xl">
       <div className="mb-5">
         <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Внутреннее название (не показывается на сайте)</label>
         <input name="title" defaultValue={banner?.title} required className="w-full bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg px-3 py-2.5 text-[13px]" />
       </div>
 
-      <div className="mb-5">
-        <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Картинка баннера</div>
-        <p className="text-[11px] text-[var(--admin-text-dim)] mb-2">Квадрат 1:1, мин. 600×600 px, JPG или PNG, до ~500 КБ.</p>
-        {banner?.image && (
-          <img src={`${banner.image}?w=320&h=320&fit=crop`} alt="" className="w-40 h-40 rounded-lg object-cover mb-2 border border-[var(--admin-border)]" />
-        )}
-        <input name="image" type="file" accept="image/*" className="w-full text-[12.5px] text-[var(--admin-text-muted)]" />
-        <p className="text-[11px] text-[var(--admin-text-muted)] mt-1">{banner ? 'Оставьте пустым, чтобы не менять текущую картинку.' : ''}</p>
-      </div>
+      <BannerImageFields banner={banner} />
 
       <div className="mb-5">
         <label className="text-[11.5px] font-bold text-[var(--admin-text-secondary)] mb-1.5 block">Alt-текст</label>

@@ -200,6 +200,15 @@ export default function ArticleForm({
             <input type="checkbox" name="commentsEnabled" defaultChecked={article?.commentsEnabled ?? true} />
             Комментарии включены
           </label>
+          <label className="flex items-start gap-2 text-[12.5px] mt-2">
+            <input type="checkbox" name="hideInlineBanner" defaultChecked={article?.hideInlineBanner ?? false} className="mt-[3px]" />
+            <span>
+              Без баннера в тексте
+              <span className="block text-[11px] text-[var(--admin-text-muted)]">
+                Для гостевых и партнёрских статьи. С плашкой «Промо» или «Новости компании» и у партнёрского автора баннер убран и так.
+              </span>
+            </span>
+          </label>
         </div>
         {article && (
           <div className="bg-[var(--admin-panel)] border border-[var(--admin-border)] rounded-xl p-3.5">

@@ -19,7 +19,7 @@ import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react';
 import EmailSubscribeForm from '@/components/ui/EmailSubscribeForm';
 import AuthorCard from '@/components/ui/AuthorCard';
 import ArticleFooterMeta from '@/components/ui/ArticleFooterMeta';
-import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
+import { fetchNewsBySlug, fetchRelatedNews, fetchPopularContent, fetchActiveBanners, fetchInlineBanners, fetchRecentSlugsForPrerender } from '@/lib/sanity';
 import RichText from '@/components/ui/RichText';
 import ShareButtons from '@/components/ui/ShareButtons';
 import PreferOnGoogle from '@/components/ui/PreferOnGoogle';
@@ -29,6 +29,8 @@ import ArticleBadge from '@/components/ui/ArticleBadge';
 import PopularList from '@/components/ui/PopularList';
 import ArticleSidebar from '@/components/ui/ArticleSidebar';
 import SidebarBanner from '@/components/ui/SidebarBanner';
+import InlineBanner from '@/components/ui/InlineBanner';
+import { inlineBannerSlot } from '@/lib/inlineBannerSlot';
 import InfiniteMobileFeed from '@/components/ui/InfiniteMobileFeed';
 import CommentSection from '@/components/ui/CommentSection';
 
@@ -130,6 +132,10 @@ export default async function NewsDetailPage({ params }: Props) {
     .filter((item) => item._id !== news._id)
     .slice(0, 7);
   const banners = await fetchActiveBanners(locale);
+  // Баннер в тексте: только в самом материале, не в мобильной ленте ниже, и
+  // не в рекламе и чужих материалах (noInlineBanner считает запрос).
+  const inlineBanners = news.noInlineBanner ? [] : await fetchInlineBanners(locale, 'news');
+  const inlineSlot = inlineBanners.length ? inlineBannerSlot(news.body) : null;
 
   // Unified with the homepage feed: 24-hour time and dot-separated DD.MM.YYYY,
   // formatted locale-independently (en-GB, h23) so RU and EN render identically.
@@ -298,7 +304,12 @@ export default async function NewsDetailPage({ params }: Props) {
 
       {/* Body */}
       {news.body ? (
-        <RichText value={news.body} fallbackAlt={news.title} locale={locale} />
+        <RichText
+          value={news.body}
+          fallbackAlt={news.title}
+          locale={locale}
+          insert={inlineSlot !== null ? { afterIndex: inlineSlot, node: <InlineBanner banners={inlineBanners} locale={locale} /> } : undefined}
+        />
       ) : (
         <p className="text-foreground">{news.excerpt}</p>
       )}

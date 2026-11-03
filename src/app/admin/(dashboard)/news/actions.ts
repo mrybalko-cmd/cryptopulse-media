@@ -59,6 +59,7 @@ async function parseNewsInput(formData: FormData, originalBody: PortableTextBloc
     pinnedUntil: pragueInputToISO(pinnedUntilRaw),
     authorId: String(formData.get('authorId') || ''),
     commentsEnabled: formData.get('commentsEnabled') === 'on',
+    hideInlineBanner: formData.get('hideInlineBanner') === 'on',
     translationRefId: String(formData.get('translationRefId') || ''),
   };
 }

@@ -85,6 +85,52 @@ export async function incrementViews(id: string): Promise<number | null> {
   }
 }
 
+/**
+ * Баннер в тексте не ставится в рекламу и чужие материалы: плашка «Промо» или
+ * «Новости компании», гостевой/партнёрский автор (author.sponsored) или
+ * ручная галочка «Без баннера в тексте» у самого материала.
+ */
+const NO_INLINE_BANNER =
+  'coalesce(hideInlineBanner, false) || badge in ["promo", "companyNews"] || coalesce(author->sponsored, false)';
+
+/** Максимум баннеров в ротации на одно место. Админка не даёт включить шестой. */
+export const BANNER_ROTATION_LIMIT = 5;
+
+export interface InlineBannerItem {
+  _id: string;
+  title: string;
+  image: string;
+  mobileImage: string;
+  altText: string;
+  weight: number;
+}
+
+/** Баннеры внутри текста: своя пятёрка, отдельная от баннеров под «Популярным». */
+export const fetchInlineBanners = unstable_cache(
+  async (locale: string, kind: 'news' | 'article'): Promise<InlineBannerItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "sidebarBanner" && active == true && placement == "inline"
+          && defined(image.asset) && defined(mobileImage.asset)
+          && coalesce(contentTypes, "all") in ["all", $kind]
+          && (language == "all" || !defined(language) || language == $locale)
+          && (!defined(startAt) || startAt <= now())
+          && (!defined(endAt) || endAt >= now())
+        ] | order(_createdAt desc) [0...$limit] {
+          _id, title, "image": image.asset->url, "mobileImage": mobileImage.asset->url,
+          altText, "weight": coalesce(weight, 1)
+        }`,
+        { locale, kind, limit: BANNER_ROTATION_LIMIT }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchInlineBanners'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['banners'] }
+);
+
 export interface SidebarBannerItem {
   _id: string;
   title: string;
@@ -99,6 +145,7 @@ export const fetchActiveBanners = unstable_cache(
     try {
       return await client.fetch(
         `*[_type == "sidebarBanner" && active == true
+          && coalesce(placement, "sidebar") == "sidebar"
           && (language == "all" || !defined(language) || language == $locale)
           && (!defined(startAt) || startAt <= now())
           && (!defined(endAt) || endAt >= now())
@@ -115,29 +162,38 @@ export const fetchActiveBanners = unstable_cache(
   { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['banners'] }
 );
 
+/**
+ * Счётчики патчат по запросу с условием на тип: раньше маршрут принимал id
+ * любого документа и дописывал ему impressions/clicks — хоть новости, хоть
+ * пользователю админки.
+ */
+const BANNER_BY_ID = '*[_type == "sidebarBanner" && _id == $id]';
+
 export async function incrementBannerImpression(id: string) {
   if (!process.env.SANITY_API_WRITE_TOKEN) return;
   try {
-    await writeClient.patch(id).setIfMissing({ impressions: 0 }).inc({ impressions: 1 }).commit({ autoGenerateArrayKeys: false });
+    await writeClient.mutate(
+      [{ patch: { query: BANNER_BY_ID, params: { id }, setIfMissing: { impressions: 0 }, inc: { impressions: 1 } } }],
+      { autoGenerateArrayKeys: false },
+    );
   } catch {
     // impression counting is best-effort, never block rendering on it
   }
 }
 
 // Increments the click counter and returns the banner's destination link in
-// one round trip — commit() already returns the full patched document, so a
-// separate read query isn't needed. The redirect route resolves the target
-// URL server-side from the banner id rather than trusting a client-supplied
-// URL, which would otherwise be an open-redirect vector.
+// one round trip. The redirect route resolves the target URL server-side
+// from the banner id rather than trusting a client-supplied URL, which would
+// otherwise be an open-redirect vector.
 export async function incrementBannerClick(id: string): Promise<string | null> {
   if (!process.env.SANITY_API_WRITE_TOKEN) return null;
   try {
-    const doc = await writeClient
-      .patch(id)
-      .setIfMissing({ clicks: 0 })
-      .inc({ clicks: 1 })
-      .commit({ autoGenerateArrayKeys: false });
-    return typeof doc.link === 'string' ? doc.link : null;
+    const res = await writeClient.mutate(
+      [{ patch: { query: BANNER_BY_ID, params: { id }, setIfMissing: { clicks: 0 }, inc: { clicks: 1 } } }],
+      { autoGenerateArrayKeys: false, returnDocuments: true },
+    );
+    const doc = (res as unknown as Array<{ link?: unknown }>)[0];
+    return doc && typeof doc.link === 'string' ? doc.link : null;
   } catch {
     return null;
   }
@@ -253,6 +309,7 @@ export const fetchArticleBySlug = (slug: string, locale: string) =>
       return await client.fetch(
         `*[_type == "article" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, readingTime, badge, ownBadge, body, topic, views, likes, seo, commentsEnabled, updatedAt,
+          "noInlineBanner": ${NO_INLINE_BANNER},
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,
@@ -385,6 +442,7 @@ export const fetchNewsBySlug = (slug: string, locale: string) =>
       return await client.fetch(
         `*[_type == "news" && slug.current == $slug && language == $locale && publishedAt <= now()][0] {
           _id, _updatedAt, title, excerpt, slug, publishedAt, body, sourceName, sourceUrl, breaking, badge, ownBadge, topic, views, likes, seo, commentsEnabled, updatedAt,
+          "noInlineBanner": ${NO_INLINE_BANNER},
           "coverImage": coverImage.asset->url,
           "coverImageAlt": coverImage.alt,
           "seoOgImageUrl": seo.ogImage.asset->url,

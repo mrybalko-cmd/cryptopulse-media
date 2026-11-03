@@ -120,10 +120,17 @@ export async function fetchAdminUserPasswordHash(id: string): Promise<string | n
 
 // ---------------- Banners ----------------
 
+export type BannerPlacement = 'sidebar' | 'inline';
+export type BannerContentTypes = 'all' | 'news' | 'article';
+
 export interface AdminBannerDoc {
   _id: string;
   title: string;
+  placement: BannerPlacement;
+  contentTypes: BannerContentTypes;
   image: string | null;
+  /** Только у баннера в тексте: 320×80. */
+  mobileImage: string | null;
   altText: string;
   link: string;
   language: 'all' | 'ru' | 'en';
@@ -138,7 +145,8 @@ export interface AdminBannerDoc {
 }
 
 const BANNER_PROJECTION = `
-  _id, title, "image": image.asset->url, altText, link, language, weight, startAt, endAt, active, stoppedAt,
+  _id, title, "placement": coalesce(placement, "sidebar"), "contentTypes": coalesce(contentTypes, "all"),
+  "image": image.asset->url, "mobileImage": mobileImage.asset->url, altText, link, language, weight, startAt, endAt, active, stoppedAt,
   "impressions": coalesce(impressions, 0), "clicks": coalesce(clicks, 0)
 `;
 
@@ -152,6 +160,9 @@ export async function fetchAdminBannerById(id: string): Promise<AdminBannerDoc |
 
 export interface BannerInput {
   title: string;
+  placement: BannerPlacement;
+  contentTypes: BannerContentTypes;
+  mobileImageAssetId?: string;
   altText: string;
   link: string;
   language: 'all' | 'ru' | 'en';
@@ -166,6 +177,9 @@ export async function createBanner(input: BannerInput) {
   return writeClient.create({
     _type: 'sidebarBanner',
     title: input.title,
+    placement: input.placement,
+    contentTypes: input.contentTypes,
+    ...(input.mobileImageAssetId ? { mobileImage: { _type: 'image', asset: { _type: 'reference', _ref: input.mobileImageAssetId } } } : {}),
     altText: input.altText,
     link: input.link,
     language: input.language,
@@ -183,6 +197,8 @@ export async function createBanner(input: BannerInput) {
 export async function updateBanner(id: string, input: BannerInput) {
   const patch = writeClient.patch(id).set({
     title: input.title,
+    placement: input.placement,
+    contentTypes: input.contentTypes,
     altText: input.altText,
     link: input.link,
     language: input.language,
@@ -192,8 +208,28 @@ export async function updateBanner(id: string, input: BannerInput) {
   if (input.startAt) patch.set({ startAt: input.startAt }); else patch.unset(['startAt']);
   if (input.endAt) patch.set({ endAt: input.endAt }); else patch.unset(['endAt']);
   if (input.imageAssetId) patch.set({ image: { _type: 'image', asset: { _type: 'reference', _ref: input.imageAssetId } } });
+  if (input.mobileImageAssetId) patch.set({ mobileImage: { _type: 'image', asset: { _type: 'reference', _ref: input.mobileImageAssetId } } });
   markStopped(patch, input.active);
   await patch.commit({ autoGenerateArrayKeys: false });
+}
+
+/**
+ * Сколько баннеров этого места сейчас реально в ротации: включены, дата
+ * начала наступила, срок не вышел. Сайт берёт не больше пяти, шестой молча
+ * не показывался бы — поэтому админка не даёт его включить.
+ */
+export async function countLiveBanners(placement: BannerPlacement, exceptId = ''): Promise<number> {
+  return client.fetch(
+    `count(*[_type == "sidebarBanner" && active == true && coalesce(placement, "sidebar") == $placement
+      && _id != $exceptId && (!defined(startAt) || startAt <= now()) && (!defined(endAt) || endAt >= now())])`,
+    { placement, exceptId },
+  );
+}
+
+/** Попадёт ли баннер в ротацию прямо сейчас (а не по расписанию в будущем). */
+export function bannerLiveNow(b: { active: boolean; startAt?: string; endAt?: string }): boolean {
+  const now = Date.now();
+  return b.active && (!b.startAt || new Date(b.startAt).getTime() <= now) && (!b.endAt || new Date(b.endAt).getTime() >= now);
 }
 
 type Patch = ReturnType<typeof writeClient.patch>;
@@ -716,6 +752,8 @@ export interface AdminNewsDoc {
   pinnedUntil?: string;
   authorId?: string;
   commentsEnabled: boolean;
+  /** Галочка «Без баннера в тексте». Плашки и партнёрские авторы убирают баннер и без неё. */
+  hideInlineBanner: boolean;
   translationRefId?: string;
   views: number;
   likes: number;
@@ -731,7 +769,7 @@ const NEWS_DOC_PROJECTION = `
   "seoNoIndex": coalesce(seo.noIndex, false),
   topic, "ownBadge": coalesce(ownBadge, false), "badge": coalesce(badge, "none"),
   "breaking": coalesce(breaking, false), pinnedUntil,
-  "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true),
+  "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true), "hideInlineBanner": coalesce(hideInlineBanner, false),
   "translationRefId": translationRef._ref,
   "views": coalesce(views, 0), "likes": coalesce(likes, 0)
 `;
@@ -766,6 +804,8 @@ export interface NewsInput {
   pinnedUntil?: string;
   authorId?: string;
   commentsEnabled: boolean;
+  /** Галочка «Без баннера в тексте». Плашки и партнёрские авторы убирают баннер и без неё. */
+  hideInlineBanner: boolean;
   translationRefId?: string;
 }
 
@@ -796,6 +836,7 @@ function newsSetFields(input: NewsInput) {
     breaking: input.breaking,
     pinnedUntil: input.pinnedUntil || undefined,
     commentsEnabled: input.commentsEnabled,
+    hideInlineBanner: input.hideInlineBanner,
     ...(input.authorId ? { author: { _type: 'reference', _ref: input.authorId } } : {}),
     ...(input.translationRefId ? { translationRef: { _type: 'reference', _ref: input.translationRefId } } : {}),
   };
@@ -1042,6 +1083,8 @@ export interface AdminArticleDoc {
   seoNoIndex: boolean;
   authorId?: string;
   commentsEnabled: boolean;
+  /** Галочка «Без баннера в тексте». Плашки и партнёрские авторы убирают баннер и без неё. */
+  hideInlineBanner: boolean;
   translationRefId?: string;
   views: number;
   likes: number;
@@ -1055,7 +1098,7 @@ const ARTICLE_DOC_PROJECTION = `
   "seoMetaDescription": seo.metaDescription, "seoKeywords": array::join(seo.keywords, ", "),
   "seoOgImage": seo.ogImage.asset->url, "seoSchemaType": coalesce(seo.schemaType, "BlogPosting"),
   "seoCanonicalUrl": seo.canonicalUrl, "seoNoIndex": coalesce(seo.noIndex, false),
-  "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true),
+  "authorId": author._ref, "commentsEnabled": coalesce(commentsEnabled, true), "hideInlineBanner": coalesce(hideInlineBanner, false),
   "translationRefId": translationRef._ref,
   "views": coalesce(views, 0), "likes": coalesce(likes, 0)
 `;
@@ -1086,6 +1129,8 @@ export interface ArticleInput {
   seoNoIndex: boolean;
   authorId?: string;
   commentsEnabled: boolean;
+  /** Галочка «Без баннера в тексте». Плашки и партнёрские авторы убирают баннер и без неё. */
+  hideInlineBanner: boolean;
   translationRefId?: string;
 }
 
@@ -1114,6 +1159,7 @@ function articleSetFields(input: ArticleInput) {
       noIndex: input.seoNoIndex,
     },
     commentsEnabled: input.commentsEnabled,
+    hideInlineBanner: input.hideInlineBanner,
     ...(input.authorId ? { author: { _type: 'reference', _ref: input.authorId } } : {}),
     ...(input.translationRefId ? { translationRef: { _type: 'reference', _ref: input.translationRefId } } : {}),
   };

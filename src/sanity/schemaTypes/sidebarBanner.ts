@@ -2,9 +2,37 @@ import { defineField, defineType } from 'sanity';
 
 export const sidebarBannerType = defineType({
   name: 'sidebarBanner',
-  title: 'Sidebar Banner',
+  title: 'Banner / Баннер',
   type: 'document',
   fields: [
+    defineField({
+      name: 'placement',
+      title: 'Placement / Место показа',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Под «Популярным» (квадрат 1:1)', value: 'sidebar' },
+          { title: 'В тексте новостей и статей (970×200 + 320×80)', value: 'inline' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'sidebar',
+      description: 'Старые баннеры без значения считаются баннерами под «Популярным».',
+    }),
+    defineField({
+      name: 'contentTypes',
+      title: 'Где показывать (только для баннера в тексте)',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Новости и статьи', value: 'all' },
+          { title: 'Только новости', value: 'news' },
+          { title: 'Только статьи', value: 'article' },
+        ],
+      },
+      initialValue: 'all',
+      hidden: ({ document }) => document?.placement !== 'inline',
+    }),
     defineField({
       name: 'title',
       title: 'Internal name',
@@ -14,11 +42,18 @@ export const sidebarBannerType = defineType({
     }),
     defineField({
       name: 'image',
-      title: 'Image (square, 1:1)',
+      title: 'Image / Картинка (десктоп)',
       type: 'image',
-      description: 'Use a square image, ideally at least 600×600px — it fills a square slot under the Popular block.',
+      description: 'Под «Популярным»: квадрат от 600×600. В тексте: 970×200, загружать 1940×400.',
       options: { hotspot: true },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'mobileImage',
+      title: 'Картинка для телефона (баннер в тексте)',
+      type: 'image',
+      description: '320×80, загружать 640×160. Без неё баннер в тексте не показывается.',
+      hidden: ({ document }) => document?.placement !== 'inline',
     }),
     defineField({
       name: 'altText',
@@ -106,11 +141,12 @@ export const sidebarBannerType = defineType({
       impressions: 'impressions',
       clicks: 'clicks',
       language: 'language',
+      placement: 'placement',
       weight: 'weight',
       startAt: 'startAt',
       endAt: 'endAt',
     },
-    prepare({ title, media, active, impressions, clicks, language, weight, startAt, endAt }) {
+    prepare({ title, media, active, impressions, clicks, language, placement, weight, startAt, endAt }) {
       const imp = impressions || 0;
       const clk = clicks || 0;
       const ctr = imp > 0 ? ((clk / imp) * 100).toFixed(2) : '0.00';
@@ -119,7 +155,7 @@ export const sidebarBannerType = defineType({
       const scheduled = (startAt && new Date(startAt) > now) || (endAt && new Date(endAt) < now);
       return {
         title: `${active ? (scheduled ? '🟡' : '🟢') : '⚪'} ${title}`,
-        subtitle: `👁 ${imp} · 🖱 ${clk} · CTR ${ctr}% · ${lang} · вес ${weight || 1}`,
+        subtitle: `${placement === 'inline' ? 'В тексте' : 'Сайдбар'} · 👁 ${imp} · 🖱 ${clk} · CTR ${ctr}% · ${lang} · вес ${weight || 1}`,
         media,
       };
     },
