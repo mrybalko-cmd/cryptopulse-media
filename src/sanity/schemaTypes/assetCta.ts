@@ -31,6 +31,13 @@ export const assetCtaType = defineType({
       initialValue: true,
     }),
     defineField({
+      name: 'stoppedAt',
+      title: 'Остановлена',
+      type: 'datetime',
+      readOnly: true,
+      description: 'Ставится кнопкой «Остановить» в админке. Клики при этом сохраняются.',
+    }),
+    defineField({
       name: 'mode',
       title: 'Какие кнопки',
       type: 'string',

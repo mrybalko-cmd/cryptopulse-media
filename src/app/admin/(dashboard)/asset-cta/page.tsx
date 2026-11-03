@@ -2,18 +2,14 @@ import Link from 'next/link';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { fetchAdminAssetCtas } from '@/lib/admin/data';
 import { COIN_REGISTRY } from '@/lib/coinRegistry';
-import { formatPragueDate } from '@/lib/admin/timezone';
+import { formatPragueDate, formatPragueDateTime } from '@/lib/admin/timezone';
+import { toggleAssetCtaAction } from './actions';
+import { PlacementNotice, PlacementToggleButton } from '../_shared/PlacementToggle';
+import PlacementStatus, { noticeText } from '../_shared/PlacementStatus';
 
-function statusOf(c: { active: boolean; startAt?: string; endAt?: string }) {
-  if (!c.active) return { color: 'var(--admin-text-muted)', label: 'Выключена' };
-  const now = Date.now();
-  if (c.endAt && new Date(c.endAt).getTime() < now) return { color: '#f2a93b', label: 'Срок вышел' };
-  if (c.startAt && new Date(c.startAt).getTime() > now) return { color: '#f2a93b', label: 'Ещё не началась' };
-  return { color: '#22c55e', label: 'На сайте' };
-}
-
-export default async function AdminAssetCtaPage() {
+export default async function AdminAssetCtaPage({ searchParams }: { searchParams: Promise<{ toggled?: string; name?: string }> }) {
   await requireAdminPermission('banners');
+  const notice = noticeText(await searchParams, 'f');
   const ctas = await fetchAdminAssetCtas();
 
   return (
@@ -29,6 +25,8 @@ export default async function AdminAssetCtaPage() {
         за пару минут, деплой не нужен.
       </p>
 
+      <PlacementNotice key={notice ?? ''} message={notice} />
+
       {ctas.length === 0 ? (
         <p className="text-[13px] text-[var(--admin-text-muted)]">
           Пока нет ни одной кнопки. Карточки монет выглядят как обычно.
@@ -36,34 +34,41 @@ export default async function AdminAssetCtaPage() {
       ) : (
         <div className="flex flex-col gap-2">
           {ctas.map(c => {
-            const status = statusOf(c);
             const coin = COIN_REGISTRY[c.coinSlug];
             const color = c.color || coin?.color || 'var(--admin-text-muted)';
+            const stopped = !c.active;
+            const name = coin ? `${coin.name} · ${coin.symbol}` : c.coinSlug;
             return (
-              <Link
+              <div
                 key={c._id}
-                href={`/admin/asset-cta/${c._id}`}
-                className="flex items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
+                className="flex flex-wrap items-center gap-3 border border-[var(--admin-border)] rounded-xl p-3 bg-[var(--admin-panel)] hover:border-cyan-500/40 transition-colors"
               >
-                <span className="w-9 h-9 rounded-lg shrink-0" style={{ background: color }} />
-                <div className="min-w-0">
-                  <div className="text-[13px] font-bold">
-                    {coin ? `${coin.name} · ${coin.symbol}` : c.coinSlug}
+                <Link href={`/admin/asset-cta/${c._id}`} className="flex items-center gap-3 min-w-0 flex-[1_1_220px]">
+                  <span className={`w-9 h-9 rounded-lg shrink-0 ${stopped ? 'grayscale opacity-50' : ''}`} style={{ background: color }} />
+                  <div className="min-w-0">
+                    <div className={`text-[13px] font-bold ${stopped ? 'text-[var(--admin-text-secondary)]' : ''}`}>{name}</div>
+                    <div className="text-[11px] text-[var(--admin-text-muted)] truncate">
+                      {c.partner ? `${c.partner} · ` : ''}
+                      {c.language === 'all' ? 'оба языка' : c.language.toUpperCase()}
+                      {c.endAt ? ` · до ${formatPragueDate(c.endAt, { day: '2-digit', month: '2-digit', year: 'numeric' })}` : ' · без срока'}
+                      {stopped && c.stoppedAt ? ` · остановлена ${formatPragueDateTime(c.stoppedAt)}` : ''}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-[var(--admin-text-muted)] truncate">
-                    {c.partner ? `${c.partner} · ` : ''}
-                    {c.language === 'all' ? 'оба языка' : c.language.toUpperCase()}
-                    {c.endAt ? ` · до ${formatPragueDate(c.endAt, { day: '2-digit', month: '2-digit', year: 'numeric' })}` : ' · без срока'}
-                  </div>
-                </div>
-                <span className="ml-auto flex items-center gap-4 shrink-0">
-                  <span className="text-[11px] text-[var(--admin-text-muted)]">
+                </Link>
+                <span className="ml-auto flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+                  <span className="text-[11px] text-[var(--admin-text-muted)] tabular-nums">
                     <b className="text-[var(--admin-text)]">{(c.clicks + c.sellClicks).toLocaleString('ru-RU')}</b> кликов
                   </span>
-                  <span className="text-[11px] text-[var(--admin-text-muted)]">{status.label}</span>
-                  <span className="w-2 h-2 rounded-full" style={{ background: status.color }} />
+                  <PlacementStatus doc={c} gender="f" />
+                  <form action={toggleAssetCtaAction}>
+                    <input type="hidden" name="id" value={c._id} />
+                    <input type="hidden" name="active" value={stopped ? 'true' : 'false'} />
+                    <input type="hidden" name="name" value={name} />
+                    <input type="hidden" name="back" value="/admin/asset-cta" />
+                    <PlacementToggleButton active={c.active} />
+                  </form>
                 </span>
-              </Link>
+              </div>
             );
           })}
         </div>

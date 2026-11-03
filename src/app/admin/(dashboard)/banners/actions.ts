@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { pragueInputToISO } from '@/lib/admin/timezone';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { createBanner, updateBanner, uploadImageAsset, type BannerInput } from '@/lib/admin/data';
+import { createBanner, updateBanner, uploadImageAsset, setPlacementActive, type BannerInput } from '@/lib/admin/data';
 
 function parseInput(formData: FormData): Omit<BannerInput, 'imageAssetId'> {
   return {
@@ -56,4 +56,28 @@ export async function updateBannerAction(id: string, formData: FormData) {
   await updateBanner(id, { ...input, imageAssetId });
   publishBanners();
   redirect(`/admin/banners/${id}?saved=1`);
+}
+
+/**
+ * Куда вернуться после нажатия: только внутрь своего раздела, иначе
+ * подставной back из формы уводил бы куда угодно.
+ */
+function backTo(raw: FormDataEntryValue | null, base: string, toggled: 'stopped' | 'resumed', name: string) {
+  const back = String(raw || '');
+  const path = back === base || back.startsWith(`${base}/`) || back.startsWith(`${base}?`) ? back : base;
+  const url = new URL(path, 'http://x');
+  url.searchParams.delete('saved');
+  url.searchParams.set('toggled', toggled);
+  url.searchParams.set('name', name);
+  return `${url.pathname}${url.search}`;
+}
+
+/** Кнопка «Остановить / Возобновить». Показы и клики не трогает. */
+export async function toggleBannerAction(formData: FormData) {
+  await requireAdminPermission('banners');
+  const id = String(formData.get('id') || '');
+  const active = formData.get('active') === 'true';
+  await setPlacementActive('sidebarBanner', id, active);
+  publishBanners();
+  redirect(backTo(formData.get('back'), '/admin/banners', active ? 'resumed' : 'stopped', String(formData.get('name') || '')));
 }

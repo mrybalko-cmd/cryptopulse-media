@@ -131,12 +131,14 @@ export interface AdminBannerDoc {
   startAt?: string;
   endAt?: string;
   active: boolean;
+  /** Когда остановили кнопкой или галочкой. Нет у работающих и у старых записей. */
+  stoppedAt?: string;
   impressions: number;
   clicks: number;
 }
 
 const BANNER_PROJECTION = `
-  _id, title, "image": image.asset->url, altText, link, language, weight, startAt, endAt, active,
+  _id, title, "image": image.asset->url, altText, link, language, weight, startAt, endAt, active, stoppedAt,
   "impressions": coalesce(impressions, 0), "clicks": coalesce(clicks, 0)
 `;
 
@@ -171,6 +173,7 @@ export async function createBanner(input: BannerInput) {
     ...(input.startAt ? { startAt: input.startAt } : {}),
     ...(input.endAt ? { endAt: input.endAt } : {}),
     active: input.active,
+    ...(input.active ? {} : { stoppedAt: new Date().toISOString() }),
     impressions: 0,
     clicks: 0,
     ...(input.imageAssetId ? { image: { _type: 'image', asset: { _type: 'reference', _ref: input.imageAssetId } } } : {}),
@@ -189,6 +192,28 @@ export async function updateBanner(id: string, input: BannerInput) {
   if (input.startAt) patch.set({ startAt: input.startAt }); else patch.unset(['startAt']);
   if (input.endAt) patch.set({ endAt: input.endAt }); else patch.unset(['endAt']);
   if (input.imageAssetId) patch.set({ image: { _type: 'image', asset: { _type: 'reference', _ref: input.imageAssetId } } });
+  markStopped(patch, input.active);
+  await patch.commit({ autoGenerateArrayKeys: false });
+}
+
+type Patch = ReturnType<typeof writeClient.patch>;
+
+/**
+ * Дата остановки живёт рядом с полем active. setIfMissing, а не set: повторное
+ * сохранение уже остановленной записи не должно сдвигать дату на «сейчас».
+ * Счётчики показов и кликов здесь не трогаются ни в одну сторону.
+ */
+function markStopped(patch: Patch, active: boolean) {
+  if (active) patch.unset(['stoppedAt']);
+  else patch.setIfMissing({ stoppedAt: new Date().toISOString() });
+}
+
+/** Остановить или вернуть в показ баннер либо кнопку монеты, не трогая остальное. */
+export async function setPlacementActive(type: 'sidebarBanner' | 'assetCta', id: string, active: boolean) {
+  const doc = await client.fetch<{ _id: string } | null>(`*[_type == $type && _id == $id][0]{ _id }`, { type, id });
+  if (!doc) throw new Error(`Нет записи ${id}`);
+  const patch = writeClient.patch(id).set({ active });
+  markStopped(patch, active);
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 
@@ -210,6 +235,7 @@ export interface AdminAssetCtaDoc {
   places: { cards: boolean; table: boolean; page: boolean; sticky: boolean };
   startAt?: string;
   endAt?: string;
+  stoppedAt?: string;
   /** Пишет только /api/coin-cta-click. Форма эти поля не отправляет. */
   clicks: number;
   sellClicks: number;
@@ -226,7 +252,7 @@ const ASSET_CTA_PROJECTION = `
     "page":   coalesce(places.page,   true),
     "sticky": coalesce(places.sticky, true)
   },
-  startAt, endAt,
+  startAt, endAt, stoppedAt,
   "clicks": coalesce(clicks, 0),
   "sellClicks": coalesce(sellClicks, 0)
 `;
@@ -275,6 +301,7 @@ export async function createAssetCta(input: AssetCtaInput) {
     sellClicks: 0,
     coinSlug: input.coinSlug,
     active: input.active,
+    ...(input.active ? {} : { stoppedAt: new Date().toISOString() }),
     mode: input.mode,
     url: input.url,
     showAdLabel: input.showAdLabel,
@@ -300,6 +327,7 @@ export async function updateAssetCta(id: string, input: AssetCtaInput) {
     if (input[k]) patch.set({ [k]: input[k] });
     else patch.unset([k]);
   }
+  markStopped(patch, input.active);
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 

@@ -5,7 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { pragueInputToISO } from '@/lib/admin/timezone';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
-  createAssetCta, updateAssetCta, deleteAssetCta, assetCtaSlugTaken,
+  createAssetCta, updateAssetCta, deleteAssetCta, assetCtaSlugTaken, setPlacementActive,
   type AssetCtaInput,
 } from '@/lib/admin/data';
 import { ASSET_CTA_TAG } from '@/lib/assetCta';
@@ -74,4 +74,28 @@ export async function deleteAssetCtaAction(formData: FormData) {
   await deleteAssetCta(String(formData.get('id') || ''));
   publishCtas();
   redirect('/admin/asset-cta');
+}
+
+/**
+ * Куда вернуться после нажатия: только внутрь своего раздела, иначе
+ * подставной back из формы уводил бы куда угодно.
+ */
+function backTo(raw: FormDataEntryValue | null, base: string, toggled: 'stopped' | 'resumed', name: string) {
+  const back = String(raw || '');
+  const path = back === base || back.startsWith(`${base}/`) || back.startsWith(`${base}?`) ? back : base;
+  const url = new URL(path, 'http://x');
+  url.searchParams.delete('saved');
+  url.searchParams.set('toggled', toggled);
+  url.searchParams.set('name', name);
+  return `${url.pathname}${url.search}`;
+}
+
+/** Кнопка «Остановить / Возобновить». Клики не трогает. */
+export async function toggleAssetCtaAction(formData: FormData) {
+  await requireAdminPermission('banners');
+  const id = String(formData.get('id') || '');
+  const active = formData.get('active') === 'true';
+  await setPlacementActive('assetCta', id, active);
+  publishCtas();
+  redirect(backTo(formData.get('back'), '/admin/asset-cta', active ? 'resumed' : 'stopped', String(formData.get('name') || '')));
 }

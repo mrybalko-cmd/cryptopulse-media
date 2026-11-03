@@ -76,6 +76,13 @@ export const sidebarBannerType = defineType({
       description: 'Up to 5 active banners rotate randomly on every page load, within their scheduled dates. Switch off to pull a banner without deleting it.',
     }),
     defineField({
+      name: 'stoppedAt',
+      title: 'Stopped at / Остановлен',
+      type: 'datetime',
+      readOnly: true,
+      description: 'Set by the admin Stop button or the Active switch. Impressions and clicks are kept.',
+    }),
+    defineField({
       name: 'impressions',
       title: 'Impressions (auto-tracked)',
       type: 'number',
