@@ -470,6 +470,7 @@ export async function fetchPreviousItem(type: 'article' | 'news', locale: string
       `*[_type == $type && language == $locale && publishedAt <= now() && publishedAt < $before] | order(publishedAt desc) [0] {
         _id, _type, title, excerpt, slug, publishedAt, body, readingTime, badge, commentsEnabled,
         sourceName, sourceUrl, breaking,
+        "noInlineBanner": ${NO_INLINE_BANNER},
         "coverImage": coverImage.asset->url,
         "coverImageAlt": coverImage.alt,
         "author": author->{name, firstNameRu, lastNameRu, firstNameEn, lastNameEn, "slug": slug.current, roleRu, roleEn, bioRu, bioEn, email, telegram, linkedin, facebook, twitter, instagram, website, "photo": photo.asset->url}

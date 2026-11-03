@@ -7,7 +7,9 @@ import RichText from './RichText';
 import CommentSection from './CommentSection';
 import PopularList from './PopularList';
 import SidebarBanner from './SidebarBanner';
-import type { PopularItem, SidebarBannerItem } from '@/lib/sanity';
+import InlineBanner from './InlineBanner';
+import { inlineBannerSlot } from '@/lib/inlineBannerSlot';
+import type { InlineBannerItem, PopularItem, SidebarBannerItem } from '@/lib/sanity';
 import { authorName, type AuthorNameFields } from '@/lib/authorName';
 
 interface FeedItem {
@@ -21,6 +23,7 @@ interface FeedItem {
   coverImage?: string;
   coverImageAlt?: string;
   commentsEnabled?: boolean;
+  noInlineBanner?: boolean;
   author?: AuthorNameFields & { slug?: string };
 }
 
@@ -29,6 +32,8 @@ interface Props {
   locale: string;
   cursor: string;
   banners: SidebarBannerItem[];
+  /** Баннеры в тексте: встают в каждый материал ленты по тем же правилам, что и в открытом. */
+  inlineBanners?: InlineBannerItem[];
 }
 
 // Mobile-only, client-fetched "previous article" feed — loads one item at a
@@ -37,7 +42,7 @@ interface Props {
 // the initial HTML would create duplicate/thin-content risk on the current
 // article's own indexed URL under mobile-first indexing. Fetched-on-scroll
 // content is far less likely to be crawled/indexed the same way.
-export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor, banners }: Props) {
+export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor, banners, inlineBanners = [] }: Props) {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [popularByItem, setPopularByItem] = useState<Record<string, PopularItem[]>>({});
   const [cursor, setCursor] = useState(initialCursor);
@@ -102,6 +107,8 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
           minute: '2-digit',
           timeZone: 'Europe/Prague',
         });
+        const inlineSlot =
+          item.body && inlineBanners.length && !item.noInlineBanner ? inlineBannerSlot(item.body) : null;
         return (
           <div key={item._id} className="mt-12 pt-8 border-t border-border">
             {item.coverImage && (
@@ -139,7 +146,12 @@ export default function InfiniteMobileFeed({ type, locale, cursor: initialCursor
               </span>
             </div>
             {item.body ? (
-              <RichText value={item.body} fallbackAlt={item.title} locale={locale} />
+              <RichText
+                value={item.body}
+                fallbackAlt={item.title}
+                locale={locale}
+                insert={inlineSlot !== null ? { afterIndex: inlineSlot, node: <InlineBanner banners={inlineBanners} locale={locale} /> } : undefined}
+              />
             ) : (
               <p className="text-muted">{item.excerpt}</p>
             )}

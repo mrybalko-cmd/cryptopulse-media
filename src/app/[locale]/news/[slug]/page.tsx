@@ -132,9 +132,11 @@ export default async function NewsDetailPage({ params }: Props) {
     .filter((item) => item._id !== news._id)
     .slice(0, 7);
   const banners = await fetchActiveBanners(locale);
-  // Баннер в тексте: только в самом материале, не в мобильной ленте ниже, и
-  // не в рекламе и чужих материалах (noInlineBanner считает запрос).
-  const inlineBanners = news.noInlineBanner ? [] : await fetchInlineBanners(locale, 'news');
+  // Баннер в тексте: в самом материале и в каждом материале мобильной ленты
+  // ниже, но не в рекламе и чужих материалах (noInlineBanner считает запрос).
+  // Лента получает список всегда: у следующего материала свой флаг.
+  const feedInlineBanners = await fetchInlineBanners(locale, 'news');
+  const inlineBanners = news.noInlineBanner ? [] : feedInlineBanners;
   const inlineSlot = inlineBanners.length ? inlineBannerSlot(news.body) : null;
 
   // Unified with the homepage feed: 24-hour time and dot-separated DD.MM.YYYY,
@@ -361,7 +363,7 @@ export default async function NewsDetailPage({ params }: Props) {
       )}
 
       {/* Mobile infinite feed — previous news, its own comments + Popular, repeating */}
-      <InfiniteMobileFeed type="news" locale={locale} cursor={news.publishedAt} banners={banners} />
+      <InfiniteMobileFeed type="news" locale={locale} cursor={news.publishedAt} banners={banners} inlineBanners={feedInlineBanners} />
       </div>
 
       {/* Share + Popular (desktop, sticky) */}
