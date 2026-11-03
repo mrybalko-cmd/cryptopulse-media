@@ -187,6 +187,81 @@ export const COINS: CoinMeta[] = [
     tagline: { ru: 'Сеть, которая платит за машинное обучение', en: 'A network that pays for machine learning' },
     year: 2023, available: true, sector: 'infra',
   },
+  {
+    slug: 'cronos', coingeckoId: 'crypto-com-chain', symbol: 'CRO', icon: 'Ⓒ', name: 'Cronos',
+    tagline: { ru: 'Токен биржи, который обзавёлся своей сетью', en: 'The exchange token that grew its own chain' },
+    year: 2018, available: true, sector: 'defi',
+  },
+  {
+    slug: 'ethena', coingeckoId: 'ethena', symbol: 'ENA', icon: 'Ⓔ', name: 'Ethena',
+    tagline: { ru: 'Синтетический доллар на крипте и коротких фьючерсах', en: 'A synthetic dollar backed by crypto and short futures' },
+    year: 2024, available: true, sector: 'defi',
+  },
+  {
+    slug: 'pepe', coingeckoId: 'pepe', symbol: 'PEPE', icon: '🐸', name: 'Pepe',
+    tagline: { ru: 'Мем с лягушкой, который держится на одном внимании', en: 'A frog meme that trades on attention alone' },
+    year: 2023, available: true, sector: 'meme',
+  },
+  {
+    slug: 'aave', coingeckoId: 'aave', symbol: 'AAVE', icon: '👻', name: 'Aave',
+    tagline: { ru: 'Крупнейший кредитный рынок в DeFi', en: 'The largest lending market in DeFi' },
+    year: 2017, available: true, sector: 'defi',
+  },
+  {
+    slug: 'ondo', coingeckoId: 'ondo-finance', symbol: 'ONDO', icon: 'Ⓞ', name: 'Ondo',
+    tagline: { ru: 'Американские облигации и акции в виде токенов', en: 'US Treasuries and stocks as tokens' },
+    year: 2024, available: true, sector: 'defi',
+  },
+  {
+    slug: 'mantle', coingeckoId: 'mantle', symbol: 'MNT', icon: 'Ⓜ', name: 'Mantle',
+    tagline: { ru: 'Второй уровень Ethereum, выросший из DAO биржи Bybit', en: 'An Ethereum layer 2 that started as an exchange-backed DAO' },
+    year: 2023, available: true, sector: 'scaling',
+  },
+  {
+    slug: 'worldcoin', coingeckoId: 'worldcoin-wld', symbol: 'WLD', icon: '◉', name: 'Worldcoin',
+    tagline: { ru: 'Токен в обмен на доказательство, что вы человек', en: 'A token handed out for proving you are human' },
+    year: 2023, available: true, sector: 'infra',
+  },
+  {
+    slug: 'internet-computer', coingeckoId: 'internet-computer', symbol: 'ICP', icon: '∞', name: 'Internet Computer',
+    tagline: { ru: 'Блокчейн, на котором живут целые сайты', en: 'A blockchain that wants to host whole websites' },
+    year: 2021, available: true, sector: 'l1',
+  },
+  {
+    slug: 'ethereum-classic', coingeckoId: 'ethereum-classic', symbol: 'ETC', icon: 'ξ', name: 'Ethereum Classic',
+    tagline: { ru: 'Исходная цепочка Ethereum, которая не стала отменять взлом', en: 'The original Ethereum chain that refused to reverse a hack' },
+    year: 2016, available: true, sector: 'l1',
+  },
+  {
+    slug: 'kaspa', coingeckoId: 'kaspa', symbol: 'KAS', icon: 'Ⓚ', name: 'Kaspa',
+    tagline: { ru: 'Майнинг и десять блоков в секунду', en: 'Proof of work with ten blocks every second' },
+    year: 2021, available: true, sector: 'l1',
+  },
+  {
+    slug: 'pi-network', coingeckoId: 'pi-network', symbol: 'PI', icon: 'π', name: 'Pi Network',
+    tagline: { ru: 'Монета, которую добывали нажатием кнопки в приложении', en: 'A coin people mined by tapping a button in an app' },
+    year: 2019, available: true, sector: 'l1',
+  },
+  {
+    slug: 'algorand', coingeckoId: 'algorand', symbol: 'ALGO', icon: 'Ⓐ', name: 'Algorand',
+    tagline: { ru: 'Блокчейн от лауреата премии Тьюринга', en: 'A blockchain designed by a Turing Award winner' },
+    year: 2019, available: true, sector: 'l1',
+  },
+  {
+    slug: 'jupiter', coingeckoId: 'jupiter-exchange-solana', symbol: 'JUP', icon: 'Ⓙ', name: 'Jupiter',
+    tagline: { ru: 'Агрегатор обменов, через который идёт Solana', en: 'The swap aggregator at the centre of Solana' },
+    year: 2024, available: true, sector: 'defi',
+  },
+  {
+    slug: 'render', coingeckoId: 'render-token', symbol: 'RENDER', icon: 'Ⓡ', name: 'Render',
+    tagline: { ru: 'Биржа свободных мощностей видеокарт', en: 'A marketplace for spare GPU power' },
+    year: 2017, available: true, sector: 'infra',
+  },
+  {
+    slug: 'filecoin', coingeckoId: 'filecoin', symbol: 'FIL', icon: 'Ⓕ', name: 'Filecoin',
+    tagline: { ru: 'Сеть хранения, где платят за чужие файлы на вашем диске', en: 'A storage network where providers earn for keeping files' },
+    year: 2020, available: true, sector: 'infra',
+  },
 ];
 
 export const COIN_IDS = COINS.map(c => c.coingeckoId);

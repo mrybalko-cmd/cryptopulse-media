@@ -71,7 +71,8 @@ export default function CoinPageShell({
     n >= 1e9 ? `$${(n / 1e9).toFixed(n / 1e9 >= 100 ? 0 : 1)}${isRu ? ' млрд' : 'B'}`
       : n >= 1e6 ? `$${(n / 1e6).toFixed(0)}${isRu ? ' млн' : 'M'}`
         : n >= 1 ? `$${n.toLocaleString(nf, { maximumFractionDigits: 2 })}`
-          : `$${n.toFixed(4)}`;
+          : n >= 0.01 ? `$${n.toFixed(4)}`
+            : `$${n.toLocaleString('en-US', { maximumSignificantDigits: 3 })}`;
 
   const supply = market?.circulating
     ? market.maxSupply

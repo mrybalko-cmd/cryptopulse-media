@@ -48,6 +48,21 @@ export const COIN_REGISTRY: Record<string, CoinMeta> = {
   hedera: { id: 'hedera-hashgraph', symbol: 'HBAR', name: 'Hedera', color: '#8259EF' },
   quant: { id: 'quant-network', symbol: 'QNT', name: 'Quant', color: '#3A3A3A' },
   bittensor: { id: 'bittensor', symbol: 'TAO', name: 'Bittensor', color: '#2B2B2B' },
+  cronos: { id: 'crypto-com-chain', symbol: 'CRO', name: 'Cronos', color: '#002D74' },
+  ethena: { id: 'ethena', symbol: 'ENA', name: 'Ethena', color: '#1C1C1C' },
+  pepe: { id: 'pepe', symbol: 'PEPE', name: 'Pepe', color: '#3D9E3D' },
+  aave: { id: 'aave', symbol: 'AAVE', name: 'Aave', color: '#B6509E' },
+  ondo: { id: 'ondo-finance', symbol: 'ONDO', name: 'Ondo', color: '#1E4FD8' },
+  mantle: { id: 'mantle', symbol: 'MNT', name: 'Mantle', color: '#65B3AE' },
+  worldcoin: { id: 'worldcoin-wld', symbol: 'WLD', name: 'Worldcoin', color: '#191C20' },
+  'internet-computer': { id: 'internet-computer', symbol: 'ICP', name: 'Internet Computer', color: '#522785' },
+  'ethereum-classic': { id: 'ethereum-classic', symbol: 'ETC', name: 'Ethereum Classic', color: '#3AB83A' },
+  kaspa: { id: 'kaspa', symbol: 'KAS', name: 'Kaspa', color: '#70C7BA' },
+  'pi-network': { id: 'pi-network', symbol: 'PI', name: 'Pi Network', color: '#6B3FA0' },
+  algorand: { id: 'algorand', symbol: 'ALGO', name: 'Algorand', color: '#3A3A3A' },
+  jupiter: { id: 'jupiter-exchange-solana', symbol: 'JUP', name: 'Jupiter', color: '#9BC53D' },
+  render: { id: 'render-token', symbol: 'RENDER', name: 'Render', color: '#E2412F' },
+  filecoin: { id: 'filecoin', symbol: 'FIL', name: 'Filecoin', color: '#0090FF' },
 };
 
 export const COIN_SLUGS = Object.keys(COIN_REGISTRY);

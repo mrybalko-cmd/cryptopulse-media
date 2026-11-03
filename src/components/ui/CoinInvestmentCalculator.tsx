@@ -67,7 +67,12 @@ export default function CoinInvestmentCalculator({
       ? `$${(n / 1e6).toFixed(2)}${isRu ? ' млн' : 'M'}`
       : n >= 1000
         ? `$${Math.round(n).toLocaleString(isRu ? 'ru-RU' : 'en-US')}`
-        : `$${n < 1 ? n.toFixed(4) : n.toFixed(2)}`;
+        : n >= 1
+          ? `$${n.toFixed(2)}`
+          // Sub-cent tokens (SHIB, PEPE) collapsed to $0.0000 with a fixed four decimals.
+          : n >= 0.01
+            ? `$${n.toFixed(4)}`
+            : `$${n.toLocaleString('en-US', { maximumSignificantDigits: 3 })}`;
 
   const dateLabel = (d: string) => {
     const [y, m, dd] = d.split('-');
@@ -279,7 +284,7 @@ function OnceResult({
           {first && (
             <p className="text-[11.5px] text-muted mt-[7px] leading-relaxed">
               ${amount.toLocaleString(isRu ? 'ru-RU' : 'en-US')} {isRu ? 'в' : 'in'} {first.year} {isRu ? 'году по' : 'at'}{' '}
-              {money(first.price)} — {isRu ? 'это' : 'that is'} {coins >= 1 ? coins.toFixed(4) : coins.toFixed(6)} {symbol}
+              {money(first.price)} — {isRu ? 'это' : 'that is'} {coins >= 1000 ? Math.round(coins).toLocaleString(isRu ? 'ru-RU' : 'en-US') : coins >= 1 ? coins.toFixed(4) : coins.toFixed(6)} {symbol}
             </p>
           )}
         </div>

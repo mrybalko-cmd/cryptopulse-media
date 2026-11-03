@@ -642,4 +642,625 @@ export const COIN_GUIDES: Record<string, CoinGuideData> = {
       { slug: 'whitepaper', label: { ru: 'Whitepaper', en: 'Whitepaper' } },
     ],
   },
+
+  cronos: {
+    stats: [
+      { label: { ru: 'Год выпуска', en: 'Launched' }, value: '2018' },
+      { label: { ru: 'Основатели', en: 'Founders' }, value: 'Kris Marszalek, Bobby Bao, Gary Or, Rafael Melo' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '100 000 000 000', en: '100,000,000,000' } },
+      { label: { ru: 'Сети', en: 'Networks' }, value: { ru: 'Cronos EVM и Crypto.org Chain', en: 'Cronos EVM and Crypto.org Chain' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 0.2127, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'За три недели до максимума', en: 'Three weeks before the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 0.06226, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После спада 2022 года', en: 'After the 2022 decline' } },
+      { yearsAgo: 1, year: 2025, price: 0.147, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через семь месяцев после голосования о перевыпуске', en: 'Seven months after the reissue vote' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'CRO — это токен Crypto.com?', en: 'Is CRO the Crypto.com token?' },
+        answer: {
+          ru: 'Да. Crypto.com выпустила CRO в 2018 году, на нём работают сети Cronos и Crypto.org Chain. В феврале 2022 года токен переименовали в Cronos, тикер остался прежним.',
+          en: 'Yes. Crypto.com issued CRO in 2018, and it powers the Cronos chain and the Crypto.org Chain. In February 2022 Crypto.com renamed the token Cronos and kept the ticker CRO.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего CRO?', en: 'How many CRO exist?' },
+        answer: {
+          ru: 'Максимум — 100 миллиардов, в обращении около 50,8 миллиарда по данным CoinGecko. 70 миллиардов, сожжённых в 2021 году, в 2025-м вернули голосованием в резервный кошелёк с поэтапной разблокировкой.',
+          en: 'The maximum is 100 billion. About 50.8 billion are in circulation, according to CoinGecko. In 2025 validators voted to reissue 70 billion tokens that had been burned in 2021, and they sit in a reserve wallet under vesting.',
+        },
+      },
+      {
+        question: { ru: 'Когда CRO стоил дороже всего?', en: 'When did CRO reach its all-time high?' },
+        answer: {
+          ru: '23 ноября 2021 года, 0,8915 доллара. В том же месяце Crypto.com запустила сеть Cronos и купила название арены в Лос-Анджелесе.',
+          en: 'On 23 November 2021, at 0.8915 dollars, during the month Crypto.com launched the Cronos chain and bought the naming rights to the Los Angeles arena.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'cex', label: { ru: 'Биржа', en: 'Exchange' } },
+      { slug: 'smart-contract', label: { ru: 'Смарт-контракт', en: 'Smart contract' } },
+      { slug: 'tokenomics', label: { ru: 'Токеномика', en: 'Tokenomics' } },
+    ],
+  },
+
+  ethena: {
+    stats: [
+      { label: { ru: 'Год запуска токена', en: 'Token launch' }, value: '2024' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Guy Young' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '15 000 000 000', en: '15,000,000,000' } },
+      { label: { ru: 'Продукт', en: 'Product' }, value: { ru: 'Синтетический доллар USDe', en: 'Synthetic dollar USDe' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 2, year: 2024, price: 0.3693, label: { ru: '2 года назад (ноябрь 2024)', en: '2 years ago (November 2024)' }, note: { ru: 'Через семь месяцев после аирдропа', en: 'Seven months after the airdrop' } },
+      { yearsAgo: 1, year: 2025, price: 0.3876, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через месяц после пика выпуска USDe', en: 'A month after USDe supply peaked' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Чем USDe отличается от ENA?', en: 'What is the difference between USDe and ENA?' },
+        answer: {
+          ru: 'USDe — синтетический доллар, его цель держаться у одного доллара. ENA — токен управления с выпуском 15 миллиардов, его цена свободно меняется.',
+          en: 'USDe is the synthetic dollar that aims to hold a price of one dollar. ENA is the governance token with a supply of 15 billion, and its price floats with the market.',
+        },
+      },
+      {
+        question: { ru: 'Откуда доходность USDe?', en: 'Where does the USDe yield come from?' },
+        answer: {
+          ru: 'В основном из фандинга: трейдеры с длинными позициями во фьючерсах платят держателям коротких, а шорты держит Ethena. Когда фандинг уходит в минус, доход падает.',
+          en: 'From funding: traders with long positions in futures pay holders of short positions, and Ethena holds shorts. When funding turns negative, the yield falls.',
+        },
+      },
+      {
+        question: { ru: 'Как распределили ENA?', en: 'How was ENA distributed?' },
+        answer: {
+          ru: '750 миллионов, 5% выпуска, получили пользователи в аирдропе 2 апреля 2024 года. Из 15 миллиардов в обращении около 13,4 миллиарда по данным CoinGecko.',
+          en: '750 million ENA, 5% of supply, went to users in the airdrop of 2 April 2024. About 13.4 billion of the 15 billion are in circulation, according to CoinGecko.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'stablecoin', label: { ru: 'Стейблкоин', en: 'Stablecoin' } },
+      { slug: 'airdrop', label: { ru: 'Аирдроп', en: 'Airdrop' } },
+      { slug: 'leverage', label: { ru: 'Плечо', en: 'Leverage' } },
+    ],
+  },
+
+  pepe: {
+    stats: [
+      { label: { ru: 'Год запуска', en: 'Launched' }, value: '2023' },
+      { label: { ru: 'Создатели', en: 'Creators' }, value: { ru: 'Анонимные', en: 'Anonymous' } },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '420 690 000 000 000', en: '420,690,000,000,000' } },
+      { label: { ru: 'Тип токена', en: 'Token type' }, value: { ru: 'ERC-20 на Ethereum', en: 'ERC-20 on Ethereum' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 3, year: 2023, price: 1.19e-06, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'Через полгода после листинга на Binance', en: 'Six months after the Binance listing' } },
+      { yearsAgo: 1, year: 2025, price: 6.69e-06, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через 11 месяцев после максимума', en: 'Eleven months after the all-time high' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'У PEPE есть применение?', en: 'Does PEPE have a use?' },
+        answer: {
+          ru: 'Нет, это мем-токен без продукта. Binance при листинге прямо написала, что у PEPE нет полезности и механизма поддержки цены.',
+          en: 'No. It is a meme token without a product. Binance said at listing that PEPE has no utility or mechanism to sustain its value.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего PEPE?', en: 'How many PEPE exist?' },
+        answer: {
+          ru: '420,69 триллиона по данным CoinGecko. Новые токены выпустить нельзя, а 93,1% выпуска при запуске ушли в пул Uniswap.',
+          en: '420.69 trillion, according to CoinGecko. No new tokens can be created, and 93.1% of the supply went into a Uniswap pool at launch.',
+        },
+      },
+      {
+        question: { ru: 'Кто создал PEPE?', en: 'Who created PEPE?' },
+        answer: {
+          ru: 'Анонимные разработчики. Токен назван в честь мема с лягушкой Пепе, к автору рисунка создатели отношения не имеют.',
+          en: 'Anonymous developers. The token is named after the Pepe the Frog meme, and its creators have no link to the meme’s author.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
+      { slug: 'liquidity-pool', label: { ru: 'Пул ликвидности', en: 'Liquidity pool' } },
+      { slug: 'dex', label: { ru: 'DEX', en: 'DEX' } },
+    ],
+  },
+
+  aave: {
+    stats: [
+      { label: { ru: 'Год запуска', en: 'Launched' }, value: '2017 (ETHLend)' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Stani Kulechov' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '16 000 000', en: '16,000,000' } },
+      { label: { ru: 'Тип токена', en: 'Token type' }, value: { ru: 'ERC-20 на Ethereum', en: 'ERC-20 on Ethereum' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 324.1, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через полгода после максимума', en: 'Six months after the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 89.16, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После спада 2022 года', en: 'After the 2022 decline' } },
+      { yearsAgo: 1, year: 2025, price: 222.96, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через месяц после рекорда депозитов', en: 'A month after record deposits' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что делает Aave?', en: 'What does Aave do?' },
+        answer: {
+          ru: 'Это кредитный рынок: вы вносите криптовалюту и получаете проценты или берёте в долг под залог. Ставки зависят от спроса и предложения в каждом пуле.',
+          en: 'It is a lending market: you deposit crypto to earn interest or borrow against collateral. Interest rates move with supply and demand in each pool.',
+        },
+      },
+      {
+        question: { ru: 'Что такое флеш-кредит?', en: 'What is a flash loan?' },
+        answer: {
+          ru: 'Заём без залога, который берут и возвращают в одной транзакции. Если деньги не вернулись, вся транзакция отменяется. Aave ввёл такие кредиты в 2020 году.',
+          en: 'A loan without collateral that you take and repay in a single transaction. If the money does not come back, the whole transaction is cancelled. Aave introduced them in 2020.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего AAVE?', en: 'How many AAVE exist?' },
+        answer: {
+          ru: 'Выпуск ограничен 16 миллионами, в обращении около 15,4 миллиона по данным CoinGecko. Токен появился в 2020 году при обмене LEND в пропорции 100 к 1.',
+          en: 'The supply is capped at 16 million, and about 15.4 million are in circulation, according to CoinGecko. The token came from a 100-to-1 swap of LEND in 2020.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'defi', label: { ru: 'DeFi', en: 'DeFi' } },
+      { slug: 'liquidation', label: { ru: 'Ликвидация', en: 'Liquidation' } },
+      { slug: 'ico', label: { ru: 'ICO', en: 'ICO' } },
+    ],
+  },
+
+  ondo: {
+    stats: [
+      { label: { ru: 'Начало торгов', en: 'Trading since' }, value: '2024' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Nathan Allman' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '10 000 000 000', en: '10,000,000,000' } },
+      { label: { ru: 'Продукты', en: 'Products' }, value: 'OUSG, USDY, Global Markets' },
+    ],
+    investmentReference: [
+      { yearsAgo: 2, year: 2024, price: 0.6681, label: { ru: '2 года назад (ноябрь 2024)', en: '2 years ago (November 2024)' }, note: { ru: 'За шесть недель до максимума', en: 'Six weeks before the all-time high' } },
+      { yearsAgo: 1, year: 2025, price: 0.703, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через два месяца после запуска токенизированных акций', en: 'Two months after tokenised stocks launched' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'ONDO обеспечен облигациями?', en: 'Is ONDO backed by Treasuries?' },
+        answer: {
+          ru: 'Нет. Активами обеспечены OUSG и USDY, а ONDO — токен управления, его цену определяет рынок.',
+          en: 'No. OUSG and USDY are backed by assets. ONDO is a governance token, and its price depends on the market.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего ONDO?', en: 'How many ONDO exist?' },
+        answer: {
+          ru: 'Выпуск ограничен 10 миллиардами, в обращении около 4,87 миллиарда по данным CoinGecko.',
+          en: 'The supply is capped at 10 billion, and about 4.87 billion are in circulation, according to CoinGecko.',
+        },
+      },
+      {
+        question: { ru: 'Кто руководит Ondo Finance?', en: 'Who runs Ondo Finance?' },
+        answer: {
+          ru: 'Основатель Натан Оллман умер в мае 2026 года в возрасте 32 лет. После этого гендиректором назначили президента компании Иэна Де Боде.',
+          en: 'Founder Nathan Allman died in May 2026, aged 32. The company then named its president, Ian De Bode, chief executive.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'dao', label: { ru: 'DAO', en: 'DAO' } },
+      { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+      { slug: 'stablecoin', label: { ru: 'Стейблкоин', en: 'Stablecoin' } },
+    ],
+  },
+
+  mantle: {
+    stats: [
+      { label: { ru: 'Запуск сети', en: 'Mainnet' }, value: '2023' },
+      { label: { ru: 'Предшественник', en: 'Predecessor' }, value: 'BitDAO (BIT)' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '≈6 220 000 000', en: '≈6,220,000,000' } },
+      { label: { ru: 'Тип сети', en: 'Network type' }, value: { ru: 'L2 на Ethereum', en: 'Ethereum layer 2' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 3, year: 2023, price: 0.3842, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'Через две недели после минимума', en: 'Two weeks after the all-time low' } },
+      { yearsAgo: 1, year: 2025, price: 1.4424, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через месяц после рекорда', en: 'A month after the record' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Чем BIT отличается от MNT?', en: 'What is the difference between BIT and MNT?' },
+        answer: {
+          ru: 'Ничем, кроме имени: MNT — это переименованный BIT. После слияния BitDAO и Mantle в 2023 году держатели обменяли токены один к одному.',
+          en: 'MNT is the renamed BIT. BitDAO holders converted their tokens one to one after the 2023 merger with Mantle, and BIT stopped being the project’s token.',
+        },
+      },
+      {
+        question: { ru: 'Зачем нужна сеть Mantle?', en: 'What is Mantle used for?' },
+        answer: {
+          ru: 'Это второй уровень Ethereum: приложения работают в нём с комиссиями ниже, чем в самом Ethereum. MNT оплачивает транзакции и даёт голос в управлении.',
+          en: 'Mantle is an Ethereum layer 2. Apps run on it with lower fees than on Ethereum itself, and MNT pays for transactions and carries votes in governance.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего MNT?', en: 'How many MNT exist?' },
+        answer: {
+          ru: 'Максимальный выпуск около 6,22 миллиарда MNT, в обращении, по данным CoinGecko, около 3,3 миллиарда. Большая часть остального лежит в казне.',
+          en: 'The maximum supply is about 6.22 billion MNT, and about 3.3 billion are in circulation according to CoinGecko. Most of the rest sits in the treasury.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'layer-2', label: { ru: 'Layer 2', en: 'Layer 2' } },
+      { slug: 'dao', label: { ru: 'DAO', en: 'DAO' } },
+      { slug: 'gas-fee', label: { ru: 'Комиссия за газ', en: 'Gas fee' } },
+    ],
+  },
+
+  worldcoin: {
+    stats: [
+      { label: { ru: 'Запуск токена', en: 'Token launch' }, value: '2023' },
+      { label: { ru: 'Основатели', en: 'Founders' }, value: 'Sam Altman, Alex Blania, Max Novendstern' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '10 000 000 000', en: '10,000,000,000' } },
+      { label: { ru: 'Тип токена', en: 'Token type' }, value: { ru: 'ERC-20 на Ethereum и Optimism', en: 'ERC-20 on Ethereum and Optimism' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 3, year: 2023, price: 1.886, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'Через три месяца после запуска', en: 'Three months after launch' } },
+      { yearsAgo: 1, year: 2025, price: 0.872, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'После выхода в США', en: 'After the US launch' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Зачем Worldcoin сканирует радужку?', en: 'Why does Worldcoin scan irises?' },
+        answer: {
+          ru: 'Скан доказывает, что вы уникальный человек, без имени и паспорта. Orb превращает снимок в код, и по нему система не даёт одному человеку зарегистрироваться дважды.',
+          en: 'The scan proves you are a unique human without a name or passport. The Orb turns the image into a code, and that code stops one person from registering twice.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего WLD?', en: 'How many WLD exist?' },
+        answer: {
+          ru: 'Выпуск ограничен 10 миллиардами WLD. В обращении, по данным CoinGecko, около 3,7 миллиарда.',
+          en: 'The supply is capped at 10 billion WLD. About 3.7 billion are in circulation according to CoinGecko.',
+        },
+      },
+      {
+        question: { ru: 'Worldcoin разрешён везде?', en: 'Is Worldcoin legal everywhere?' },
+        answer: {
+          ru: 'Нет. Регуляторы Кении, Испании, Португалии и ряда других стран приостанавливали или ограничивали работу Orb из-за защиты персональных данных. Доступность зависит от страны.',
+          en: 'No. Regulators in Kenya, Spain, Portugal and several other countries have suspended or restricted the Orb over privacy concerns, so availability depends on where you live.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
+      { slug: 'layer-2', label: { ru: 'Layer 2', en: 'Layer 2' } },
+      { slug: 'tokenomics', label: { ru: 'Токеномика', en: 'Tokenomics' } },
+    ],
+  },
+
+  'internet-computer': {
+    stats: [
+      { label: { ru: 'Запуск сети', en: 'Launched' }, value: '2021' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Dominic Williams, DFINITY Foundation' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: 'Не ограничен', en: 'Uncapped' } },
+      { label: { ru: 'Управление', en: 'Governance' }, value: 'Network Nervous System' },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 47.02, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через полгода после запуска', en: 'Six months after launch' } },
+      { yearsAgo: 3, year: 2023, price: 4.072, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После медвежьего рынка 2022 года', en: 'After the 2022 bear market' } },
+      { yearsAgo: 1, year: 2025, price: 3.442, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'На пути к новым минимумам', en: 'On the way to new lows' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое Internet Computer?', en: 'What is Internet Computer?' },
+        answer: {
+          ru: 'Блокчейн от фонда DFINITY, в котором приложения живут целиком, вместе с данными и веб-страницами, внутри смарт-контрактов-канистр.',
+          en: 'A blockchain from the DFINITY Foundation that hosts complete applications, including their data and web pages, inside smart contracts called canisters.',
+        },
+      },
+      {
+        question: { ru: 'Почему ICP так упал после запуска?', en: 'Why did ICP fall so much after launch?' },
+        answer: {
+          ru: 'Токен стартовал с сотен долларов при высокой оценке и за два месяца потерял около 95%. Критики винили продажи инсайдеров, DFINITY это отрицала и ссылалась на состояние рынка.',
+          en: 'It opened at hundreds of dollars with a high valuation and lost about 95% within two months. Critics blamed insider selling; DFINITY rejected that and pointed to market conditions.',
+        },
+      },
+      {
+        question: { ru: 'Что такое нейроны в ICP?', en: 'What are neurons in ICP?' },
+        answer: {
+          ru: 'Замороженные ICP, которые дают голос в Network Nervous System, органе, утверждающем обновления сети. За участие в голосованиях нейроны получают награду.',
+          en: 'Locked ICP that gives you voting power in the Network Nervous System, the body that approves network upgrades. Neurons earn rewards for voting.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'smart-contract', label: { ru: 'Смарт-контракт', en: 'Smart contract' } },
+      { slug: 'staking', label: { ru: 'Стейкинг', en: 'Staking' } },
+      { slug: 'node', label: { ru: 'Узел', en: 'Node' } },
+    ],
+  },
+
+  'ethereum-classic': {
+    stats: [
+      { label: { ru: 'Отделение от Ethereum', en: 'Split from Ethereum' }, value: '2016' },
+      { label: { ru: 'Блок разделения', en: 'Fork block' }, value: { ru: '1 920 000', en: '1,920,000' } },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '≈210 700 000', en: '≈210,700,000' } },
+      { label: { ru: 'Консенсус', en: 'Consensus' }, value: 'Proof of Work (Etchash)' },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 53.88, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через полгода после максимума', en: 'Six months after the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 17.76, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После медвежьего рынка 2022 года', en: 'After the 2022 bear market' } },
+      { yearsAgo: 1, year: 2025, price: 16.34, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Ниже уровня 2023 года', en: 'Below its 2023 level' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Чем Ethereum Classic отличается от Ethereum?', en: 'How is Ethereum Classic different from Ethereum?' },
+        answer: {
+          ru: 'До июля 2016 года у них общая история. Ethereum отменил последствия взлома The DAO и позже перешёл на Proof of Stake, Ethereum Classic оставил всё как было и работает на майнинге.',
+          en: 'They share history up to July 2016. Ethereum reversed the DAO hack and later moved to proof of stake; Ethereum Classic kept the hack in its history and still runs on mining.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего будет ETC?', en: 'How many ETC will exist?' },
+        answer: {
+          ru: 'Выпуск ограничен: награда за блок уменьшается на 20% каждые 5 миллионов блоков, а общий объём, по данным CoinGecko, приближается к 210,7 миллиона ETC.',
+          en: 'The supply is limited. The block reward drops by 20% every 5 million blocks, and the total approaches about 210.7 million ETC according to CoinGecko.',
+        },
+      },
+      {
+        question: { ru: 'Что такое атака 51%?', en: 'What is a 51% attack?' },
+        answer: {
+          ru: 'Если у одного участника больше половины мощности майнинга, он может переписать последние блоки и потратить одни и те же монеты дважды. Ethereum Classic пережил несколько таких атак в 2019 и 2020 годах.',
+          en: 'When one party controls most of the mining power, it can rewrite recent blocks and spend the same coins twice. Ethereum Classic suffered several such attacks in 2019 and 2020.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'hard-fork', label: { ru: 'Хардфорк', en: 'Hard fork' } },
+      { slug: 'proof-of-work', label: { ru: 'Proof of Work', en: 'Proof of Work' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+    ],
+  },
+
+  kaspa: {
+    stats: [
+      { label: { ru: 'Запуск сети', en: 'Launched' }, value: '2021' },
+      { label: { ru: 'Автор протокола', en: 'Protocol author' }, value: 'Yonatan Sompolinsky' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '≈28 700 000 000', en: '≈28,700,000,000' } },
+      { label: { ru: 'Консенсус', en: 'Consensus' }, value: 'Proof of Work, GHOSTDAG' },
+    ],
+    investmentReference: [
+      { yearsAgo: 3, year: 2023, price: 0.0519, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'До ралли 2024 года', en: 'Before the 2024 rally' } },
+      { yearsAgo: 1, year: 2025, price: 0.05327, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'После обновления Crescendo', en: 'After the Crescendo upgrade' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое blockDAG?', en: 'What is a blockDAG?' },
+        answer: {
+          ru: 'Структура, в которой несколько блоков могут добавляться одновременно, и все они учитываются. В цепочке, как у биткоина, из двух параллельных блоков остаётся только один.',
+          en: 'A structure in which several blocks can join the ledger at the same time and all of them count. Bitcoin keeps one of two parallel blocks and discards the other.',
+        },
+      },
+      {
+        question: { ru: 'Был ли у Kaspa премайн?', en: 'Did Kaspa have a premine?' },
+        answer: {
+          ru: 'Нет. Сеть запустилась 7 ноября 2021 года без премайна, ICO и доли основателей и инвесторов, все монеты добыты майнингом.',
+          en: 'No. The network launched on 7 November 2021 without a premine, ICO or allocation for founders and investors; all coins come from mining.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего будет KAS?', en: 'How many KAS will exist?' },
+        answer: {
+          ru: 'Около 28,7 миллиарда. Награда за блок снижается каждый месяц, и большая часть выпуска уже в обращении.',
+          en: 'About 28.7 billion. The block reward falls every month, and most of the supply is already in circulation.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'proof-of-work', label: { ru: 'Proof of Work', en: 'Proof of Work' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+      { slug: 'halving', label: { ru: 'Халвинг', en: 'Halving' } },
+    ],
+  },
+
+  'pi-network': {
+    stats: [
+      { label: { ru: 'Запуск приложения', en: 'App launch' }, value: '2019' },
+      { label: { ru: 'Создатели', en: 'Creators' }, value: 'Nicolas Kokkalis, Chengdiao Fan' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '100 000 000 000', en: '100,000,000,000' } },
+      { label: { ru: 'Открытая сеть', en: 'Open network' }, value: { ru: '20 февраля 2025', en: '20 February 2025' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 1, year: 2025, price: 0.2468, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'Через восемь месяцев после открытия сети', en: 'Eight months after the open network launch' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Как устроен майнинг Pi?', en: 'How does Pi mining work?' },
+        answer: {
+          ru: 'Раз в сутки вы открываете приложение Pi и нажимаете кнопку. Телефон не считает ничего сложного: приложение фиксирует активность и начисляет PI.',
+          en: 'You open the Pi app and tap a button once every 24 hours. The phone does no heavy computation; the app records your activity and credits PI.',
+        },
+      },
+      {
+        question: { ru: 'С какого момента PI можно продать?', en: 'When could PI be traded?' },
+        answer: {
+          ru: 'С 20 февраля 2025 года, когда открылась сеть. До этого балансы жили внутри приложения и закрытой сети.',
+          en: 'From 20 February 2025, when the open network went live. Before that, balances stayed inside the app and the enclosed mainnet.',
+        },
+      },
+      {
+        question: { ru: 'Сколько всего PI?', en: 'How many PI exist?' },
+        answer: {
+          ru: 'По модели выпуска — не больше 100 миллиардов. В обращении около 11,3 миллиарда.',
+          en: 'The supply model sets a maximum of 100 billion PI. About 11.3 billion are in circulation.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'kyc', label: { ru: 'KYC', en: 'KYC' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+      { slug: 'node', label: { ru: 'Узел', en: 'Node' } },
+    ],
+  },
+
+  algorand: {
+    stats: [
+      { label: { ru: 'Запуск основной сети', en: 'Mainnet' }, value: '2019' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Silvio Micali' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '10 000 000 000', en: '10,000,000,000' } },
+      { label: { ru: 'Консенсус', en: 'Consensus' }, value: 'Pure Proof of Stake' },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 1.8322, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'На подъёме 2021 года', en: 'During the 2021 rally' } },
+      { yearsAgo: 3, year: 2023, price: 0.1144, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После падения 2022 года', en: 'After the 2022 decline' } },
+      { yearsAgo: 1, year: 2025, price: 0.1793, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'До минимума 2026 года', en: 'Before the 2026 low' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Кто создал Algorand?', en: 'Who created Algorand?' },
+        answer: {
+          ru: 'Сильвио Микали, профессор MIT и лауреат премии Тьюринга 2012 года. Компанию он основал в 2017 году, основная сеть заработала в июне 2019-го.',
+          en: 'Silvio Micali, an MIT professor and the 2012 Turing Award winner. He founded the company in 2017, and the main network launched in June 2019.',
+        },
+      },
+      {
+        question: { ru: 'Что такое чистый proof of stake?', en: 'What is pure proof of stake?' },
+        answer: {
+          ru: 'Вариант proof of stake в Algorand. Проверяющих для каждого блока выбирают случайно среди всех держателей ALGO, пропорционально их доле, и заранее никто не знает, на кого падёт выбор.',
+          en: 'Algorand’s version of proof of stake. Validators for each block are chosen at random from all ALGO holders, in proportion to their stake, and no one knows in advance who will be picked.',
+        },
+      },
+      {
+        question: { ru: 'Почему максимум пришёлся на 2019 год?', en: 'Why was the all-time high in June 2019?' },
+        answer: {
+          ru: 'Торги ALGO начались вместе с запуском сети в июне 2019 года, и 20 июня цена дошла до 3,56 доллара. За три месяца после этого монета потеряла 94%.',
+          en: 'ALGO started trading together with the mainnet launch in June 2019 and peaked at 3.56 dollars on 20 June. The price then lost 94% in three months.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'proof-of-stake', label: { ru: 'Proof of Stake', en: 'Proof of Stake' } },
+      { slug: 'consensus-mechanism', label: { ru: 'Консенсус', en: 'Consensus' } },
+      { slug: 'smart-contract', label: { ru: 'Смарт-контракт', en: 'Smart contract' } },
+    ],
+  },
+
+  jupiter: {
+    stats: [
+      { label: { ru: 'Запуск агрегатора', en: 'Aggregator launch' }, value: '2021' },
+      { label: { ru: 'Запуск токена', en: 'Token launch' }, value: { ru: '31 января 2024', en: '31 January 2024' } },
+      { label: { ru: 'Общее предложение', en: 'Total supply' }, value: { ru: 'около 6,86 млрд', en: 'about 6.86 billion' } },
+      { label: { ru: 'Сеть', en: 'Network' }, value: 'Solana' },
+    ],
+    investmentReference: [
+      { yearsAgo: 2, year: 2024, price: 0.9604, label: { ru: '2 года назад (ноябрь 2024)', en: '2 years ago (November 2024)' }, note: { ru: 'Через девять месяцев после запуска', en: 'Nine months after launch' } },
+      { yearsAgo: 1, year: 2025, price: 0.4108, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'После сжигания 3 миллиардов JUP', en: 'After the 3 billion JUP burn' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что делает Jupiter?', en: 'What does Jupiter do?' },
+        answer: {
+          ru: 'Ищет самый выгодный маршрут обмена токенов в Solana: сравнивает цены на разных биржах и может разделить одну заявку между ними.',
+          en: 'It finds the best route for a token swap on Solana. It compares prices across many exchanges and can split one order between them.',
+        },
+      },
+      {
+        question: { ru: 'Как распределили JUP?', en: 'How was JUP distributed?' },
+        answer: {
+          ru: 'Аирдропами. 31 января 2024 года около миллиарда JUP ушли примерно 955 тысячам кошельков, 22 января 2025-го почти 700 миллионов — примерно 2 миллионам.',
+          en: 'Through airdrops. About 1 billion JUP went to some 955,000 wallets on 31 January 2024, and nearly 700 million JUP went to about 2 million wallets on 22 January 2025.',
+        },
+      },
+      {
+        question: { ru: 'Почему выпуск JUP сократился?', en: 'Why did the JUP supply fall?' },
+        answer: {
+          ru: 'В августе 2024 года сообщество проголосовало сжечь 3 миллиарда JUP из доли команды, и потолок выпуска упал с 10 до 7 миллиардов.',
+          en: 'The community voted in August 2024 to burn 3 billion JUP from the team’s allocation, cutting the maximum supply from 10 billion to 7 billion.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'dex', label: { ru: 'DEX', en: 'DEX' } },
+      { slug: 'airdrop', label: { ru: 'Аирдроп', en: 'Airdrop' } },
+      { slug: 'slippage', label: { ru: 'Проскальзывание', en: 'Slippage' } },
+    ],
+  },
+
+  render: {
+    stats: [
+      { label: { ru: 'Токенсейл', en: 'Token sale' }, value: '2017' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Jules Urbach, OTOY' },
+      { label: { ru: 'Максимальный выпуск', en: 'Max supply' }, value: { ru: '644 168 762', en: '644,168,762' } },
+      { label: { ru: 'Сеть', en: 'Network' }, value: { ru: 'Solana (с 2023 года)', en: 'Solana (since 2023)' } },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 0.995, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Ещё RNDR на Ethereum', en: 'Still RNDR on Ethereum' } },
+      { yearsAgo: 3, year: 2023, price: 2.418, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'За день до переезда на Solana', en: 'A day before the move to Solana' } },
+      { yearsAgo: 1, year: 2025, price: 2.332, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'После пика 2024 года', en: 'After the 2024 peak' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое Render Network?', en: 'What is Render Network?' },
+        answer: {
+          ru: 'Площадка, где владельцы видеокарт сдают их мощность под рендеринг изображений и видео и получают за это RENDER.',
+          en: 'A marketplace where owners of graphics cards rent out their computing power for rendering images and video and get paid in RENDER.',
+        },
+      },
+      {
+        question: { ru: 'Чем RNDR отличается от RENDER?', en: 'What is the difference between RNDR and RENDER?' },
+        answer: {
+          ru: 'RNDR — исходный токен ERC-20 на Ethereum. В ноябре 2023 года сеть переехала на Solana, и RNDR меняли на RENDER один к одному.',
+          en: 'RNDR was the original ERC-20 token on Ethereum. In November 2023 the network moved to Solana, and holders swapped RNDR for RENDER at 1:1.',
+        },
+      },
+      {
+        question: { ru: 'Кто стоит за Render?', en: 'Who is behind Render?' },
+        answer: {
+          ru: 'Жюль Урбах, основатель OTOY — компании, которая выпускает программы для рендеринга. Идею он впервые описал в 2009 году.',
+          en: 'Jules Urbach, founder of OTOY, a company that makes rendering software. He first described the idea in 2009.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'erc-20', label: { ru: 'ERC-20', en: 'ERC-20' } },
+      { slug: 'ico', label: { ru: 'ICO', en: 'ICO' } },
+      { slug: 'blockchain', label: { ru: 'Блокчейн', en: 'Blockchain' } },
+    ],
+  },
+
+  filecoin: {
+    stats: [
+      { label: { ru: 'Запуск основной сети', en: 'Mainnet' }, value: '2020' },
+      { label: { ru: 'Основатель', en: 'Founder' }, value: 'Juan Benet, Protocol Labs' },
+      { label: { ru: 'Токенсейл 2017', en: '2017 token sale' }, value: { ru: 'более 205 млн долларов', en: 'over 205 million dollars' } },
+      { label: { ru: 'Доказательства', en: 'Proofs' }, value: 'Proof of Replication, Proof of Spacetime' },
+    ],
+    investmentReference: [
+      { yearsAgo: 5, year: 2021, price: 63.88, label: { ru: '5 лет назад (ноябрь 2021)', en: '5 years ago (November 2021)' }, note: { ru: 'Через семь месяцев после максимума', en: 'Seven months after the all-time high' } },
+      { yearsAgo: 3, year: 2023, price: 3.938, label: { ru: '3 года назад (ноябрь 2023)', en: '3 years ago (November 2023)' }, note: { ru: 'После падения 2022 года', en: 'After the 2022 decline' } },
+      { yearsAgo: 1, year: 2025, price: 1.672, label: { ru: '1 год назад (ноябрь 2025)', en: '1 year ago (November 2025)' }, note: { ru: 'До минимума 2026 года', en: 'Before the 2026 low' } },
+    ],
+    faq: [
+      {
+        question: { ru: 'Что такое Filecoin?', en: 'What is Filecoin?' },
+        answer: {
+          ru: 'Децентрализованная сеть хранения. Провайдеры сдают место на дисках, хранят файлы клиентов и получают FIL, а каждые 24 часа доказывают, что данные на месте.',
+          en: 'A decentralised storage network. Providers rent out disk space, store clients’ files and earn FIL. Every 24 hours they must prove the data is still there.',
+        },
+      },
+      {
+        question: { ru: 'Как Filecoin связан с IPFS?', en: 'How is Filecoin linked to IPFS?' },
+        answer: {
+          ru: 'Оба проекта сделала Protocol Labs, которую основал Хуан Бенет. IPFS находит файлы по их содержимому, а Filecoin добавляет рынок, который платит за их хранение.',
+          en: 'Both come from Protocol Labs, founded by Juan Benet. IPFS addresses files by their content; Filecoin adds a market that pays providers to keep them.',
+        },
+      },
+      {
+        question: { ru: 'Когда FIL стоил дороже всего?', en: 'When did FIL reach its all-time high?' },
+        answer: {
+          ru: '1 апреля 2021 года, 236,84 доллара, меньше чем через полгода после запуска сети.',
+          en: 'On 1 April 2021, at 236.84 dollars, less than six months after the mainnet launch.',
+        },
+      },
+    ],
+    glossaryTerms: [
+      { slug: 'ico', label: { ru: 'ICO', en: 'ICO' } },
+      { slug: 'mining', label: { ru: 'Майнинг', en: 'Mining' } },
+      { slug: 'whitepaper', label: { ru: 'Whitepaper', en: 'Whitepaper' } },
+    ],
+  },
 };
