@@ -2082,3 +2082,16 @@ html.light .coin-cta-ghost::after { opacity: .18; }
   .coin-cta, .coin-cta::after { transition: none; }
   .coin-cta:hover { transform: none; }
 }
+
+/* Баннер под лентой новостей на главной. Слот меряется по обеим осям
+   (container-type: size) и потому не вносит высоту в ряд сетки: ряд задают
+   статьи справа, календарь не сдвигается. Квадрат берёт меньшее из ширины
+   колонки и высоты пустоты; ниже 200 px он не рисуется вовсе. Слой
+   components — чтобы не перебивать утилиты Tailwind (см. position/overflow). */
+@layer components {
+  .home-banner-slot { container-type: size; }
+  .home-banner-box { width: min(100cqw, 100cqh); }
+  @container (max-height: 200px) {
+    .home-banner-box { display: none; }
+  }
+}

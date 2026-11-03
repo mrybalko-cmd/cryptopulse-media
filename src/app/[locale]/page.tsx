@@ -17,8 +17,9 @@ import PopularList from '@/components/ui/PopularList';
 import PulseWidget from '@/components/ui/PulseWidget';
 import HomeRegulationWidget from '@/components/ui/HomeRegulationWidget';
 import HomeAiWidget from '@/components/ui/HomeAiWidget';
+import SidebarBanner from '@/components/ui/SidebarBanner';
 import { fetchOwnNews } from '@/lib/news';
-import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings, fetchHomeAuthorsWidget } from '@/lib/sanity';
+import { fetchArticles, fetchCalendarEvents, fetchPopularContent, fetchHomeSettings, fetchHomeAuthorsWidget, fetchActiveBanners } from '@/lib/sanity';
 import { getHomeRegulation } from '@/lib/licences';
 import { getHomeAi } from '@/lib/ai';
 import { fetchLatestPulse } from '@/lib/pulse';
@@ -29,7 +30,7 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('home');
 
-  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget, regulationWidget, aiWidget] = await Promise.allSettled([
+  const [news, articles, calendarEvents, popular, settings, pulse, authorsWidget, regulationWidget, aiWidget, banners] = await Promise.allSettled([
     // Trimmed 17 -> 16 (drops the last item) to pull the calendar section
     // up closer to the news/articles columns above it.
     fetchOwnNews({ limit: 16, locale }),
@@ -42,12 +43,14 @@ export default async function HomePage({ params }: Props) {
     fetchHomeAuthorsWidget(locale),
     getHomeRegulation(),
     getHomeAi(),
+    fetchActiveBanners(locale),
   ]);
 
   const newsItems = news.status === 'fulfilled' ? news.value : [];
   const articleItems = articles.status === 'fulfilled' ? articles.value : [];
   const popularItems = popular.status === 'fulfilled' ? popular.value : [];
   const pulseData = pulse.status === 'fulfilled' ? pulse.value : null;
+  const bannerItems = banners.status === 'fulfilled' ? banners.value : [];
   const homeSettings = settings.status === 'fulfilled'
     ? settings.value
     : { showNews: true, showArticles: true, showAuthorColumns: true, featuredAuthors: [] };
@@ -173,7 +176,7 @@ export default async function HomePage({ params }: Props) {
       <div className={`hidden lg:grid grid-cols-1 gap-6 lg:gap-8 mb-8 ${homeSettings.showNews && homeSettings.showArticles ? 'lg:grid-cols-4' : ''}`}>
         {/* News */}
         {homeSettings.showNews && (
-        <section className={homeSettings.showArticles ? 'lg:col-span-1' : ''}>
+        <section className={`flex flex-col ${homeSettings.showArticles ? 'lg:col-span-1' : ''}`}>
           <div className="flex items-center justify-center mb-5">
             <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
               <span className="w-2 h-2 rounded-full bg-red-600 shrink-0" />
@@ -206,6 +209,19 @@ export default async function HomePage({ params }: Props) {
             </div>
           ) : (
             <EmptyState text={locale === 'ru' ? 'Новости загружаются...' : 'Loading news...'} />
+          )}
+          {/* Баннер из ротации «Сайдбар» в пустоте под лентой, до календаря.
+              Слот растягивается на остаток высоты ряда, а свой размер в
+              сетку не вносит (container-type: size), поэтому ряд не растёт
+              и календарь не сдвигается. Сторона квадрата — меньшее из
+              ширины колонки и высоты пустоты; меньше 200 px баннер скрыт
+              и показ не засчитывается (наблюдатель его не видит). */}
+          {homeSettings.showArticles && bannerItems.length > 0 && (
+            <div className="home-banner-slot flex-1 min-h-0 mt-6 flex items-center justify-center">
+              <div className="home-banner-box">
+                <SidebarBanner banners={bannerItems} locale={locale} />
+              </div>
+            </div>
           )}
         </section>
         )}
