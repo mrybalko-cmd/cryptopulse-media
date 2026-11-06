@@ -3,6 +3,9 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
 import { SITE_NAME } from '@/lib/site';
+import { COINS } from '@/lib/coins';
+import { getCryptoGlossary, getAiGlossary } from '@/lib/glossaryData';
+import { pluralRu } from '@/app/admin/(dashboard)/_shared/pluralRu';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -29,6 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   const isRu = locale === 'ru';
+
+  // Цифры считаются из данных, а не вписываются руками: «14 криптовалют» и
+  // «65+ терминов» провисели здесь месяцами после того, как монет стало 44.
+  const coinCount = COINS.filter((c) => c.available).length;
+  const [cryptoTerms, aiTerms] = await Promise.all([getCryptoGlossary(), getAiGlossary()]);
+  const termCount = cryptoTerms.length + aiTerms.length;
 
   const breadcrumbLd = {
     '@context': 'https://schema.org',
@@ -62,7 +71,7 @@ export default async function AboutPage({ params }: Props) {
             нам: каждый факт сверяем с сайтами регуляторов и указываем дату проверки.
           </p>
           <p>
-            Сайт запущен в 2024 году и работает для аудитории из Восточной Европы, СНГ и русскоязычных
+            Сайт запущен в 2026 году и работает для аудитории из Восточной Европы, СНГ и русскоязычных
             диаспор по всему миру. Наша миссия — делать крипту понятной: объяснять сложное простыми
             словами, не приукрашивая риски и не продавая мечты.
           </p>
@@ -79,8 +88,8 @@ export default async function AboutPage({ params }: Props) {
               поток новостей в одном месте.
             </li>
             <li>
-              <strong>Обучение</strong> — глоссарий из 65+ терминов, раздел FAQ, гиды по 14 ведущим
-              криптовалютам с историей и калькуляторами инвестиций.
+              <strong>Обучение</strong> — глоссарии о крипте и ИИ ({pluralRu(termCount, 'термин', 'термина', 'терминов')}),
+              раздел FAQ, гиды по ведущим криптовалютам (сейчас их {coinCount}) с историей и калькуляторами инвестиций.
             </li>
             <li>
               <strong>Инструменты</strong> — конвертер валют, крипто-календарь событий, индекс страха
@@ -95,7 +104,7 @@ export default async function AboutPage({ params }: Props) {
             чётко маркируются. Редакционная повестка не зависит от рекламодателей.
           </p>
           <p>
-            ${SITE_NAME} не является инвестиционным советником. Весь контент носит
+            {SITE_NAME} не является инвестиционным советником. Весь контент носит
             исключительно информационный характер. Перед принятием финансовых решений проконсультируйтесь
             с квалифицированным специалистом.
           </p>
@@ -113,7 +122,7 @@ export default async function AboutPage({ params }: Props) {
             checked against regulator sites and carries the date of that check.
           </p>
           <p>
-            Launched in 2024, we serve audiences across Eastern Europe, the CIS, and Russian-speaking
+            Launched in 2026, we serve audiences across Eastern Europe, the CIS, and Russian-speaking
             diaspora communities worldwide. Our mission is to make crypto understandable: explaining
             complex topics in plain language, without sugarcoating risks or selling dreams.
           </p>
@@ -130,8 +139,8 @@ export default async function AboutPage({ params }: Props) {
               together in one place.
             </li>
             <li>
-              <strong>Education</strong> — a glossary of 65+ terms, a FAQ section, and detailed guides
-              for 14 major cryptocurrencies with histories and investment calculators.
+              <strong>Education</strong> — crypto and AI glossaries ({termCount} terms), a FAQ section, and detailed guides
+              for {coinCount} major cryptocurrencies with histories and investment calculators.
             </li>
             <li>
               <strong>Tools</strong> — currency converter, crypto events calendar, Fear &amp; Greed
@@ -146,7 +155,7 @@ export default async function AboutPage({ params }: Props) {
             Our editorial agenda is independent of advertisers.
           </p>
           <p>
-            ${SITE_NAME} is not an investment advisor. All content is for informational purposes only.
+            {SITE_NAME} is not an investment advisor. All content is for informational purposes only.
             Please consult a qualified professional before making any financial decisions.
           </p>
 

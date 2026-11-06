@@ -14,7 +14,7 @@ export const PAGE_REVISIONS: Record<string, string> = {
   '/faq': '2026-08-13',
   '/security': '2026-08-17',
   '/editorial-policy': '2026-10-19',
-  '/about': '2026-10-08',
+  '/about': '2026-11-06',
   '/regulation': '2026-10-19',
   '/terms': '2026-10-19',
 };

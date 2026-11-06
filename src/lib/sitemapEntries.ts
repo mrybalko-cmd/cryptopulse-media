@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { fetchArticles, fetchSanityNews, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys, fetchCalendarEvents } from '@/lib/sanity';
+import { client, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
 import { GLOSSARY_BASELINE } from '@/lib/glossary';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
@@ -16,26 +16,53 @@ import { loadAuthors } from '@/app/[locale]/authors/AuthorsView';
 
 const BASE = SITE_URL;
 
-// Rebuild hourly. Without this the whole sitemap — including the daily dates on
-// live-data pages and the newest-content dates on listings — would freeze at
-// build time and only move when someone deploys, which is the coupling between
-// lastmod and deploys this file exists to avoid.
-export const revalidate = 3600;
+/**
+ * Все материалы для карты сайта — одним лёгким запросом, без лимита и мимо
+ * unstable_cache.
+ *
+ * Раньше карта брала fetchSanityNews({ limit: 1000 }) на язык. Новостей стало
+ * 1376 на язык, и 376 самых старых на каждом языке в карту не попадали вовсе.
+ * А сама карта жила как ISR-страница и с деплоя 03.11.2026 ни разу не
+ * пересобралась на Vercel: отдавала снимок момента сборки (0 из 42 свежих
+ * материалов), хотя локально пересборка проходила. Теперь её отдаёт обычный
+ * маршрут sitemap.xml/route.ts с кэшем CDN на час, а данные читаются здесь
+ * напрямую — каждая сборка карты видит базу как есть.
+ */
+type SitemapMaterial = {
+  _type: 'news' | 'article';
+  language: 'ru' | 'en';
+  slug: { current: string };
+  publishedAt: string;
+  updatedAt?: string;
+};
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+async function fetchSitemapMaterials(): Promise<SitemapMaterial[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  return client.fetch(
+    `*[_type in ["news", "article"] && language in ["ru", "en"] && defined(slug.current) && publishedAt <= now()]
+       | order(publishedAt desc) { _type, language, slug, publishedAt, updatedAt }`,
+  );
+}
+
+/** События календаря: только то, что нужно карте, плюс _updatedAt для даты. */
+async function fetchSitemapCalendar(): Promise<{ slug: string; date: string; endDate?: string; _updatedAt?: string }[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  return client.fetch(
+    `*[_type == "calendarEvent" && defined(slug.current)] | order(date asc) { "slug": slug.current, date, endDate, _updatedAt }`,
+  );
+}
+
+export async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   // Термины читаются из базы, иначе добавленный через админку термин
   // не попал бы в карту сайта до следующего деплоя.
   const GLOSSARY = await getCryptoGlossary();
   const AI_GLOSSARY = await getAiGlossary();
   const [
-    articlesRu, articlesEn, newsRu, newsEn, authors,
+    materials, authors,
     articleTopicsRu, articleTopicsEn, newsTopicsRu, newsTopicsEn,
     exchanges, noIndexKeys,
   ] = await Promise.all([
-    fetchArticles({ limit: 500, locale: 'ru' }),
-    fetchArticles({ limit: 500, locale: 'en' }),
-    fetchSanityNews({ limit: 1000, locale: 'ru' }),
-    fetchSanityNews({ limit: 1000, locale: 'en' }),
+    fetchSitemapMaterials(),
     fetchAuthors(),
     fetchTopicStats('article', 'ru'),
     fetchTopicStats('article', 'en'),
@@ -75,6 +102,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   /** Only the fields the sitemap reads — the fetchers return untyped GROQ results. */
   type Material = { slug: { current: string }; publishedAt: string; updatedAt?: string };
+  const pick = (type: SitemapMaterial['_type'], language: SitemapMaterial['language']) =>
+    materials.filter((m) => m._type === type && m.language === language);
+  const articlesRu = pick('article', 'ru');
+  const articlesEn = pick('article', 'en');
+  const newsRu = pick('news', 'ru');
+  const newsEn = pick('news', 'en');
   type Author = { slug: string; _updatedAt?: string };
 
   const toDate = (v?: string | null): Date | null => {
@@ -131,13 +164,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /* Страницы событий. Прошедшие остаются в карте: у них есть итог и свой
      адрес, и поиск их уже знает. Частота обновления разная — будущее событие
      могут перенести, прошедшему правят разве что итог. */
-  const calendarEvents = await fetchCalendarEvents();
+  const calendarEvents = await fetchSitemapCalendar();
   const todayCal = new Date().toISOString().slice(0, 10);
   const calendarEventPages = calendarEvents.flatMap((e) => {
     const upcoming = e.date >= todayCal;
+    // Дата правки карточки, а не «сегодня»: раньше все 100 событий получали
+    // сегодняшний lastmod при каждой сборке, и Google переставал ему верить.
+    const d = toDate(e._updatedAt) ?? toDate(e.endDate ?? e.date) ?? todayUtc;
     return ['ru', 'en'].map((loc) => ({
       url: `${BASE}/${loc}/calendar/${e.slug}`,
-      lastModified: todayUtc,
+      lastModified: d,
       changeFrequency: upcoming ? ('weekly' as const) : ('monthly' as const),
       priority: upcoming ? 0.6 : 0.4,
     }));
@@ -276,17 +312,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   // Новые маршруты в sitemap автоматически не попадают — только руками.
-  const aiServicePages = (await getAiServices()).flatMap(s => [
-    { url: `${BASE}/ru/ai/tools/${s.slug}`, lastModified: s.priceCheckedAt ? new Date(s.priceCheckedAt) : new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
-    { url: `${BASE}/en/ai/tools/${s.slug}`, lastModified: s.priceCheckedAt ? new Date(s.priceCheckedAt) : new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
-  ]);
+  // Каталог AI датируется проверкой цен, а не моментом сборки: прежний
+  // new Date() двигал lastmod при каждой пересборке карты.
+  const aiServices = await getAiServices();
+  const aiNewest = newest(aiServices.map((s) => toDate(s.priceCheckedAt))) ?? revisionOf('/ai/tools');
+  const aiServicePages = aiServices.flatMap(s => {
+    const d = toDate(s.priceCheckedAt) ?? aiNewest;
+    return [
+      { url: `${BASE}/ru/ai/tools/${s.slug}`, lastModified: d, changeFrequency: 'monthly' as const, priority: 0.7 },
+      { url: `${BASE}/en/ai/tools/${s.slug}`, lastModified: d, changeFrequency: 'monthly' as const, priority: 0.7 },
+    ];
+  });
   const aiJobPages = (await getAiJobs()).flatMap(j => [
-    { url: `${BASE}/ru/ai/best/${j.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
-    { url: `${BASE}/en/ai/best/${j.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${BASE}/ru/ai/best/${j.slug}`, lastModified: aiNewest, changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${BASE}/en/ai/best/${j.slug}`, lastModified: aiNewest, changeFrequency: 'monthly' as const, priority: 0.7 },
   ]);
   const aiHubPages = ['ru', 'en'].map(l => ({
-    url: `${BASE}/${l}/ai/tools`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.8,
+    url: `${BASE}/${l}/ai/tools`, lastModified: aiNewest, changeFrequency: 'weekly' as const, priority: 0.8,
   }));
 
-  return [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  const all = [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+
+  // Один адрес — одна запись. Дубли бывали: два документа с одинаковым slug
+  // (top-10-altkoinov-rost-48-chasov и его английская пара) давали по две
+  // строки. При совпадении остаётся более свежая дата.
+  const byUrl = new Map<string, (typeof all)[number]>();
+  for (const entry of all) {
+    const prev = byUrl.get(entry.url);
+    if (!prev || new Date(entry.lastModified ?? 0) > new Date(prev.lastModified ?? 0)) byUrl.set(entry.url, entry);
+  }
+  return [...byUrl.values()];
 }
