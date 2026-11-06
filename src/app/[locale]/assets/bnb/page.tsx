@@ -6,6 +6,7 @@ import { BNB_QUOTES, BNB_FAQ, BNB_INVESTMENT_REFERENCE } from '@/lib/bnbData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'bnb';
 
@@ -68,8 +69,8 @@ export default async function BnbPage({ params }: Props) {
     headline: isRu ? 'BNB (Binance Coin): история, экосистема и рост за 7 лет' : 'BNB (Binance Coin): History, Ecosystem and 7 Years of Growth',
     description: isRu ? 'Полная история BNB от ICO до крупнейшей биржевой экосистемы мира.' : 'Complete BNB history from ICO to the world\'s largest exchange ecosystem.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/bnb`,

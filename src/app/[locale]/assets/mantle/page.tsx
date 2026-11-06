@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'mantle';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function MantlePage({ params }: Props) {
     description: isRu ? 'Как BitDAO с деньгами Bybit и Питера Тиля превратилась в сеть Mantle и обменяла BIT на MNT один к одному. История MNT и калькулятор вложений.' : 'How BitDAO, funded by Bybit and Peter Thiel, became the Mantle network and swapped BIT for MNT one to one. MNT history and an investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

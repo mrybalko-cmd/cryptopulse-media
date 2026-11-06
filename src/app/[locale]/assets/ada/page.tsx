@@ -6,6 +6,7 @@ import { ADA_QUOTES, ADA_FAQ, ADA_INVESTMENT_REFERENCE } from '@/lib/adaData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ada';
 
@@ -67,8 +68,8 @@ export default async function AdaPage({ params }: Props) {
     headline: isRu ? 'Cardano (ADA): блокчейн третьего поколения с научным подходом' : 'Cardano (ADA): Third-Generation Blockchain with a Scientific Approach',
     description: isRu ? 'История Cardano от основания до Voltaire эры.' : 'Cardano history from founding to the Voltaire era.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/ada`,

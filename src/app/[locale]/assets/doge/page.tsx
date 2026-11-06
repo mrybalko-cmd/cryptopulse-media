@@ -6,6 +6,7 @@ import { DOGE_QUOTES, DOGE_FAQ, DOGE_INVESTMENT_REFERENCE } from '@/lib/dogeData
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'doge';
 
@@ -67,8 +68,8 @@ export default async function DogePage({ params }: Props) {
     headline: isRu ? 'Dogecoin (DOGE): история мем-монеты, ставшей феноменом' : 'Dogecoin (DOGE): History of the Meme Coin That Became a Phenomenon',
     description: isRu ? 'Полная история Dogecoin от двухдневной шутки до инструмента Илона Маска.' : 'Complete history of Dogecoin from a two-day joke to Elon Musk\'s favourite coin.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/doge`,

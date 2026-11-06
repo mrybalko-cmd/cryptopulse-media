@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'jupiter';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function JupiterPage({ params }: Props) {
     description: isRu ? 'Как Jupiter стал главным маршрутом обменов в Solana, раздал миллиард JUP в январе 2024 года и сжёг 3 миллиарда год спустя. История и калькулятор вложений в JUP.' : 'How Jupiter became the main swap route on Solana, gave away a billion JUP in January 2024 and burned 3 billion a year later. History and a JUP calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'cronos';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function CronosPage({ params }: Props) {
     description: isRu ? 'Как гонконгский стартап с крипто-картой стал Crypto.com, сжёг 70 миллиардов CRO в 2021 году и вернул их голосованием в 2025-м. История CRO и калькулятор вложений.' : 'How a Hong Kong card startup became Crypto.com, burned 70 billion CRO in 2021 and voted to bring them back in 2025. CRO history and an investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

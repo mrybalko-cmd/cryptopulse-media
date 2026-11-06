@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'bittensor';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function BittensorPage({ params }: Props) {
     description: isRu ? 'Как Bittensor платит TAO за работу в машинном обучении, почему копирует потолок биткоина в 21 миллион и что изменил первый халвинг в декабре 2025 года.' : 'How Bittensor pays TAO for machine learning work, why it copies Bitcoin\'s 21 million cap and what changed after the first halving in December 2025. History and a calculator.',
     inLanguage: locale,
     datePublished: '2026-11-02',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

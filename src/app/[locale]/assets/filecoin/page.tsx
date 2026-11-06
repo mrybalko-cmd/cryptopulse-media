@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'filecoin';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function FilecoinPage({ params }: Props) {
     description: isRu ? 'Как Filecoin прошёл путь от статьи 2014 года от создателей IPFS до токенсейла на 205 миллионов долларов и запуска в 2020-м. История FIL и калькулятор.' : 'How Filecoin went from a 2014 paper by IPFS creator Protocol Labs to a 205 million dollar token sale and a 2020 launch. FIL history and a calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

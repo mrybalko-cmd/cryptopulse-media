@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'pi-network';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function PiNetworkPage({ params }: Props) {
     description: isRu ? 'Как Pi Network прошла путь от приложения для телефона в 2019 году до открытой сети в феврале 2025-го. Майнинг в телефоне, KYC и первые торги, плюс калькулятор.' : 'How Pi Network went from a phone app in 2019 to an open mainnet in February 2025. Mobile mining, KYC and the launch-week price, plus a PI calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

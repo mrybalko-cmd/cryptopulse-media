@@ -6,6 +6,7 @@ import { TON_QUOTES, TON_FAQ, TON_INVESTMENT_REFERENCE } from '@/lib/tonData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ton';
 
@@ -69,8 +70,8 @@ export default async function TonPage({ params }: Props) {
     headline: isRu ? 'Toncoin (TON): от блокчейна Telegram до народной криптосети' : 'Toncoin (TON): From Telegram Blockchain to a People\'s Crypto Network',
     description: isRu ? 'Полная история TON от ICO 2018 до интеграции с Telegram 2023.' : 'Complete TON history from 2018 ICO to Telegram integration in 2023.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/ton`,

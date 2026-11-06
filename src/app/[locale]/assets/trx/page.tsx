@@ -6,6 +6,7 @@ import { TRX_QUOTES, TRX_FAQ, TRX_INVESTMENT_REFERENCE } from '@/lib/trxData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'trx';
 
@@ -67,8 +68,8 @@ export default async function TrxPage({ params }: Props) {
     headline: isRu ? 'Tron (TRX): блокчейн развлечений и главная сеть для USDT' : 'Tron (TRX): Entertainment Blockchain and the Main USDT Network',
     description: isRu ? 'История Tron от основания до доминирования в USDT-транзакциях.' : 'Tron history from founding to USDT transaction dominance.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/trx`,

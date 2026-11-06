@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'zcash';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function ZcashPage({ params }: Props) {
     description: isRu ? 'Как Zcash прошёл путь от научной статьи до первой десятки. Скрытые переводы, халвинги и ралли 2025 года, плюс калькулятор вложений в ZEC.' : 'How Zcash went from a Johns Hopkins research paper to the top ten. Shielded transactions, halvings and the 2025 rally, plus a ZEC investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-02',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

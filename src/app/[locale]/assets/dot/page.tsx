@@ -6,6 +6,7 @@ import { DOT_QUOTES, DOT_FAQ, DOT_INVESTMENT_REFERENCE } from '@/lib/dotData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'dot';
 
@@ -67,8 +68,8 @@ export default async function DotPage({ params }: Props) {
     headline: isRu ? 'Polkadot (DOT): «интернет блокчейнов» от создателя Solidity' : 'Polkadot (DOT): The "Internet of Blockchains" from the Creator of Solidity',
     description: isRu ? 'История Polkadot от основания до Polkadot 2.0.' : 'Polkadot history from founding to Polkadot 2.0.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/dot`,

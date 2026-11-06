@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'hyperliquid';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function HyperliquidPage({ params }: Props) {
     description: isRu ? 'Как биржа без венчурных денег раздала 31% своего токена и вошла в первую пятнадцатку. Аирдроп HYPE, обратный выкуп и история с JELLY, плюс калькулятор.' : 'How a self-funded futures exchange gave away 31% of its token and reached the top 15. The HYPE airdrop, buybacks and the JELLY incident, plus a calculator.',
     inLanguage: locale,
     datePublished: '2026-11-02',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

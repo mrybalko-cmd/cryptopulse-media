@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'hedera';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function HederaPage({ params }: Props) {
     description: isRu ? 'Как Hedera построила публичную сеть на хэшграфе вместо блокчейна и посадила в свой совет Google, IBM и Boeing. История HBAR и калькулятор вложений.' : 'How Hedera built a public network on hashgraph instead of a blockchain and put Google, IBM and Boeing on its council. HBAR history and an investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-02',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

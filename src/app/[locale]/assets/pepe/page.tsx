@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'pepe';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function PepePage({ params }: Props) {
     description: isRu ? 'Как PEPE за три недели после тихого запуска в апреле 2023 года дорос до миллиарда долларов капитализации, а в декабре 2024-го поставил рекорд. История и калькулятор.' : 'How PEPE went from a quiet launch in April 2023 to a billion-dollar market cap in three weeks and a record in December 2024. PEPE history and an investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

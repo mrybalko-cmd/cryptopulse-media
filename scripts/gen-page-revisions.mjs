@@ -13,7 +13,7 @@
 // goes stale silently, which is exactly the failure this replaces.
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,7 +35,10 @@ if (paths.length === 0) {
 
 const lastCommitDate = (file) => {
   try {
-    const out = execFileSync('git', ['log', '-1', '--format=%cs', '--', file], { cwd: ROOT, encoding: 'utf8' }).trim();
+    // Коммиты с меткой [revisions:skip] в сообщении не считаются правкой
+    // содержимого: механические изменения (импорт, переименование) не должны
+    // передвигать дату на всех страницах сразу.
+    const out = execFileSync('git', ['log', '-1', '--format=%cs', '--invert-grep', '--grep=\\[revisions:skip\\]', '--', file], { cwd: ROOT, encoding: 'utf8' }).trim();
     return out || null;
   } catch {
     return null;
@@ -59,6 +62,20 @@ for (const p of paths) {
 }
 
 
+// Страницы монет: гид — рукописный текст в page.tsx, его дата правки и есть
+// dateModified статьи. Раньше там стояло new Date(), то есть «правлено сегодня»
+// при каждом показе, — Google такую вечную свежесть распознаёт и перестаёт
+// верить датам сайта.
+const ASSETS_DIR = 'src/app/[locale]/assets';
+const assetEntries = [];
+for (const slug of readdirSync(resolve(ROOT, ASSETS_DIR)).sort()) {
+  const file = `${ASSETS_DIR}/${slug}/page.tsx`;
+  if (!existsSync(resolve(ROOT, file))) continue;
+  const date = lastCommitDate(file);
+  if (date) assetEntries.push([slug, date]);
+  else missing.push(`/assets/${slug} (no commit touching ${file} — shallow clone?)`);
+}
+
 const body = entries.map(([k, v]) => `  '${k}': '${v}',`).join('\n');
 writeFileSync(
   OUT,
@@ -66,11 +83,14 @@ writeFileSync(
     `// Last commit date of each hand-authored page's source, used as its sitemap\n` +
     `// lastmod. Regenerate after editing any of these pages:\n` +
     `//   node scripts/gen-page-revisions.mjs\n\n` +
-    `export const PAGE_REVISIONS: Record<string, string> = {\n${body}\n};\n`,
+    `export const PAGE_REVISIONS: Record<string, string> = {\n${body}\n};\n\n` +
+    `// Last commit date of each coin guide page (src/app/[locale]/assets/<slug>/page.tsx),\n` +
+    `// used as the guide's dateModified. Same regeneration command.\n` +
+    `export const ASSET_REVISIONS: Record<string, string> = {\n${assetEntries.map(([k, v]) => `  '${k}': '${v}',`).join('\n')}\n};\n`,
   'utf8'
 );
 
-console.log(`Wrote ${entries.length} revision dates to src/lib/pageRevisions.ts`);
+console.log(`Wrote ${entries.length} page and ${assetEntries.length} asset revision dates to src/lib/pageRevisions.ts`);
 if (missing.length) {
   console.warn(`\nSkipped ${missing.length}:`);
   for (const m of missing) console.warn(`  - ${m}`);

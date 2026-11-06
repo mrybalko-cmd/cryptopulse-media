@@ -6,6 +6,7 @@ import { LTC_QUOTES, LTC_FAQ, LTC_INVESTMENT_REFERENCE } from '@/lib/ltcData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ltc';
 
@@ -67,8 +68,8 @@ export default async function LtcPage({ params }: Props) {
     headline: isRu ? 'Litecoin (LTC): «серебро» мира криптовалют' : 'Litecoin (LTC): The "Silver" of the Cryptocurrency World',
     description: isRu ? 'История Litecoin от создания до MimbleWimble интеграции.' : 'Litecoin history from creation to MimbleWimble integration.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/ltc`,

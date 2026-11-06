@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ethena';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function EthenaPage({ params }: Props) {
     description: isRu ? 'Как Ethena построила USDe, доллар на крипте и коротких фьючерсах, довела его почти до 15 миллиардов и раздала 750 миллионов ENA. История и калькулятор вложений.' : 'How Ethena built USDe, a dollar backed by crypto and short futures, grew it to almost 15 billion dollars and handed out 750 million ENA. History and a calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

@@ -6,6 +6,7 @@ import { LINK_QUOTES, LINK_FAQ, LINK_INVESTMENT_REFERENCE } from '@/lib/linkData
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'link';
 
@@ -67,8 +68,8 @@ export default async function LinkPage({ params }: Props) {
     headline: isRu ? 'Chainlink (LINK): невидимая инфраструктура DeFi' : 'Chainlink (LINK): The Invisible Infrastructure of DeFi',
     description: isRu ? 'История Chainlink от oracle problem до доминирования в DeFi.' : 'Chainlink history from the oracle problem to DeFi dominance.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/link`,

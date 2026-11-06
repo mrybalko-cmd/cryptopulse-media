@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ondo';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function OndoPage({ params }: Props) {
     description: isRu ? 'Как Ondo Finance перенесла в блокчейн гособлигации США, а затем американские акции, и что даёт держателям токен ONDO. История ONDO и калькулятор вложений.' : 'How Ondo Finance put US Treasuries and then US stocks on the blockchain, and what the ONDO token gives its holders. ONDO history and an investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

@@ -7,6 +7,7 @@ import { BTC_QUOTES, BTC_FAQ, BTC_INVESTMENT_REFERENCE } from '@/lib/bitcoinData
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'bitcoin';
 
@@ -72,8 +73,8 @@ export default async function BitcoinPage({ params }: Props) {
       ? 'Полная история Bitcoin от белой книги Сатоши до сегодняшнего дня.'
       : 'Complete history of Bitcoin from Satoshi\'s whitepaper to today.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-01',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-01',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/bitcoin`,

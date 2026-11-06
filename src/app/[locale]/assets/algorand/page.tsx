@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'algorand';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function AlgorandPage({ params }: Props) {
     description: isRu ? 'Как профессор MIT Сильвио Микали построил Algorand, почему ALGO поставил рекорд в первые дни торгов и при чём тут FIFA. История и калькулятор вложений в ALGO.' : 'How MIT professor Silvio Micali built Algorand, why ALGO peaked on its first day and what the FIFA deal meant. History and an ALGO investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

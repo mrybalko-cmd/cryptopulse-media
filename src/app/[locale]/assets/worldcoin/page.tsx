@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'worldcoin';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function WorldcoinPage({ params }: Props) {
     description: isRu ? 'Как проект Сэма Альтмана сканирует радужку глаза устройством Orb и раздаёт WLD. Запреты в Кении и Испании, переименование в World и калькулятор WLD.' : 'How Sam Altman’s project scans irises with a device called the Orb and pays out WLD. Bans in Kenya and Spain, the rebrand to World and a WLD calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

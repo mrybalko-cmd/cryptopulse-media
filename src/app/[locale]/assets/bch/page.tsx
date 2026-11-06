@@ -7,6 +7,7 @@ import { COIN_GUIDES } from '@/lib/coinGuides';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'bch';
 const guide = COIN_GUIDES[SLUG];
@@ -48,7 +49,7 @@ export default async function BchPage({ params }: Props) {
     description: isRu ? 'История Bitcoin Cash от форка Bitcoin в 2017 году до сегодняшнего дня.' : 'The history of Bitcoin Cash from its 2017 fork from Bitcoin to today.',
     inLanguage: locale,
     datePublished: '2026-07-14',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-14',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

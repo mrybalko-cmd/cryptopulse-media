@@ -7,6 +7,7 @@ import { COIN_GUIDES } from '@/lib/coinGuides';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'sui';
 const guide = COIN_GUIDES[SLUG];
@@ -48,7 +49,7 @@ export default async function SuiPage({ params }: Props) {
     description: isRu ? 'История Sui от проекта Diem до независимого блокчейна Mysten Labs.' : 'The history of Sui from the Diem project to an independent blockchain by Mysten Labs.',
     inLanguage: locale,
     datePublished: '2026-07-14',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-14',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

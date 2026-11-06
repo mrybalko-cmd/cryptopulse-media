@@ -6,6 +6,7 @@ import { AVAX_QUOTES, AVAX_FAQ, AVAX_INVESTMENT_REFERENCE } from '@/lib/avaxData
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'avax';
 
@@ -67,8 +68,8 @@ export default async function AvaxPage({ params }: Props) {
     headline: isRu ? 'Avalanche (AVAX): блокчейн со скоростью снежной лавины' : 'Avalanche (AVAX): The Blockchain with Avalanche-Speed Finality',
     description: isRu ? 'История Avalanche от основания до Avalanche9000.' : 'Avalanche history from founding to Avalanche9000.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/avax`,

@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'quant';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function QuantPage({ params }: Props) {
     description: isRu ? 'Как Quant построил Overledger, чтобы связать блокчейны друг с другом и с банковскими системами, и почему QNT всего 14,6 миллиона. История и калькулятор.' : 'How Quant built Overledger to connect blockchains with each other and with bank systems, and why QNT has a supply of only 14.6 million. History and a calculator.',
     inLanguage: locale,
     datePublished: '2026-11-02',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

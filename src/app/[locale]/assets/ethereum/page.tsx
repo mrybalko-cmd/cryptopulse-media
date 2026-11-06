@@ -7,6 +7,7 @@ import { ETH_QUOTES, ETH_FAQ, ETH_INVESTMENT_REFERENCE } from '@/lib/ethereumDat
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ethereum';
 
@@ -77,8 +78,8 @@ export default async function EthereumPage({ params }: Props) {
       ? 'Полная история Ethereum от белой книги Виталика Бутерина до The Merge.'
       : 'Complete history of Ethereum from Vitalik Buterin\'s whitepaper to The Merge.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-01',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-01',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/ethereum`,

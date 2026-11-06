@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'ethereum-classic';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function EthereumClassicPage({ params }: Props) {
     description: isRu ? 'Как взлом The DAO в 2016 году расколол Ethereum надвое и почему Ethereum Classic сохранил старую цепочку. Атаки 51%, ограниченный выпуск и калькулятор ETC.' : 'How the 2016 DAO hack split Ethereum in two, and why Ethereum Classic kept the old chain. 51% attacks, a fixed supply and an ETC investment calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

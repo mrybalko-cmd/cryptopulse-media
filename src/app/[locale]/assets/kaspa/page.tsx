@@ -6,6 +6,7 @@ import CoinGuideLayout from '@/components/ui/CoinGuideLayout';
 import { COIN_GUIDES } from '@/lib/coinGuides';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'kaspa';
 const guide = COIN_GUIDES[SLUG];
@@ -46,7 +47,7 @@ export default async function KaspaPage({ params }: Props) {
     description: isRu ? 'Как Kaspa запустилась без премайна и инвесторов и заменила цепочку блоков на blockDAG. Ежемесячные халвинги, обновление Crescendo и калькулятор KAS.' : 'How Kaspa launched without a premine or investors and replaced the single chain of blocks with a blockDAG. Monthly halvings, the Crescendo upgrade and a KAS calculator.',
     inLanguage: locale,
     datePublished: '2026-11-03',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-11-03',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,

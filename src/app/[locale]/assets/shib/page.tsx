@@ -6,6 +6,7 @@ import { SHIB_QUOTES, SHIB_FAQ, SHIB_INVESTMENT_REFERENCE } from '@/lib/shibData
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'shib';
 
@@ -67,8 +68,8 @@ export default async function ShibPage({ params }: Props) {
     headline: isRu ? 'Shiba Inu (SHIB): мем-монета с трагедией и экосистемой' : 'Shiba Inu (SHIB): Meme Coin with a Tragic Turn and an Ecosystem',
     description: isRu ? 'История SHIB от создания до Shibarium L2.' : 'SHIB history from creation to Shibarium L2.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-02',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-02',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/shib`,

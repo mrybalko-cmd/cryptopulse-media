@@ -6,6 +6,7 @@ import { SOL_QUOTES, SOL_FAQ, SOL_INVESTMENT_REFERENCE } from '@/lib/solanaData'
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'solana';
 
@@ -75,8 +76,8 @@ export default async function SolanaPage({ params }: Props) {
       ? 'Полная история Solana от идеи Анатолия Яковенко до восстановления после FTX.'
       : 'Complete history of Solana from Anatoly Yakovenko\'s idea to recovery after FTX.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-01',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-01',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/solana`,

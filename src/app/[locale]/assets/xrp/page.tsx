@@ -6,6 +6,7 @@ import { XRP_QUOTES, XRP_FAQ, XRP_INVESTMENT_REFERENCE } from '@/lib/xrpData';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'xrp';
 
@@ -75,8 +76,8 @@ export default async function XrpPage({ params }: Props) {
       ? 'Полная история XRP от основания Ripple до исторического судебного решения 2023 года.'
       : 'Complete XRP history from Ripple\'s founding to the landmark 2023 court ruling.',
     inLanguage: locale,
-    datePublished: '2024-01-01',
-    dateModified: new Date().toISOString().slice(0, 10),
+    datePublished: '2026-07-01',
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-01',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/xrp`,

@@ -7,6 +7,7 @@ import { COIN_GUIDES } from '@/lib/coinGuides';
 import { SITE_NAME } from '@/lib/site';
 import { ORGANIZATION_ID } from '@/lib/organizationSchema';
 
+import { ASSET_REVISIONS } from '@/lib/pageRevisions';
 type Props = { params: Promise<{ locale: string }> };
 const SLUG = 'polygon';
 const guide = COIN_GUIDES[SLUG];
@@ -48,7 +49,7 @@ export default async function PolygonPage({ params }: Props) {
     description: isRu ? 'История Polygon от Matic Network до POL.' : 'The history of Polygon from Matic Network to POL.',
     inLanguage: locale,
     datePublished: '2026-07-14',
-    dateModified: new Date().toISOString().slice(0, 10),
+    dateModified: ASSET_REVISIONS[SLUG] ?? '2026-07-14',
     author: { '@id': ORGANIZATION_ID },
     publisher: { '@id': ORGANIZATION_ID },
     mainEntityOfPage: `${BASE}/${locale}/assets/${SLUG}`,
