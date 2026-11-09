@@ -1,5 +1,7 @@
+import { Fragment } from 'react';
 import Link from 'next/link';
-import type { ExchangeRaw } from '@/lib/sanity';
+import type { ExchangeRaw, InlineBannerItem } from '@/lib/sanity';
+import InlineBanner from './InlineBanner';
 import { extendedFacts, hasExtendedProfile } from '@/lib/exchangePlacements';
 import {
   ExchangeLogo,
@@ -14,6 +16,9 @@ import {
   restrictionLabel,
   slugFor,
 } from './exchangePresentation';
+
+/** Контент-баннер стоит после этой строки. Если строк не больше, он не показывается: повис бы в конце таблицы. */
+const BANNER_AFTER_ROW = 5;
 
 /**
  * A row holds the link, it never *is* one: `<a>` inside `<a>` is invalid and
@@ -45,12 +50,14 @@ export default function ExchangeTable({
   locale,
   maxVolume,
   isComplete,
+  banners = [],
 }: {
   items: (ExchangeRaw & { rank: number })[];
   locale: string;
   maxVolume: number;
   /** Показан весь рейтинг, без фильтров: подпись может сказать «все». */
   isComplete: boolean;
+  banners?: InlineBannerItem[];
 }) {
   const isRu = locale === 'ru';
 
@@ -116,7 +123,7 @@ export default function ExchangeTable({
           </thead>
 
           <tbody>
-            {items.map(exchange => {
+            {items.map((exchange, index) => {
               // Second argument is `short`, not the locale — the chip column is
               // narrow, so both languages get the shortened form.
               const licence = licenceLabel(exchange, true);
@@ -126,8 +133,8 @@ export default function ExchangeTable({
               const perk = extended ? (isRu ? exchange.extendedPerkRu : exchange.extendedPerkEn) : null;
               const facts = extended ? extendedFacts(isRu ? exchange.extendedFactsRu : exchange.extendedFactsEn) : [];
               return (
+                <Fragment key={exchange._id}>
                 <tr
-                  key={exchange._id}
                   className={`group relative border-b border-[var(--glass-line)] last:border-b-0 transition-colors ${
                     extended
                       ? 'bg-[color-mix(in_srgb,var(--violet)_11%,transparent)] hover:bg-[color-mix(in_srgb,var(--violet)_16%,transparent)]'
@@ -194,6 +201,21 @@ export default function ExchangeTable({
                     </span>
                   </td>
                 </tr>
+                {/* Реклама места не занимает: номера строк считает рейтинг, а не позиция в таблице. */}
+                {index === BANNER_AFTER_ROW - 1 && items.length > BANNER_AFTER_ROW && banners.length > 0 && (
+                  <tr className="border-b border-[var(--glass-line)]">
+                    {/* Две ячейки, потому что на телефоне видимых колонок три, а colSpan из CSS не поменять.
+                        colSpan=6 на телефоне добавляет таблице пустые колонки и сжимает название биржи.
+                        Скрытая ячейка не считается в сетке и показа не засчитывает: IntersectionObserver её не видит. */}
+                    <td colSpan={3} className="md:hidden px-2 py-3">
+                      <InlineBanner banners={banners} locale={locale} className="my-0" />
+                    </td>
+                    <td colSpan={6} className="hidden md:table-cell px-3 py-3">
+                      <InlineBanner banners={banners} locale={locale} className="my-0" />
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               );
             })}
           </tbody>

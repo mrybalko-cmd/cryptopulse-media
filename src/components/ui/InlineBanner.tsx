@@ -14,7 +14,7 @@ import { pickWeighted, trackBannerClickGa, useBannerImpression } from './bannerT
  * что активные баннеры есть, а какой из них показать, решает браузер — иначе
  * выбор застыл бы в кэше страницы на час.
  */
-export default function InlineBanner({ banners, locale }: { banners: InlineBannerItem[]; locale: string }) {
+export default function InlineBanner({ banners, locale, className = 'my-8' }: { banners: InlineBannerItem[]; locale: string; className?: string }) {
   const [chosen, setChosen] = useState<InlineBannerItem | null>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
 
@@ -29,7 +29,7 @@ export default function InlineBanner({ banners, locale }: { banners: InlineBanne
   if (!banners.length) return null;
 
   return (
-    <aside aria-label={locale === 'ru' ? 'Реклама' : 'Advertisement'} className="not-prose my-8 flex flex-col items-center gap-1.5">
+    <aside aria-label={locale === 'ru' ? 'Реклама' : 'Advertisement'} className={`not-prose ${className} flex flex-col items-center gap-1.5`}>
       <span className="text-[10px] uppercase tracking-[0.06em] text-muted">{locale === 'ru' ? 'Реклама' : 'Ad'}</span>
       <div className="w-full max-w-[320px] md:max-w-none aspect-[4/1] md:aspect-[970/200] rounded-lg overflow-hidden border border-border bg-card">
         {chosen && (

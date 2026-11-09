@@ -1247,7 +1247,7 @@ export async function fetchAdminExchangesList(): Promise<AdminExchangeListItem[]
     `*[_type in ["exchange", "broker"]] | order(_type desc, volume24h desc){
       _id, "venueKind": select(_type == "broker" => "broker", "exchange"), name, "logo": logo.asset->url, volume24h,
       "extendedEnabled": coalesce(extendedEnabled, false), "adEnabled": coalesce(adEnabled, false), "hasTradeUrl": defined(tradeUrl),
-      "type": coalesce(type, []), foundedYear, "regionTones": regions[].tone
+      "type": coalesce(type, []), foundedYear, "regionTones": coalesce(regions[].tone, [])
     }`
   );
 }

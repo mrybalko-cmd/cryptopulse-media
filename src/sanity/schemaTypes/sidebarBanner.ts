@@ -21,11 +21,11 @@ export const sidebarBannerType = defineType({
     }),
     defineField({
       name: 'contentTypes',
-      title: 'Где показывать (только для баннера в тексте)',
+      title: 'Где показывать (только для контент-баннера)',
       type: 'string',
       options: {
         list: [
-          { title: 'Новости и статьи', value: 'all' },
+          { title: 'Новости, статьи и рейтинг бирж', value: 'all' },
           { title: 'Только новости', value: 'news' },
           { title: 'Только статьи', value: 'article' },
         ],

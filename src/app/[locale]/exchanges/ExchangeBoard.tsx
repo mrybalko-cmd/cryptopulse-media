@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { ExchangeRaw } from '@/lib/sanity';
+import type { ExchangeRaw, InlineBannerItem } from '@/lib/sanity';
 import { exchangeHasLicense } from '@/lib/exchangeFilters';
 import {
   applyFilters, parseFilters, serializeFilters,
@@ -24,11 +24,12 @@ import { SITE_BRAND } from '@/lib/site';
  * — в комментарии к exchangeFilterState.ts).
  */
 export default function ExchangeBoard({
-  all, locale, isRu, picks,
+  all, locale, isRu, picks, banners,
 }: {
   all: ExchangeRaw[];
   locale: string;
   isRu: boolean;
+  banners: InlineBannerItem[];
   /** Блок подборок. Приходит готовым с сервера: он строится по полному
    *  списку и от фильтров не зависит, так что отрисовывать его в браузере
    *  незачем — пусть остаётся в HTML как обычный текст. */
@@ -108,7 +109,7 @@ export default function ExchangeBoard({
         </p>
       ) : (
         <>
-          <ExchangeTable items={shown} locale={locale} maxVolume={maxVolume} isComplete={shown.length === all.length} />
+          <ExchangeTable items={shown} locale={locale} maxVolume={maxVolume} isComplete={shown.length === all.length} banners={banners} />
           <p className="text-[11px] text-muted mt-2.5">
             {isRu
               ? `Нажмите на строку, чтобы открыть обзор биржи на ${SITE_BRAND}. «Торговать» открывается в новой вкладке.`

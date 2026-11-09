@@ -110,7 +110,7 @@ export interface InlineBannerItem {
 
 /** Баннеры внутри текста: своя пятёрка, отдельная от баннеров под «Популярным». */
 export const fetchInlineBanners = unstable_cache(
-  async (locale: string, kind: 'news' | 'article'): Promise<InlineBannerItem[]> => {
+  async (locale: string, kind: 'news' | 'article' | 'exchanges'): Promise<InlineBannerItem[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
     try {
       return await client.fetch(

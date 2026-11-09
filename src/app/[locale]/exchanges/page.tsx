@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE } from '@/lib/metadata';
-import { fetchExchanges, fetchPopularContent, fetchActiveBanners, type ExchangeRaw } from '@/lib/sanity';
+import { fetchExchanges, fetchPopularContent, fetchActiveBanners, fetchInlineBanners, type ExchangeRaw } from '@/lib/sanity';
 import { formatTimestamp, toIso } from '@/lib/formatTimestamp';
 import { applyFilters, EMPTY_FILTERS } from '@/lib/exchangeFilterState';
 import ExchangePicks from '@/components/ui/ExchangePicks';
@@ -50,10 +50,11 @@ export default async function ExchangesPage({ params }: Props) {
   setRequestLocale(locale);
   const isRu = locale === 'ru';
 
-  const [all, mobilePopular, mobileBanners] = await Promise.all([
+  const [all, mobilePopular, mobileBanners, inlineBanners] = await Promise.all([
     fetchExchanges(),
     fetchPopularContent(locale, 3),
     fetchActiveBanners(locale),
+    fetchInlineBanners(locale, 'exchanges'),
   ]);
 
   // Сервер считает нефильтрованный рейтинг: он и уходит в разметку, и он же
@@ -149,6 +150,7 @@ export default async function ExchangesPage({ params }: Props) {
           </p>
 
           <ExchangeBoard
+            banners={inlineBanners}
             all={all}
             locale={locale}
             isRu={isRu}

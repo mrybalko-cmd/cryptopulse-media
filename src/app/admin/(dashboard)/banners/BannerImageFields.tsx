@@ -84,7 +84,7 @@ export default function BannerImageFields({ banner }: { banner?: AdminBannerDoc 
         <div className="mb-5">
           <div className="text-[10.5px] uppercase tracking-wide text-[var(--admin-text-muted)] font-bold mb-2.5">Где показывать</div>
           <div className="flex flex-wrap gap-4">
-            {([['all', 'Новости и статьи'], ['news', 'Только новости'], ['article', 'Только статьи']] as const).map(([v, label]) => (
+            {([['all', 'Новости, статьи и рейтинг бирж'], ['news', 'Только новости'], ['article', 'Только статьи']] as const).map(([v, label]) => (
               <label key={v} className="flex items-center gap-1.5 text-[12.5px]">
                 <input type="radio" name="contentTypes" value={v} defaultChecked={contentTypes === v} />
                 {label}
