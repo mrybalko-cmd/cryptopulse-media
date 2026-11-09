@@ -1,6 +1,7 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
@@ -22,7 +23,7 @@ async function publishReview(target: Awaited<ReturnType<typeof fetchExchangeRevi
   // В try по той же причине, что у комментариев: запись в базу уже прошла,
   // и сорвавшийся сброс кэша не должен показывать модератору ошибку.
   try {
-    revalidateTag('exchange-reviews', { expire: 0 });
+    revalidateAfterSave('exchange-reviews');
     revalidatePath('/admin/exchange-reviews');
     if (!target) return;
     // У биржи свой slug на каждом языке, и совпадают они не всегда.

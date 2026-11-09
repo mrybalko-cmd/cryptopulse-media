@@ -1,7 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
+import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent, fetchAdminCalendarEventById, uploadImageAsset, type CalendarEventInput } from '@/lib/admin/data';
 import { logActivity } from '@/lib/admin/activityLog';
@@ -35,7 +36,7 @@ function parseInput(formData: FormData): CalendarEventInput {
  * главной, поэтому сбрасываются обе.
  */
 function publishCalendar() {
-  revalidateTag('calendar', { expire: 0 });
+  revalidateAfterSave('calendar');
   for (const locale of ['ru', 'en']) {
     revalidatePath(`/${locale}/calendar`);
     revalidatePath(`/${locale}`);

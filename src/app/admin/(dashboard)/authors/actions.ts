@@ -1,7 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
+import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
   createAuthor, updateAuthor, deleteAuthor, fetchAdminAuthorById, uploadImageAsset,
@@ -63,8 +64,8 @@ function toIso(v: FormDataEntryValue | null): string | undefined {
  * внутрь себя, включая признак скрытия, и своего тега у неё нет.
  */
 function publishAuthors(slug?: string) {
-  revalidateTag('authors', { expire: 0 });
-  revalidateTag('homeSettings', { expire: 0 });
+  revalidateAfterSave('authors');
+  revalidateAfterSave('homeSettings');
   for (const locale of ['ru', 'en']) {
     revalidatePath(`/${locale}/authors`);
     revalidatePath(`/${locale}`);

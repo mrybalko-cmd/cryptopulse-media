@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { pragueInputToISO } from '@/lib/admin/timezone';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
@@ -40,7 +40,7 @@ function parseInput(formData: FormData): Omit<BannerInput, 'imageAssetId' | 'mob
  * ради которых «Популярное» и отцепили от тегов новостей.
  */
 function publishBanners() {
-  revalidateTag('banners', { expire: 0 });
+  revalidateAfterSave('banners');
 }
 
 

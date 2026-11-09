@@ -1,8 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { pragueInputToISO } from '@/lib/admin/timezone';
-import { revalidateTag, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createArticle, updateArticle, deleteArticle, duplicateArticle, unpublishDocument, republishDocument, fetchAdminArticleById, uploadImageAsset, type ArticleInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
@@ -69,19 +70,19 @@ async function parseArticleInput(formData: FormData, originalBody: PortableTextB
  * помечал устаревшими все статьи разом и оплачивался перезаписью каждой.
  */
 function publishArticle(language?: string, slug?: string) {
-  revalidateTag('articles', { expire: 0 });
+  revalidateAfterSave('articles');
   if (!language || !slug) return;
   // Персональный тег материала — без него страница пересобралась бы
   // со старым текстом: revalidatePath сбрасывает отрисовку,
   // но данные под ней остались бы в кэше ещё до пяти минут.
-  revalidateTag(`article:${language}:${slug}`, { expire: 0 });
+  revalidateAfterSave(`article:${language}:${slug}`);
   revalidatePath(`/${language}/articles/${slug}`);
 }
 
 /** Редкие действия, где адрес известен не всегда. */
 function publishArticleWide() {
-  revalidateTag('articles', { expire: 0 });
-  revalidateTag('article-item', { expire: 0 });
+  revalidateAfterSave('articles');
+  revalidateAfterSave('article-item');
 }
 
 export async function createArticleAction(formData: FormData) {

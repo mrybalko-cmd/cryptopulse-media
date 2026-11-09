@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
   createRegulationCountry,
@@ -57,7 +57,7 @@ function parseInput(formData: FormData): RegulationCountryInput {
  * save had not worked.
  */
 function publishNow() {
-  revalidateTag('regulation', { expire: 0 });
+  revalidateAfterSave('regulation');
 }
 
 export async function createRegulationCountryAction(formData: FormData) {

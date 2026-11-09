@@ -1,8 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { pragueInputToISO } from '@/lib/admin/timezone';
-import { revalidateTag, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { createNews, updateNews, deleteNews, duplicateNews, unpublishDocument, republishDocument, fetchAdminNewsById, uploadImageAsset, type NewsInput } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
@@ -76,12 +77,12 @@ async function parseNewsInput(formData: FormData, originalBody: PortableTextBloc
  * адрес — тот, который правили.
  */
 function publishNews(language?: string, slug?: string) {
-  revalidateTag('news', { expire: 0 });
+  revalidateAfterSave('news');
   if (!language || !slug) return;
   // Персональный тег материала — без него страница пересобралась бы
   // со старым текстом: revalidatePath сбрасывает отрисовку,
   // но данные под ней остались бы в кэше ещё до пяти минут.
-  revalidateTag(`news:${language}:${slug}`, { expire: 0 });
+  revalidateAfterSave(`news:${language}:${slug}`);
   revalidatePath(`/${language}/news/${slug}`);
 }
 
@@ -89,8 +90,8 @@ function publishNews(language?: string, slug?: string) {
  *  адрес известен не всегда, а происходят они считаные разы в неделю,
  *  поэтому можно позволить себе общий сброс постраничного тега. */
 function publishNewsWide() {
-  revalidateTag('news', { expire: 0 });
-  revalidateTag('news-item', { expire: 0 });
+  revalidateAfterSave('news');
+  revalidateAfterSave('news-item');
 }
 
 export async function createNewsAction(formData: FormData) {

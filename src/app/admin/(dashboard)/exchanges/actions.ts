@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
   createExchange,
@@ -211,7 +211,7 @@ export async function createExchangeAction(formData: FormData) {
     coverFile && coverFile.size > 0 ? uploadImageAsset(coverFile) : Promise.resolve(undefined),
   ]);
   const doc = await createExchange(input, logoAssetId, coverAssetId);
-  revalidateTag('exchanges', { expire: 0 });
+  revalidateAfterSave('exchanges');
   redirect(`/admin/exchanges/${doc._id}?saved=1`);
 }
 
@@ -230,7 +230,7 @@ export async function updateExchangeAction(
     coverFile && coverFile.size > 0 ? uploadImageAsset(coverFile) : Promise.resolve(undefined),
   ]);
   await updateExchange(id, input, logoAssetId, coverAssetId);
-  revalidateTag('exchanges', { expire: 0 });
+  revalidateAfterSave('exchanges');
   redirect(`/admin/exchanges/${id}?saved=1`);
 }
 
@@ -239,6 +239,6 @@ export async function deleteExchangeAction(id: string) {
   const doc = await fetchAdminExchangeById(id);
   await deleteExchange(id);
   await logActivity(session, { action: 'delete', entityType: 'exchange', entityTitle: doc?.name ?? id, entityId: id });
-  revalidateTag('exchanges', { expire: 0 });
+  revalidateAfterSave('exchanges');
   redirect('/admin/exchanges');
 }

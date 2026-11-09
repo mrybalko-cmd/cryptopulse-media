@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { updateAdminHomeSettings, type HomeSettingsInput, type WidgetSlotInput,
   fetchMaterialOptionsForAuthors } from '@/lib/admin/data';
@@ -64,15 +64,15 @@ export async function updateHomeSettingsAction(formData: FormData) {
   };
 
   await updateAdminHomeSettings(input);
-  revalidateTag('homeSettings', { expire: 0 });
+  revalidateAfterSave('homeSettings');
   // Виджет регуляции читает страны и режимы через теги раздела: без сброса
   // правка подборки доехала бы только через час.
-  revalidateTag('regulation', { expire: 0 });
-  revalidateTag('licences', { expire: 0 });
+  revalidateAfterSave('regulation');
+  revalidateAfterSave('licences');
   // Блок AI читает карточки через свои теги — без сброса смена подборки
   // логотипов доехала бы до главной только через час.
-  revalidateTag('ai', { expire: 0 });
-  revalidateTag('ai-services', { expire: 0 });
+  revalidateAfterSave('ai');
+  revalidateAfterSave('ai-services');
   redirect('/admin/homepage?success=1');
 }
 

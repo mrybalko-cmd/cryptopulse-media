@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activityLog';
 import {
@@ -14,7 +14,7 @@ import {
  *  редактор сохранил бы термин, обновил страницу, увидел старый текст
  *  и решил бы, что сохранение не сработало. */
 function publishNow() {
-  revalidateTag('glossary', { expire: 0 });
+  revalidateAfterSave('glossary');
 }
 
 

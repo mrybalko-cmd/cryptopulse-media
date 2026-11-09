@@ -1,6 +1,7 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { redirect } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
@@ -92,7 +93,7 @@ async function publishTarget(target: Awaited<ReturnType<typeof fetchCommentTarge
   // превращать удачное действие в ошибку на экране. Хуже задержки в
   // несколько минут только модератор, который не понимает, сработало ли.
   try {
-    revalidateTag('comments', { expire: 0 });
+    revalidateAfterSave('comments');
     revalidatePath('/admin/comments');
     if (!target?.slug) return;
     const section = target.type === 'news' ? 'news' : 'articles';

@@ -1,7 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
+import { revalidatePath } from 'next/cache';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import { uploadImageAsset } from '@/lib/admin/data';
 import { logActivity } from '@/lib/admin/activityLog';
@@ -20,9 +21,9 @@ import type { PlanUnit } from '@/lib/ai';
  * пересборок больше, а свежести ноль.
  */
 function publishAi(slug?: string) {
-  revalidateTag('ai', { expire: 0 });
-  revalidateTag('ai-jobs', { expire: 0 });
-  revalidateTag('ai-services', { expire: 0 });
+  revalidateAfterSave('ai');
+  revalidateAfterSave('ai-jobs');
+  revalidateAfterSave('ai-services');
   for (const locale of ['ru', 'en']) {
     revalidatePath(`/${locale}/ai/tools`);
     revalidatePath(`/${locale}/ai/tools/[slug]`, 'page');

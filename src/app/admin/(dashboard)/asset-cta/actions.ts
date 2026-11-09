@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
+import { revalidateAfterSave } from '@/lib/admin/revalidateAfterSave';
 import { pragueInputToISO } from '@/lib/admin/timezone';
 import { requireAdminPermission } from '@/lib/admin/auth';
 import {
@@ -44,7 +44,7 @@ function parseInput(formData: FormData): AssetCtaInput {
  * которую в баннерах уже закрыли.
  */
 function publishCtas() {
-  revalidateTag(ASSET_CTA_TAG, { expire: 0 });
+  revalidateAfterSave(ASSET_CTA_TAG);
 }
 
 export async function createAssetCtaAction(formData: FormData) {
