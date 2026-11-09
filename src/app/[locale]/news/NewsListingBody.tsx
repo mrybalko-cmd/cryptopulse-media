@@ -93,7 +93,7 @@ export default function NewsListingBody({ locale, title, subtitle, items, page, 
           <span className="relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-semibold text-foreground cursor-default select-none whitespace-nowrap">
             {isRu ? 'Все новости' : 'All news'}
             {/* active underline */}
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent rounded-full" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--violet)] rounded-full" />
           </span>
 
           <Link

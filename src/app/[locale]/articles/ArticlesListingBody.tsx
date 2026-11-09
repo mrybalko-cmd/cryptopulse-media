@@ -73,12 +73,12 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
 
       {/* Topic filter pills */}
       <div className="flex flex-wrap gap-2 mb-8">
-        <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-accent text-background border border-accent">
+        <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--violet)] text-white border border-[var(--violet)]">
           {locale === 'ru' ? 'Все' : 'All'}
         </span>
         <Link
           href={`/${locale}/articles/popular`}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-[var(--violet)]/40 hover:text-foreground transition-colors"
         >
           <Flame size={12} className="text-red-600" fill="currentColor" />
           {locale === 'ru' ? 'Популярное' : 'Popular'}
@@ -87,7 +87,7 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
           <Link
             key={key}
             href={`/${locale}/articles/topic/${key}`}
-            className="px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+            className="px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-[var(--violet)]/40 hover:text-foreground transition-colors"
           >
             {locale === 'ru' ? labels.ru : labels.en}
           </Link>
@@ -141,7 +141,7 @@ export default function ArticlesListingBody({ locale, title, subtitle, articles,
             {locale === 'ru' ? 'Статьи появятся после настройки Sanity CMS' : 'Articles will appear after setting up Sanity CMS'}
           </p>
           <a href="https://sanity.io" target="_blank" rel="noopener noreferrer"
-            className="text-xs text-accent hover:underline">
+            className="text-xs text-[var(--violet)] hover:underline">
             sanity.io
           </a>
         </div>

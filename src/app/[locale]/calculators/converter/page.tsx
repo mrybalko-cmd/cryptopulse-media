@@ -146,11 +146,11 @@ export default async function CurrencyConverterPage({ params, searchParams }: Pr
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
         <div className="min-w-0">
           <nav className="flex items-center gap-1.5 text-xs text-muted mb-5">
-            <Link href={`/${locale}`} className="hover:text-accent transition-colors">
+            <Link href={`/${locale}`} className="hover:text-[var(--violet)] transition-colors">
               {isRu ? 'Главная' : 'Home'}
             </Link>
             <span>›</span>
-            <Link href={`/${locale}/calculators`} className="hover:text-accent transition-colors">
+            <Link href={`/${locale}/calculators`} className="hover:text-[var(--violet)] transition-colors">
               {isRu ? 'Калькуляторы' : 'Calculators'}
             </Link>
             <span>›</span>
@@ -159,7 +159,7 @@ export default async function CurrencyConverterPage({ params, searchParams }: Pr
 
           <h1 className="text-[26px] sm:text-[30px] font-extrabold text-foreground leading-[1.08] -tracking-[0.035em] mb-2">
             {isRu ? 'Конвертер криптовалют — ' : 'Crypto converter — '}
-            <span className="text-accent">{isRu ? 'курс прямо сейчас' : 'the rate right now'}</span>
+            <span className="text-[var(--violet)]">{isRu ? 'курс прямо сейчас' : 'the rate right now'}</span>
           </h1>
           <p className="text-muted text-sm leading-relaxed max-w-[62ch] mb-6">
             {isRu
@@ -195,7 +195,7 @@ export default async function CurrencyConverterPage({ params, searchParams }: Pr
               {faq.map(item => (
                 <details
                   key={item.q}
-                  className="group rounded-xl border border-[var(--glass-line)] bg-[image:var(--glass-fill)] px-4 py-3 open:border-accent/40 transition-colors"
+                  className="group rounded-xl border border-[var(--glass-line)] bg-[image:var(--glass-fill)] px-4 py-3 open:border-[var(--violet)]/40 transition-colors"
                 >
                   <summary className="cursor-pointer list-none flex items-start justify-between gap-3 text-sm font-bold text-foreground">
                     {item.q}

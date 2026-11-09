@@ -161,7 +161,7 @@ export default function Header() {
                 aria-current={isActive(link.href) ? 'page' : undefined}
                 className={`flex items-center gap-1 px-1 lg:px-2.5 xl:px-4 text-[12.5px] lg:text-sm border-b-2 transition-colors whitespace-nowrap ${
                   isActive(link.href)
-                    ? 'text-foreground font-semibold border-accent'
+                    ? 'text-foreground font-semibold border-[var(--violet)]'
                     : 'text-muted hover:text-foreground border-transparent hover:border-border'
                 } ${'ai' in link && link.ai ? 'hover:text-yellow-400' : ''}`}
               >

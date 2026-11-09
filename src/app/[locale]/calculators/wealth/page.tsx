@@ -183,7 +183,7 @@ export default async function WealthComparisonPage({ params }: Props) {
                 <p className="mt-3 text-[14px] leading-relaxed text-muted">
                   Forbes и{' '}
                   <a href="https://www.bloomberg.com/billionaires/" target="_blank" rel="noopener noreferrer nofollow"
-                     className="text-accent hover:underline">Bloomberg</a>{' '}
+                     className="text-[var(--violet)] hover:underline">Bloomberg</a>{' '}
                   считают непубличные активы по-разному, и разница между их оценками одного человека доходит
                   до десятков миллиардов. Мы берём Forbes и ставим рядом дату, на которую цифра снята.
                 </p>
@@ -202,7 +202,7 @@ export default async function WealthComparisonPage({ params }: Props) {
                 <p className="mt-3 text-[14px] leading-relaxed text-muted">
                   Forbes and{' '}
                   <a href="https://www.bloomberg.com/billionaires/" target="_blank" rel="noopener noreferrer nofollow"
-                     className="text-accent hover:underline">Bloomberg</a>{' '}
+                     className="text-[var(--violet)] hover:underline">Bloomberg</a>{' '}
                   value private holdings on different assumptions, and their two figures for one person can sit
                   tens of billions apart. We take Forbes and print the date the figure was locked in, so you can
                   check it against the list.
@@ -227,9 +227,9 @@ export default async function WealthComparisonPage({ params }: Props) {
                 <p className="mt-3 text-[14px] leading-relaxed text-muted">
                   Курс биткоина в блоке выше настоящий и обновляется несколько раз в сутки, поэтому число монет
                   уезжает само, пока вы читаете. Посмотреть его отдельно можно на{' '}
-                  <Link href={`/${locale}/assets/bitcoin`} className="text-accent hover:underline">странице биткоина</Link>,
+                  <Link href={`/${locale}/assets/bitcoin`} className="text-[var(--violet)] hover:underline">странице биткоина</Link>,
                   а что такое предельная эмиссия — в{' '}
-                  <Link href={`/${locale}/glossary`} className="text-accent hover:underline">глоссарии</Link>.
+                  <Link href={`/${locale}/glossary`} className="text-[var(--violet)] hover:underline">глоссарии</Link>.
                 </p>
               </>
             ) : (
@@ -243,9 +243,9 @@ export default async function WealthComparisonPage({ params }: Props) {
                 <p className="mt-3 text-[14px] leading-relaxed text-muted">
                   The bitcoin price above is real and refreshes several times a day, so the number of coins drifts
                   on its own while you read. You can watch it on its own{' '}
-                  <Link href={`/${locale}/assets/bitcoin`} className="text-accent hover:underline">bitcoin page</Link>,
+                  <Link href={`/${locale}/assets/bitcoin`} className="text-[var(--violet)] hover:underline">bitcoin page</Link>,
                   and the hard cap has an entry in the{' '}
-                  <Link href={`/${locale}/glossary`} className="text-accent hover:underline">glossary</Link>.
+                  <Link href={`/${locale}/glossary`} className="text-[var(--violet)] hover:underline">glossary</Link>.
                 </p>
               </>
             )}

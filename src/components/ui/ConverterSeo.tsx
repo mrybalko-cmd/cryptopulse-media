@@ -123,7 +123,7 @@ export default function ConverterSeo({ locale }: { locale: string }) {
   const isRu = locale === 'ru';
   const rates = `/${locale}/rates`;
   const exchanges = `/${locale}/exchanges`;
-  const link = 'text-accent hover:underline';
+  const link = 'text-[var(--violet)] hover:underline';
 
   if (isRu) {
     return (

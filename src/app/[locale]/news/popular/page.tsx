@@ -77,7 +77,7 @@ export default async function PopularNewsPage({ params }: Props) {
 
       <Link
         href={`/${locale}/news`}
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-[var(--violet)] transition-colors mb-8"
       >
         <ArrowLeft size={14} />
         {isRu ? 'Все новости' : 'All news'}

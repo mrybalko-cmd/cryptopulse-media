@@ -28,6 +28,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 /** Сколько ближайших событий показывает карточка календаря. */
 const CALENDAR_ITEMS = 5;
+const HEADING_ACCENT = 'bg-[linear-gradient(90deg,var(--violet),var(--violet-2))] bg-clip-text text-transparent';
 /** Монет в карточке активов: восемь ложатся сеткой 2×4 без остатка. */
 const ASSET_TILES = 8;
 
@@ -256,16 +257,16 @@ export default async function CalculatorsHubPage({ params }: Props) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_256px] lg:gap-8">
         <div className="min-w-0">
           <nav aria-label={isRu ? 'Хлебные крошки' : 'Breadcrumb'} className="mb-3 flex items-center gap-1.5 text-xs text-muted">
-            <Link href={`/${locale}`} className="transition-colors hover:text-accent">{isRu ? 'Главная' : 'Home'}</Link>
+            <Link href={`/${locale}`} className="transition-colors hover:text-[var(--violet)]">{isRu ? 'Главная' : 'Home'}</Link>
             <span>›</span>
             <span className="text-foreground">{isRu ? 'Калькуляторы и показатели' : 'Calculators & Metrics'}</span>
           </nav>
 
           <h1 className="mb-2.5 text-balance text-3xl font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-[36px]">
             {isRu ? (
-              <>Понять рынок раньше, чем <span className="text-accent">читать графики</span></>
+              <>Понять рынок раньше, чем <span className={HEADING_ACCENT}>читать графики</span></>
             ) : (
-              <>Read the market before you <span className="text-accent">read the charts</span></>
+              <>Read the market before you <span className={HEADING_ACCENT}>read the charts</span></>
             )}
           </h1>
           <p className="mb-3 max-w-2xl text-sm leading-relaxed text-muted">
@@ -333,7 +334,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                     соцсетях и доминацию биткоина и сводит всё к числу от 0 до 100. Ниже 45 рынок живёт
                     осторожностью, и исторически такие периоды совпадали с локальными минимумами цены. Выше 55
                     начинается жадность: покупают охотнее, но растёт и риск перегрева. Источник —{' '}
-                    <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">alternative.me</a>,
+                    <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener noreferrer nofollow" className="text-[var(--violet)] hover:underline">alternative.me</a>,
                     мы берём готовое число и подписываем, откуда оно.
                   </p>
                   <p>
@@ -422,7 +423,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
                     number from 0 to 100. Below 45 the market runs on caution, and past stretches in that range have
                     lined up with local price bottoms. Above 55 greed takes over: buying gets easier, and so does
                     overheating.{' '}
-                    <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener noreferrer nofollow" className="text-accent hover:underline">alternative.me</a>{' '}
+                    <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener noreferrer nofollow" className="text-[var(--violet)] hover:underline">alternative.me</a>{' '}
                     calculates it, we take the number and name the source.
                   </p>
                   <p>
@@ -500,7 +501,7 @@ export default async function CalculatorsHubPage({ params }: Props) {
             </h2>
             <div className="flex flex-col gap-2">
               {faq.map((f) => (
-                <details key={f.q} className="group rounded-lg border border-border bg-card px-4 py-3 open:border-accent/40">
+                <details key={f.q} className="group rounded-lg border border-border bg-card px-4 py-3 open:border-[var(--violet)]/40">
                   <summary className="flex cursor-pointer list-none items-start justify-between gap-3 text-sm font-semibold text-foreground">
                     {f.q}
                     <span className="mt-0.5 shrink-0 text-xs text-muted transition-transform group-open:rotate-180">▾</span>

@@ -40,7 +40,7 @@ export default function ExchangeToolbar({
 
   const tabCls = (on: boolean) =>
     `px-3.5 py-1.5 rounded-md text-xs font-bold transition-colors ${
-      on ? 'bg-accent text-white' : 'text-muted hover:text-foreground'}`;
+      on ? 'bg-[var(--violet)] text-white' : 'text-muted hover:text-foreground'}`;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -70,7 +70,7 @@ export default function ExchangeToolbar({
                   (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open');
                 }}
                 className={`block w-full text-left px-3.5 py-2 text-xs ${
-                  filters.sort === s ? 'text-accent font-semibold' : 'text-foreground hover:bg-[var(--card-hover)]'}`}>
+                  filters.sort === s ? 'text-[var(--violet)] font-semibold' : 'text-foreground hover:bg-[var(--card-hover)]'}`}>
                 {isRu ? SORT_LABELS[s].ru : SORT_LABELS[s].en}
               </button>
             ))}
@@ -81,7 +81,7 @@ export default function ExchangeToolbar({
           <summary className="cursor-pointer select-none list-none flex items-center gap-1.5 text-xs font-semibold border border-border rounded-lg px-3 py-2 bg-card text-foreground whitespace-nowrap">
             <span aria-hidden>⚙</span> {isRu ? 'Фильтры' : 'Filters'}
             {activeFilterCount > 0 && (
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-accent text-white text-[10px] font-bold">{activeFilterCount}</span>
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--violet)] text-white text-[10px] font-bold">{activeFilterCount}</span>
             )}
             <span className="text-muted">▾</span>
           </summary>
@@ -102,7 +102,7 @@ export default function ExchangeToolbar({
                             ? [...d.products, p.value]
                             : d.products.filter(v => v !== p.value),
                         }))}
-                        className="accent-accent" />
+                        className="accent-[var(--violet)]" />
                       {isRu ? p.labelRu : p.labelEn}
                     </label>
                   ))}
@@ -113,7 +113,7 @@ export default function ExchangeToolbar({
                 <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
                   <input type="checkbox" checked={draft.license}
                     onChange={e => setDraft(d => ({ ...d, license: e.target.checked }))}
-                    className="accent-accent" />
+                    className="accent-[var(--violet)]" />
                   {isRu ? 'Есть регуляторная лицензия' : 'Has a regulatory licence'}
                 </label>
               </div>
@@ -144,7 +144,7 @@ export default function ExchangeToolbar({
                   {isRu ? 'Сбросить' : 'Reset'}
                 </button>
               )}
-              <button type="submit" className="bg-accent text-white text-xs font-bold rounded-lg px-5 py-2 hover:opacity-90 transition-opacity">
+              <button type="submit" className="bg-[var(--violet)] text-white text-xs font-bold rounded-lg px-5 py-2 hover:opacity-90 transition-opacity">
                 {isRu ? 'Применить' : 'Apply'}
               </button>
             </div>

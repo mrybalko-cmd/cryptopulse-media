@@ -236,7 +236,7 @@ export default function CurrencyConverter({
           onClick={() => setOpen(o => (o === side ? null : side))}
           aria-expanded={open === side}
           aria-label={isRu ? 'Выбрать валюту' : 'Choose currency'}
-          className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-[7px] pr-[11px] text-[13.5px] font-extrabold text-foreground whitespace-nowrap hover:border-accent/50 transition-colors"
+          className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-[7px] pr-[11px] text-[13.5px] font-extrabold text-foreground whitespace-nowrap hover:border-[var(--violet)]/50 transition-colors"
         >
           <CurrencyIcon keyName={key} meta={meta} size={22} />
           {symbolOf(key)}
@@ -353,7 +353,7 @@ export default function CurrencyConverter({
           <button
             type="button"
             onClick={() => { setLoading(true); fetchPrices(); }}
-            className="ml-auto flex items-center gap-1.5 text-[11px] hover:text-accent transition-colors"
+            className="ml-auto flex items-center gap-1.5 text-[11px] hover:text-[var(--violet)] transition-colors"
           >
             <RefreshCw size={11} className={loading ? 'animate-spin' : ''} />
             {updatedAt && !error
@@ -490,7 +490,7 @@ export default function CurrencyConverter({
         </span>
         <Link
           href={`/${locale}/rates`}
-          className="ml-auto shrink-0 rounded-[9px] border border-accent/40 px-3 py-[7px] text-[11.5px] font-extrabold text-accent hover:bg-accent/10 transition-colors"
+          className="ml-auto shrink-0 rounded-[9px] border border-[var(--violet)]/40 px-3 py-[7px] text-[11.5px] font-extrabold text-[var(--violet)] hover:bg-[var(--violet)]/10 transition-colors"
         >
           {isRu ? 'Сравнить курсы' : 'Compare real rates'} →
         </Link>

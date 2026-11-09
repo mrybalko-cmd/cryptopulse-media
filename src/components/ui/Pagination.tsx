@@ -36,8 +36,8 @@ export default function Pagination({ basePath, currentPage, totalPages, locale }
   const linkClass = (active: boolean) =>
     `flex items-center justify-center min-w-8 h-8 px-2 rounded-lg text-sm font-medium transition-colors ${
       active
-        ? 'bg-accent text-background'
-        : 'border border-border text-muted hover:text-foreground hover:border-accent/40'
+        ? 'bg-[var(--violet)] text-white'
+        : 'border border-border text-muted hover:text-foreground hover:border-[var(--violet)]/40'
     }`;
 
   return (

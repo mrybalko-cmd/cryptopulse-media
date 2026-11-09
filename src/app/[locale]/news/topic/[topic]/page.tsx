@@ -98,7 +98,7 @@ export default async function NewsTopicPage({ params }: Props) {
       <div className="mb-6">
         <Link
           href={`/${locale}/news`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-[var(--violet)] transition-colors mb-4"
         >
           <ArrowLeft size={14} />
           {isRu ? 'Все новости' : 'All news'}
@@ -115,7 +115,7 @@ export default async function NewsTopicPage({ params }: Props) {
       <div className="flex flex-wrap gap-2 mb-8">
         <Link
           href={`/${locale}/news`}
-          className="px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+          className="px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted hover:border-[var(--violet)]/40 hover:text-foreground transition-colors"
         >
           {isRu ? 'Все' : 'All'}
         </Link>
@@ -125,8 +125,8 @@ export default async function NewsTopicPage({ params }: Props) {
             href={`/${locale}/news/topic/${key}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               key === topic
-                ? 'bg-accent text-background border-accent'
-                : 'border-border text-muted hover:border-accent/40 hover:text-foreground'
+                ? 'bg-[var(--violet)] text-white border-[var(--violet)]'
+                : 'border-border text-muted hover:border-[var(--violet)]/40 hover:text-foreground'
             }`}
           >
             {isRu ? labels.ru : labels.en}
