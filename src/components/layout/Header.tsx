@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SiteSearch from '@/components/ui/SiteSearch';
 import { SITE_BRAND, SITE_ZONE } from '@/lib/site';
@@ -19,7 +19,7 @@ export default function Header() {
   const [linkedTranslationHref, setLinkedTranslationHref] = useState<string | null>(null);
 
   const otherLocale = locale === 'ru' ? 'en' : 'ru';
-  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news|exchanges)\/(.+)/);
+  const detailMatch = pathname.match(/^\/[a-z]{2}\/(articles|news|exchanges|brokers)\/(.+)/);
 
   useEffect(() => {
     if (!detailMatch) {
@@ -64,11 +64,23 @@ export default function Header() {
       ],
     },
     { href: `/${locale}/rates`, label: t('rates') },
-    { href: `/${locale}/exchanges`, label: t('exchanges') },
+    {
+      href: `/${locale}/exchanges`,
+      label: locale === 'ru' ? 'Где торговать' : 'Where to trade',
+      trade: true,
+      sub: [
+        { href: `/${locale}/exchanges`, label: locale === 'ru' ? 'Криптобиржи' : 'Crypto exchanges',
+          hint: locale === 'ru' ? 'Покупка монет напрямую · рейтинг по обороту' : 'Buy coins directly · ranked by volume' },
+        { href: `/${locale}/brokers`, label: locale === 'ru' ? 'Брокеры с криптой' : 'Brokers with crypto',
+          hint: locale === 'ru' ? 'Счета у регулируемых брокеров, часто CFD' : 'Accounts at regulated brokers, often CFDs' },
+      ],
+    },
   ];
 
   const isActive = (href: string) =>
-    href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai') || href.endsWith('/rates') || href.endsWith('/exchanges')
+    href.endsWith('/exchanges')
+      ? pathname.startsWith(href) || pathname.startsWith(`/${locale}/brokers`)
+      : href.endsWith('/calculators') || href.endsWith('/assets') || href.endsWith('/ai') || href.endsWith('/rates')
       ? pathname.startsWith(href)
       : pathname === href;
 
@@ -141,13 +153,13 @@ export default function Header() {
         aria-label={locale === 'ru' ? 'Главная навигация' : 'Main navigation'}
         className="hidden md:block border-t border-border bg-card"
       >
-        <ul className="max-w-7xl mx-auto px-4 sm:px-6 flex items-stretch justify-center h-11 list-none gap-0">
+        <ul className="max-w-7xl mx-auto px-1 lg:px-6 flex items-stretch justify-center h-11 list-none gap-0">
           {navLinks.map(link => (
             <li key={link.href} className="group relative flex items-stretch">
               <Link
                 href={link.href}
                 aria-current={isActive(link.href) ? 'page' : undefined}
-                className={`flex items-center gap-1 px-4 text-sm border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-1 px-1 lg:px-2.5 xl:px-4 text-[12.5px] lg:text-sm border-b-2 transition-colors whitespace-nowrap ${
                   isActive(link.href)
                     ? 'text-foreground font-semibold border-accent'
                     : 'text-muted hover:text-foreground border-transparent hover:border-border'
@@ -157,6 +169,7 @@ export default function Header() {
                 {'ai' in link && link.ai && (
                   <BoltIcon size={11} className="text-blue-400 -ml-0.5 shrink-0" />
                 )}
+                {'trade' in link && link.trade && <ChevronDown size={13} className="-mr-0.5 shrink-0" aria-hidden />}
               </Link>
               {'sub' in link && link.sub && (
                 <div
@@ -186,6 +199,23 @@ export default function Header() {
             <ul className="list-none px-4 py-3 flex flex-col gap-0.5">
               {navLinks.map(link => (
                 <li key={link.href}>
+                  {'trade' in link && link.trade ? (
+                    <div className="px-4 pt-3 pb-1">
+                      <div className="text-sm font-semibold text-foreground mb-1">{link.label}</div>
+                      {link.sub.map(item => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMenuOpen(false)}
+                          aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
+                          className={`flex flex-col rounded-xl px-3 py-2.5 ${pathname.startsWith(item.href) ? 'bg-card border border-border' : 'hover:bg-card/50'}`}
+                        >
+                          <b className="text-[13.5px] font-bold text-foreground">{item.label}</b>
+                          <span className="text-[12px] leading-snug text-muted">{item.hint}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
                   <Link
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
@@ -201,6 +231,7 @@ export default function Header() {
                       <BoltIcon size={12} className="text-blue-400 -ml-0.5 shrink-0" />
                     )}
                   </Link>
+                  )}
                 </li>
               ))}
             </ul>

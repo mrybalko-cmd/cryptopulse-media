@@ -81,11 +81,8 @@ export default async function ExchangesPage({ params }: Props) {
     ...(lastDataChange ? { dateModified: toIso(lastDataChange) } : {}),
   };
 
-  // The neutral ranking only. Paid placements sit above the table and are
-  // labelled, but merging them in here told Google the order was
-  // Binance -> WhiteBIT -> OKX when WhiteBIT is eighth by volume — a page whose
-  // H1 promises a ranking by volume was declaring a different one in its
-  // structured data.
+  // Тот же порядок, что в таблице: только оборот. Рекламный блок в разметку
+  // списка не попадает.
   const itemListLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -119,12 +116,16 @@ export default async function ExchangesPage({ params }: Props) {
           <nav className="flex items-center gap-1.5 text-xs text-muted mb-6">
             <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
             <span>›</span>
+            <span>{isRu ? 'Где торговать' : 'Where to trade'}</span>
+            <span>›</span>
             <span className="text-foreground">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</span>
           </nav>
 
           <h1 className="text-[26px] sm:text-[30px] font-extrabold text-foreground leading-[1.08] -tracking-[0.035em] mb-2">
             {isRu ? 'Криптобиржи — ' : 'Crypto exchanges — '}
-            <span className="text-accent">{isRu ? 'рейтинг по объёму' : 'ranked by volume'}</span>
+            <span className="bg-[linear-gradient(90deg,var(--violet),var(--violet-2))] bg-clip-text text-transparent">
+              {isRu ? 'рейтинг по обороту' : 'ranked by volume'}
+            </span>
           </h1>
           <p className="text-muted text-sm leading-relaxed max-w-[60ch] mb-2">
             {isRu
@@ -139,6 +140,13 @@ export default async function ExchangesPage({ params }: Props) {
               </time>
             </p>
           )}
+
+          <p className="flex flex-wrap items-center justify-between gap-2 rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] px-4 py-2.5 text-[12.5px] text-muted mb-3">
+            <span>{isRu ? 'Нужен брокер с CFD на криптовалюту?' : 'Looking for a broker with crypto CFDs?'}</span>
+            <Link href={`/${locale}/brokers`} className="font-extrabold text-foreground hover:text-accent transition-colors">
+              {isRu ? 'Брокеры с криптой →' : 'Brokers with crypto →'}
+            </Link>
+          </p>
 
           <ExchangeBoard
             all={all}

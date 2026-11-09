@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from './brokerFields';
 import { unstable_cache } from 'next/cache';
 import { ctaHref } from '@/lib/assetCtaShared';
 
@@ -1372,9 +1373,25 @@ export interface ExchangeRaw {
   taglineRu?: string;
   taglineEn?: string;
   volume24h?: number | null;
-  pinned?: boolean;
-  pinPosition?: number | null;
-  pinUntil?: string | null;
+  tradeUntil?: string | null;
+  buttonColor?: string | null;
+  extendedEnabled?: boolean | null;
+  extendedUntil?: string | null;
+  extendedPerkRu?: string | null;
+  extendedPerkEn?: string | null;
+  extendedFactsRu?: string | null;
+  extendedFactsEn?: string | null;
+  adEnabled?: boolean | null;
+  adUntil?: string | null;
+  adUrl?: string | null;
+  adTextRu?: string | null;
+  adTextEn?: string | null;
+  adOfferRu?: string | null;
+  adOfferEn?: string | null;
+  adOfferNoteRu?: string | null;
+  adOfferNoteEn?: string | null;
+  adButtonRu?: string | null;
+  adButtonEn?: string | null;
   reviewsEnabled?: boolean;
   badges?: ExchangeBadgeRaw[];
   // Name-only on the listing (no image/description) — just enough to
@@ -1397,11 +1414,30 @@ export interface ExchangeDetailRaw extends ExchangeRaw {
   };
 }
 
+export interface BrokerRaw extends ExchangeRaw, BrokerLocalizedFields {
+  regulators?: BrokerRegulator[] | null;
+  offersCoins?: boolean | null;
+  offersCfd?: boolean | null;
+  minDeposit?: string | null;
+  lossPercent?: string | null;
+  demoUrl?: string | null;
+  verifiedAt?: string | null;
+}
+
+export interface BrokerDetailRaw extends BrokerRaw {
+  descriptionRu?: any[];
+  descriptionEn?: any[];
+  seo?: ExchangeDetailRaw['seo'];
+}
+
 const EXCHANGE_LIST_PROJECTION = `
   _id, _updatedAt, name, "logo": logo.asset->url, logoBg,
   "slugRu": slugRu.current, "slugEn": slugEn.current,
   foundedYear, website, linkLabel, trackingUrl, tradeUrl, type, taglineRu, taglineEn,
-  volume24h, pinned, pinPosition, pinUntil, reviewsEnabled,
+  volume24h, reviewsEnabled,
+  tradeUntil, buttonColor,
+  extendedEnabled, extendedUntil, extendedPerkRu, extendedPerkEn, extendedFactsRu, extendedFactsEn,
+  adEnabled, adUntil, adUrl, adTextRu, adTextEn, adOfferRu, adOfferEn, adOfferNoteRu, adOfferNoteEn, adButtonRu, adButtonEn,
   badges[]{ textRu, textEn, tone, link },
   regions[]{ regionRu, regionEn, tone },
   products[]{ nameRu, nameEn }
@@ -1419,6 +1455,52 @@ export const fetchExchanges = unstable_cache(
   ['fetchExchanges'],
   { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges'] }
 );
+
+const BROKER_PROJECTION = `
+  ${EXCHANGE_LIST_PROJECTION},
+  regulators[]{ name, entity, licence, noteRu, noteEn, url, tier1 },
+  offersCoins, offersCfd, minDeposit, lossPercent, demoUrl, verifiedAt,
+  ${BROKER_LOCALIZED_KEYS.join(', ')}
+`;
+
+export const fetchBrokers = unstable_cache(
+  async (): Promise<BrokerRaw[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(`*[_type == "broker"]{ ${BROKER_PROJECTION} }`);
+    } catch {
+      return [];
+    }
+  },
+  ['fetchBrokers'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges'] }
+);
+
+export const fetchBrokerBySlug = unstable_cache(
+  async (slug: string, locale: string): Promise<BrokerDetailRaw | null> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return null;
+    const slugField = locale === 'ru' ? 'slugRu' : 'slugEn';
+    try {
+      return await client.fetch(
+        `*[_type == "broker" && ${slugField}.current == $slug][0]{ ${BROKER_PROJECTION}, descriptionRu, descriptionEn, seo }`,
+        { slug }
+      );
+    } catch {
+      return null;
+    }
+  },
+  ['fetchBrokerBySlug'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges'] }
+);
+
+export async function fetchBrokerSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string; _updatedAt: string }[]> {
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+  try {
+    return await client.fetch(`*[_type == "broker" && seo.noIndex != true]{ "slugRu": slugRu.current, "slugEn": slugEn.current, _updatedAt }`);
+  } catch {
+    return [];
+  }
+}
 
 export const fetchExchangeBySlug = unstable_cache(
   async (slug: string, locale: string): Promise<ExchangeDetailRaw | null> => {

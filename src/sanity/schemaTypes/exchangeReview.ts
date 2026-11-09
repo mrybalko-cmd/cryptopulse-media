@@ -29,7 +29,7 @@ export const exchangeReviewType = defineType({
       name: 'exchange',
       title: 'Биржа',
       type: 'reference',
-      to: [{ type: 'exchange' }],
+      to: [{ type: 'exchange' }, { type: 'broker' }],
       weak: true,
       validation: Rule => Rule.required(),
     }),

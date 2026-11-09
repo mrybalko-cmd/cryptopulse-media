@@ -13,7 +13,7 @@ import { facebookEmbedType } from './facebookEmbed';
 import { sidebarBannerType } from './sidebarBanner';
 import { coinQuotesType } from './coinQuotes';
 import { marketSnapshotType } from './marketSnapshot';
-import { exchangeType } from './exchange';
+import { exchangeType, brokerType } from './exchange';
 import { exchangeReviewType } from './exchangeReview';
 import { adminUserType } from './adminUser';
 import { adminActivityLogType } from './adminActivityLog';
@@ -30,7 +30,7 @@ export const schemaTypes = [
   authorType, articleType, newsType, commentType, calendarEventType, eventVoteType,
   emailSubscriberType, homeSettingsType, quoteBlockType, youtubeEmbedType, tweetEmbedType, facebookEmbedType,
   sidebarBannerType, marketSnapshotType,
-    coinQuotesType, exchangeType, exchangeReviewType, adminUserType, adminActivityLogType,
+    coinQuotesType, exchangeType, brokerType, exchangeReviewType, adminUserType, adminActivityLogType,
   regulationCountryType, licenceRegimeType, glossaryTermType, authorRubricType, authorsPageType,
   aiFacetType, aiFacetGroupType, aiJobType, aiPlanType, aiServiceType,
   assetCtaType,

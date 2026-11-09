@@ -16,6 +16,8 @@ import {
 } from '@/lib/admin/data';
 import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { logActivity } from '@/lib/admin/activityLog';
+import { venueButtonColor } from '@/lib/exchangePlacements';
+import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from '@/lib/brokerFields';
 
 async function parseProducts(
   formData: FormData
@@ -56,6 +58,27 @@ async function parseProducts(
     longEn: row.longEn,
     imageAssetId: imageAssetIds[idx],
   }));
+}
+
+function parseRegulators(formData: FormData): BrokerRegulator[] {
+  const rows: BrokerRegulator[] = [];
+  const indexes = [...formData.keys()]
+    .map(key => key.match(/^regulator_name_(\d+)$/)?.[1])
+    .filter((i): i is string => Boolean(i));
+  for (const i of indexes) {
+    const value = (field: string) => String(formData.get(`regulator_${field}_${i}`) || '').trim();
+    if (!value('name')) continue;
+    rows.push({
+      name: value('name'),
+      entity: value('entity'),
+      licence: value('licence'),
+      noteRu: value('noteRu'),
+      noteEn: value('noteEn'),
+      url: value('url'),
+      tier1: formData.get(`regulator_tier1_${i}`) === 'on',
+    });
+  }
+  return rows;
 }
 
 function parseBadges(formData: FormData): ExchangeBadgeItem[] {
@@ -102,8 +125,22 @@ async function parseExchangeInput(
   originalDescriptionRu: PortableTextBlock[] | undefined,
   originalDescriptionEn: PortableTextBlock[] | undefined
 ): Promise<ExchangeInput> {
-  const pinUntilRaw = String(formData.get('pinUntil') || '');
+  const text = (name: string) => String(formData.get(name) || '').trim();
+  // Срок вводится датой и действует до конца этого дня: время суток тут ни к чему.
+  const term = (name: string) => (text(name) ? `${text(name)}T23:59:59.000Z` : undefined);
+  const venueKind = text('venueKind') === 'broker' ? 'broker' as const : 'exchange' as const;
   return {
+    venueKind,
+    ...(venueKind === 'broker' ? {
+      regulators: parseRegulators(formData),
+      offersCoins: formData.get('offersCoins') === 'on',
+      offersCfd: formData.get('offersCfd') === 'on',
+      minDeposit: text('minDeposit'),
+      lossPercent: text('lossPercent'),
+      demoUrl: text('demoUrl'),
+      verifiedAt: text('verifiedAt'),
+      brokerText: Object.fromEntries(BROKER_LOCALIZED_KEYS.map(key => [key, text(key)])) as BrokerLocalizedFields,
+    } : {}),
     name: String(formData.get('name') || ''),
     logoBg: String(formData.get('logoBg') || ''),
     slugRu: String(formData.get('slugRu') || ''),
@@ -122,9 +159,25 @@ async function parseExchangeInput(
     products: await parseProducts(formData),
     badges: parseBadges(formData),
     regions: parseRegions(formData),
-    pinned: formData.get('pinned') === 'on',
-    pinPosition: formData.get('pinPosition') ? Number(formData.get('pinPosition')) : undefined,
-    pinUntil: pinUntilRaw ? new Date(pinUntilRaw).toISOString() : undefined,
+    buttonColor: venueButtonColor(text('buttonColor')),
+    tradeUntil: term('tradeUntil'),
+    extendedEnabled: formData.get('extendedEnabled') === 'on',
+    extendedUntil: term('extendedUntil'),
+    extendedPerkRu: text('extendedPerkRu'),
+    extendedPerkEn: text('extendedPerkEn'),
+    extendedFactsRu: text('extendedFactsRu'),
+    extendedFactsEn: text('extendedFactsEn'),
+    adEnabled: formData.get('adEnabled') === 'on',
+    adUntil: term('adUntil'),
+    adUrl: text('adUrl'),
+    adTextRu: text('adTextRu'),
+    adTextEn: text('adTextEn'),
+    adOfferRu: text('adOfferRu'),
+    adOfferEn: text('adOfferEn'),
+    adOfferNoteRu: text('adOfferNoteRu'),
+    adOfferNoteEn: text('adOfferNoteEn'),
+    adButtonRu: text('adButtonRu'),
+    adButtonEn: text('adButtonEn'),
     reviewsEnabled: formData.get('reviewsEnabled') === 'on',
     seoMetaTitleRu: String(formData.get('seoMetaTitleRu') || ''),
     seoMetaTitleEn: String(formData.get('seoMetaTitleEn') || ''),

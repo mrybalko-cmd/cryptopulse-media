@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { LockedSlugInput } from '../components/LockedSlugInput';
+import { BROKER_TEXT_FIELDS } from '../../lib/brokerFields';
 
 const RU_SLUGIFY: Record<string, string> = {
   а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',
@@ -53,7 +54,8 @@ export const exchangeType = defineType({
     { name: 'main', title: 'Основное' },
     { name: 'content', title: 'Описание и продукты' },
     { name: 'trust', title: 'Плашки и регионы' },
-    { name: 'ranking', title: 'Рейтинг и закрепление' },
+    { name: 'ranking', title: 'Рейтинг' },
+    { name: 'placements', title: 'Размещения и кнопки' },
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
@@ -117,7 +119,7 @@ export const exchangeType = defineType({
       title: 'Ссылка для кнопки «Торговать» (необязательно)',
       type: 'url',
       group: 'main',
-      description: 'Независимо от ссылки выше. Если заполнено — кнопка «Торговать» зелёная и ведёт сюда. Если пусто — кнопка серая и неактивна.',
+      description: 'Независимо от ссылки выше. Если заполнено, в таблице кнопка «Торговать» в цвете площадки. Если пусто, серая «Подробнее» ведёт на страницу площадки.',
     }),
     defineField({
       name: 'coingeckoId',
@@ -263,34 +265,46 @@ export const exchangeType = defineType({
       readOnly: true,
     }),
     defineField({
-      name: 'pinned',
-      title: 'Закрепить сверху (партнёрское размещение)',
-      type: 'boolean',
-      group: 'ranking',
-      initialValue: false,
-      description: 'Единственный ручной рычаг влияния на порядок в списке — для платного размещения. Органический рейтинг по объёму торгов при этом не меняется, остальные позиции просто сдвигаются вниз.',
+      name: 'buttonColor',
+      title: 'Цвет кнопок площадки',
+      type: 'string',
+      group: 'placements',
+      options: {
+        list: [
+          { title: 'Фиолетовый', value: 'violet' },
+          { title: 'Оранжевый', value: 'orange' },
+          { title: 'Зелёный', value: 'green' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'violet',
     }),
-    defineField({
-      name: 'pinPosition',
-      title: 'Позиция закрепления',
-      type: 'number',
-      group: 'ranking',
-      hidden: ({ document }) => !document?.pinned,
-      options: { list: [1, 2, 3] },
-      validation: Rule => Rule.custom((value, context) => {
-        const doc = context.document as { pinned?: boolean } | undefined;
-        if (doc?.pinned && !value) return 'Укажите позицию закрепления (1, 2 или 3)';
-        return true;
-      }),
-    }),
-    defineField({
-      name: 'pinUntil',
-      title: 'Закреплено до (необязательно)',
-      type: 'datetime',
-      group: 'ranking',
-      hidden: ({ document }) => !document?.pinned,
-      description: 'После этой даты биржа автоматически возвращается в органический рейтинг.',
-    }),
+    defineField({ name: 'tradeUntil', title: 'Партнёрская ссылка действует до', type: 'datetime', group: 'placements' }),
+
+    defineField({ name: 'extendedEnabled', title: 'Расширенный профиль включён', type: 'boolean', group: 'placements', initialValue: false }),
+    defineField({ name: 'extendedUntil', title: 'Расширенный профиль действует до', type: 'datetime', group: 'placements' }),
+    defineField({ name: 'extendedPerkRu', title: 'Строка с преимуществом, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedPerkEn', title: 'Строка с преимуществом, EN', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedFactsRu', title: 'Три факта через запятую, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedFactsEn', title: 'Три факта через запятую, EN', type: 'string', group: 'placements' }),
+
+    defineField({ name: 'adEnabled', title: 'Рекламный блок включён', type: 'boolean', group: 'placements', initialValue: false }),
+    defineField({ name: 'adUntil', title: 'Рекламный блок действует до', type: 'datetime', group: 'placements' }),
+    defineField({ name: 'adUrl', title: 'Ссылка кнопки рекламного блока', type: 'url', group: 'placements' }),
+    defineField({ name: 'adTextRu', title: 'Текст блока, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'adTextEn', title: 'Текст блока, EN', type: 'string', group: 'placements' }),
+    defineField({ name: 'adOfferRu', title: 'Акция, заголовок, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'adOfferEn', title: 'Акция, заголовок, EN', type: 'string', group: 'placements' }),
+    defineField({ name: 'adOfferNoteRu', title: 'Акция, условия и срок, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'adOfferNoteEn', title: 'Акция, условия и срок, EN', type: 'string', group: 'placements' }),
+    defineField({ name: 'adButtonRu', title: 'Текст кнопки, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'adButtonEn', title: 'Текст кнопки, EN', type: 'string', group: 'placements' }),
+
+    // Прежнее закрепление. На порядок больше не влияет, поля оставлены скрытыми,
+    // пока значения не сотрутся при сохранении биржи.
+    defineField({ name: 'pinned', type: 'boolean', hidden: true }),
+    defineField({ name: 'pinPosition', type: 'number', hidden: true }),
+    defineField({ name: 'pinUntil', type: 'datetime', hidden: true }),
 
     defineField({ name: 'reviewsEnabled', title: 'Отзывы включены', type: 'boolean', group: 'main', initialValue: true }),
 
@@ -310,13 +324,67 @@ export const exchangeType = defineType({
     }),
   ],
   preview: {
-    select: { title: 'name', media: 'logo', pinned: 'pinned', volume24h: 'volume24h' },
-    prepare({ title, media, pinned, volume24h }) {
+    select: { title: 'name', media: 'logo', volume24h: 'volume24h' },
+    prepare({ title, media, volume24h }) {
       return {
-        title: `${pinned ? '📌 ' : ''}${title}`,
+        title,
         subtitle: typeof volume24h === 'number' ? `Объём 24ч: $${(volume24h / 1e9).toFixed(1)}B` : undefined,
         media,
       };
     },
   },
+});
+
+const EXCHANGE_ONLY_FIELDS = new Set(['coingeckoId', 'type', 'volume24h', 'volumeUpdatedAt', 'pinned', 'pinPosition', 'pinUntil', 'products', 'badges', 'regions']);
+
+// Брокер отдельным типом: старые запросы по "exchange" его не видят, поэтому он
+// не может попасть в рейтинг бирж по обороту. Общие поля те же, форма в админке одна.
+export const brokerType = defineType({
+  name: 'broker',
+  title: 'Брокер / Broker',
+  type: 'document',
+  groups: [
+    { name: 'main', title: 'Основное' },
+    { name: 'content', title: 'Описание' },
+    { name: 'regulation', title: 'Регуляция и условия' },
+    { name: 'placements', title: 'Размещения и кнопки' },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    ...exchangeType.fields.filter(field => !EXCHANGE_ONLY_FIELDS.has(field.name)),
+    defineField({
+      name: 'regulators',
+      title: 'Регуляция',
+      type: 'array',
+      group: 'regulation',
+      description: 'Пишется вручную, ровно так, как есть у брокера.',
+      of: [
+        {
+          type: 'object',
+          name: 'brokerRegulator',
+          fields: [
+            defineField({ name: 'name', title: 'Регулятор', type: 'string', validation: Rule => Rule.required() }),
+            defineField({ name: 'entity', title: 'Компания группы', type: 'string' }),
+            defineField({ name: 'licence', title: 'Номер лицензии', type: 'string' }),
+            defineField({ name: 'noteRu', title: 'Пояснение, RU', type: 'string' }),
+            defineField({ name: 'noteEn', title: 'Пояснение, EN', type: 'string' }),
+            defineField({ name: 'url', title: 'Ссылка на реестр', type: 'url' }),
+            defineField({ name: 'tier1', title: 'Первый уровень (влияет на порядок)', type: 'boolean', initialValue: false }),
+          ],
+          preview: { select: { title: 'name', subtitle: 'licence' } },
+        },
+      ],
+    }),
+    defineField({ name: 'offersCoins', title: 'Реальные монеты', type: 'boolean', group: 'regulation', initialValue: false }),
+    defineField({ name: 'offersCfd', title: 'CFD на криптовалюту', type: 'boolean', group: 'regulation', initialValue: false }),
+    defineField({ name: 'minDeposit', title: 'Минимальный депозит', type: 'string', group: 'regulation' }),
+    defineField({ name: 'lossPercent', title: 'Доля счетов, теряющих деньги', type: 'string', group: 'regulation' }),
+    defineField({ name: 'demoUrl', title: 'Ссылка на демо-счёт', type: 'url', group: 'placements' }),
+    defineField({ name: 'verifiedAt', title: 'Дата проверки', type: 'date', group: 'regulation' }),
+    ...BROKER_TEXT_FIELDS.flatMap(field => [
+      defineField({ name: `${field.key}Ru`, title: `${field.label}, RU`, type: 'string', group: 'regulation' }),
+      defineField({ name: `${field.key}En`, title: `${field.label}, EN`, type: 'string', group: 'regulation' }),
+    ]),
+  ],
+  preview: { select: { title: 'name', media: 'logo' } },
 });

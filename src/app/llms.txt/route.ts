@@ -60,6 +60,7 @@ Contact: ${SITE_EMAIL}
 - [Glossary](${BASE}/en/glossary): definitions of crypto terms. Stable reference material.
 - [AI glossary](${BASE}/en/ai/glossary): definitions of AI terms as they apply to crypto.
 - [Exchanges](${BASE}/en/exchanges): venues ranked by 24h volume, refreshed daily.
+- [Brokers](${BASE}/en/brokers): regulated brokers with crypto, with licence numbers and each broker's own loss figure.
 - [Rates](${BASE}/en/rates): USDT and USDC to EUR compared across P2P desks and exchanges, refreshed every few minutes.
 - [Converter](${BASE}/en/calculators/converter): live currency conversion with a rate history.
 - [Calendar](${BASE}/en/calendar): scheduled events that move the market.

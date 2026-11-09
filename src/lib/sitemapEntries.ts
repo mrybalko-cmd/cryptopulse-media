@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { client, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
+import { client, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchBrokerSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
 import type { TopicStat } from '@/lib/sanity';
 import { GLOSSARY_BASELINE } from '@/lib/glossary';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
@@ -296,6 +296,19 @@ export async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     ...topicEntry(newsTopicsEn, topic, `${BASE}/en/news/topic/${topic}`),
   ]);
 
+  // Новые страницы в sitemap сами не попадают: брокеры добавлены здесь отдельно.
+  const brokers = await fetchBrokerSlugsForSitemap();
+  const brokerPages = brokers.flatMap(b => {
+    const d = toDate(b._updatedAt) ?? todayUtc;
+    return [
+      { url: `${BASE}/ru/brokers/${b.slugRu}`, lastModified: d, changeFrequency: 'weekly' as const, priority: 0.7 },
+      { url: `${BASE}/en/brokers/${b.slugEn}`, lastModified: d, changeFrequency: 'weekly' as const, priority: 0.7 },
+    ];
+  });
+  const brokerHubPages = (['ru', 'en'] as const).map(l => ({
+    url: `${BASE}/${l}/brokers`, lastModified: todayUtc, changeFrequency: 'weekly' as const, priority: 0.8,
+  }));
+
   const exchangePages = exchanges.flatMap(e => {
     const d = toDate(e._updatedAt) ?? todayUtc;
     return [
@@ -331,7 +344,7 @@ export async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE}/${l}/ai/tools`, lastModified: aiNewest, changeFrequency: 'weekly' as const, priority: 0.8,
   }));
 
-  const all = [...staticPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  const all = [...staticPages, ...brokerHubPages, ...brokerPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
 
   // Один адрес — одна запись. Дубли бывали: два документа с одинаковым slug
   // (top-10-altkoinov-rost-48-chasov и его английская пара) давали по две

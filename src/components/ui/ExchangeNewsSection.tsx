@@ -18,7 +18,9 @@ export default function ExchangeNewsSection({
   slug,
   mentions,
   locale,
+  showArchiveLink = true,
 }: {
+  showArchiveLink?: boolean;
   exchangeName: string;
   slug: string;
   mentions: ExchangeMention[];
@@ -53,7 +55,7 @@ export default function ExchangeNewsSection({
           </Link>
         ))}
       </div>
-      {mentions.length > VISIBLE && (
+      {showArchiveLink && mentions.length > VISIBLE && (
         <Link href={`/${locale}/exchanges/${slug}/news`} className="inline-block text-sm font-semibold text-accent mt-3 hover:underline">
           {isRu ? `Показать все новости о ${exchangeName} →` : `Show all ${exchangeName} coverage →`}
         </Link>

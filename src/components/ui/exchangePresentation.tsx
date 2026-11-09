@@ -1,6 +1,8 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { sanityImageTransform } from '@/lib/sanityImage';
 import { PRODUCT_CATEGORIES, exchangeHasProductCategory } from '@/lib/exchangeFilters';
+import { activeTradeUrl, venueButtonColor, type VenueButtonColor } from '@/lib/exchangePlacements';
 import type { ExchangeRaw } from '@/lib/sanity';
 
 // Volume is the one figure the whole section is ranked on, so it carries the
@@ -27,6 +29,12 @@ export function licenceLabel(exchange: ExchangeRaw, short = false): string | nul
   const full = (badge.textEn || badge.textRu || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
   if (!full) return null;
   return short ? full.split(' ')[0] : full;
+}
+
+/** Предупреждение из плашек, когда лицензии нет: например «Ограничена в ЕС». */
+export function restrictionLabel(exchange: ExchangeRaw, isRu: boolean): string | null {
+  const badge = exchange.badges?.find(b => b.tone === 'warn');
+  return badge ? (isRu ? badge.textRu : badge.textEn) || null : null;
 }
 
 export function productLabels(exchange: ExchangeRaw, locale: string): string[] {
@@ -135,45 +143,106 @@ export function LicenceChip({ label, className = '' }: { label: string; classNam
   );
 }
 
-/**
- * Only rendered when the exchange actually has a trade link. The old listing
- * showed a blurred disabled button for the thirteen exchanges that don't,
- * which read as broken rather than as "not available".
- */
-export function TradeButton({
-  exchange,
-  isRu,
+export function RestrictionChip({ label }: { label: string }) {
+  return (
+    <span className="inline-block rounded-full bg-[color-mix(in_srgb,var(--exchange-warn)_15%,transparent)] px-[9px] py-1 text-[10px] font-extrabold text-[var(--exchange-warn)] whitespace-nowrap">
+      {label}
+    </span>
+  );
+}
+
+const VENUE_BUTTON_STYLES: Record<VenueButtonColor, { gradient: string; shadow: string }> = {
+  violet: { gradient: 'linear-gradient(135deg,#7c3aed,#4f46e5)', shadow: '#7c3aed' },
+  orange: { gradient: 'linear-gradient(135deg,#c2410c,#b03a0a)', shadow: '#c2410c' },
+  green: { gradient: 'linear-gradient(135deg,#047857,#065f46)', shadow: '#047857' },
+};
+
+const BUTTON_SIZES = {
+  sm: 'h-[34px] px-2.5 md:px-3 rounded-[10px] text-[12px]',
+  md: 'h-10 px-4 rounded-xl text-[13.5px]',
+};
+
+function ExternalIcon({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </svg>
+  );
+}
+
+/** Партнёрская кнопка в цвете площадки. Цветов три, белый текст держит контраст от 5:1 на каждом. */
+export function VenueButton({
+  href,
+  color,
   size = 'md',
+  className = '',
+  children,
 }: {
-  exchange: ExchangeRaw;
-  isRu: boolean;
+  href: string;
+  color: VenueButtonColor;
   size?: 'sm' | 'md';
+  className?: string;
+  children: React.ReactNode;
 }) {
-  if (!exchange.tradeUrl) return null;
+  const { gradient, shadow } = VENUE_BUTTON_STYLES[color];
   return (
     <a
-      href={exchange.tradeUrl}
+      href={href}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className={`relative z-20 inline-flex items-center gap-1.5 rounded-[10px] bg-positive font-extrabold text-white whitespace-nowrap
-        shadow-[0_6px_18px_color-mix(in_srgb,var(--positive)_32%,transparent),inset_0_1px_0_rgba(255,255,255,0.25)]
-        hover:brightness-110 transition-[filter] ${size === 'sm' ? 'px-2.5 py-1.5 text-[10px]' : 'px-3.5 py-2 text-[11.5px]'}`}
+      className={`relative z-20 inline-flex items-center justify-center gap-1.5 border border-white/20 font-extrabold text-white whitespace-nowrap
+        hover:brightness-110 transition-[filter] ${BUTTON_SIZES[size]} ${className}`}
+      style={{
+        backgroundImage: `linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 52%),${gradient}`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,.32),0 6px 16px color-mix(in srgb,${shadow} 34%,transparent)`,
+      }}
     >
-      {isRu ? 'Торговать' : 'Trade'}
-      <svg viewBox="0 0 24 24" aria-hidden className={size === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3'} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 3h6v6" />
-        <path d="M10 14 21 3" />
-        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      </svg>
+      {children}
+      <ExternalIcon className={size === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
     </a>
   );
 }
 
-export function PinIcon({ className = '' }: { className?: string }) {
+const NEUTRAL_BUTTON = 'inline-flex items-center justify-center border border-[var(--glass-line)] bg-[var(--rates-inset)] font-extrabold whitespace-nowrap';
+
+/** Внутренняя ссылка рядом с партнёрской кнопкой, того же размера. */
+export function GhostButton({
+  href,
+  size = 'md',
+  className = '',
+  children,
+}: {
+  href: string;
+  size?: 'sm' | 'md';
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 17v5" />
-      <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
-    </svg>
+    <Link href={href} className={`${NEUTRAL_BUTTON} text-foreground hover:bg-[var(--glass-hover)] transition-colors ${BUTTON_SIZES[size]} ${className}`}>
+      {children}
+    </Link>
+  );
+}
+
+/**
+ * Кнопка строки таблицы. Есть действующая партнёрская ссылка: кнопка в цвете
+ * площадки. Нет: серая «Подробнее» того же размера. Это подпись, а не ссылка,
+ * страницу площадки открывает растянутая ссылка всей строки.
+ */
+export function RowAction({ exchange, isRu, tradeLabel }: { exchange: ExchangeRaw; isRu: boolean; tradeLabel?: string }) {
+  const href = activeTradeUrl(exchange);
+  if (href) {
+    return (
+      <VenueButton href={href} color={venueButtonColor(exchange.buttonColor)} size="sm">
+        {tradeLabel ?? (isRu ? 'Торговать' : 'Trade')}
+      </VenueButton>
+    );
+  }
+  return (
+    <span className={`${NEUTRAL_BUTTON} text-muted group-hover:text-foreground transition-colors ${BUTTON_SIZES.sm}`}>
+      {isRu ? 'Подробнее' : 'Details'}
+    </span>
   );
 }

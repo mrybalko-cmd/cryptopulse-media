@@ -1,6 +1,7 @@
 import type { ExchangeRaw } from './sanity';
 import { exchangeHasProductCategory, exchangeHasLicense, PRODUCT_CATEGORIES } from './exchangeFilters';
-import { splitPinned } from './exchangeRanking';
+import { rankExchanges } from './exchangeRanking';
+import { hasActiveAd } from './exchangePlacements';
 
 /**
  * Состояние фильтров списка бирж.
@@ -85,9 +86,9 @@ export function countActiveFilters(f: ExchangeFilterState): number {
 }
 
 /**
- * Отбор и порядок. Оплаченные размещения поднимаются НАД рейтингом, а не
- * сортируются внутрь него, чтобы нумерованный список всегда честно
- * соответствовал тому, что обещает заголовок.
+ * Отбор и порядок. Номер считается по полному списку до фильтров: у площадки одно
+ * место по обороту, какой бы фильтр или порядок ни выбрал читатель. Рекламный блок
+ * идёт отдельным списком, а сама площадка остаётся в таблице на своём месте.
  */
 export function applyFilters(all: ExchangeRaw[], f: ExchangeFilterState) {
   const filtered = all.filter(e => {
@@ -100,14 +101,14 @@ export function applyFilters(all: ExchangeRaw[], f: ExchangeFilterState) {
     return true;
   });
 
-  const { featured, rest: organic } = splitPinned(filtered);
+  const rankById = new Map(rankExchanges(all).map(e => [e._id, e.rank]));
   const sorted =
     f.sort === 'year'
-      ? [...organic].sort((a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999))
+      ? [...filtered].sort((a, b) => (a.foundedYear ?? 9999) - (b.foundedYear ?? 9999))
       : f.sort === 'alpha'
-        ? [...organic].sort((a, b) => a.name.localeCompare(b.name))
-        : [...organic].sort((a, b) => (b.volume24h ?? 0) - (a.volume24h ?? 0));
+        ? [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+        : [...filtered].sort((a, b) => (b.volume24h ?? 0) - (a.volume24h ?? 0));
 
-  const ranked: (ExchangeRaw & { rank: number })[] = sorted.map((e, i) => ({ ...e, rank: i + 1 }));
-  return { featured, ranked, shown: [...featured, ...ranked] };
+  const ranked: (ExchangeRaw & { rank: number })[] = sorted.map(e => ({ ...e, rank: rankById.get(e._id) ?? 0 }));
+  return { ads: filtered.filter(hasActiveAd), ranked };
 }

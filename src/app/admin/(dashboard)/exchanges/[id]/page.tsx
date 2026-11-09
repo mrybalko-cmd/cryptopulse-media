@@ -24,9 +24,9 @@ export default async function EditExchangePage({ params }: { params: Promise<{ i
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[19px] font-bold">{exchange.name}</h1>
-        <DeleteButton action={boundDelete} confirmMessage={`Удалить биржу «${exchange.name}» безвозвратно? Это действие нельзя отменить.`} />
+        <DeleteButton action={boundDelete} confirmMessage={`Удалить «${exchange.name}» безвозвратно? Это действие нельзя отменить.`} />
       </div>
-      <ExchangeForm exchange={exchange} action={boundAction} />
+      <ExchangeForm exchange={exchange} action={boundAction} kind={exchange.venueKind} />
     </div>
   );
 }

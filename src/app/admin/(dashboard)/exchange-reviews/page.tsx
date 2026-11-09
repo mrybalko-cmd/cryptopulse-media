@@ -64,7 +64,7 @@ export default async function AdminExchangeReviewsPage({ searchParams }: { searc
                 <span className="font-bold text-[12.5px]">{r.authorName}</span>
                 <span className="text-amber-400 text-[12px]">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
                 {r.exchangeSlugRu && (
-                  <Link href={`/ru/exchanges/${r.exchangeSlugRu}`} target="_blank" className="text-[11px] text-cyan-400">
+                  <Link href={`/ru/${r.exchangeKind === 'broker' ? 'brokers' : 'exchanges'}/${r.exchangeSlugRu}`} target="_blank" className="text-[11px] text-cyan-400">
                     → {r.exchangeName}
                   </Link>
                 )}

@@ -10,7 +10,7 @@ import {
 import { formatVolume } from '@/components/ui/exchangePresentation';
 import ExchangeToolbar from '@/components/ui/ExchangeToolbar';
 import ExchangeTable from '@/components/ui/ExchangeTable';
-import ExchangeFeatured from '@/components/ui/ExchangeFeatured';
+import ExchangeAdBlock from '@/components/ui/ExchangeAdBlock';
 import ExchangeRankingNotes from '@/components/ui/ExchangeRankingNotes';
 import { SITE_BRAND } from '@/lib/site';
 
@@ -60,7 +60,8 @@ export default function ExchangeBoard({
     window.history.replaceState(null, '', qs ? `${window.location.pathname}#${qs}` : window.location.pathname);
   }
 
-  const { featured, ranked, shown } = applyFilters(all, filters);
+  const { ads, ranked: shown } = applyFilters(all, filters);
+  const byVolume = [...shown].sort((a, b) => (b.volume24h ?? 0) - (a.volume24h ?? 0));
   const totalVolume = shown.reduce((sum, e) => sum + (e.volume24h ?? 0), 0);
   const licensedCount = shown.filter(exchangeHasLicense).length;
   const maxVolume = Math.max(0, ...shown.map(e => e.volume24h ?? 0));
@@ -81,7 +82,7 @@ export default function ExchangeBoard({
           </span>
         ))}
         <span className="flex items-center px-4 py-3 text-[11.5px] text-muted">
-          {isRu ? 'объём обновляется раз в сутки' : 'volume refreshed once a day'}
+          {isRu ? 'спотовый оборот по данным CoinGecko, раз в сутки' : 'spot volume from CoinGecko, once a day'}
         </span>
       </div>
       <p className="sm:hidden flex items-center gap-1.5 flex-wrap rounded-xl border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi)] px-3 py-2 text-[11px] text-muted mb-3.5">
@@ -91,6 +92,10 @@ export default function ExchangeBoard({
         <span className="opacity-40">·</span>
         <b className="text-foreground font-extrabold tabular-nums">{licensedCount}</b> {isRu ? 'с лицензией' : 'licensed'}
       </p>
+
+      {ads.map(exchange => (
+        <ExchangeAdBlock key={exchange._id} exchange={exchange} locale={locale} />
+      ))}
 
       <h2 className="sr-only">{isRu ? 'Рейтинг криптобирж' : 'Exchange ranking'}</h2>
       <ExchangeToolbar filters={filters} onChange={update} locale={locale} />
@@ -103,14 +108,14 @@ export default function ExchangeBoard({
         </p>
       ) : (
         <>
-          {featured.map(exchange => (
-            <ExchangeFeatured key={exchange._id} exchange={exchange} locale={locale} />
-          ))}
-          {ranked.length > 0 && <ExchangeTable items={ranked} locale={locale} maxVolume={maxVolume} />}
+          <ExchangeTable items={shown} locale={locale} maxVolume={maxVolume} isComplete={shown.length === all.length} />
           <p className="text-[11px] text-muted mt-2.5">
             {isRu
               ? `Нажмите на строку, чтобы открыть обзор биржи на ${SITE_BRAND}. «Торговать» открывается в новой вкладке.`
-              : 'Tap a row to open our review of that exchange. “Trade” opens in a new tab.'}
+              : 'Tap a row to open our review of that exchange. “Trade” opens in a new tab.'}{' '}
+            {isRu
+              ? `Часть ссылок на биржи партнёрские: ${SITE_BRAND} может получать вознаграждение, на порядок в рейтинге это не влияет.`
+              : `Some exchange links are affiliate links: ${SITE_BRAND} may earn a commission, which has no effect on the ranking order.`}
           </p>
           {picks}
           <ExchangeRankingNotes
@@ -118,8 +123,8 @@ export default function ExchangeBoard({
             venueCount={shown.length}
             totalVolume={totalVolume}
             licensedCount={licensedCount}
-            leader={shown[0]}
-            runnerUp={ranked[0]}
+            leader={byVolume[0]}
+            runnerUp={byVolume[1]}
           />
         </>
       )}

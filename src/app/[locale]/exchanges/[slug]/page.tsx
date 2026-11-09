@@ -14,6 +14,8 @@ import {
   fetchExchangeReviewSummary,
 } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
+import { activeTradeUrl, venueButtonColor } from '@/lib/exchangePlacements';
+import { VenueButton } from '@/components/ui/exchangePresentation';
 import CollapsibleRichText from '@/components/ui/CollapsibleRichText';
 import ExchangeToneBadge, { type ExchangeBadgeTone } from '@/components/ui/ExchangeToneBadge';
 import ExchangeProducts from '@/components/ui/ExchangeProducts';
@@ -98,6 +100,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
   const description = isRu ? exchange.descriptionRu : exchange.descriptionEn;
   const products = exchange.products;
   const initials = name.slice(0, 2).toUpperCase();
+  const tradeHref = activeTradeUrl(exchange);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -139,6 +142,8 @@ export default async function ExchangeDetailPage({ params }: Props) {
       <nav className="flex items-center gap-1.5 text-xs text-muted mb-8 flex-wrap">
         <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
         <span>›</span>
+        <span>{isRu ? 'Где торговать' : 'Where to trade'}</span>
+        <span>›</span>
         <Link href={`/${locale}/exchanges`} className="hover:text-accent transition-colors">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</Link>
         <span>›</span>
         <span className="text-foreground">{name}</span>
@@ -158,7 +163,12 @@ export default async function ExchangeDetailPage({ params }: Props) {
           <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">{name}</h1>
           <p className="text-muted text-sm mt-1">
             {exchange.foundedYear && <>{isRu ? 'С' : 'Since'} {exchange.foundedYear} · </>}
-            <a href={exchange.trackingUrl || exchange.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            <a
+              href={exchange.trackingUrl || exchange.website}
+              target="_blank"
+              rel={exchange.trackingUrl ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+              className="text-accent hover:underline"
+            >
               {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
             </a>
           </p>
@@ -173,22 +183,10 @@ export default async function ExchangeDetailPage({ params }: Props) {
                 <span className="text-sm font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</span>
               </span>
             )}
-            {exchange.tradeUrl ? (
-              <a
-                href={exchange.tradeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-positive text-white hover:opacity-90 transition-opacity whitespace-nowrap"
-              >
-                {isRu ? 'Торговать' : 'Trade'} ↗
-              </a>
-            ) : (
-              <span
-                aria-disabled="true"
-                className="shrink-0 text-sm font-extrabold px-5 py-2.5 rounded-lg bg-[var(--card-hover)] border border-border text-muted opacity-45 blur-[0.3px] cursor-not-allowed whitespace-nowrap"
-              >
+            {tradeHref && (
+              <VenueButton href={tradeHref} color={venueButtonColor(exchange.buttonColor)} className="shrink-0">
                 {isRu ? 'Торговать' : 'Trade'}
-              </span>
+              </VenueButton>
             )}
           </div>
         </div>

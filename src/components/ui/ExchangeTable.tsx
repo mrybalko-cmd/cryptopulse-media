@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import type { ExchangeRaw } from '@/lib/sanity';
+import { extendedFacts, hasExtendedProfile } from '@/lib/exchangePlacements';
 import {
   ExchangeLogo,
   LicenceChip,
   ProductChips,
-  TradeButton,
+  RestrictionChip,
+  RowAction,
   VOLUME_GRADIENT,
   formatVolume,
   licenceLabel,
   productLabels,
+  restrictionLabel,
   slugFor,
 } from './exchangePresentation';
 
@@ -41,10 +44,13 @@ export default function ExchangeTable({
   items,
   locale,
   maxVolume,
+  isComplete,
 }: {
   items: (ExchangeRaw & { rank: number })[];
   locale: string;
   maxVolume: number;
+  /** Показан весь рейтинг, без фильтров: подпись может сказать «все». */
+  isComplete: boolean;
 }) {
   const isRu = locale === 'ru';
 
@@ -86,25 +92,26 @@ export default function ExchangeTable({
         */}
         <table className="w-full table-fixed border-collapse text-left [color:inherit]">
           <caption className="px-3 pt-3 pb-2 text-left text-[9.5px] font-extrabold uppercase tracking-[0.085em] text-muted">
-            {isRu
-              ? 'Криптобиржи по обороту за 24 часа, без партнёрских размещений'
-              : 'Crypto exchanges by 24h volume, excluding partner placements'}
+            {isRu ? 'Криптобиржи по обороту за 24 часа · ' : 'Crypto exchanges by 24h volume · '}
+            {isComplete ? (isRu ? 'все ' : 'all ') : ''}{items.length}
           </caption>
 
           <thead>
             <tr className="border-b border-[var(--glass-line)] text-[9.5px] font-extrabold uppercase tracking-[0.085em] text-muted">
               <th scope="col" className="w-[36px] md:w-[44px] px-2 md:px-3 py-3 text-center font-extrabold">#</th>
               <th scope="col" className="px-2 md:px-3 py-3 font-extrabold">{isRu ? 'Биржа' : 'Exchange'}</th>
-              <th scope="col" className="w-[104px] md:w-[150px] px-2 md:px-3 py-3 text-right md:text-left font-extrabold">
-                {isRu ? 'Объём 24ч ↓' : '24h volume ↓'}
+              <th scope="col" className="hidden md:table-cell w-[150px] px-3 py-3 font-extrabold">
+                {isRu ? 'Оборот 24ч ↓' : '24h volume ↓'}
               </th>
               <th scope="col" className="hidden md:table-cell w-[186px] px-3 py-3 font-extrabold">
                 {isRu ? 'Продукты' : 'Products'}
               </th>
-              <th scope="col" className="hidden md:table-cell w-[104px] px-3 py-3 font-extrabold">
+              <th scope="col" className="hidden md:table-cell w-[132px] px-3 py-3 font-extrabold">
                 {isRu ? 'Лицензия' : 'Licence'}
               </th>
-              <th scope="col" className="hidden md:table-cell w-[130px] px-3 py-3" />
+              <th scope="col" className="w-[116px] md:w-[130px] px-2 md:px-3 py-3">
+                <span className="sr-only">{isRu ? 'Действие' : 'Action'}</span>
+              </th>
             </tr>
           </thead>
 
@@ -113,11 +120,19 @@ export default function ExchangeTable({
               // Second argument is `short`, not the locale — the chip column is
               // narrow, so both languages get the shortened form.
               const licence = licenceLabel(exchange, true);
+              const restriction = licence ? null : restrictionLabel(exchange, isRu);
               const products = productLabels(exchange, locale);
+              const extended = hasExtendedProfile(exchange);
+              const perk = extended ? (isRu ? exchange.extendedPerkRu : exchange.extendedPerkEn) : null;
+              const facts = extended ? extendedFacts(isRu ? exchange.extendedFactsRu : exchange.extendedFactsEn) : [];
               return (
                 <tr
                   key={exchange._id}
-                  className="group relative border-b border-[var(--glass-line)] last:border-b-0 transition-colors hover:bg-[var(--glass-hover)]"
+                  className={`group relative border-b border-[var(--glass-line)] last:border-b-0 transition-colors ${
+                    extended
+                      ? 'bg-[color-mix(in_srgb,var(--violet)_11%,transparent)] hover:bg-[color-mix(in_srgb,var(--violet)_16%,transparent)]'
+                      : 'hover:bg-[var(--glass-hover)]'
+                  }`}
                 >
                   <td className="px-2 md:px-3 py-3 align-middle text-center text-xs md:text-sm font-extrabold tabular-nums text-muted group-hover:text-foreground transition-colors">
                     <StretchedLink href={`/${locale}/exchanges/${slugFor(exchange, locale)}`} label={exchange.name} />
@@ -131,39 +146,35 @@ export default function ExchangeTable({
                         <span className="block text-[13px] md:text-[13.5px] font-extrabold text-foreground truncate group-hover:text-accent transition-colors">
                           {exchange.name}
                         </span>
-                        {/* Desktop keeps the tagline; mobile shows the chips that
-                            live in their own columns on wider screens. */}
-                        <span className="hidden md:block text-[10.5px] text-muted truncate mt-px">
-                          {exchange.foundedYear ? `${isRu ? 'с' : 'since'} ${exchange.foundedYear}` : ''}
-                          {exchange.foundedYear && (isRu ? exchange.taglineRu : exchange.taglineEn) ? ' · ' : ''}
-                          {isRu ? exchange.taglineRu : exchange.taglineEn}
+                        {/* На телефоне колонки оборота нет: цифра и лицензия стоят под названием. */}
+                        <span className="md:hidden flex items-baseline gap-1.5 mt-0.5 min-w-0">
+                          <span className={`text-[12.5px] ${VOLUME_GRADIENT}`}>{formatVolume(exchange.volume24h)}</span>
+                          {licence && <span className="text-[10.5px] font-extrabold text-positive truncate">{licence}</span>}
+                          {restriction && <span className="text-[10.5px] font-extrabold text-[var(--exchange-warn)] truncate">{restriction}</span>}
                         </span>
-                        <span className="md:hidden flex gap-1 mt-1 overflow-hidden">
-                          <ProductChips labels={products} max={2} />
-                          {licence && (
-                            <span className="rounded-md bg-positive/15 px-[7px] py-[3px] text-[9.5px] font-extrabold text-positive whitespace-nowrap">
-                              {licence}
-                            </span>
-                          )}
-                        </span>
+                        {perk ? (
+                          <span className="block text-[11.5px] md:text-xs leading-snug text-muted mt-0.5">{perk}</span>
+                        ) : (
+                          <span className="hidden md:block text-[10.5px] text-muted truncate mt-px">
+                            {exchange.foundedYear ? `${isRu ? 'с' : 'since'} ${exchange.foundedYear}` : ''}
+                            {exchange.foundedYear && (isRu ? exchange.taglineRu : exchange.taglineEn) ? ' · ' : ''}
+                            {isRu ? exchange.taglineRu : exchange.taglineEn}
+                          </span>
+                        )}
+                        {facts.length > 0 && (
+                          <span className="hidden md:flex flex-wrap gap-1 mt-1">
+                            <ProductChips labels={facts} max={3} />
+                          </span>
+                        )}
                       </span>
                     </span>
                   </td>
 
-                  <td className="px-2 md:px-3 py-3 align-middle text-right md:text-left">
-                    <span className={`block text-sm md:text-[15px] ${VOLUME_GRADIENT}`}>
+                  <td className="hidden md:table-cell px-3 py-3 align-middle">
+                    <span className={`block text-[15px] ${VOLUME_GRADIENT}`}>
                       {formatVolume(exchange.volume24h)}
                     </span>
                     <VolumeBar value={exchange.volume24h ?? 0} max={maxVolume} />
-                    {exchange.tradeUrl ? (
-                      <span className="md:hidden block mt-1.5">
-                        <TradeButton exchange={exchange} isRu={isRu} size="sm" />
-                      </span>
-                    ) : (
-                      <span className="md:hidden block text-[9.5px] text-muted mt-1">
-                        {isRu ? 'объём 24ч' : '24h volume'}
-                      </span>
-                    )}
                   </td>
 
                   <td className="hidden md:table-cell px-3 py-3 align-middle">
@@ -174,11 +185,12 @@ export default function ExchangeTable({
 
                   <td className="hidden md:table-cell px-3 py-3 align-middle">
                     {licence && <LicenceChip label={licence} />}
+                    {restriction && <RestrictionChip label={restriction} />}
                   </td>
 
-                  <td className="hidden md:table-cell px-3 py-3 align-middle">
+                  <td className="px-2 md:px-3 py-3 align-middle">
                     <span className="flex justify-end">
-                      <TradeButton exchange={exchange} isRu={isRu} />
+                      <RowAction exchange={exchange} isRu={isRu} />
                     </span>
                   </td>
                 </tr>

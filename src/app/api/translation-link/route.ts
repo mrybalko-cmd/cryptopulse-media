@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchArticleBySlug, fetchNewsBySlug, fetchExchangeBySlug } from '@/lib/sanity';
+import { fetchArticleBySlug, fetchNewsBySlug, fetchExchangeBySlug, fetchBrokerBySlug } from '@/lib/sanity';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const slug = searchParams.get('slug');
   const locale = searchParams.get('locale');
 
-  if (!slug || !locale || (type !== 'articles' && type !== 'news' && type !== 'exchanges')) {
+  if (!slug || !locale || (type !== 'articles' && type !== 'news' && type !== 'exchanges' && type !== 'brokers')) {
     return NextResponse.json({ href: null });
   }
 
@@ -15,6 +15,11 @@ export async function GET(req: NextRequest) {
     // Exchange documents aren't split per language like article/news — one
     // doc holds both slugRu and slugEn, so the "translation" is just the
     // other locale's slug field on the same record, not a separate lookup.
+    if (type === 'brokers') {
+      const doc = await fetchBrokerBySlug(slug, locale);
+      const otherSlug = locale === 'ru' ? doc?.slugEn : doc?.slugRu;
+      return NextResponse.json({ href: otherSlug ? `/${locale === 'ru' ? 'en' : 'ru'}/brokers/${otherSlug}` : null });
+    }
     if (type === 'exchanges') {
       const doc = await fetchExchangeBySlug(slug, locale);
       const otherLocale = locale === 'ru' ? 'en' : 'ru';

@@ -27,7 +27,9 @@ async function publishReview(target: Awaited<ReturnType<typeof fetchExchangeRevi
     if (!target) return;
     // У биржи свой slug на каждом языке, и совпадают они не всегда.
     if (target.slugRu) revalidatePath(`/ru/exchanges/${target.slugRu}`);
+    if (target.slugRu) revalidatePath(`/ru/brokers/${target.slugRu}`);
     if (target.slugEn) revalidatePath(`/en/exchanges/${target.slugEn}`);
+    if (target.slugEn) revalidatePath(`/en/brokers/${target.slugEn}`);
     // Средняя оценка печатается и в общем списке бирж.
     revalidatePath('/ru/exchanges');
     revalidatePath('/en/exchanges');

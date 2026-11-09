@@ -64,6 +64,8 @@
      borrow this instead. Sourced once here; sections alias it. */
   --violet: #8b5cf6;
   --violet-2: #c084fc;
+  --exchange-warn: #fbbf24;
+  --passport-gold: #f5b544;
   --rates-violet: var(--violet);
   --rates-violet-2: var(--violet-2);
   --rates-inset: rgba(0, 0, 0, 0.28);
@@ -147,6 +149,8 @@ html.light {
 
   --violet: #7c3aed;
   --violet-2: #a855f7;
+  --exchange-warn: #b45309;
+  --passport-gold: #8a5a00;
   --rates-inset: rgba(15, 20, 30, 0.05);
 
   --glass-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62));

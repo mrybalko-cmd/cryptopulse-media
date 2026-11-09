@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache';
 // который сразу после сохранения ещё отдаёт прежнюю копию документа —
 // форма возвращалась со снятой галочкой. Имя оставлено прежним, чтобы
 // не трогать 65 обращений ниже.
+import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from '@/lib/brokerFields';
 import { adminClient as client, writeClient } from '@/lib/sanity';
 import type { Permission } from './permissions';
 import type { PortableTextBlock } from './portableText';
@@ -1230,8 +1231,10 @@ export interface AdminExchangeListItem {
   _id: string;
   name: string;
   logo: string | null;
-  pinned: boolean;
-  pinPosition?: number;
+  extendedEnabled: boolean;
+  adEnabled: boolean;
+  hasTradeUrl: boolean;
+  venueKind: 'exchange' | 'broker';
   volume24h?: number;
   type: string[];
   foundedYear?: number;
@@ -1239,19 +1242,13 @@ export interface AdminExchangeListItem {
 }
 
 export async function fetchAdminExchangesList(): Promise<AdminExchangeListItem[]> {
-  const list = await client.fetch<AdminExchangeListItem[]>(
-    `*[_type == "exchange"] | order(name asc){
-      _id, name, "logo": logo.asset->url, "pinned": coalesce(pinned, false), pinPosition, volume24h,
+  return client.fetch<AdminExchangeListItem[]>(
+    `*[_type in ["exchange", "broker"]] | order(_type desc, volume24h desc){
+      _id, "venueKind": select(_type == "broker" => "broker", "exchange"), name, "logo": logo.asset->url, volume24h,
+      "extendedEnabled": coalesce(extendedEnabled, false), "adEnabled": coalesce(adEnabled, false), "hasTradeUrl": defined(tradeUrl),
       "type": coalesce(type, []), foundedYear, "regionTones": regions[].tone
     }`
   );
-  // Pinned exchanges rise to the top (ordered by their pin position), matching
-  // how they're elevated on the public site; everything else stays name-sorted.
-  return list.sort((a, b) => {
-    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-    if (a.pinned && b.pinned) return (a.pinPosition ?? 99) - (b.pinPosition ?? 99);
-    return 0;
-  });
 }
 
 export interface ExchangeBadgeItem { textRu: string; textEn: string; tone: string; link?: string }
@@ -1288,9 +1285,34 @@ export interface AdminExchangeDoc {
   products: ExchangeProductItem[];
   badges: ExchangeBadgeItem[];
   regions: ExchangeRegionItem[];
-  pinned: boolean;
-  pinPosition?: number;
-  pinUntil?: string;
+  venueKind?: 'exchange' | 'broker';
+  regulators?: BrokerRegulator[];
+  offersCoins?: boolean;
+  offersCfd?: boolean;
+  minDeposit?: string;
+  lossPercent?: string;
+  demoUrl?: string;
+  verifiedAt?: string;
+  brokerText?: BrokerLocalizedFields;
+  buttonColor?: string;
+  tradeUntil?: string;
+  extendedEnabled: boolean;
+  extendedUntil?: string;
+  extendedPerkRu?: string;
+  extendedPerkEn?: string;
+  extendedFactsRu?: string;
+  extendedFactsEn?: string;
+  adEnabled: boolean;
+  adUntil?: string;
+  adUrl?: string;
+  adTextRu?: string;
+  adTextEn?: string;
+  adOfferRu?: string;
+  adOfferEn?: string;
+  adOfferNoteRu?: string;
+  adOfferNoteEn?: string;
+  adButtonRu?: string;
+  adButtonEn?: string;
   reviewsEnabled: boolean;
   seoMetaTitleRu?: string;
   seoMetaTitleEn?: string;
@@ -1300,20 +1322,26 @@ export interface AdminExchangeDoc {
 }
 
 const EXCHANGE_DOC_PROJECTION = `
-  _id, name, "logo": logo.asset->url, logoBg, "slugRu": slugRu.current, "slugEn": slugEn.current,
+  _id, "venueKind": select(_type == "broker" => "broker", "exchange"), name, "logo": logo.asset->url, logoBg, "slugRu": slugRu.current, "slugEn": slugEn.current,
+  regulators[]{ name, entity, licence, noteRu, noteEn, url, tier1 },
+  offersCoins, offersCfd, minDeposit, lossPercent, demoUrl, verifiedAt,
+  "brokerText": { ${BROKER_LOCALIZED_KEYS.join(', ')} },
   foundedYear, website, linkLabel, trackingUrl, tradeUrl, coingeckoId, type, taglineRu, taglineEn,
   descriptionRu, descriptionEn,
   "products": products[]{ "image": image.asset->url, "imageAssetRef": image.asset._ref, nameRu, nameEn, shortRu, shortEn, longRu, longEn },
   "badges": badges[]{ textRu, textEn, tone, link },
   "regions": regions[]{ regionRu, regionEn, tone, noteRu, noteEn },
-  "pinned": coalesce(pinned, false), pinPosition, pinUntil, "reviewsEnabled": coalesce(reviewsEnabled, true),
+  buttonColor, tradeUntil,
+  "extendedEnabled": coalesce(extendedEnabled, false), extendedUntil, extendedPerkRu, extendedPerkEn, extendedFactsRu, extendedFactsEn,
+  "adEnabled": coalesce(adEnabled, false), adUntil, adUrl, adTextRu, adTextEn, adOfferRu, adOfferEn, adOfferNoteRu, adOfferNoteEn, adButtonRu, adButtonEn,
+  "reviewsEnabled": coalesce(reviewsEnabled, true),
   "seoMetaTitleRu": seo.metaTitleRu, "seoMetaTitleEn": seo.metaTitleEn,
   "seoMetaDescriptionRu": seo.metaDescriptionRu, "seoMetaDescriptionEn": seo.metaDescriptionEn,
   "seoNoIndex": coalesce(seo.noIndex, false)
 `;
 
 export async function fetchAdminExchangeById(id: string): Promise<AdminExchangeDoc | null> {
-  return client.fetch(`*[_type == "exchange" && _id == $id][0]{ ${EXCHANGE_DOC_PROJECTION} }`, { id });
+  return client.fetch(`*[_type in ["exchange", "broker"] && _id == $id][0]{ ${EXCHANGE_DOC_PROJECTION} }`, { id });
 }
 
 export interface ExchangeInput {
@@ -1335,9 +1363,34 @@ export interface ExchangeInput {
   products: (ExchangeProductItem & { imageAssetId?: string })[];
   badges: ExchangeBadgeItem[];
   regions: ExchangeRegionItem[];
-  pinned: boolean;
-  pinPosition?: number;
-  pinUntil?: string;
+  venueKind?: 'exchange' | 'broker';
+  regulators?: BrokerRegulator[];
+  offersCoins?: boolean;
+  offersCfd?: boolean;
+  minDeposit?: string;
+  lossPercent?: string;
+  demoUrl?: string;
+  verifiedAt?: string;
+  brokerText?: BrokerLocalizedFields;
+  buttonColor?: string;
+  tradeUntil?: string;
+  extendedEnabled: boolean;
+  extendedUntil?: string;
+  extendedPerkRu?: string;
+  extendedPerkEn?: string;
+  extendedFactsRu?: string;
+  extendedFactsEn?: string;
+  adEnabled: boolean;
+  adUntil?: string;
+  adUrl?: string;
+  adTextRu?: string;
+  adTextEn?: string;
+  adOfferRu?: string;
+  adOfferEn?: string;
+  adOfferNoteRu?: string;
+  adOfferNoteEn?: string;
+  adButtonRu?: string;
+  adButtonEn?: string;
   reviewsEnabled: boolean;
   seoMetaTitleRu?: string;
   seoMetaTitleEn?: string;
@@ -1391,9 +1444,47 @@ function exchangeSetFields(input: ExchangeInput) {
       noteRu: r.noteRu || undefined,
       noteEn: r.noteEn || undefined,
     })),
-    pinned: input.pinned,
-    pinPosition: input.pinned ? input.pinPosition : undefined,
-    pinUntil: input.pinned ? (input.pinUntil || undefined) : undefined,
+    ...(input.venueKind === 'broker'
+      ? {
+          regulators: (input.regulators ?? []).map((r, i) => ({
+            _type: 'brokerRegulator',
+            _key: `regulator-${i}-${Math.random().toString(36).slice(2, 8)}`,
+            name: r.name,
+            entity: r.entity || undefined,
+            licence: r.licence || undefined,
+            noteRu: r.noteRu || undefined,
+            noteEn: r.noteEn || undefined,
+            url: r.url || undefined,
+            tier1: Boolean(r.tier1),
+          })),
+          offersCoins: Boolean(input.offersCoins),
+          offersCfd: Boolean(input.offersCfd),
+          minDeposit: input.minDeposit || undefined,
+          lossPercent: input.lossPercent || undefined,
+          demoUrl: input.demoUrl || undefined,
+          verifiedAt: input.verifiedAt || undefined,
+          ...Object.fromEntries(BROKER_LOCALIZED_KEYS.map(key => [key, input.brokerText?.[key] || undefined])),
+        }
+      : {}),
+    buttonColor: input.buttonColor || undefined,
+    tradeUntil: input.tradeUntil || undefined,
+    extendedEnabled: input.extendedEnabled,
+    extendedUntil: input.extendedUntil || undefined,
+    extendedPerkRu: input.extendedPerkRu || undefined,
+    extendedPerkEn: input.extendedPerkEn || undefined,
+    extendedFactsRu: input.extendedFactsRu || undefined,
+    extendedFactsEn: input.extendedFactsEn || undefined,
+    adEnabled: input.adEnabled,
+    adUntil: input.adUntil || undefined,
+    adUrl: input.adUrl || undefined,
+    adTextRu: input.adTextRu || undefined,
+    adTextEn: input.adTextEn || undefined,
+    adOfferRu: input.adOfferRu || undefined,
+    adOfferEn: input.adOfferEn || undefined,
+    adOfferNoteRu: input.adOfferNoteRu || undefined,
+    adOfferNoteEn: input.adOfferNoteEn || undefined,
+    adButtonRu: input.adButtonRu || undefined,
+    adButtonEn: input.adButtonEn || undefined,
     reviewsEnabled: input.reviewsEnabled,
     seo: {
       _type: 'object',
@@ -1409,16 +1500,20 @@ function exchangeSetFields(input: ExchangeInput) {
 export async function createExchange(input: ExchangeInput, logoAssetId?: string) {
   const fields = exchangeSetFields(input);
   return writeClient.create({
-    _type: 'exchange',
+    _type: input.venueKind === 'broker' ? 'broker' : 'exchange',
     ...fields,
     ...(logoAssetId ? { logo: imageField(logoAssetId) } : {}),
-    volume24h: 0,
+    ...(input.venueKind === 'broker' ? {} : { volume24h: 0 }),
   });
 }
 
 export async function updateExchange(id: string, input: ExchangeInput, logoAssetId?: string) {
   const fields = exchangeSetFields(input);
-  const patch = writeClient.patch(id).set(fields);
+  // undefined при сериализации просто выпадает, и очищенное в форме поле осталось
+  // бы в базе со старым значением: убрать партнёрскую ссылку было бы нельзя.
+  // Прежнее закрепление стираем заодно.
+  const cleared = Object.entries(fields).filter(([, value]) => value === undefined).map(([key]) => key);
+  const patch = writeClient.patch(id).set(fields).unset([...cleared, 'pinned', 'pinPosition', 'pinUntil']);
   if (logoAssetId) patch.set({ logo: imageField(logoAssetId) });
   await patch.commit({ autoGenerateArrayKeys: false });
 }
@@ -1748,11 +1843,12 @@ export interface AdminExchangeReviewDoc {
   exchangeId: string | null;
   exchangeName: string | null;
   exchangeSlugRu: string | null;
+  exchangeKind: string | null;
 }
 
 const EXCHANGE_REVIEW_PROJECTION = `
   _id, authorName, rating, text, approved, "rejected": coalesce(rejected, false), createdAt,
-  "exchangeId": exchange->_id, "exchangeName": exchange->name, "exchangeSlugRu": exchange->slugRu.current
+  "exchangeId": exchange->_id, "exchangeName": exchange->name, "exchangeSlugRu": exchange->slugRu.current, "exchangeKind": exchange->_type
 `;
 
 export async function fetchAdminExchangeReviews(filter: ModerationFilter = 'pending'): Promise<AdminExchangeReviewDoc[]> {
@@ -1836,7 +1932,7 @@ export async function fetchScheduleItems(
       `*[_type == "sidebarBanner" && (defined(startAt) || defined(endAt))]{ _id, title, startAt, endAt, "language": coalesce(language, "all") }`
     ),
     client.fetch<{ _id: string; name: string; pinUntil: string }[]>(
-      `*[_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil >= $windowStart && pinUntil <= $windowEnd]{ _id, name, pinUntil }`,
+      `*[_type in ["exchange", "broker"] && adEnabled == true && defined(adUntil) && adUntil >= $windowStart && adUntil <= $windowEnd]{ _id, name, "pinUntil": adUntil }`,
       { windowStart, windowEnd }
     ),
   ]);
@@ -1885,7 +1981,7 @@ export async function fetchDashboardCounts() {
         (_type == "news" && publishTiming == "scheduled" && publishedAt > now() && publishedAt < $weekFromNow) ||
         (_type == "article" && publishTiming == "scheduled" && publishedAt > now() && publishedAt < $weekFromNow) ||
         (_type == "sidebarBanner" && ((defined(startAt) && startAt > now() && startAt < $weekFromNow) || (defined(endAt) && endAt > now() && endAt < $weekFromNow))) ||
-        (_type == "exchange" && pinned == true && defined(pinUntil) && pinUntil > now() && pinUntil < $weekFromNow)
+        (_type in ["exchange", "broker"] && adEnabled == true && defined(adUntil) && adUntil > now() && adUntil < $weekFromNow)
       ])`,
       { weekFromNow }
     ),
