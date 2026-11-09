@@ -16,6 +16,7 @@ export default function ExchangeAdBlock({
   reviewLabel,
   defaultButton,
   risk,
+  ownPage = false,
 }: {
   exchange: ExchangeRaw;
   locale: string;
@@ -24,6 +25,8 @@ export default function ExchangeAdBlock({
   defaultButton?: string;
   /** Обязательно для рекламы брокера с CFD. */
   risk?: string;
+  /** На странице самой биржи: только предложение и кнопка, без логотипа и ссылки на обзор. */
+  ownPage?: boolean;
 }) {
   const isRu = locale === 'ru';
   const pageHref = reviewHref ?? `/${locale}/exchanges/${slugFor(exchange, locale)}`;
@@ -31,6 +34,28 @@ export default function ExchangeAdBlock({
   const offer = isRu ? exchange.adOfferRu : exchange.adOfferEn;
   const offerNote = isRu ? exchange.adOfferNoteRu : exchange.adOfferNoteEn;
   const buttonText = (isRu ? exchange.adButtonRu : exchange.adButtonEn) || defaultButton || (isRu ? 'Торговать' : 'Trade');
+
+  if (ownPage) {
+    return (
+      <aside
+        aria-label={isRu ? `Реклама: ${exchange.name}` : `Advertisement: ${exchange.name}`}
+        className="relative overflow-hidden rounded-[18px] mt-4 px-4 py-3.5 sm:px-5 border border-[color-mix(in_srgb,var(--violet)_40%,transparent)] bg-[image:linear-gradient(120deg,color-mix(in_srgb,var(--violet)_15%,transparent),transparent_70%),var(--glass-fill)]"
+      >
+        <span className="inline-block rounded-md border border-[var(--glass-line)] bg-[var(--rates-inset)] px-[7px] py-px text-[10.5px] font-bold text-muted">
+          {isRu ? 'Реклама' : 'Ad'}
+        </span>
+        <div className="mt-2 flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+          <div className="min-w-0 flex-1">
+            <b className="block text-[15px] font-extrabold text-foreground leading-snug">{offer || text}</b>
+            {offer && offerNote && <span className="block text-xs text-muted mt-0.5">{offerNote}</span>}
+          </div>
+          <VenueButton href={exchange.adUrl!} color={venueButtonColor(exchange.buttonColor)} className="shrink-0 max-md:w-full max-md:h-11">
+            {buttonText}
+          </VenueButton>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside

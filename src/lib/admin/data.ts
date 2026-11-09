@@ -1305,6 +1305,16 @@ export interface AdminExchangeDoc {
   extendedPerkEn?: string;
   extendedFactsRu?: string;
   extendedFactsEn?: string;
+  extendedTradeUrl?: string;
+  extendedBonusUrl?: string;
+  extendedBonusLabelRu?: string;
+  extendedBonusLabelEn?: string;
+  extendedBannerId?: string;
+  extendedStepsRu?: string;
+  extendedStepsEn?: string;
+  extendedFaqRu?: string;
+  extendedFaqEn?: string;
+  extendedCover?: string;
   adEnabled: boolean;
   adUntil?: string;
   adUrl?: string;
@@ -1337,6 +1347,8 @@ const EXCHANGE_DOC_PROJECTION = `
   "regions": regions[]{ regionRu, regionEn, tone, noteRu, noteEn },
   buttonColor, tradeUntil,
   "extendedEnabled": coalesce(extendedEnabled, false), extendedUntil, extendedPerkRu, extendedPerkEn, extendedFactsRu, extendedFactsEn,
+  "extendedCover": extendedCover.asset->url, extendedTradeUrl, extendedBonusUrl, extendedBonusLabelRu, extendedBonusLabelEn,
+  extendedBannerId, extendedStepsRu, extendedStepsEn, extendedFaqRu, extendedFaqEn,
   "adEnabled": coalesce(adEnabled, false), adUntil, adUrl, adTextRu, adTextEn, adOfferRu, adOfferEn, adOfferNoteRu, adOfferNoteEn, adButtonRu, adButtonEn,
   "reviewsEnabled": coalesce(reviewsEnabled, true),
   "seoMetaTitleRu": seo.metaTitleRu, "seoMetaTitleEn": seo.metaTitleEn,
@@ -1386,6 +1398,15 @@ export interface ExchangeInput {
   extendedPerkEn?: string;
   extendedFactsRu?: string;
   extendedFactsEn?: string;
+  extendedTradeUrl?: string;
+  extendedBonusUrl?: string;
+  extendedBonusLabelRu?: string;
+  extendedBonusLabelEn?: string;
+  extendedBannerId?: string;
+  extendedStepsRu?: string;
+  extendedStepsEn?: string;
+  extendedFaqRu?: string;
+  extendedFaqEn?: string;
   adEnabled: boolean;
   adUntil?: string;
   adUrl?: string;
@@ -1484,6 +1505,15 @@ function exchangeSetFields(input: ExchangeInput): Record<string, unknown> {
     extendedPerkEn: input.extendedPerkEn || undefined,
     extendedFactsRu: input.extendedFactsRu || undefined,
     extendedFactsEn: input.extendedFactsEn || undefined,
+    extendedTradeUrl: input.extendedTradeUrl || undefined,
+    extendedBonusUrl: input.extendedBonusUrl || undefined,
+    extendedBonusLabelRu: input.extendedBonusLabelRu || undefined,
+    extendedBonusLabelEn: input.extendedBonusLabelEn || undefined,
+    extendedBannerId: input.extendedBannerId || undefined,
+    extendedStepsRu: input.extendedStepsRu || undefined,
+    extendedStepsEn: input.extendedStepsEn || undefined,
+    extendedFaqRu: input.extendedFaqRu || undefined,
+    extendedFaqEn: input.extendedFaqEn || undefined,
     adEnabled: input.adEnabled,
     adUntil: input.adUntil || undefined,
     adUrl: input.adUrl || undefined,
@@ -1507,17 +1537,18 @@ function exchangeSetFields(input: ExchangeInput): Record<string, unknown> {
   };
 }
 
-export async function createExchange(input: ExchangeInput, logoAssetId?: string) {
+export async function createExchange(input: ExchangeInput, logoAssetId?: string, coverAssetId?: string) {
   const fields = exchangeSetFields(input);
   return writeClient.create({
     _type: input.venueKind === 'broker' ? 'broker' : 'exchange',
     ...fields,
     ...(logoAssetId ? { logo: imageField(logoAssetId) } : {}),
+    ...(coverAssetId ? { extendedCover: imageField(coverAssetId) } : {}),
     ...(input.venueKind === 'broker' ? {} : { volume24h: 0 }),
   });
 }
 
-export async function updateExchange(id: string, input: ExchangeInput, logoAssetId?: string) {
+export async function updateExchange(id: string, input: ExchangeInput, logoAssetId?: string, coverAssetId?: string) {
   const fields = exchangeSetFields(input);
   // undefined при сериализации просто выпадает, и очищенное в форме поле осталось
   // бы в базе со старым значением: убрать партнёрскую ссылку было бы нельзя.
@@ -1525,6 +1556,7 @@ export async function updateExchange(id: string, input: ExchangeInput, logoAsset
   const cleared = Object.entries(fields).filter(([, value]) => value === undefined).map(([key]) => key);
   const patch = writeClient.patch(id).set(fields).unset([...cleared, 'pinned', 'pinPosition', 'pinUntil']);
   if (logoAssetId) patch.set({ logo: imageField(logoAssetId) });
+  if (coverAssetId) patch.set({ extendedCover: imageField(coverAssetId) });
   await patch.commit({ autoGenerateArrayKeys: false });
 }
 

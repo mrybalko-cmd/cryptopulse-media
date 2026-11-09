@@ -165,6 +165,11 @@ const VENUE_BUTTON_STYLES: Record<VenueButtonColor, { gradient: string; shadow: 
   green: { gradient: 'linear-gradient(135deg,#047857,#065f46)', shadow: '#047857' },
 };
 
+/** Цвет площадки для обложки расширенного профиля. */
+export function venueColorHex(color: VenueButtonColor): string {
+  return VENUE_BUTTON_STYLES[color].shadow;
+}
+
 const BUTTON_SIZES = {
   sm: 'h-[34px] px-2.5 md:px-3 rounded-[10px] text-[12px]',
   md: 'h-10 px-4 rounded-xl text-[13.5px]',

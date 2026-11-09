@@ -172,6 +172,15 @@ async function parseExchangeInput(
     extendedPerkEn: text('extendedPerkEn'),
     extendedFactsRu: text('extendedFactsRu'),
     extendedFactsEn: text('extendedFactsEn'),
+    extendedTradeUrl: text('extendedTradeUrl'),
+    extendedBonusUrl: text('extendedBonusUrl'),
+    extendedBonusLabelRu: text('extendedBonusLabelRu'),
+    extendedBonusLabelEn: text('extendedBonusLabelEn'),
+    extendedBannerId: text('extendedBannerId'),
+    extendedStepsRu: text('extendedStepsRu'),
+    extendedStepsEn: text('extendedStepsEn'),
+    extendedFaqRu: text('extendedFaqRu'),
+    extendedFaqEn: text('extendedFaqEn'),
     adEnabled: formData.get('adEnabled') === 'on',
     adUntil: term('adUntil'),
     adUrl: text('adUrl'),
@@ -195,11 +204,13 @@ async function parseExchangeInput(
 export async function createExchangeAction(formData: FormData) {
   await requireAdminPermission('exchanges');
   const logoFile = formData.get('logo') as File | null;
-  const [input, logoAssetId] = await Promise.all([
+  const coverFile = formData.get('extendedCover') as File | null;
+  const [input, logoAssetId, coverAssetId] = await Promise.all([
     parseExchangeInput(formData, undefined, undefined),
     logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
+    coverFile && coverFile.size > 0 ? uploadImageAsset(coverFile) : Promise.resolve(undefined),
   ]);
-  const doc = await createExchange(input, logoAssetId);
+  const doc = await createExchange(input, logoAssetId, coverAssetId);
   revalidateTag('exchanges', { expire: 0 });
   redirect(`/admin/exchanges/${doc._id}?saved=1`);
 }
@@ -212,11 +223,13 @@ export async function updateExchangeAction(
 ) {
   await requireAdminPermission('exchanges');
   const logoFile = formData.get('logo') as File | null;
-  const [input, logoAssetId] = await Promise.all([
+  const coverFile = formData.get('extendedCover') as File | null;
+  const [input, logoAssetId, coverAssetId] = await Promise.all([
     parseExchangeInput(formData, originalDescriptionRu, originalDescriptionEn),
     logoFile && logoFile.size > 0 ? uploadImageAsset(logoFile) : Promise.resolve(undefined),
+    coverFile && coverFile.size > 0 ? uploadImageAsset(coverFile) : Promise.resolve(undefined),
   ]);
-  await updateExchange(id, input, logoAssetId);
+  await updateExchange(id, input, logoAssetId, coverAssetId);
   revalidateTag('exchanges', { expire: 0 });
   redirect(`/admin/exchanges/${id}?saved=1`);
 }

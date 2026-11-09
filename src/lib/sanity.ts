@@ -142,6 +142,29 @@ export interface SidebarBannerItem {
   weight: number;
 }
 
+/** Баннер самой площадки для страницы с расширенным профилем: те же сроки и язык, что у общей ротации. */
+export const fetchBannerById = unstable_cache(
+  async (id: string, locale: string): Promise<SidebarBannerItem[]> => {
+    if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
+    try {
+      return await client.fetch(
+        `*[_type == "sidebarBanner" && _id == $id && active == true
+          && (language == "all" || !defined(language) || language == $locale)
+          && (!defined(startAt) || startAt <= now())
+          && (!defined(endAt) || endAt >= now())
+        ][0...1] {
+          _id, title, "image": image.asset->url, altText, "weight": coalesce(weight, 1)
+        }`,
+        { id, locale }
+      );
+    } catch {
+      return [];
+    }
+  },
+  ['fetchBannerById'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['banners'] }
+);
+
 export const fetchActiveBanners = unstable_cache(
   async (locale: string, limit = 5): Promise<SidebarBannerItem[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
@@ -1405,6 +1428,16 @@ export interface ExchangeRaw {
 export interface ExchangeDetailRaw extends ExchangeRaw, ExchangePassportText {
   verifiedAt?: string | null;
   reservesUrl?: string | null;
+  extendedCover?: string | null;
+  extendedTradeUrl?: string | null;
+  extendedBonusUrl?: string | null;
+  extendedBonusLabelRu?: string | null;
+  extendedBonusLabelEn?: string | null;
+  extendedBannerId?: string | null;
+  extendedStepsRu?: string | null;
+  extendedStepsEn?: string | null;
+  extendedFaqRu?: string | null;
+  extendedFaqEn?: string | null;
   descriptionRu?: any[];
   descriptionEn?: any[];
   products?: ExchangeProductRaw[];
@@ -1518,6 +1551,8 @@ export const fetchExchangeBySlug = unstable_cache(
           products[]{ "image": image.asset->url, nameRu, nameEn, shortRu, shortEn, longRu, longEn },
           regions[]{ regionRu, regionEn, tone, noteRu, noteEn },
           verifiedAt, reservesUrl, ${EXCHANGE_PASSPORT_KEYS.join(', ')},
+          "extendedCover": extendedCover.asset->url, extendedTradeUrl, extendedBonusUrl, extendedBonusLabelRu, extendedBonusLabelEn,
+          extendedBannerId, extendedStepsRu, extendedStepsEn, extendedFaqRu, extendedFaqEn,
           seo
         }`,
         { slug }

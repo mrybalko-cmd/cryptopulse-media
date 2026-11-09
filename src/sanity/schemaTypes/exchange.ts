@@ -289,6 +289,17 @@ export const exchangeType = defineType({
     defineField({ name: 'extendedFactsRu', title: 'Три факта через запятую, RU', type: 'string', group: 'placements' }),
     defineField({ name: 'extendedFactsEn', title: 'Три факта через запятую, EN', type: 'string', group: 'placements' }),
 
+    defineField({ name: 'extendedCover', title: 'Обложка профиля', type: 'image', group: 'placements' }),
+    defineField({ name: 'extendedTradeUrl', title: 'Профиль: ссылка «Торговать»', type: 'url', group: 'placements' }),
+    defineField({ name: 'extendedBonusUrl', title: 'Профиль: ссылка на бонус', type: 'url', group: 'placements' }),
+    defineField({ name: 'extendedBonusLabelRu', title: 'Профиль: текст кнопки бонуса, RU', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedBonusLabelEn', title: 'Профиль: текст кнопки бонуса, EN', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedBannerId', title: 'Профиль: ID баннера биржи', type: 'string', group: 'placements' }),
+    defineField({ name: 'extendedStepsRu', title: 'Как начать, RU (строками: Шаг | пояснение)', type: 'text', rows: 6, group: 'placements' }),
+    defineField({ name: 'extendedStepsEn', title: 'Как начать, EN', type: 'text', rows: 6, group: 'placements' }),
+    defineField({ name: 'extendedFaqRu', title: 'Вопросы, RU (первая строка вопрос, блоки через пустую строку)', type: 'text', rows: 10, group: 'placements' }),
+    defineField({ name: 'extendedFaqEn', title: 'Вопросы, EN', type: 'text', rows: 10, group: 'placements' }),
+
     defineField({ name: 'adEnabled', title: 'Рекламный блок включён', type: 'boolean', group: 'placements', initialValue: false }),
     defineField({ name: 'adUntil', title: 'Рекламный блок действует до', type: 'datetime', group: 'placements' }),
     defineField({ name: 'adUrl', title: 'Ссылка кнопки рекламного блока', type: 'url', group: 'placements' }),

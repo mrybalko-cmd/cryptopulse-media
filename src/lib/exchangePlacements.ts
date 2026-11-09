@@ -17,6 +17,7 @@ export function venueButtonColor(value: string | null | undefined): VenueButtonC
 }
 
 export interface VenuePlacements {
+  extendedTradeUrl?: string | null;
   tradeUrl?: string | null;
   tradeUntil?: string | null;
   extendedEnabled?: boolean | null;
@@ -48,4 +49,32 @@ export function hasActiveAd(venue: VenuePlacements): boolean {
 /** Факты расширенного профиля вводятся одной строкой через запятую, на странице их до трёх. */
 export function extendedFacts(raw: string | null | undefined): string[] {
   return (raw ?? '').split(',').map(fact => fact.trim()).filter(Boolean).slice(0, 3);
+}
+
+/** Кнопка «Торговать» в шапке профиля: у расширенного профиля своя ссылка, иначе общая. */
+export function profileTradeUrl(venue: VenuePlacements): string | null {
+  return (hasExtendedProfile(venue) && venue.extendedTradeUrl) || activeTradeUrl(venue);
+}
+
+/** «Как начать» вводится строками: «Регистрация | Почта или телефон». */
+export function extendedSteps(raw: string | null | undefined): { title: string; note: string }[] {
+  return (raw ?? '')
+    .split('\n')
+    .map(line => {
+      const [title, ...note] = line.split('|');
+      return { title: title.trim(), note: note.join('|').trim() };
+    })
+    .filter(step => step.title)
+    .slice(0, 6);
+}
+
+/** Вопросы разделены пустой строкой: первая строка вопрос, остальные ответ. Вопрос без ответа не показываем. */
+export function extendedFaq(raw: string | null | undefined): { question: string; answer: string }[] {
+  return (raw ?? '')
+    .split(/\n\s*\n/)
+    .map(block => {
+      const [question, ...answer] = block.trim().split('\n');
+      return { question: (question ?? '').trim(), answer: answer.join('\n').trim() };
+    })
+    .filter(item => item.question && item.answer);
 }

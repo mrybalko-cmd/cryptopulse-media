@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { requireAdminPermission } from '@/lib/admin/auth';
-import { fetchAdminExchangeById } from '@/lib/admin/data';
+import { fetchAdminBanners, fetchAdminExchangeById } from '@/lib/admin/data';
 import { updateExchangeAction, deleteExchangeAction } from '../actions';
 import ExchangeForm from '../ExchangeForm';
 import DeleteButton from '../../_shared/DeleteButton';
@@ -10,6 +10,7 @@ export default async function EditExchangePage({ params }: { params: Promise<{ i
   const { id } = await params;
   const exchange = await fetchAdminExchangeById(id);
   if (!exchange) notFound();
+  const banners = (await fetchAdminBanners()).filter(b => b.placement !== 'inline').map(({ _id, title }) => ({ _id, title }));
 
   const boundAction = async (formData: FormData) => {
     'use server';
@@ -26,7 +27,7 @@ export default async function EditExchangePage({ params }: { params: Promise<{ i
         <h1 className="text-[19px] font-bold">{exchange.name}</h1>
         <DeleteButton action={boundDelete} confirmMessage={`Удалить «${exchange.name}» безвозвратно? Это действие нельзя отменить.`} />
       </div>
-      <ExchangeForm exchange={exchange} action={boundAction} kind={exchange.venueKind} />
+      <ExchangeForm exchange={exchange} action={boundAction} kind={exchange.venueKind} banners={banners} />
     </div>
   );
 }

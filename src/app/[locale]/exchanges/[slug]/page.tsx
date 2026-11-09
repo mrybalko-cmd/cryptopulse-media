@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { buildOg, buildTwitter, BASE, titleText } from '@/lib/metadata';
 import {
+  fetchBannerById,
   fetchExchangeBySlug,
   fetchExchangeSlugsForSitemap,
   fetchExchanges,
@@ -12,7 +13,10 @@ import {
   fetchExchangeReviewSummary,
 } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
-import { activeTradeUrl, hasExtendedProfile, venueButtonColor } from '@/lib/exchangePlacements';
+import { extendedFaq, extendedSteps, hasActiveAd, hasExtendedProfile, profileTradeUrl, venueButtonColor } from '@/lib/exchangePlacements';
+import { sanityImageTransform } from '@/lib/sanityImage';
+import Image from 'next/image';
+import ExchangeAdBlock from '@/components/ui/ExchangeAdBlock';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import {
   ExchangeLogo,
@@ -23,6 +27,7 @@ import {
   passportLicence,
   restrictionLabel,
   slugFor,
+  venueColorHex,
 } from '@/components/ui/exchangePresentation';
 import VenueMobileBar from '@/components/ui/VenueMobileBar';
 import VenuePassport, { type PassportCell } from '@/components/ui/VenuePassport';
@@ -109,7 +114,15 @@ export default async function ExchangeDetailPage({ params }: Props) {
   const name = exchange.name;
   const description = isRu ? exchange.descriptionRu : exchange.descriptionEn;
   const products = exchange.products;
-  const tradeHref = activeTradeUrl(exchange);
+  const extended = hasExtendedProfile(exchange);
+  const tradeHref = profileTradeUrl(exchange);
+  const bonusHref = extended ? exchange.extendedBonusUrl : null;
+  const showAd = extended && hasActiveAd(exchange);
+  const steps = extended ? extendedSteps(isRu ? exchange.extendedStepsRu : exchange.extendedStepsEn) : [];
+  const faq = extended ? extendedFaq(isRu ? exchange.extendedFaqRu : exchange.extendedFaqEn) : [];
+  const ownBanner = extended
+    ? exchange.extendedBannerId ? await fetchBannerById(exchange.extendedBannerId, locale) : []
+    : undefined;
   const color = venueButtonColor(exchange.buttonColor);
   const licence = passportLicence(exchange, isRu);
   const restriction = licence ? null : restrictionLabel(exchange, isRu);
@@ -142,7 +155,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
     { label: isRu ? 'Фиат' : 'Fiat', value: text(exchange.fiatRu, exchange.fiatEn) },
     { label: isRu ? 'Пополнение' : 'Funding', value: text(exchange.fundingRu, exchange.fundingEn) },
     // Нижний ряд утверждён только для расширенного профиля.
-    ...(hasExtendedProfile(exchange)
+    ...(extended
       ? [
           { label: 'Proof of reserves', value: exchange.reservesUrl ? (isRu ? 'Да' : 'Yes') : null, href: exchange.reservesUrl },
           { label: isRu ? 'Комиссия спот' : 'Spot fee', value: text(exchange.spotFeeRu, exchange.spotFeeEn) },
@@ -181,8 +194,10 @@ export default async function ExchangeDetailPage({ params }: Props) {
     ...(description && description.length > 0 ? [{ id: 'overview', label: isRu ? 'Обзор' : 'Overview' }] : []),
     ...(exchange.regions && exchange.regions.length > 0 ? [{ id: 'regulation', label: isRu ? 'Регулирование' : 'Regulation' }] : []),
     ...(products && products.length > 0 ? [{ id: 'products', label: isRu ? 'Продукты' : 'Products' }] : []),
+    ...(steps.length > 0 ? [{ id: 'start', label: isRu ? 'Как начать' : 'Getting started' }] : []),
     ...(mentions.length > 0 ? [{ id: 'news', label: `${isRu ? 'Новости' : 'News'} · ${mentions.length}` }] : []),
     { id: 'reviews', label: `${isRu ? 'Отзывы' : 'Reviews'}${reviews.length ? ` · ${reviews.length}` : ''}` },
+    ...(faq.length > 0 ? [{ id: 'faq', label: isRu ? 'Вопросы' : 'FAQ' }] : []),
   ];
 
   return (
@@ -202,10 +217,21 @@ export default async function ExchangeDetailPage({ params }: Props) {
             <span className="text-foreground">{name}</span>
           </nav>
 
-          <header className="rounded-[20px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi),var(--glass-shadow)] p-4 sm:p-5">
-            <div className="flex items-start gap-3.5 sm:gap-4">
+          <header className="rounded-[20px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi),var(--glass-shadow)] overflow-hidden">
+            {extended && (
+              <div
+                className="relative h-[72px] sm:h-[120px]"
+                style={{ background: `radial-gradient(60% 130% at 20% 0%, color-mix(in srgb, ${venueColorHex(color)} 55%, transparent), transparent 70%), radial-gradient(50% 130% at 85% 10%, color-mix(in srgb, var(--violet) 32%, transparent), transparent 70%), var(--rates-inset)` }}
+              >
+                {exchange.extendedCover && (
+                  <Image src={sanityImageTransform(exchange.extendedCover, { width: 1600 })!} alt="" fill sizes="(min-width: 1024px) 960px, 100vw" className="object-cover" unoptimized />
+                )}
+              </div>
+            )}
+            <div className="p-4 sm:p-5">
+            <div className={`flex items-start gap-3.5 sm:gap-4 ${extended ? 'relative -mt-10 sm:-mt-12' : ''}`}>
               <ExchangeLogo exchange={exchange} size={64} sizeMobile={52} className="!rounded-[16px]" />
-              <div className="min-w-0 flex-1">
+              <div className={`min-w-0 flex-1 ${extended ? 'pt-10 sm:pt-12' : ''}`}>
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-2xl sm:text-[28px] font-extrabold text-foreground leading-tight -tracking-[0.03em]">{name}</h1>
                   {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-0.5 rounded-full border border-border text-foreground">{t}</span>)}
@@ -239,16 +265,25 @@ export default async function ExchangeDetailPage({ params }: Props) {
               {tradeHref && (
                 <VenueButton href={tradeHref} color={color}>{isRu ? 'Торговать' : 'Trade'}</VenueButton>
               )}
+              {bonusHref && (
+                <VenueButton href={bonusHref} color={color}>
+                  {(isRu ? exchange.extendedBonusLabelRu : exchange.extendedBonusLabelEn) || (isRu ? 'Бонус для новых' : 'New user bonus')}
+                </VenueButton>
+              )}
+              {/* В профиле у платных кнопок свои ссылки, поэтому сайт биржи здесь обычная ссылка, без реферала. */}
               <a
-                href={exchange.trackingUrl || exchange.website}
+                href={extended ? exchange.website : exchange.trackingUrl || exchange.website}
                 target="_blank"
-                rel={exchange.trackingUrl ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+                rel={!extended && exchange.trackingUrl ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
                 className="inline-flex items-center justify-center h-10 px-4 rounded-xl border border-[var(--glass-line)] bg-[var(--rates-inset)] text-[13.5px] font-extrabold text-foreground hover:bg-[var(--glass-hover)] transition-colors whitespace-nowrap"
               >
-                {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
+                {extended ? (isRu ? 'Сайт биржи ↗' : 'Exchange website ↗') : `${exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗`}
               </a>
             </div>
+            </div>
           </header>
+
+          {showAd && <ExchangeAdBlock exchange={exchange} locale={locale} ownPage />}
 
           <nav
             aria-label={isRu ? 'Разделы страницы' : 'Page sections'}
@@ -290,6 +325,22 @@ export default async function ExchangeDetailPage({ params }: Props) {
               </VenueSection>
             )}
 
+            {steps.length > 0 && (
+              <VenueSection id="start" title={isRu ? 'Как начать' : 'Getting started'} meta={steps.length}>
+                <ol className="grid grid-cols-1 md:grid-cols-5 gap-2 list-none">
+                  {steps.map((step, i) => (
+                    <li key={step.title} className="flex md:block items-baseline gap-2.5 rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] px-3 py-2.5">
+                      <span className="shrink-0 text-[13px] font-black tabular-nums text-[var(--violet-2)]">{i + 1}</span>
+                      <span className="min-w-0 md:block md:mt-1">
+                        <b className="block text-[13px] font-extrabold text-foreground leading-snug">{step.title}</b>
+                        {step.note && <span className="block text-xs text-muted leading-snug mt-0.5">{step.note}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </VenueSection>
+            )}
+
             {mentions.length > 0 && (
               <VenueSection id="news" title={isRu ? `Материалы о ${name}` : `${name} coverage`} meta={mentions.length}>
                 <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} />
@@ -303,6 +354,22 @@ export default async function ExchangeDetailPage({ params }: Props) {
             >
               <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
             </VenueSection>
+
+            {faq.length > 0 && (
+              <VenueSection id="faq" title={isRu ? 'Частые вопросы' : 'FAQ'} meta={faq.length}>
+                <div className="rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] overflow-hidden">
+                  {faq.map((item, i) => (
+                    <details key={item.question} open={i === 0} className="group border-b last:border-b-0 border-[var(--glass-line)]">
+                      <summary className="flex items-center justify-between gap-3 min-h-11 px-3.5 py-2.5 cursor-pointer list-none text-[13.5px] font-bold text-foreground [&::-webkit-details-marker]:hidden">
+                        {item.question}
+                        <span aria-hidden className="shrink-0 text-muted transition-transform group-open:rotate-180">▾</span>
+                      </summary>
+                      <p className="px-3.5 pb-3 text-[13px] leading-relaxed text-muted whitespace-pre-line">{item.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </VenueSection>
+            )}
 
             {similar.length > 0 && (
               <section className="mt-3 md:mt-0">
@@ -325,7 +392,7 @@ export default async function ExchangeDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <PopularSidebar locale={locale} limit={7} />
+        <PopularSidebar locale={locale} limit={7} bannersOverride={ownBanner} />
       </div>
 
       {tradeHref && (

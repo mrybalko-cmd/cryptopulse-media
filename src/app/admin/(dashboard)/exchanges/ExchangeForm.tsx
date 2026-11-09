@@ -22,10 +22,12 @@ export default function ExchangeForm({
   exchange,
   action,
   kind = 'exchange',
+  banners = [],
 }: {
   exchange?: AdminExchangeDoc;
   action: (formData: FormData) => void;
   kind?: 'exchange' | 'broker';
+  banners?: { _id: string; title: string }[];
 }) {
   const isBroker = kind === 'broker';
   return (
@@ -257,6 +259,59 @@ export default function ExchangeForm({
           <input name="extendedFactsRu" defaultValue={exchange?.extendedFactsRu} placeholder="Три факта через запятую, RU" className={smallInputCls} />
           <input name="extendedFactsEn" defaultValue={exchange?.extendedFactsEn} placeholder="Три факта через запятую, EN" className={smallInputCls} />
         </div>
+        {!isBroker && (
+          <div className="mt-4 pt-4 border-t border-[var(--admin-border)]">
+            <p className="text-[12.5px] font-bold mb-1">Страница биржи</p>
+            <p className="text-xs text-[var(--admin-text-secondary)] mb-3">Пустое поле не показывается. Без своей ссылки «Торговать» ведёт туда же, куда кнопка в таблице.</p>
+            <div className="mb-3">
+              <ImageField name="extendedCover" label="Обложка в шапке" currentUrl={exchange?.extendedCover} size={100} hint="Полоса 2000×300 px. Без картинки шапка берёт цвет кнопки." />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelCls}>Ссылка «Торговать» в профиле</label>
+                <input name="extendedTradeUrl" type="url" defaultValue={exchange?.extendedTradeUrl} className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Ссылка кнопки бонуса</label>
+                <input name="extendedBonusUrl" type="url" defaultValue={exchange?.extendedBonusUrl} className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Текст кнопки бонуса, RU</label>
+                <input name="extendedBonusLabelRu" defaultValue={exchange?.extendedBonusLabelRu} placeholder="Бонус для новых" className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Текст кнопки бонуса, EN</label>
+                <input name="extendedBonusLabelEn" defaultValue={exchange?.extendedBonusLabelEn} placeholder="New user bonus" className={smallInputCls} />
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className={labelCls}>Баннер биржи в боковой колонке</label>
+              <select name="extendedBannerId" defaultValue={exchange?.extendedBannerId ?? ''} className={smallInputCls}>
+                <option value="">Без баннера</option>
+                {banners.map(banner => <option key={banner._id} value={banner._id}>{banner.title}</option>)}
+              </select>
+              <p className="text-[11px] text-[var(--admin-text-secondary)] mt-1">На странице профиля общая ротация отключена, чужие баннеры здесь не показываются. Выбранный баннер должен быть активен в разделе «Баннеры».</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Как начать, RU</label>
+                <textarea name="extendedStepsRu" rows={6} defaultValue={exchange?.extendedStepsRu} placeholder={'Регистрация | Почта или телефон\nВерификация | Паспорт и селфи'} className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Как начать, EN</label>
+                <textarea name="extendedStepsEn" rows={6} defaultValue={exchange?.extendedStepsEn} placeholder={'Sign up | Email or phone\nVerify | ID and selfie'} className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Вопросы, RU</label>
+                <textarea name="extendedFaqRu" rows={8} defaultValue={exchange?.extendedFaqRu} placeholder={'Первая строка вопрос\nДальше ответ\n\nСледующий вопрос'} className={smallInputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Вопросы, EN</label>
+                <textarea name="extendedFaqEn" rows={8} defaultValue={exchange?.extendedFaqEn} className={smallInputCls} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={panelCls}>
