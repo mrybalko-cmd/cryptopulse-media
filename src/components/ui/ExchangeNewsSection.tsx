@@ -1,18 +1,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { sanityImageTransform } from '@/lib/sanityImage';
+import { featuredMentions } from '@/lib/exchangeMentions';
+import { formatTimestamp } from '@/lib/formatTimestamp';
 import type { ExchangeMention } from '@/lib/sanity';
 
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+const VISIBLE = 6;
+
+function typeLabel(m: ExchangeMention, isRu: boolean) {
+  return m._type === 'news' ? (isRu ? 'Новость' : 'News') : (isRu ? 'Статья' : 'Article');
 }
 
-const VISIBLE = 4;
+function Meta({ m, isRu }: { m: ExchangeMention; isRu: boolean }) {
+  const when = formatTimestamp(m.publishedAt);
+  return (
+    <span className="block text-[11px] text-muted mt-1 tabular-nums">
+      {when ? `${when.time} · ${when.date} · ` : ''}
+      {m.inTitle ? (isRu ? 'в заголовке' : 'in the headline') : (isRu ? 'в тексте' : 'in the text')}
+    </span>
+  );
+}
 
-// On the page itself now (not a sidebar list) — a real module you can browse,
-// with a link through to the full archive once there's more than fits here.
-// Horizontal scroll-snap row on mobile ("листаются в сторону"), a normal
-// grid from sm: up.
+/**
+ * Материалы о площадке. Сначала с её названием в заголовке, и подпись честно
+ * говорит, где найдено: упоминание в тексте не выдаётся за новость о бирже.
+ */
 export default function ExchangeNewsSection({
   exchangeName,
   slug,
@@ -28,38 +40,63 @@ export default function ExchangeNewsSection({
 }) {
   if (mentions.length === 0) return null;
   const isRu = locale === 'ru';
-  const visible = mentions.slice(0, VISIBLE);
+  const [lead, ...rest] = featuredMentions(mentions, VISIBLE);
+  const href = (m: ExchangeMention) => `/${locale}/${m._type === 'news' ? 'news' : 'articles'}/${m.slug}`;
+  const shown = rest.length + 1;
 
   return (
-    <section id="news" className="scroll-mt-28">
-      <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? `Новости ${exchangeName}` : `${exchangeName} News`}</h2>
-      <div className="flex sm:grid sm:grid-cols-2 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {visible.map((m, i) => (
-          <Link
-            key={i}
-            href={`/${locale}/${m._type === 'news' ? 'news' : 'articles'}/${m.slug}`}
-            className="shrink-0 w-[78%] sm:w-auto sm:shrink flex gap-3 border border-border rounded-xl p-3 bg-card hover:border-accent/50 transition-colors snap-start"
-          >
-            <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-background">
-              {m.coverImage && (
-                <Image src={sanityImageTransform(m.coverImage, { width: 112 })!} alt={m.title} width={56} height={56} className="w-full h-full object-cover" unoptimized />
-              )}
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-extrabold text-accent uppercase tracking-wide">
-                {m._type === 'news' ? (isRu ? 'Новость' : 'News') : (isRu ? 'Статья' : 'Article')}
-              </span>
-              <p className="text-xs font-bold text-foreground leading-snug line-clamp-2 mt-0.5">{m.title}</p>
-              <p className="text-[11px] text-muted mt-1">{formatDate(m.publishedAt, locale)}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-      {showArchiveLink && mentions.length > VISIBLE && (
-        <Link href={`/${locale}/exchanges/${slug}/news`} className="inline-block text-sm font-semibold text-accent mt-3 hover:underline">
-          {isRu ? `Показать все новости о ${exchangeName} →` : `Show all ${exchangeName} coverage →`}
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-3">
+        <Link
+          href={href(lead)}
+          className="flex md:flex-col gap-3 rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] p-3 hover:bg-[var(--glass-hover)] transition-colors"
+        >
+          <span className="relative block w-20 h-20 md:w-full md:h-auto md:aspect-[1.9] rounded-[10px] overflow-hidden shrink-0 bg-[var(--rates-inset)]">
+            {lead.coverImage && (
+              <Image src={sanityImageTransform(lead.coverImage, { width: 640 })!} alt="" fill sizes="(min-width: 768px) 320px, 80px" className="object-cover" unoptimized />
+            )}
+          </span>
+          <span className="min-w-0">
+            <span className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--violet-2)]">{typeLabel(lead, isRu)}</span>
+            <span className="block text-sm md:text-[15px] font-bold text-foreground leading-snug mt-0.5">{lead.title}</span>
+            <Meta m={lead} isRu={isRu} />
+          </span>
         </Link>
+
+        {rest.length > 0 && (
+          <ul className="flex flex-col list-none rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] overflow-hidden">
+            {rest.map(m => (
+              <li key={`${m._type}-${m.slug}`} className="border-b last:border-b-0 border-[var(--glass-line)]">
+                <Link href={href(m)} className="block px-3 py-2.5 hover:bg-[var(--glass-hover)] transition-colors">
+                  <span className="text-[13px] font-semibold text-foreground leading-snug line-clamp-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--violet-2)] mr-1.5">{typeLabel(m, isRu)}</span>
+                    {m.title}
+                  </span>
+                  <Meta m={m} isRu={isRu} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {mentions.length > 1 && (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mt-3">
+          <span className="text-xs text-muted">
+            {isRu
+              ? `Показано ${shown} из ${mentions.length} · сначала с названием в заголовке`
+              : `Showing ${shown} of ${mentions.length} · headline mentions first`}
+          </span>
+          {showArchiveLink && mentions.length > VISIBLE && (
+            <Link
+              href={`/${locale}/exchanges/${slug}/news`}
+              className="inline-flex items-center min-h-10 px-4 rounded-xl border border-[var(--glass-line)] bg-[var(--rates-inset)] text-[13px] font-extrabold text-foreground hover:bg-[var(--glass-hover)] transition-colors"
+            >
+              {isRu ? `Все материалы о ${exchangeName} (${mentions.length}) →` : `All ${exchangeName} coverage (${mentions.length}) →`}
+            </Link>
+          )}
+        </div>
       )}
-    </section>
+    </div>
   );
 }

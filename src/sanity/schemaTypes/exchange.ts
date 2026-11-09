@@ -1,6 +1,7 @@
 import { defineField, defineType } from 'sanity';
 import { LockedSlugInput } from '../components/LockedSlugInput';
 import { BROKER_TEXT_FIELDS } from '../../lib/brokerFields';
+import { EXCHANGE_PASSPORT_FIELDS } from '../../lib/exchangePassport';
 
 const RU_SLUGIFY: Record<string, string> = {
   а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',
@@ -307,6 +308,13 @@ export const exchangeType = defineType({
     defineField({ name: 'pinUntil', type: 'datetime', hidden: true }),
 
     defineField({ name: 'reviewsEnabled', title: 'Отзывы включены', type: 'boolean', group: 'main', initialValue: true }),
+
+    defineField({ name: 'verifiedAt', title: 'Паспорт: дата проверки', type: 'date', group: 'trust' }),
+    defineField({ name: 'reservesUrl', title: 'Паспорт: ссылка на отчёт о резервах', type: 'url', group: 'trust' }),
+    ...EXCHANGE_PASSPORT_FIELDS.flatMap(field => [
+      defineField({ name: `${field.key}Ru`, title: `Паспорт: ${field.label}, RU`, type: 'string', group: 'trust' }),
+      defineField({ name: `${field.key}En`, title: `Паспорт: ${field.label}, EN`, type: 'string', group: 'trust' }),
+    ]),
 
     defineField({
       name: 'seo',

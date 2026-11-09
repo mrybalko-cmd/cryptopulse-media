@@ -46,6 +46,7 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
   const [website, setWebsite] = useState(''); // honeypot
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
 
   const allReviews = [...pendingReviews, ...reviews];
   const count = reviews.length;
@@ -87,20 +88,44 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
 
   return (
     <div>
-      {count > 0 && (
-        <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4 mb-5">
-          <p className="text-4xl font-black text-foreground">{average.toFixed(1)}</p>
-          <div>
-            <Stars value={Math.round(average)} size={16} />
-            <p className="text-xs text-muted mt-1">
-              {isRu ? `${count} ${count === 1 ? 'отзыв' : 'отзывов'} читателей ${SITE_BRAND}` : `${count} review${count === 1 ? '' : 's'} from ${SITE_BRAND} readers`}
-            </p>
-          </div>
-        </div>
-      )}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] p-4 mb-4">
+        {count > 0 && (
+          <>
+            <div className="shrink-0">
+              <p className="text-4xl font-black text-foreground tabular-nums">{average.toFixed(1)}</p>
+              <Stars value={Math.round(average)} size={14} />
+              <p className="text-xs text-muted mt-1">
+                {isRu ? `${count} ${count === 1 ? 'отзыв' : 'отзывов'} читателей ${SITE_BRAND}` : `${count} review${count === 1 ? '' : 's'} from ${SITE_BRAND} readers`}
+              </p>
+            </div>
+            <ul className="flex-1 min-w-0 list-none flex flex-col gap-1">
+              {[5, 4, 3, 2, 1].map(stars => {
+                const n = reviews.filter(r => r.rating === stars).length;
+                return (
+                  <li key={stars} className="flex items-center gap-2 text-[11px] text-muted tabular-nums">
+                    <span className="w-2.5">{stars}</span>
+                    <span className="flex-1 h-1 rounded-full bg-[var(--rates-inset)] overflow-hidden">
+                      <span className="block h-full rounded-full bg-yellow-500" style={{ width: `${(n / count) * 100}%` }} />
+                    </span>
+                    <span className="w-4 text-right">{n}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+        <button
+          type="button"
+          aria-expanded={formOpen}
+          onClick={() => setFormOpen(value => !value)}
+          className="shrink-0 min-h-10 px-4 rounded-xl border border-[var(--glass-line)] bg-[var(--rates-inset)] text-[13px] font-extrabold text-foreground hover:bg-[var(--glass-hover)] transition-colors"
+        >
+          {isRu ? 'Оставить отзыв' : 'Leave a review'}
+        </button>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-4 mb-6">
-        <h3 className="text-sm font-bold text-foreground mb-3">{isRu ? 'Оставить отзыв' : 'Leave a review'}</h3>
+      {formOpen && <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-4 mb-6">
+        <h3 className="text-sm font-bold text-foreground mb-3">{isRu ? 'Ваш отзыв' : 'Your review'}</h3>
         <div className="flex items-center gap-1 mb-3" onMouseLeave={() => setHoverRating(0)}>
           {[1, 2, 3, 4, 5].map(i => (
             <button
@@ -155,7 +180,7 @@ export default function ExchangeReviewSection({ exchangeId, locale, initialRevie
           {status === 'error' && <span className="text-xs text-negative">{errorMessage}</span>}
         </div>
         <p className="text-xs text-muted mt-2">{isRu ? 'Публикуется после проверки модератором.' : 'Published after moderator review.'}</p>
-      </form>
+      </form>}
 
       {allReviews.length > 0 ? (
         <div className="flex flex-col gap-3">

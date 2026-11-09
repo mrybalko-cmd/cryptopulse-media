@@ -8,6 +8,7 @@ import ProductsRepeater from './ProductsRepeater';
 import BadgesRepeater from './BadgesRepeater';
 import RegionsRepeater from './RegionsRepeater';
 import RegulatorsRepeater from './RegulatorsRepeater';
+import { EXCHANGE_PASSPORT_FIELDS } from '@/lib/exchangePassport';
 import { BROKER_TEXT_FIELDS } from '@/lib/brokerFields';
 import { VENUE_BUTTON_COLORS, venueButtonColor } from '@/lib/exchangePlacements';
 
@@ -170,6 +171,31 @@ export default function ExchangeForm({
         </>
       ) : (
         <>
+          <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-1">Паспорт биржи</h2>
+          <p className="text-xs text-[var(--admin-text-secondary)] mb-3">Только то, что проверено по источнику. Пустое поле на сайте подписано «нет подтверждённых данных». Комиссия, KYC, резервы и доступность видны только в расширенном профиле.</p>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className={labelCls}>Дата проверки</label>
+              <input name="verifiedAt" type="date" defaultValue={exchange?.verifiedAt} className={smallInputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Ссылка на отчёт о резервах</label>
+              <input name="reservesUrl" type="url" defaultValue={exchange?.reservesUrl} className={smallInputCls} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 mb-4">
+            {EXCHANGE_PASSPORT_FIELDS.flatMap(field => [
+              <div key={`${field.key}Ru`}>
+                <label className={labelCls}>{field.label}, RU</label>
+                <input name={`${field.key}Ru`} defaultValue={exchange?.passportText?.[`${field.key}Ru`] ?? ''} placeholder={field.hint} className={smallInputCls} />
+              </div>,
+              <div key={`${field.key}En`}>
+                <label className={labelCls}>{field.label}, EN</label>
+                <input name={`${field.key}En`} defaultValue={exchange?.passportText?.[`${field.key}En`] ?? ''} className={smallInputCls} />
+              </div>,
+            ])}
+          </div>
+
           <h2 className="text-[13px] font-bold text-[var(--admin-text-secondary)] mb-3">Продукты</h2>
           <ProductsRepeater existing={exchange?.products ?? []} />
           <div className="mb-4" />

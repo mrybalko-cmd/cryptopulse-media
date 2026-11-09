@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { client, fetchAuthors, fetchTopicStats, fetchExchangeSlugsForSitemap, fetchBrokerSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
+import { client, fetchAuthors, fetchTopicStats, fetchExchangeMentions, fetchExchangeSlugsForSitemap, fetchBrokerSlugsForSitemap, fetchNoIndexKeys } from '@/lib/sanity';
+import { exchangeNewsPageCount } from '@/lib/exchangeMentions';
 import type { TopicStat } from '@/lib/sanity';
 import { GLOSSARY_BASELINE } from '@/lib/glossary';
 import { AI_GLOSSARY_BASELINE } from '@/lib/aiGlossary';
@@ -324,6 +325,21 @@ export async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/en/exchanges/${e.slugEn}/news`, lastModified: latestContentDate, changeFrequency: 'daily' as const, priority: 0.5 },
   ]);
 
+  // Вторая страница архива и дальше. Число страниц у языков разное, поэтому
+  // считаем для каждого отдельно.
+  const exchangeNewsDeepPages = (await Promise.all(
+    exchanges.flatMap(e => (['ru', 'en'] as const).map(async loc => {
+      const mentions = await fetchExchangeMentions(e.name, e.slugRu, e.slugEn, e.website, loc);
+      const slug = loc === 'ru' ? e.slugRu : e.slugEn;
+      return Array.from({ length: exchangeNewsPageCount(mentions.length) - 1 }, (_, i) => ({
+        url: `${BASE}/${loc}/exchanges/${slug}/news/page/${i + 2}`,
+        lastModified: latestContentDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.4,
+      }));
+    })),
+  )).flat();
+
   // Новые маршруты в sitemap автоматически не попадают — только руками.
   // Каталог AI датируется проверкой цен, а не моментом сборки: прежний
   // new Date() двигал lastmod при каждой пересборке карты.
@@ -344,7 +360,7 @@ export async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE}/${l}/ai/tools`, lastModified: aiNewest, changeFrequency: 'weekly' as const, priority: 0.8,
   }));
 
-  const all = [...staticPages, ...brokerHubPages, ...brokerPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages];
+  const all = [...staticPages, ...brokerHubPages, ...brokerPages, ...authorPagedPages, ...calendarEventPages, ...countryPages, ...licencePages, ...aiHubPages, ...aiServicePages, ...aiJobPages, ...articlePages, ...newsPages, ...glossaryTermPages, ...aiGlossaryTermPages, ...authorPages, ...topicPages, ...newsTopicPages, ...exchangePages, ...exchangeNewsPages, ...exchangeNewsDeepPages];
 
   // Один адрес — одна запись. Дубли бывали: два документа с одинаковым slug
   // (top-10-altkoinov-rost-48-chasov и его английская пара) давали по две

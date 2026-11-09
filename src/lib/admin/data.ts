@@ -4,6 +4,7 @@ import { unstable_cache } from 'next/cache';
 // форма возвращалась со снятой галочкой. Имя оставлено прежним, чтобы
 // не трогать 65 обращений ниже.
 import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from '@/lib/brokerFields';
+import { EXCHANGE_PASSPORT_KEYS, type ExchangePassportText } from '@/lib/exchangePassport';
 import { adminClient as client, writeClient } from '@/lib/sanity';
 import type { Permission } from './permissions';
 import type { PortableTextBlock } from './portableText';
@@ -1294,6 +1295,8 @@ export interface AdminExchangeDoc {
   demoUrl?: string;
   verifiedAt?: string;
   brokerText?: BrokerLocalizedFields;
+  reservesUrl?: string;
+  passportText?: ExchangePassportText;
   buttonColor?: string;
   tradeUntil?: string;
   extendedEnabled: boolean;
@@ -1326,6 +1329,7 @@ const EXCHANGE_DOC_PROJECTION = `
   regulators[]{ name, entity, licence, noteRu, noteEn, url, tier1 },
   offersCoins, offersCfd, minDeposit, lossPercent, demoUrl, verifiedAt,
   "brokerText": { ${BROKER_LOCALIZED_KEYS.join(', ')} },
+  reservesUrl, "passportText": { ${EXCHANGE_PASSPORT_KEYS.join(', ')} },
   foundedYear, website, linkLabel, trackingUrl, tradeUrl, coingeckoId, type, taglineRu, taglineEn,
   descriptionRu, descriptionEn,
   "products": products[]{ "image": image.asset->url, "imageAssetRef": image.asset._ref, nameRu, nameEn, shortRu, shortEn, longRu, longEn },
@@ -1372,6 +1376,8 @@ export interface ExchangeInput {
   demoUrl?: string;
   verifiedAt?: string;
   brokerText?: BrokerLocalizedFields;
+  reservesUrl?: string;
+  passportText?: ExchangePassportText;
   buttonColor?: string;
   tradeUntil?: string;
   extendedEnabled: boolean;
@@ -1399,7 +1405,7 @@ export interface ExchangeInput {
   seoNoIndex: boolean;
 }
 
-function exchangeSetFields(input: ExchangeInput) {
+function exchangeSetFields(input: ExchangeInput): Record<string, unknown> {
   return {
     name: input.name,
     logoBg: input.logoBg || undefined,
@@ -1465,7 +1471,11 @@ function exchangeSetFields(input: ExchangeInput) {
           verifiedAt: input.verifiedAt || undefined,
           ...Object.fromEntries(BROKER_LOCALIZED_KEYS.map(key => [key, input.brokerText?.[key] || undefined])),
         }
-      : {}),
+      : {
+          verifiedAt: input.verifiedAt || undefined,
+          reservesUrl: input.reservesUrl || undefined,
+          ...Object.fromEntries(EXCHANGE_PASSPORT_KEYS.map(key => [key, input.passportText?.[key] || undefined])),
+        }),
     buttonColor: input.buttonColor || undefined,
     tradeUntil: input.tradeUntil || undefined,
     extendedEnabled: input.extendedEnabled,

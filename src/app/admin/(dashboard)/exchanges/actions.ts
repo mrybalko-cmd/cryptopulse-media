@@ -18,6 +18,7 @@ import { textToBlocks, type PortableTextBlock } from '@/lib/admin/portableText';
 import { logActivity } from '@/lib/admin/activityLog';
 import { venueButtonColor } from '@/lib/exchangePlacements';
 import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from '@/lib/brokerFields';
+import { EXCHANGE_PASSPORT_KEYS, type ExchangePassportText } from '@/lib/exchangePassport';
 
 async function parseProducts(
   formData: FormData
@@ -140,7 +141,11 @@ async function parseExchangeInput(
       demoUrl: text('demoUrl'),
       verifiedAt: text('verifiedAt'),
       brokerText: Object.fromEntries(BROKER_LOCALIZED_KEYS.map(key => [key, text(key)])) as BrokerLocalizedFields,
-    } : {}),
+    } : {
+      verifiedAt: text('verifiedAt'),
+      reservesUrl: text('reservesUrl'),
+      passportText: Object.fromEntries(EXCHANGE_PASSPORT_KEYS.map(key => [key, text(key)])) as ExchangePassportText,
+    }),
     name: String(formData.get('name') || ''),
     logoBg: String(formData.get('logoBg') || ''),
     slugRu: String(formData.get('slugRu') || ''),

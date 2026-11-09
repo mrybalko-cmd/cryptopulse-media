@@ -17,6 +17,9 @@ import { formatTimestamp } from '@/lib/formatTimestamp';
 import CollapsibleRichText from '@/components/ui/CollapsibleRichText';
 import ExchangeReviewSection from '@/components/ui/ExchangeReviewSection';
 import ExchangeNewsSection from '@/components/ui/ExchangeNewsSection';
+import VenueMobileBar from '@/components/ui/VenueMobileBar';
+import VenuePassport, { type PassportCell } from '@/components/ui/VenuePassport';
+import VenueSection from '@/components/ui/VenueSection';
 import { ExchangeLogo, ProductChips, RowAction, VenueButton } from '@/components/ui/exchangePresentation';
 import { AccessChip, brokerHref } from '@/components/ui/brokerPresentation';
 import BrokerRisk, { brokerLossSentence } from '@/components/ui/BrokerRisk';
@@ -34,7 +37,6 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-const MENTIONS_FETCH_LIMIT = 4;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -76,7 +78,7 @@ export default async function BrokerPage({ params }: Props) {
 
   const [all, mentions, reviews, reviewSummary] = await Promise.all([
     fetchBrokers(),
-    fetchExchangeMentions(broker.slugRu, broker.slugEn, broker.website, locale, MENTIONS_FETCH_LIMIT),
+    fetchExchangeMentions(broker.name, broker.slugRu, broker.slugEn, broker.website, locale),
     fetchExchangeReviews(broker._id),
     fetchExchangeReviewSummary(broker._id),
   ]);
@@ -92,19 +94,19 @@ export default async function BrokerPage({ params }: Props) {
   const color = venueButtonColor(broker.buttonColor);
   const text = (ru?: string | null, en?: string | null) => (isRu ? ru : en) || null;
 
-  const passport: [string, string | null, string?][] = [
-    [isRu ? 'Регуляторы' : 'Regulators', regulatorNames.join(' · ') || null],
-    [isRu ? 'Что получаете' : 'What you get', text(broker.accessRu, broker.accessEn)],
-    [isRu ? 'Криптоинструменты' : 'Crypto instruments', text(broker.instrumentsRu, broker.instrumentsEn)],
-    [isRu ? 'Проверено' : 'Checked', broker.verifiedAt ? (formatTimestamp(broker.verifiedAt)?.date ?? null) : null],
-    [isRu ? 'Плечо, розница' : 'Retail leverage', text(broker.leverageRu, broker.leverageEn)],
-    [isRu ? 'Спред BTC' : 'BTC spread', text(broker.spreadRu, broker.spreadEn)],
-    [isRu ? 'Мин. депозит' : 'Min. deposit', broker.minDeposit || null],
-    [isRu ? 'Теряют деньги' : 'Lose money', broker.lossPercent || null, text(broker.lossNoteRu, broker.lossNoteEn) ?? (isRu ? 'по данным брокера' : 'per the broker')],
-    [isRu ? 'Платформы' : 'Platforms', text(broker.platformsRu, broker.platformsEn)],
-    [isRu ? 'Пополнение' : 'Funding', text(broker.fundingRu, broker.fundingEn)],
-    [isRu ? 'Комиссия за ночь' : 'Overnight fee', text(broker.overnightRu, broker.overnightEn)],
-    [isRu ? 'Доступен' : 'Available in', text(broker.availableRu, broker.availableEn)],
+  const passport: PassportCell[] = [
+    { label: isRu ? 'Регуляторы' : 'Regulators', value: regulatorNames.join(' · ') },
+    { label: isRu ? 'Что получаете' : 'What you get', value: text(broker.accessRu, broker.accessEn) },
+    { label: isRu ? 'Криптоинструменты' : 'Crypto instruments', value: text(broker.instrumentsRu, broker.instrumentsEn) },
+    { label: isRu ? 'Проверено' : 'Checked', value: broker.verifiedAt ? (formatTimestamp(broker.verifiedAt)?.date ?? null) : null },
+    { label: isRu ? 'Плечо, розница' : 'Retail leverage', value: text(broker.leverageRu, broker.leverageEn) },
+    { label: isRu ? 'Спред BTC' : 'BTC spread', value: text(broker.spreadRu, broker.spreadEn) },
+    { label: isRu ? 'Мин. депозит' : 'Min. deposit', value: broker.minDeposit },
+    { label: isRu ? 'Теряют деньги' : 'Lose money', value: broker.lossPercent, note: text(broker.lossNoteRu, broker.lossNoteEn) ?? (isRu ? 'по данным брокера' : 'per the broker') },
+    { label: isRu ? 'Платформы' : 'Platforms', value: text(broker.platformsRu, broker.platformsEn) },
+    { label: isRu ? 'Пополнение' : 'Funding', value: text(broker.fundingRu, broker.fundingEn) },
+    { label: isRu ? 'Комиссия за ночь' : 'Overnight fee', value: text(broker.overnightRu, broker.overnightEn) },
+    { label: isRu ? 'Доступен' : 'Available in', value: text(broker.availableRu, broker.availableEn) },
   ];
 
   const navLinks = [
@@ -136,7 +138,7 @@ export default async function BrokerPage({ params }: Props) {
   ];
 
   return (
-    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10">
+    <div className={`max-w-[1320px] mx-auto px-4 sm:px-6 pt-10 ${openHref ? 'pb-24 md:pb-10' : 'pb-10'}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
@@ -193,7 +195,7 @@ export default async function BrokerPage({ params }: Props) {
 
           <nav
             aria-label={isRu ? 'Разделы страницы' : 'Page sections'}
-            className="flex gap-1 border-b border-border mt-5 mb-6 sticky top-14 md:top-[6.25rem] bg-background z-10 overflow-x-auto scrollbar-none"
+            className="hidden md:flex gap-1 border-b border-border mt-5 mb-6 sticky top-[6.25rem] bg-background z-10 overflow-x-auto scrollbar-none"
           >
             {navLinks.map(l => (
               <a key={l.id} href={`#${l.id}`} className="whitespace-nowrap shrink-0 px-3 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
@@ -202,40 +204,22 @@ export default async function BrokerPage({ params }: Props) {
             ))}
           </nav>
 
-          <div className="flex flex-col gap-9">
-            <section id="passport" className="scroll-mt-32">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Паспорт брокера' : 'Broker passport'}</h2>
-              <dl className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl overflow-hidden border border-[color-mix(in_srgb,var(--passport-gold)_40%,transparent)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--passport-gold)_10%,transparent),color-mix(in_srgb,var(--passport-gold)_3%,transparent))]">
-                {passport.map(([label, value, note]) => (
-                  <div key={label} className="min-w-0 px-3 py-2.5 border-r border-b border-[color-mix(in_srgb,var(--passport-gold)_16%,transparent)]">
-                    <dt className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--passport-gold)] mb-0.5">{label}</dt>
-                    {value ? (
-                      <dd className="text-sm font-bold text-foreground leading-snug break-words">
-                        {value}
-                        {note && <span className="block text-[11px] font-normal text-muted mt-0.5">{note}</span>}
-                      </dd>
-                    ) : (
-                      <dd className="text-xs text-muted leading-snug">{isRu ? 'нет подтверждённых данных' : 'no confirmed data'}</dd>
-                    )}
-                  </div>
-                ))}
-              </dl>
-            </section>
+          <div className="flex flex-col gap-2 md:gap-9 mt-4 md:mt-0">
+            <VenueSection id="passport" title={isRu ? 'Паспорт брокера' : 'Broker passport'} gold defaultOpen>
+              <VenuePassport cells={passport} isRu={isRu} />
+            </VenueSection>
 
             {description && description.length > 0 && (
-              <section id="overview" className="scroll-mt-32">
-                <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Обзор' : 'Overview'}</h2>
+              <VenueSection id="overview" title={isRu ? 'Обзор' : 'Overview'}>
                 <CollapsibleRichText value={description} fallbackAlt={name} locale={locale} />
-              </section>
+              </VenueSection>
             )}
 
-            <section id="licences" className="scroll-mt-32">
-              <h2 className="text-lg font-bold text-foreground mb-3">
-                {isRu ? 'Лицензии' : 'Licences'}{' '}
-                <span className="text-xs font-semibold text-muted tabular-nums">
-                  {regulators.length}{tier1Count(broker) ? ` · ${isRu ? 'первого уровня' : 'tier 1'}: ${tier1Count(broker)}` : ''}
-                </span>
-              </h2>
+            <VenueSection
+              id="licences"
+              title={isRu ? 'Лицензии' : 'Licences'}
+              meta={`${regulators.length}${tier1Count(broker) ? ` · ${isRu ? 'первого уровня' : 'tier 1'}: ${tier1Count(broker)}` : ''}`}
+            >
               {regulators.length === 0 ? (
                 <p className="text-sm text-muted">{isRu ? 'Нет подтверждённых данных.' : 'No confirmed data.'}</p>
               ) : (
@@ -257,23 +241,21 @@ export default async function BrokerPage({ params }: Props) {
                   ))}
                 </ul>
               )}
-            </section>
+            </VenueSection>
 
-            {mentions.length > 0 ? (
-              <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} showArchiveLink={false} />
-            ) : (
-              <section id="news" className="scroll-mt-32">
-                <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Материалы о брокере' : 'Coverage of this broker'}</h2>
+            <VenueSection id="news" title={isRu ? `Материалы о ${name}` : `${name} coverage`} meta={mentions.length || null}>
+              {mentions.length > 0 ? (
+                <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} showArchiveLink={false} />
+              ) : (
                 <p className="text-sm text-muted rounded-xl border border-dashed border-[var(--glass-line)] px-3.5 py-3">
                   {isRu ? `О ${name} мы пока не писали. Материалы появятся здесь сами.` : `We have not covered ${name} yet. Coverage will appear here on its own.`}
                 </p>
-              </section>
-            )}
+              )}
+            </VenueSection>
 
-            <section id="reviews" className="scroll-mt-32">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Отзывы читателей' : 'Reader reviews'}</h2>
+            <VenueSection id="reviews" title={isRu ? 'Отзывы читателей' : 'Reader reviews'} meta={reviews.length || null}>
               <ExchangeReviewSection exchangeId={broker._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
-            </section>
+            </VenueSection>
 
             {similar.length > 0 && (
               <section>
@@ -300,6 +282,16 @@ export default async function BrokerPage({ params }: Props) {
 
         <PopularSidebar locale={locale} limit={7} />
       </div>
+
+      {openHref && (
+        <VenueMobileBar
+          name={name}
+          note={broker.lossPercent ? (isRu ? `${broker.lossPercent} теряют деньги на CFD` : `${broker.lossPercent} lose money on CFDs`) : null}
+          href={openHref}
+          color={color}
+          label={isRu ? 'Открыть счёт' : 'Open account'}
+        />
+      )}
     </div>
   );
 }

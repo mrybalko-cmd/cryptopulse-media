@@ -1,6 +1,8 @@
 import { createClient } from '@sanity/client';
 import { BROKER_LOCALIZED_KEYS, type BrokerLocalizedFields, type BrokerRegulator } from './brokerFields';
 import { unstable_cache } from 'next/cache';
+import { EXCHANGE_PASSPORT_KEYS, type ExchangePassportText } from './exchangePassport';
+import { isVenueNews, linksToVenue, mentionRule } from './exchangeMentions';
 import { ctaHref } from '@/lib/assetCtaShared';
 
 export const client = createClient({
@@ -1400,7 +1402,9 @@ export interface ExchangeRaw {
   regions?: { regionRu: string; regionEn: string; tone: string }[];
 }
 
-export interface ExchangeDetailRaw extends ExchangeRaw {
+export interface ExchangeDetailRaw extends ExchangeRaw, ExchangePassportText {
+  verifiedAt?: string | null;
+  reservesUrl?: string | null;
   descriptionRu?: any[];
   descriptionEn?: any[];
   products?: ExchangeProductRaw[];
@@ -1513,6 +1517,7 @@ export const fetchExchangeBySlug = unstable_cache(
           descriptionRu, descriptionEn,
           products[]{ "image": image.asset->url, nameRu, nameEn, shortRu, shortEn, longRu, longEn },
           regions[]{ regionRu, regionEn, tone, noteRu, noteEn },
+          verifiedAt, reservesUrl, ${EXCHANGE_PASSPORT_KEYS.join(', ')},
           seo
         }`,
         { slug }
@@ -1550,7 +1555,7 @@ export async function fetchRecentSlugsForPrerender(
   }
 }
 
-export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; slugEn: string; _updatedAt: string }[]> {
+export async function fetchExchangeSlugsForSitemap(): Promise<{ name: string; website: string | null; slugRu: string; slugEn: string; _updatedAt: string }[]> {
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
   try {
     // _updatedAt is a trustworthy content signal here, unlike on articles and
@@ -1559,7 +1564,7 @@ export async function fetchExchangeSlugsForSitemap(): Promise<{ slugRu: string; 
     // /api/cron/exchange-volumes job (00:15 UTC) — and a refreshed 24h volume
     // genuinely is what changed on a page that ranks venues by volume, so a
     // date that moves daily is accurate rather than inflated.
-    return await client.fetch(`*[_type == "exchange"]{ "slugRu": slugRu.current, "slugEn": slugEn.current, _updatedAt }`);
+    return await client.fetch(`*[_type == "exchange"]{ name, website, "slugRu": slugRu.current, "slugEn": slugEn.current, _updatedAt }`);
   } catch {
     return [];
   }
@@ -1604,67 +1609,57 @@ export interface ExchangeMention {
   slug: string;
   publishedAt: string;
   coverImage: string | null;
+  /** Название площадки стоит в заголовке: такие материалы идут первыми в блоке на её странице. */
+  inTitle: boolean;
 }
 
-interface ExchangeMentionCandidate {
-  _type: 'article' | 'news';
-  title: string;
-  slug: string;
-  publishedAt: string;
-  coverImage: string | null;
-  hrefs: (string | null)[];
+interface ExchangeMentionCandidate extends Omit<ExchangeMention, 'inTitle'> {
+  text: string | null;
+  hrefs: (string | null)[] | null;
 }
 
-// A material "mentions" an exchange purely by linking to it — either to the
-// exchange's own page on this site or out to its official website — so
-// editors don't need a separate manual tagging field, just the same inline
-// link they'd already add for the reader's benefit.
+// Материал попадает к площадке по её названию в заголовке или тексте, правила в
+// lib/exchangeMentions. `match` здесь только сужает выборку: он режет слова по
+// пунктуации, поэтому «Crypto.com» совпал бы с любым текстом, где есть crypto и
+// com, а без звёздочки в конце теряются «Binance's» и «Binance.US». Точное
+// решение принимает код, по тексту кандидатов.
 //
-// Matching is done here in JS, not with GROQ's `match` operator — `match`
-// tokenizes both sides on punctuation, so a pattern like "*binance.com*"
-// gets split into tokens including a bare "com*", which then matched the
-// "com" token of literally any other .com URL in the body (confirmed
-// against real content: articles with zero relation to Binance were
-// matching purely because they linked to some unrelated .com domain).
-// Comparing the actual parsed hostname is exact and can't false-positive
-// like that.
+// Весь список, без лимита: блок берёт из него четыре, архив листает постранично.
+// В кэше лежат только заголовки и адреса, текст кандидатов дальше функции не идёт.
 export const fetchExchangeMentions = unstable_cache(
-  async (slugRu: string, slugEn: string, website: string, locale: string, limit = 6): Promise<ExchangeMention[]> => {
+  async (name: string, slugRu: string, slugEn: string, website: string | null | undefined, locale: string): Promise<ExchangeMention[]> => {
     if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) return [];
-    const domain = extractDomain(website);
-    const pathRu = `/exchanges/${slugRu}`;
-    const pathEn = `/exchanges/${slugEn}`;
+    const rule = mentionRule(name, slugEn);
+    const domain = website ? extractDomain(website) : null;
+    const conditions = rule.terms.map((_, i) => `title match $term${i} || pt::text(body) match $term${i}`).join(' || ');
+    const terms = Object.fromEntries(rule.terms.map((term, i) => [`term${i}`, `${term}*`]));
 
     try {
       const candidates: ExchangeMentionCandidate[] = await client.fetch(
-        `*[_type in ["article", "news"] && language == $locale && publishedAt <= now()] | order(publishedAt desc) {
+        `*[_type in ["article", "news"] && language == $locale && publishedAt <= now() && (${conditions})] | order(publishedAt desc) {
           _type, title, "slug": slug.current, publishedAt,
           "coverImage": coverImage.asset->url,
+          "text": pt::text(body),
           "hrefs": body[].markDefs[].href
         }`,
-        { locale }
+        { locale, ...terms }
       );
 
-      const matches = candidates.filter(c =>
-        (c.hrefs || []).some(href => {
-          if (!href) return false;
-          if (href.includes(pathRu) || href.includes(pathEn)) return true;
-          if (!domain) return false;
-          try {
-            return new URL(href).hostname.replace(/^www\./, '') === domain;
-          } catch {
-            return false;
-          }
+      return candidates
+        .filter(c => {
+          if (!isVenueNews(c.slug)) return false;
+          const full = `${c.title}\n${c.text ?? ''}`;
+          return rule.isMention(full) || (rule.named(full) && linksToVenue(c.hrefs, [slugRu, slugEn], domain));
         })
-      );
-
-      return matches.slice(0, limit).map(({ _type, title, slug, publishedAt, coverImage }) => ({ _type, title, slug, publishedAt, coverImage }));
+        .map(({ _type, title, slug, publishedAt, coverImage }) => ({
+          _type, title, slug, publishedAt, coverImage, inTitle: rule.named(title),
+        }));
     } catch {
       return [];
     }
   },
-  ['fetchExchangeMentions'],
-  { revalidate: READ_CACHE_SECONDS, tags: ['exchanges', 'articles', 'news'] }
+  ['fetchExchangeMentionsByName'],
+  { revalidate: ARCHIVE_CACHE_SECONDS, tags: ['exchanges', 'articles', 'news'] }
 );
 
 export interface ExchangeVolumeTarget { _id: string; coingeckoId: string }

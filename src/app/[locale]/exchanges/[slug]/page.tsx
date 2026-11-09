@@ -2,9 +2,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { buildOg, buildTwitter, BASE, titleText } from '@/lib/metadata';
-import { sanityImageTransform } from '@/lib/sanityImage';
 import {
   fetchExchangeBySlug,
   fetchExchangeSlugsForSitemap,
@@ -14,8 +12,21 @@ import {
   fetchExchangeReviewSummary,
 } from '@/lib/sanity';
 import { rankExchanges } from '@/lib/exchangeRanking';
-import { activeTradeUrl, venueButtonColor } from '@/lib/exchangePlacements';
-import { VenueButton } from '@/components/ui/exchangePresentation';
+import { activeTradeUrl, hasExtendedProfile, venueButtonColor } from '@/lib/exchangePlacements';
+import { formatTimestamp } from '@/lib/formatTimestamp';
+import {
+  ExchangeLogo,
+  RestrictionChip,
+  RowAction,
+  VenueButton,
+  formatVolume,
+  passportLicence,
+  restrictionLabel,
+  slugFor,
+} from '@/components/ui/exchangePresentation';
+import VenueMobileBar from '@/components/ui/VenueMobileBar';
+import VenuePassport, { type PassportCell } from '@/components/ui/VenuePassport';
+import VenueSection from '@/components/ui/VenueSection';
 import CollapsibleRichText from '@/components/ui/CollapsibleRichText';
 import ExchangeToneBadge, { type ExchangeBadgeTone } from '@/components/ui/ExchangeToneBadge';
 import ExchangeProducts from '@/components/ui/ExchangeProducts';
@@ -42,8 +53,6 @@ export async function generateStaticParams() {
 }
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
-
-const MENTIONS_FETCH_LIMIT = 8;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -90,17 +99,58 @@ export default async function ExchangeDetailPage({ params }: Props) {
 
   const [all, mentions, reviews, reviewSummary] = await Promise.all([
     fetchExchanges(),
-    fetchExchangeMentions(exchange.slugRu, exchange.slugEn, exchange.website, locale, MENTIONS_FETCH_LIMIT),
+    fetchExchangeMentions(exchange.name, exchange.slugRu, exchange.slugEn, exchange.website, locale),
     fetchExchangeReviews(exchange._id),
     fetchExchangeReviewSummary(exchange._id),
   ]);
-  const rank = rankExchanges(all).find(e => e._id === exchange._id)?.rank;
+  const ranked = rankExchanges(all);
+  const rank = ranked.find(e => e._id === exchange._id)?.rank;
 
   const name = exchange.name;
   const description = isRu ? exchange.descriptionRu : exchange.descriptionEn;
   const products = exchange.products;
-  const initials = name.slice(0, 2).toUpperCase();
   const tradeHref = activeTradeUrl(exchange);
+  const color = venueButtonColor(exchange.buttonColor);
+  const licence = passportLicence(exchange, isRu);
+  const restriction = licence ? null : restrictionLabel(exchange, isRu);
+  const volume = exchange.volume24h ? formatVolume(exchange.volume24h) : null;
+  const rankText = rank ? `#${rank} ${isRu ? 'из' : 'of'} ${ranked.length}` : null;
+  const text = (ru?: string | null, en?: string | null) => (isRu ? ru : en) || null;
+  const productNames = (products ?? []).map(p => (isRu ? p.nameRu : p.nameEn));
+
+  // Ближайшие по обороту: номер в рейтинге здесь единственный честный признак похожести.
+  const similar = rank
+    ? [...ranked.filter(e => e._id !== exchange._id)].sort((a, b) => Math.abs(a.rank - rank) - Math.abs(b.rank - rank) || a.rank - b.rank).slice(0, 3)
+    : [];
+
+  const passport: PassportCell[] = [
+    { label: isRu ? 'Оборот 24ч' : '24h volume', value: volume, desktopOnly: true },
+    { label: isRu ? 'Место' : 'Rank', value: rankText, desktopOnly: true },
+    { label: isRu ? 'Лицензия' : 'Licence', value: licence?.text ?? restriction, href: licence?.href },
+    {
+      label: isRu ? 'Проверено' : 'Checked',
+      value: exchange.verifiedAt ? (formatTimestamp(exchange.verifiedAt)?.date ?? null) : null,
+      note: isRu ? 'редакция' : 'by editors',
+    },
+    {
+      label: isRu ? 'Продукты' : 'Products',
+      value: productNames.length ? String(productNames.length) : null,
+      note: productNames.slice(0, 3).join(', ') || null,
+      desktopOnly: true,
+    },
+    { label: isRu ? 'Монет и пар' : 'Coins and pairs', value: text(exchange.coinsPairsRu, exchange.coinsPairsEn) },
+    { label: isRu ? 'Фиат' : 'Fiat', value: text(exchange.fiatRu, exchange.fiatEn) },
+    { label: isRu ? 'Пополнение' : 'Funding', value: text(exchange.fundingRu, exchange.fundingEn) },
+    // Нижний ряд утверждён только для расширенного профиля.
+    ...(hasExtendedProfile(exchange)
+      ? [
+          { label: 'Proof of reserves', value: exchange.reservesUrl ? (isRu ? 'Да' : 'Yes') : null, href: exchange.reservesUrl },
+          { label: isRu ? 'Комиссия спот' : 'Spot fee', value: text(exchange.spotFeeRu, exchange.spotFeeEn) },
+          { label: 'KYC', value: text(exchange.kycRu, exchange.kycEn) },
+          { label: isRu ? 'Доступна' : 'Available in', value: text(exchange.availableRu, exchange.availableEn) },
+        ]
+      : []),
+  ];
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -127,112 +177,166 @@ export default async function ExchangeDetailPage({ params }: Props) {
   // section that didn't render is a broken in-page jump link (Sitechecker
   // flagged exactly this on exchanges missing one of these fields).
   const navLinks = [
-    ...(description && description.length > 0 ? [{ id: 'overview', ru: 'Обзор', en: 'Overview' }] : []),
-    ...(exchange.regions && exchange.regions.length > 0 ? [{ id: 'regulation', ru: 'Регулирование', en: 'Regulation' }] : []),
-    ...(products && products.length > 0 ? [{ id: 'products', ru: 'Продукты', en: 'Products' }] : []),
-    ...(mentions.length > 0 ? [{ id: 'news', ru: 'Новости', en: 'News' }] : []),
-    { id: 'reviews', ru: 'Отзывы', en: 'Reviews' },
+    { id: 'passport', label: isRu ? 'Паспорт' : 'Passport' },
+    ...(description && description.length > 0 ? [{ id: 'overview', label: isRu ? 'Обзор' : 'Overview' }] : []),
+    ...(exchange.regions && exchange.regions.length > 0 ? [{ id: 'regulation', label: isRu ? 'Регулирование' : 'Regulation' }] : []),
+    ...(products && products.length > 0 ? [{ id: 'products', label: isRu ? 'Продукты' : 'Products' }] : []),
+    ...(mentions.length > 0 ? [{ id: 'news', label: `${isRu ? 'Новости' : 'News'} · ${mentions.length}` }] : []),
+    { id: 'reviews', label: `${isRu ? 'Отзывы' : 'Reviews'}${reviews.length ? ` · ${reviews.length}` : ''}` },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+    <div className={`max-w-[1320px] mx-auto px-4 sm:px-6 pt-10 ${tradeHref ? 'pb-24 md:pb-10' : 'pb-10'}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
-      <nav className="flex items-center gap-1.5 text-xs text-muted mb-8 flex-wrap">
-        <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
-        <span>›</span>
-        <span>{isRu ? 'Где торговать' : 'Where to trade'}</span>
-        <span>›</span>
-        <Link href={`/${locale}/exchanges`} className="hover:text-accent transition-colors">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</Link>
-        <span>›</span>
-        <span className="text-foreground">{name}</span>
-      </nav>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-6 lg:gap-8">
+        <div className="min-w-0">
+          <nav className="flex items-center gap-1.5 text-xs text-muted mb-5 flex-wrap">
+            <Link href={`/${locale}`} className="hover:text-accent transition-colors">{isRu ? 'Главная' : 'Home'}</Link>
+            <span>›</span>
+            <span>{isRu ? 'Где торговать' : 'Where to trade'}</span>
+            <span>›</span>
+            <Link href={`/${locale}/exchanges`} className="hover:text-accent transition-colors">{isRu ? 'Криптобиржи' : 'Crypto Exchanges'}</Link>
+            <span>›</span>
+            <span className="text-foreground">{name}</span>
+          </nav>
 
-      <div className="flex items-start gap-4 mb-6">
-        {exchange.logo ? (
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[#ec4899]">
-            <Image src={sanityImageTransform(exchange.logo, { width: 128 })!} alt={isRu ? `Логотип ${name}` : `${name} logo`} width={64} height={64} className="w-full h-full object-cover" unoptimized />
-          </div>
-        ) : (
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black shrink-0 border-2 border-[#ec4899]" style={{ background: exchange.logoBg || '#3b82f6' }}>
-            {initials}
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight">{name}</h1>
-          <p className="text-muted text-sm mt-1">
-            {exchange.foundedYear && <>{isRu ? 'С' : 'Since'} {exchange.foundedYear} · </>}
-            <a
-              href={exchange.trackingUrl || exchange.website}
-              target="_blank"
-              rel={exchange.trackingUrl ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
-              className="text-accent hover:underline"
-            >
-              {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
-            </a>
-          </p>
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-1 rounded-full border border-border text-foreground">{t}</span>)}
-            {exchange.badges?.map((b, i) => (
-              <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
+          <header className="rounded-[20px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] shadow-[inset_0_1px_0_var(--glass-hi),var(--glass-shadow)] p-4 sm:p-5">
+            <div className="flex items-start gap-3.5 sm:gap-4">
+              <ExchangeLogo exchange={exchange} size={64} sizeMobile={52} className="!rounded-[16px]" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl sm:text-[28px] font-extrabold text-foreground leading-tight -tracking-[0.03em]">{name}</h1>
+                  {exchange.type?.map(t => <span key={t} className="text-xs font-semibold px-2 py-0.5 rounded-full border border-border text-foreground">{t}</span>)}
+                  {exchange.badges?.map((b, i) => (
+                    <ExchangeToneBadge key={i} text={isRu ? b.textRu : b.textEn} tone={b.tone as ExchangeBadgeTone} />
+                  ))}
+                  {!exchange.badges?.length && restriction && <RestrictionChip label={restriction} />}
+                </div>
+                <p className="text-[13px] text-muted mt-1">
+                  {rank && (isRu ? `#${rank} из ${ranked.length} по обороту за 24 часа` : `#${rank} of ${ranked.length} by 24h volume`)}
+                  {exchange.foundedYear ? `${rank ? ' · ' : ''}${isRu ? `с ${exchange.foundedYear} года` : `since ${exchange.foundedYear}`}` : ''}
+                </p>
+              </div>
+            </div>
+
+            {/* На телефоне паспорт свёрнут до строк, а главные цифры стоят здесь. */}
+            <dl className="md:hidden grid grid-cols-3 gap-2 mt-3.5">
+              {[
+                [isRu ? 'Оборот' : 'Volume', volume ?? '—'],
+                [isRu ? 'Место' : 'Rank', rank ? `#${rank}` : '—'],
+                [isRu ? 'Продукты' : 'Products', productNames.length || '—'],
+              ].map(([label, value]) => (
+                <div key={String(label)} className="rounded-xl border border-[var(--glass-line)] bg-[var(--rates-inset)] px-2.5 py-2">
+                  <dt className="text-[10px] font-extrabold uppercase tracking-[0.06em] text-muted">{label}</dt>
+                  <dd className="text-[15px] font-extrabold text-foreground tabular-nums mt-0.5">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="flex flex-wrap gap-2.5 mt-4">
+              {tradeHref && (
+                <VenueButton href={tradeHref} color={color}>{isRu ? 'Торговать' : 'Trade'}</VenueButton>
+              )}
+              <a
+                href={exchange.trackingUrl || exchange.website}
+                target="_blank"
+                rel={exchange.trackingUrl ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+                className="inline-flex items-center justify-center h-10 px-4 rounded-xl border border-[var(--glass-line)] bg-[var(--rates-inset)] text-[13.5px] font-extrabold text-foreground hover:bg-[var(--glass-hover)] transition-colors whitespace-nowrap"
+              >
+                {exchange.linkLabel || exchange.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
+              </a>
+            </div>
+          </header>
+
+          <nav
+            aria-label={isRu ? 'Разделы страницы' : 'Page sections'}
+            className="hidden md:flex gap-1 border-b border-border mt-5 mb-6 sticky top-[6.25rem] bg-background z-10 overflow-x-auto scrollbar-none"
+          >
+            {navLinks.map(l => (
+              <a key={l.id} href={`#${l.id}`} className="whitespace-nowrap shrink-0 px-3 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
+                {l.label}
+              </a>
             ))}
-            {rank && (
-              <span className="inline-flex items-baseline gap-1 px-3 py-1 rounded-full border border-border">
-                <span className="text-[9.5px] uppercase tracking-wide text-muted">{isRu ? 'Место' : 'Rank'}</span>
-                <span className="text-sm font-black bg-[linear-gradient(90deg,#3b82f6,#06b6d4,#ec4899)] bg-clip-text text-transparent">#{rank}</span>
-              </span>
+          </nav>
+
+          <div className="flex flex-col gap-2 md:gap-9 mt-4 md:mt-0">
+            <VenueSection id="passport" title={isRu ? 'Паспорт биржи' : 'Exchange passport'} gold defaultOpen>
+              <VenuePassport cells={passport} isRu={isRu} />
+            </VenueSection>
+
+            {description && description.length > 0 && (
+              <VenueSection id="overview" title={isRu ? 'Обзор' : 'Overview'}>
+                <CollapsibleRichText value={description} fallbackAlt={name} locale={locale} />
+              </VenueSection>
             )}
-            {tradeHref && (
-              <VenueButton href={tradeHref} color={venueButtonColor(exchange.buttonColor)} className="shrink-0">
-                {isRu ? 'Торговать' : 'Trade'}
-              </VenueButton>
+
+            {exchange.regions && exchange.regions.length > 0 && (
+              <VenueSection id="regulation" title={isRu ? 'Регулирование и доступность' : 'Regulation & Availability'}>
+                <ExchangeRegions regions={exchange.regions} locale={locale} />
+                <p className="text-xs text-muted mt-3">
+                  {isRu ? 'Подробно о правилах по странам: ' : 'Rules by country: '}
+                  <Link href={`/${locale}/regulation`} className="font-semibold text-[var(--violet-2)] hover:underline">
+                    {isRu ? 'регулирование криптовалют' : 'crypto regulation'}
+                  </Link>
+                </p>
+              </VenueSection>
+            )}
+
+            {products && products.length > 0 && (
+              <VenueSection id="products" title={isRu ? 'Продукты' : 'Products'} meta={products.length}>
+                <ExchangeProducts products={products} locale={locale} />
+              </VenueSection>
+            )}
+
+            {mentions.length > 0 && (
+              <VenueSection id="news" title={isRu ? `Материалы о ${name}` : `${name} coverage`} meta={mentions.length}>
+                <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} />
+              </VenueSection>
+            )}
+
+            <VenueSection
+              id="reviews"
+              title={isRu ? 'Отзывы читателей' : 'Reader reviews'}
+              meta={reviews.length ? `${reviewSummary.average.toFixed(1)} · ${reviews.length}` : null}
+            >
+              <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
+            </VenueSection>
+
+            {similar.length > 0 && (
+              <section className="mt-3 md:mt-0">
+                <h2 className="text-[15px] md:text-lg font-bold text-foreground mb-3">{isRu ? 'Похожие биржи' : 'Similar exchanges'}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                  {similar.map(other => (
+                    <div key={other._id} className="relative flex items-center gap-3 rounded-[14px] border border-[var(--glass-line)] bg-[image:var(--glass-fill)] px-3 py-2.5 hover:bg-[var(--glass-hover)] transition-colors">
+                      <Link href={`/${locale}/exchanges/${slugFor(other, locale)}`} aria-label={other.name} className="absolute inset-0 z-10" />
+                      <ExchangeLogo exchange={other} size={34} />
+                      <span className="min-w-0 flex-1">
+                        <b className="block text-[13px] font-extrabold text-foreground truncate">{other.name}</b>
+                        <span className="block text-[11px] text-muted truncate tabular-nums">#{other.rank} · {formatVolume(other.volume24h)}</span>
+                      </span>
+                      <RowAction exchange={other} isRu={isRu} />
+                    </div>
+                  ))}
+                </div>
+              </section>
             )}
           </div>
-        </div>
-      </div>
-
-      <nav className="flex gap-1 border-b border-border mb-8 sticky top-14 md:top-[6.25rem] bg-background z-10 -mx-4 px-4 sm:-mx-6 sm:px-6 overflow-x-auto scrollbar-none">
-        {navLinks.map(l => (
-          <a key={l.id} href={`#${l.id}`} className="whitespace-nowrap shrink-0 px-3.5 py-3 text-sm font-semibold text-muted hover:text-foreground border-b-2 border-transparent hover:border-border transition-colors">
-            {isRu ? l.ru : l.en}
-          </a>
-        ))}
-      </nav>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_256px] gap-8 lg:gap-10">
-        <div className="flex flex-col gap-10 min-w-0">
-          {description && description.length > 0 && (
-            <section id="overview" className="scroll-mt-28">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Обзор' : 'Overview'}</h2>
-              <CollapsibleRichText value={description} fallbackAlt={name} locale={locale} />
-            </section>
-          )}
-
-          {exchange.regions && exchange.regions.length > 0 && (
-            <section id="regulation" className="scroll-mt-28">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Регулирование и доступность' : 'Regulation & Availability'}</h2>
-              <ExchangeRegions regions={exchange.regions} locale={locale} />
-            </section>
-          )}
-
-          {products && products.length > 0 && (
-            <section id="products" className="scroll-mt-28">
-              <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Продукты' : 'Products'}</h2>
-              <ExchangeProducts products={products} locale={locale} />
-            </section>
-          )}
-
-          <ExchangeNewsSection exchangeName={name} slug={slug} mentions={mentions} locale={locale} />
-
-          <section id="reviews" className="scroll-mt-28">
-            <h2 className="text-lg font-bold text-foreground mb-3">{isRu ? 'Отзывы' : 'Reviews'}</h2>
-            <ExchangeReviewSection exchangeId={exchange._id} locale={locale} initialReviews={reviews} initialAverage={reviewSummary.average} />
-          </section>
         </div>
 
         <PopularSidebar locale={locale} limit={7} />
       </div>
+
+      {tradeHref && (
+        <VenueMobileBar
+          name={name}
+          note={[rank ? (isRu ? `#${rank} по обороту` : `#${rank} by volume`) : null, licence?.text].filter(Boolean).join(' · ')}
+          href={tradeHref}
+          color={color}
+          label={isRu ? 'Торговать' : 'Trade'}
+        />
+      )}
     </div>
   );
 }

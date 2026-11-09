@@ -31,6 +31,14 @@ export function licenceLabel(exchange: ExchangeRaw, short = false): string | nul
   return short ? full.split(' ')[0] : full;
 }
 
+/** Лицензия для паспорта, на языке страницы и с страной: «MiCA (Австрия)». */
+export function passportLicence(exchange: ExchangeRaw, isRu: boolean): { text: string; href: string | null } | null {
+  const badge = exchange.badges?.find(b => b.tone === 'license');
+  const raw = (isRu ? badge?.textRu : badge?.textEn) ?? '';
+  const text = raw.replace(/^Лицензия\s+/i, '').replace(/\s*licen[cs]e\b/i, '').trim();
+  return text ? { text, href: badge?.link ?? null } : null;
+}
+
 /** Предупреждение из плашек, когда лицензии нет: например «Ограничена в ЕС». */
 export function restrictionLabel(exchange: ExchangeRaw, isRu: boolean): string | null {
   const badge = exchange.badges?.find(b => b.tone === 'warn');
