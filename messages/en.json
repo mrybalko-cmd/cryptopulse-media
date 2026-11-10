@@ -75,7 +75,7 @@
     "toTop": "Back to top",
     "rss": "RSS feed",
     "email": "Email us",
-    "terms": "Using our data"
+    "terms": "Terms of Service"
   },
   "legal": {
     "privacyTitle": "Privacy Policy",
@@ -84,7 +84,7 @@
     "editorialPolicyTitle": "Editorial Policy",
     "securityTitle": "Security: How to Avoid Scams",
     "lastUpdated": "Last updated",
-    "termsTitle": "Our data and how to use it"
+    "termsTitle": "Terms of Service"
   },
   "ticker": {
     "loading": "Loading prices..."
