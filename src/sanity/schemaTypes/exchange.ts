@@ -358,19 +358,7 @@ const EXCHANGE_ONLY_FIELDS = new Set(['coingeckoId', 'type', 'volume24h', 'volum
 
 // Брокер отдельным типом: старые запросы по "exchange" его не видят, поэтому он
 // не может попасть в рейтинг бирж по обороту. Общие поля те же, форма в админке одна.
-export const brokerType = defineType({
-  name: 'broker',
-  title: 'Брокер / Broker',
-  type: 'document',
-  groups: [
-    { name: 'main', title: 'Основное' },
-    { name: 'content', title: 'Описание' },
-    { name: 'regulation', title: 'Регуляция и условия' },
-    { name: 'placements', title: 'Размещения и кнопки' },
-    { name: 'seo', title: 'SEO' },
-  ],
-  fields: [
-    ...exchangeType.fields.filter(field => !EXCHANGE_ONLY_FIELDS.has(field.name)),
+const BROKER_OWN_FIELDS = [
     defineField({
       name: 'regulators',
       title: 'Регуляция',
@@ -404,6 +392,30 @@ export const brokerType = defineType({
       defineField({ name: `${field.key}Ru`, title: `${field.label}, RU`, type: 'string', group: 'regulation' }),
       defineField({ name: `${field.key}En`, title: `${field.label}, EN`, type: 'string', group: 'regulation' }),
     ]),
+];
+
+// Свои поля брокера сильнее унаследованных. Паспорт биржи (09.11.2026) принёс
+// verifiedAt, funding* и available* — те же имена, что у брокера, и Studio
+// падала с «Found 2 fields with name …». Унаследованное с таким именем отбрасываем.
+const BROKER_OWN_NAMES = new Set<string>(BROKER_OWN_FIELDS.map(field => field.name));
+
+export const brokerType = defineType({
+  name: 'broker',
+  title: 'Брокер / Broker',
+  type: 'document',
+  groups: [
+    { name: 'main', title: 'Основное' },
+    { name: 'content', title: 'Описание' },
+    { name: 'regulation', title: 'Регуляция и условия' },
+    { name: 'placements', title: 'Размещения и кнопки' },
+    // Унаследованные поля паспорта биржи (монеты, фиат, комиссия, KYC, резервы)
+    // стоят в группе trust; без неё у брокера они висели вне вкладок.
+    { name: 'trust', title: 'Паспорт' },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    ...exchangeType.fields.filter(field => !EXCHANGE_ONLY_FIELDS.has(field.name) && !BROKER_OWN_NAMES.has(field.name)),
+    ...BROKER_OWN_FIELDS,
   ],
   preview: { select: { title: 'name', media: 'logo' } },
 });

@@ -56,7 +56,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    robots: broker.seo?.noIndex ? { index: false, follow: true } : undefined,
+    // Без noindex ключ не ставим вовсе: `robots: undefined` затирал общий тег
+    // из layout (max-image-preview:large и др.), и страница выходила без robots.
+    ...(broker.seo?.noIndex && { robots: { index: false, follow: true } }),
     openGraph: buildOg({ url: `${BASE}/${locale}/brokers/${slug}`, title, description, locale, image: broker.logo || undefined }),
     twitter: buildTwitter({ url: `${BASE}/${locale}/brokers/${slug}`, title, description, locale, image: broker.logo || undefined }),
     alternates: {
